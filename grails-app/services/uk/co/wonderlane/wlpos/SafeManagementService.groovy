@@ -446,6 +446,7 @@ class SafeManagementService extends MySqlPoolDal {
                 safeSession.finalisedTime = commonService.convertDateTimeToString(DateTime.now())
                 safeSession.finalisedUserId = loggedInUser.getId()
                 safeSession.finalisedUsername = loggedInUser.getUsername()
+                safeSession.finalisedUsersRealName = loggedInUser.getName()
             }
         }
     }
