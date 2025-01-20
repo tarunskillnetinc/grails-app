@@ -14,12 +14,13 @@
         addNumericMaskLogic();
     });
 
+
     function addNumericMaskLogic() {
         $('.numeric-mask').maskMoney({
             allowZero: true,
+            allowEmpty: true,
             prefix: '',
             allowNegative: false,
-            thousands: ',',
             decimal: '.',
             affixesStay: true,
             precision: 2,
@@ -68,12 +69,6 @@
 
             let value = $(this).val();
 
-            // Allow 0 to remain as a valid input
-            if (value === '0' || value === '0.00') {
-                $(this).val('0'); // Ensure it is formatted correctly
-                return;
-            }
-
             // If value is empty, allow it
             if (!value) {
                 $(this).val(''); // Leave empty
@@ -120,8 +115,12 @@
                 <g:hiddenField id="productAttributeValues[${index}].productAttributeId" name="productAttributeValues[${index}].productAttributeId" value="${attributeValue?.productAttributes?.id }" />
                 <g:hiddenField id="productAttributeValues[${index}].attributeName" name="productAttributeValues[${index}].attributeName" value="${attributeValue?.productAttributes?.name }" />
                 <g:hiddenField id="productAttributeValues[${index}].attributeType" name="productAttributeValues[${index}].attributeType" value="${attributeValue?.productAttributes?.type }" />
-                <div class="col-4 text-right pr-4">
-                    <label for="attribute_${attributeValue?.productAttributeId}" class="col-form-label wl-label" style="white-space: nowrap; display: inline-block; max-width: 100%;">${attributeValue?.productAttributes?.name}</label>
+                <div class="col-5 text-right">
+                    <label for="attribute_${attributeValue?.productAttributeId}"
+                           class="col-form-label wl-label"
+                           style="white-space: normal; text-align: right; display: inline-block; word-break: break-word; overflow-wrap: anywhere;max-width: 100%; min-width: 100%;">
+                        ${attributeValue?.productAttributes?.name}
+                    </label>
                 </div>
 
                 <div class="col-6">
