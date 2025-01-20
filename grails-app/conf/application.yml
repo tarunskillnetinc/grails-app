@@ -148,7 +148,7 @@ environments:
             reporting:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/zagreus-reporting"
+                url: "jdbc:mysql://localhost:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -162,7 +162,7 @@ environments:
             reportingReadOnly:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/zagreus-reporting"
+                url: "jdbc:mysql://localhost:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -173,7 +173,7 @@ environments:
             transactions:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/zagreus-transactions"
+                url: "jdbc:mysql://localhost:3306/transactions"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -187,7 +187,7 @@ environments:
             loyalty:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/zagreus-loyalty"
+                url: "jdbc:mysql://localhost:3306/loyalty"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
