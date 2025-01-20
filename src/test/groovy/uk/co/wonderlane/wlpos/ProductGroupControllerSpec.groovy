@@ -20,13 +20,13 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
     //-------------------------------index function Unit tests----------------------------//
 
-    void "should retrieve tags on index"() {
+    void "should retrieve productGroups on index"() {
         given:
-        List<ProductGroup> tags = new ArrayList<>()
-        tags.add(new ProductGroup(id: 1))
-        tags.add(new ProductGroup(id: 2))
+        List<ProductGroup> productGroups = new ArrayList<>()
+        productGroups.add(new ProductGroup(id: 1))
+        productGroups.add(new ProductGroup(id: 2))
         controller.productGroupService = Stub(ProductGroupService) {
-            getProductGroups() >> tags
+            getProductGroups() >> productGroups
         }
 
         when: 'index action is executed'
@@ -34,12 +34,12 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
         then: 'index action response is correct'
         response.status == HttpStatus.OK.value()
-        controllerResponse.tags != null
+        controllerResponse.productGroups != null
     }
 
     //-------------------------------show function Unit tests----------------------------//
 
-    void "should flash error and redirect to index page if tag not found on show action"() {
+    void "should flash error and redirect to index page if Product Group not found on show action"() {
         given:
         controller.productGroupService = Stub(ProductGroupService) {
             getProductGroup(_) >> null
@@ -51,11 +51,11 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         then: 'show action response is correct'
         response.status == HttpStatus.FOUND.value()
         response.redirectUrl == "/productGroup/index"
-        controller.flash.error == "Tag not found."
+        controller.flash.error == "Product Group not found."
         controllerResponse == null
     }
 
-    void "should return the tag with product variant id and product description on show action"() {
+    void "should return the productgroup with product variant id and product description on show action"() {
         given:
         ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
         productGroupProduct.save()
@@ -72,8 +72,8 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
         then: 'show action response is correct'
         response.status == HttpStatus.OK.value()
-        controllerResponse.tag != null
-        controllerResponse.tag.tagProducts[0] != null
+        controllerResponse.productGroup != null
+        controllerResponse.productGroup.productGroupProducts[0] != null
 
         where:
         ID | products
@@ -83,30 +83,30 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         2  | List.of(new ProductVariant(sku: 100))
     }
 
-    //-------------------------------ajaxGetTags function Unit tests----------------------------//
+    //-------------------------------ajaxGetProductGroups function Unit tests----------------------------//
 
-    class FakeTagSearchResultList<T> extends ArrayList<T> {
+    class FakeProductGroupSearchResultList<T> extends ArrayList<T> {
         public int totalCount = 0
     }
 
-    void "should return tags when ajaxGetTags action called"() {
+    void "should return productgroups when ajaxGetProductGroups action called"() {
         given:
-        FakeTagSearchResultList<ProductGroup> tags = new FakeTagSearchResultList<>()
+        FakeProductGroupSearchResultList<ProductGroup> productGroups = new FakeProductGroupSearchResultList<>()
         ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
         productGroupProduct.save()
-        tags.add(new ProductGroup(id: 1, productGroupProducts: Set.of(productGroupProduct)))
-        tags.properties.put("totalCount", 1)
+        productGroups.add(new ProductGroup(id: 1, productGroupProducts: Set.of(productGroupProduct)))
+        productGroups.properties.put("totalCount", 1)
         controller.productGroupService = Stub(ProductGroupService) {
-            getProductGroups(_) >> tags
+            getProductGroups(_) >> productGroups
         }
 
-        when: 'ajaxGetTags action is executed'
-        controller.ajaxGetProductGroups("search term")
+        when: 'ajaxGetProductGroups action is executed'
+        controller.ajaxGetProductGroups("search term", "everything")
 
-        then: 'ajaxGetTags action response is correct'
+        then: 'ajaxGetProductGroups action response is correct'
         response.status == HttpStatus.OK.value()
         model != null
-        model.tags != null
+        model.productGroups != null
         model.searchTerm != null
     }
 
@@ -124,7 +124,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
     //-------------------------------edit function Unit tests----------------------------//
 
-    void "should flash error and redirect to index page if tag not found on edit action"() {
+    void "should flash error and redirect to index page if Product Group not found on edit action"() {
         given:
         controller.productGroupService = Stub(ProductGroupService) {
             getProductGroup(_) >> null
@@ -136,11 +136,11 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         then: 'edit action response is correct'
         response.status == HttpStatus.FOUND.value()
         response.redirectUrl == "/productGroup/index"
-        controller.flash.error == "Tag not found."
+        controller.flash.error == "Product Group not found."
         controllerResponse == null
     }
 
-    void "should return the tag with product variant id and product description on edit action"() {
+    void "should return the productgroups with product variant id and product description on edit action"() {
         given:
         ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
         productGroupProduct.save()
@@ -158,7 +158,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         then: 'edit action response is correct'
         response.status == HttpStatus.OK.value()
         view == "/productGroup/add"
-        model.tag.tagProducts[0] != null
+        model.productGroup.productGroupProducts[0] != null
 
         where:
         ID | products
@@ -178,12 +178,12 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
         then: 'ajaxAddProduct action response is correct'
         response.status == HttpStatus.OK.value()
-        model.tagProduct != null
+        model.productGroupProduct != null
     }
 
     //-------------------------------save function Unit tests----------------------------//
 
-    void "should flash error when tag is not found"() {
+    void "should flash error when productgroup is not found"() {
         given:
         controller.productGroupService = Stub(ProductGroupService) {
             getProductGroup(_) >> null
@@ -196,10 +196,10 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
         then: 'save action response is correct'
         response.status == HttpStatus.OK.value()
-        controller.flash.error == "Tag not found."
+        controller.flash.error == "Product Group not found."
     }
 
-    void "save tags correctly on valid input and valid tag details - happy path"() {
+    void "save ProductGroups correctly on valid input and valid product group details - happy path"() {
         given:
         ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
         ProductGroupProduct productGroupProductNotIncl = new ProductGroupProduct(sku: 300)
@@ -233,7 +233,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
         then: 'save action response is correct'
         response.status == HttpStatus.FOUND.value()
-        controller.flash.message == "Tag saved successfully."
+        controller.flash.message == "Product Group saved successfully."
     }
 
     void "create new productgroup and save productgroups correctly on valid input and valid productgroup details - happy path"() {
@@ -255,10 +255,10 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
         then: 'save action response is correct'
         response.status == HttpStatus.FOUND.value()
-        controller.flash.message == "Tag saved successfully."
+        controller.flash.message == "Product Group saved successfully."
     }
 
-    void "save tags correctly on valid input and valid tag and rabbit service error - partial error path"() {
+    void "save ProductGroups correctly on valid input and valid product group and rabbit service error - partial error path"() {
         given:
         ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
         Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
@@ -287,7 +287,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
         then: 'save action response is correct'
         response.status == HttpStatus.FOUND.value()
-        controller.flash.message == "Tag saved successfully."
+        controller.flash.message == "Product Group saved successfully."
     }
 
     void "return validation error messages on validation error is found - error path"() {

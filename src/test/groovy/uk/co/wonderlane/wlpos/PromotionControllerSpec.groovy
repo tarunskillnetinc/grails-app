@@ -1218,7 +1218,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
 
     //-------------------------------tagSearch function Unit tests----------------------------//
 
-    void "should retrieve tag search results"() {
+    void "should retrieve Product Group search results"() {
         given:
         controller.springSecurityService = getFakeSpringSecurityService()
         params.searchTerm = "Test"
@@ -1227,12 +1227,12 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         testTag.setId(150)
         testTag.save(flush: true, failOnError: true)
 
-        when: 'tagSearch action is executed'
+        when: 'productGroupSearch action is executed'
         controller.tagSearch()
 
-        then: 'tagSearch action response is correct'
+        then: 'productGroupSearch action response is correct'
         response.status == HttpStatus.OK.value()
-        model.tags != null
+        model.productGroups != null
         model.storeId != null
         model.totalResults == 1
     }

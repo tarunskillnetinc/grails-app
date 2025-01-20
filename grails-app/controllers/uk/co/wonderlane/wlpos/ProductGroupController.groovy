@@ -22,7 +22,7 @@ class ProductGroupController {
         def productGroup = productGroupService.getProductGroup(id)
 
         if (!productGroup) {
-            flash.error = "Tag not found."
+            flash.error = "Product Group not found."
             redirect(action: "index")
             return
         }
@@ -55,7 +55,7 @@ class ProductGroupController {
         def productGroup = productGroupService.getProductGroup(id)
 
         if (!productGroup) {
-            flash.error = "Tag not found."
+            flash.error = "Product Group not found."
             redirect(action: "index")
             return
         }
@@ -88,7 +88,7 @@ class ProductGroupController {
             productGroup = productGroupService.getProductGroup(cmd.id)
 
             if (!productGroup) {
-                flash.error = "Tag not found."
+                flash.error = "Product Group not found."
                 render (action: "index")
                 return
             }
