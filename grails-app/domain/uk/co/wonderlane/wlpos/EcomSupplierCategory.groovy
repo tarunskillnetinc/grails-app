@@ -26,4 +26,14 @@ class EcomSupplierCategory implements Serializable{
 
     static constraints = {
     }
+
+
+    public uk.co.wonderlane.wlpos.entities.EcomSupplierCategory getEcomSupplierCategory(){
+        uk.co.wonderlane.wlpos.entities.EcomSupplierCategory ecomSupplierCategory = new uk.co.wonderlane.wlpos.entities.EcomSupplierCategory()
+        ecomSupplierCategory.setId(id)
+        ecomSupplierCategory.setRetailerId(retailerId)
+        ecomSupplierCategory.setDescription(description)
+        ecomSupplierCategory.setDeleted(deleted)
+        return ecomSupplierCategory
+    }
 }

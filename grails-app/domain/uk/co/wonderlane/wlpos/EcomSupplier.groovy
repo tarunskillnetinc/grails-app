@@ -2,7 +2,8 @@ package uk.co.wonderlane.wlpos
 
 class EcomSupplier implements Serializable{
 
-    int retailerId
+    Integer id
+    Integer retailerId
     String name
     Boolean deleted = false
     Collection<EcomSupplierCategory> ecomSupplierCategories = new ArrayList<>()
@@ -24,5 +25,14 @@ class EcomSupplier implements Serializable{
 
 
     static constraints = {
+    }
+
+    public uk.co.wonderlane.wlpos.entities.EcomSupplier getEcomSupplier(){
+        uk.co.wonderlane.wlpos.entities.EcomSupplier ecomSupplier = new uk.co.wonderlane.wlpos.entities.EcomSupplier()
+        ecomSupplier.setId(id)
+        ecomSupplier.setRetailerId(retailerId)
+        ecomSupplier.setName(name)
+        ecomSupplier.setDeleted(deleted)
+        return ecomSupplier
     }
 }
