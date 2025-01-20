@@ -16,6 +16,7 @@
 
     function addNumericMaskLogic() {
         $('.numeric-mask').maskMoney({
+            allowZero: true,
             prefix: '',
             allowNegative: false,
             thousands: ',',
@@ -23,7 +24,6 @@
             affixesStay: true,
             precision: 2,
         });
-
 
         $('.numeric-mask').on('keydown', function (e) {
             // Allow navigation keys, backspace, delete, tab, enter, and arrow keys
@@ -37,6 +37,11 @@
             }
 
             let currentValue = $(this).val();
+
+            // Allow 0 as a valid starting value
+            if (currentValue === '0' && e.key === '0') {
+                return;
+            }
 
             // If empty, allow the user to input a new value
             if (!currentValue && e.key.match(/[0-9]/)) {
@@ -60,7 +65,14 @@
 
         // Ensure proper formatting on blur
         $('.numeric-mask').on('blur', function () {
+
             let value = $(this).val();
+
+            // Allow 0 to remain as a valid input
+            if (value === '0' || value === '0.00') {
+                $(this).val('0'); // Ensure it is formatted correctly
+                return;
+            }
 
             // If value is empty, allow it
             if (!value) {
@@ -137,6 +149,7 @@
                     <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.NUMERIC}">
                         <g:textField id="productAttributeValues[${index}].value"
                                  name="productAttributeValues[${index}].value"
+                                 min="0"
                                  max="999999.99"
                                  value="${attributeValue.value ? attributeValue.value : ''}"
                                  class="col-lg-12 form-control bottom-border numeric-mask"
