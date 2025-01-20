@@ -34,7 +34,7 @@
                 format: "dd/mm/yyyy",
                 weekStart: 1,
                 /* Allow up to a year in the past */
-                startDate: "${(new Date() - 365).format("dd/MM/yyyy")}",
+                startDate: "${(new Date() - 366).format("dd/MM/yyyy")}",
                 endDate: "${new Date().format("dd/MM/yyyy")}",
                 todayHighlight: true,
                 autoclose: true,
@@ -67,7 +67,7 @@
             $('#startDate').val("${new Date().format("dd/MM/yyyy")}");
             $('#endDate').val("${new Date().format("dd/MM/yyyy")}");
 
-            $('#startDate').datepicker('setStartDate', "${(new Date() - 365).format('dd/MM/yyyy')}");
+            $('#startDate').datepicker('setStartDate', "${(new Date() - 366).format('dd/MM/yyyy')}");
             $('#startDate').datepicker('setEndDate', "${new Date().format('dd/MM/yyyy')}");
 
             $('#endDate').datepicker('setStartDate', "${new Date().format('dd/MM/yyyy')}");

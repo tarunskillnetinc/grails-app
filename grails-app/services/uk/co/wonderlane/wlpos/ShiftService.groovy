@@ -755,24 +755,6 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    private void shiftCashTenderUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
-        updateTenderTotalForCashUpdate(shift, TenderType.CASH, cashAmount)
-        if (isAddFloat) {
-            updateTenderTotalForCashUpdate(shift, TenderType.VOUCHER, voucherAmount)
-        }
-    }
-
-    private void updateCashDrawer(Shift shift, BigDecimal cashAmount){
-        if (cashAmount != null){
-            BigDecimal currentCash = shift.getCashInDrawer();
-            if (currentCash == null) {
-                currentCash = BigDecimal.ZERO;
-            }
-            BigDecimal newCashAmount = currentCash.add(cashAmount);
-            shift.setCashInDrawer(newCashAmount);
-        }
-    }
-
     private void createNewTenderMovement(Location fromLocation, Location toLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
         if (updateAmount.compareTo(BigDecimal.ZERO) != 0) {
             try {
