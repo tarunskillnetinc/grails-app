@@ -16,7 +16,7 @@ class EposTagLib {
     def reportingService
     def buttonService
     def categoryService
-    def tagService
+    def productGroupService
     def productService
     def promotionService
     def imageService
@@ -495,10 +495,10 @@ class EposTagLib {
             def category = categoryService.getCategory(attrs.promotionGroup.categoryId)
 
             out << category?.description
-        } else if (attrs.promotionGroup.tagId) {
-            def tag = tagService.getTag(attrs.promotionGroup.tagId)
+        } else if (attrs.promotionGroup.productGroupId) {
+            def productGroup = productGroupService.getProductGroup(attrs.promotionGroup.productGroupId)
 
-            out << tag?.description
+            out << productGroup?.description
         }
     }
 

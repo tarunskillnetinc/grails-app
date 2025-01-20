@@ -30,7 +30,7 @@ class ProductController extends BaseController {
     def restrictionsService
     def supplierService
     def storeService
-    def tagService
+    def productGroupService
     def productHistoryService
 
     /**
@@ -185,19 +185,19 @@ class ProductController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def prices() {
         def categories = categoryService.getTopLevelCategories()
-        def tags = tagService.getTags()
+        def productGroups = productGroupService.getProductGroups()
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
-        [categories: categories, tags: tags, priceBands: priceBands]
+        [categories: categories, productGroups: productGroups, priceBands: priceBands]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def pricesSearch() {
         String searchTerm = params.searchTerm
         Integer categoryId = params.category ? Integer.parseInt(params.category) : null
-        Integer tagId = params.tag ? Integer.parseInt(params.tag) : null
+        Integer productGroupId = params.tag ? Integer.parseInt(params.tag) : null
 
-        def productPrices = productService.searchProductPrices(searchTerm, categoryId, tagId)
+        def productPrices = productService.searchProductPrices(searchTerm, categoryId, productGroupId)
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
         render(template: "pricesSearchResults", model: [productPrices: productPrices, priceBands: priceBands])
@@ -206,19 +206,19 @@ class ProductController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ranges() {
         def categories = categoryService.getTopLevelCategories()
-        def tags = tagService.getTags()
+        def productGroups = productGroupService.getProductGroups()
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
-        [categories: categories, tags: tags, ranges: ranges]
+        [categories: categories, productGroups: productGroups, ranges: ranges]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def rangesSearch() {
         String searchTerm = params.searchTerm
         Integer categoryId = params.category ? Integer.parseInt(params.category) : null
-        Integer tagId = params.tag ? Integer.parseInt(params.tag) : null
+        Integer productGroupId = params.productGroup ? Integer.parseInt(params.productGroup) : null
 
-        def rangeProducts = productService.searchRangeProducts(searchTerm, categoryId, tagId)
+        def rangeProducts = productService.searchRangeProducts(searchTerm, categoryId, productGroupId)
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
         render(template: "/product/rangesSearchResults", model: [rangeProducts: rangeProducts, ranges: ranges])

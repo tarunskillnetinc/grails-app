@@ -254,7 +254,8 @@
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
                             <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
                                 <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                    <g:link elementId="product-groups-dropdown" controller="tag" class="dropdown-item">Product Groups</g:link>
+                                    <g:link elementId="product-groups-dropdown" controller="productGroup"
+                                            class="dropdown-item">Product Groups</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
@@ -288,7 +289,8 @@
                                     <span id="product-configuration" class="dropdown-header">Product Configuration</span>
 
                                     <g:link elementId="category-maintenance-dropdown" controller="category" class="dropdown-item">Departments & Categories</g:link>
-                                    <g:link elementId="product-groups-dropdown" controller="tag" class="dropdown-item">Product Groups</g:link>
+                                    <g:link elementId="product-groups-dropdown" controller="productGroup"
+                                            class="dropdown-item">Product Groups</g:link>
                                     <g:link elementId="partner-category-dropdown" class="dropdown-item disabled">Partner Category Managment</g:link>
                                     <g:link elementId="retailer-product-attributes-dropdown" controller="productAttributes" class="dropdown-item" action="productAttributes">Retailer Product Attributes</g:link>
                                 </g:if>

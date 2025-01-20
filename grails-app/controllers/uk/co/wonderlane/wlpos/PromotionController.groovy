@@ -1,6 +1,6 @@
 package uk.co.wonderlane.wlpos
 
-import org.apache.commons.lang3.RegExUtils
+
 import grails.validation.Validateable
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -20,7 +20,7 @@ class PromotionController {
     def promotionService
     def storeService
     def categoryService
-    def tagService
+    def productGroupService
     def rabbitService
     def loyaltyService
     def gsonProvider
@@ -86,10 +86,10 @@ class PromotionController {
         render(view: "add", model: [promotion: promotion, promotionTypes: PromotionType.values(), canEdit: canEdit, loyaltyEnabled: loyaltyEnabled, associatedOffers: associatedOffers])
     }
 
-    def ajaxSearchTags(String searchTerm) {
-        def tags = tagService.getTags(searchTerm, "everything", params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
+    def ajaxSearchProductGroups(String searchTerm) {
+        def productGroups = productGroupService.getProductGroups(searchTerm, "everything", params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
 
-        render(template: "tagSearchResults", model: [tags: tags, searchTerm: searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: tags.totalCount])
+        render(template: "productGroupSearchResults", model: [productGroups: productGroups, searchTerm: searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: productGroups.totalCount])
     }
 
     def ajaxSearchCategories(String searchTerm, String searchBy) {
@@ -112,13 +112,13 @@ class PromotionController {
     }
 
     def ajaxGetTag(int id, String promotionType, String promotionGroupType, int groupId) {
-        def tag = tagService.getTag(id)
+        def tag = productGroupService.getProductGroup(id)
 
         def (showQuantityField, showValueField) = getQuantityAndValueFieldVisibility(PromotionType.valueOf(promotionType))
 
         PromotionGroupCommand promotionGroup = new PromotionGroupCommand()
         promotionGroup.type = PromotionGroupType.valueOf(promotionGroupType.toUpperCase())
-        promotionGroup.tagId = id
+        promotionGroup.productGroupId = id
 
         render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: tag.description, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
     }
@@ -198,7 +198,7 @@ class PromotionController {
             }
 
             if (promotion.type == PromotionType.BOGOF) {
-                // For BOGOFs the user only selects a single item/category/tag which creates an OFFER group. We need to also add a matching REQUIRED group.
+                // For BOGOFs the user only selects a single item/category/productGroup which creates an OFFER group. We need to also add a matching REQUIRED group.
                 promotionCommand.requiredGroups?.clear()
 
                 promotionCommand.offerGroups?.each {
@@ -206,7 +206,7 @@ class PromotionController {
                     pgc.type = PromotionGroupType.REQUIRED
                     pgc.sku = it.sku
                     pgc.categoryId = it.categoryId
-                    pgc.tagId = it.tagId
+                    pgc.productGroupId = it.productGroupId
                     pgc.requiredQuantity = it.requiredQuantity
                     pgc.requiredValue = it.requiredValue
 
@@ -285,7 +285,7 @@ class PromotionController {
         List<uk.co.wonderlane.wlpos.entities.PromotionGroup> tagGroups = new ArrayList<>();
         for (uk.co.wonderlane.wlpos.entities.PromotionGroup offerGroup : tillPromo.getPromotionOfferGroups()) {
             if (offerGroup.getTagId() != null) {
-                for (TagProduct tagProduct : Tag.findByIdAndRetailerId(offerGroup.tagId, springSecurityService.principal.retailerId).tagProducts) {
+                for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(offerGroup.tagId, springSecurityService.principal.retailerId).productGroupProducts) {
                     uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
                     promotionGroup.setId(offerGroup.getId())
                     promotionGroup.setPromotionId(offerGroup.getPromotionId())
@@ -293,8 +293,8 @@ class PromotionController {
                     promotionGroup.setType(offerGroup.getType())
                     promotionGroup.setRequiredQuantity(offerGroup.getRequiredQuantity())
                     promotionGroup.setExcessQuantity(offerGroup.isExcessQuantity())
-                    promotionGroup.setTagId(offerGroup.getTagId())
-                    promotionGroup.setSku(tagProduct.sku)
+                    promotionGroup.setProductGroupId(offerGroup.getTagId())
+                    promotionGroup.setSku(productGroupProduct.sku)
 
                     tagGroups.add(promotionGroup)
                 }
@@ -306,7 +306,7 @@ class PromotionController {
 
         for (uk.co.wonderlane.wlpos.entities.PromotionGroup requiredGroup : tillPromo.getPromotionRequiredGroups()) {
             if (requiredGroup.getTagId() != null) {
-                for (TagProduct tagProduct : Tag.findByIdAndRetailerId(requiredGroup.tagId, springSecurityService.principal.retailerId).tagProducts) {
+                for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(requiredGroup.tagId, springSecurityService.principal.retailerId).productGroupProducts) {
                     uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
                     promotionGroup.setId(requiredGroup.getId())
                     promotionGroup.setPromotionId(requiredGroup.getPromotionId())
@@ -314,8 +314,8 @@ class PromotionController {
                     promotionGroup.setType(requiredGroup.getType())
                     promotionGroup.setRequiredQuantity(requiredGroup.getRequiredQuantity())
                     promotionGroup.setExcessQuantity(requiredGroup.isExcessQuantity())
-                    promotionGroup.setTagId(requiredGroup.getTagId())
-                    promotionGroup.setSku(tagProduct.sku)
+                    promotionGroup.setProductGroupId(requiredGroup.getTagId())
+                    promotionGroup.setSku(productGroupProduct.sku)
 
                     tagGroups.add(promotionGroup)
                 }
@@ -395,11 +395,11 @@ class PromotionController {
         render(template: "/promotion/categorySearchResults", model: [categories: categories, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
     }
 
-    def tagSearch() {
-        def tags = Tag.findAllByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false, [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
-        def totalResults = Tag.countByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false)
+    def productGroupSearch() {
+        def productGroups = ProductGroup.findAllByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false, [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
+        def totalResults = ProductGroup.countByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false)
 
-        render(template: "/promotion/tagSearchResults", model: [tags: tags, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
+        render(template: "/promotion/productGroupSearchResults", model: [productGroups: productGroups, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
     }
 
     def promotionSearch() {
@@ -485,6 +485,7 @@ class PromotionController {
                     : []
         } catch (Exception e) {
             log.error(e.message)
+            e.printStackTrace()
             promotionsError = true
         }
 
@@ -710,7 +711,7 @@ class PromotionGroupCommand implements Validateable {
     PromotionGroupType type
     Long sku
     Integer categoryId
-    Integer tagId
+    Integer productGroupId
     Integer requiredQuantity
     BigDecimal requiredValue
 
@@ -718,12 +719,12 @@ class PromotionGroupCommand implements Validateable {
         id nullable: true
         type nullable: false
         sku nullable: true, validator: { val, obj ->
-            val != null || !(obj.categoryId == null && obj.tagId == null)
+            val != null || !(obj.categoryId == null && obj.productGroupId == null)
         }
         categoryId nullable: true, validator: { val, obj ->
-            val != null || !(obj.sku == null && obj.tagId == null)
+            val != null || !(obj.sku == null && obj.productGroupId == null)
         }
-        tagId nullable: true, validator: { val, obj ->
+        productGroupId nullable: true, validator: { val, obj ->
             val != null || !(obj.sku == null && obj.categoryId == null)
         }
         requiredQuantity nullable: true, range:1..999999999
