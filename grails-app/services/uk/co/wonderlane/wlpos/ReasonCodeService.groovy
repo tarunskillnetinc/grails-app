@@ -28,6 +28,10 @@ class ReasonCodeService {
         return ReasonCode.findByRetailerIdAndCodeAndAdditionalFunctionalityAndIdNotEqual(retailerId, code, additionalFunctionality, id)
     }
 
+    ReasonCode findByTypeAndCode(int retailerId, ReasonCodeType type, String code) {
+        return ReasonCode.findByRetailerIdAndTypeAndCode(retailerId, type, code)
+    }
+
     boolean isLastOfType(int retailerId, ReasonCodeType type) {
         return ReasonCode.countByRetailerIdAndTypeAndDeleted(retailerId, type, false) <= 1
     }

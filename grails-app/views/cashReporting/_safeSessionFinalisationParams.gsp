@@ -14,10 +14,10 @@
                                       disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
                         </div>
 
-                        <label for="tillIdSelect" class="col-2 col-form-label-sm text-right">Till ID:</label>
+                        <label for="safeIdSelect" class="col-2 col-form-label-sm text-right">Safe ID:</label>
                         <div class="col-4">
-                            <g:select id="tillIdSelect" name="tillIdSelect" from="${tills}" optionValue="${{it.tillId}}"
-                                      optionKey="${{it.tillId}}"
+                            <g:select id="safeIdSelect" name="safeIdSelect" from="${safes}" optionValue="${{it.selectionText}}"
+                                      optionKey="${{it.id}}"
                                       noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': 'Please Select'] : ['': '-']}"
                                       class="form-control select-border text-truncate"
                                       disabled="${sec.loggedInUserInfo(field: 'storeId') ? false : true}"></g:select>
@@ -37,9 +37,9 @@
                     </div>
 
                     <div class="row col-xl-3 col-12 mb-4">
-                        <label for="shiftNumberSelect" class="col-xl-5 col-2 col-form-label-sm text-right">Shift no.:</label>
+                        <label for="safeSessionSelect" class="col-xl-5 col-2 col-form-label-sm text-right">Session no.:</label>
                         <div class="col-xl-7 col-4">
-                            <g:select id="shiftNumberSelect" name="shiftNumberSelect" from="${shiftNumbers}" optionValue="${{it.config.storeNumber}}" optionKey="id"
+                            <g:select id="safeSessionSelect" name="safeSessionSelect" from="${safeSessions}" optionValue="${{it.sessionNumber}}" optionKey="id"
                                       noSelection="['': '-']"
                                       class="form-control select-border text-truncate"
                                       disabled="true"></g:select>

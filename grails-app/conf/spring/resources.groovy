@@ -227,6 +227,7 @@ beans = {
         messageSource = ref('messageSource')
         rabbitService = ref('rabbitService')
         locationService = ref('locationService')
+        storeService = ref('storeService')
     }
 
 
