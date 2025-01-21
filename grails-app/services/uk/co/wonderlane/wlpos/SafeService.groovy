@@ -101,6 +101,15 @@ class SafeService {
         }
     }
 
+    List<Safe> getSafesForStore(Integer storeId) {
+        return Safe.withCriteria {
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("storeId", storeId)
+            order("active", "desc")
+            order("description")
+        }
+    }
+
     List<Safe> getStoreSafes() {
         return Safe.withCriteria {
             eq("retailerId", springSecurityService.principal.retailerId)
@@ -125,7 +134,7 @@ class SafeService {
         return saveSafe(safe)
     }
 
-    def getSafeById(Integer id){
+    def getSafeById(int id){
         return Safe.findById(id)
     }
 

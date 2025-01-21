@@ -32,6 +32,10 @@ class ReasonCodeService {
         return ReasonCode.findByRetailerIdAndTypeAndCode(retailerId, type, code)
     }
 
+    List<ReasonCode> findReasonCodesByIds(List<Integer> id) {
+        return ReasonCode.findAllByIdInList(id)
+    }
+
     boolean isLastOfType(int retailerId, ReasonCodeType type) {
         return ReasonCode.countByRetailerIdAndTypeAndDeleted(retailerId, type, false) <= 1
     }

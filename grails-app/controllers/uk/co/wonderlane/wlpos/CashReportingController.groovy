@@ -15,9 +15,11 @@ import uk.co.wonderlane.wlpos.enums.TenderType
 class CashReportingController {
 
     def cashReportingService
-    def storeService
-    def safeService
+    def financialWeekService
     def reasonCodeService
+    def safeService
+    def safeSessionService
+    def storeService
     def tillAssignmentService
     def springSecurityService
 
@@ -195,5 +197,73 @@ class CashReportingController {
         } catch (Exception ignored) {
             return dateTime
         }
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def safeSessionVariance() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        def stores = []
+        def safes = null
+
+        if (springSecurityService.principal.storeId) {
+            stores = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            safes = safeService.getSafesForStore(springSecurityService.principal.storeId)
+        } else {
+            stores = storeService.getStores(springSecurityService.principal.retailerId)
+        }
+
+        [startDate: startDate, endDate: endDate, stores: stores, safes: safes]
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def ajaxGetSafeListForStore(Integer storeNumber) {
+        def storeId = storeService.getStoreIdByStoreNumber(storeNumber)
+        def safes = safeService.getSafesForStore(storeId)
+
+        def safeEntries = safes.collect { safe ->
+           [id: safe.id, description: safe.description, active: safe.active]
+        }
+
+        render(status: 200, contentType: 'application/json', text: JsonOutput.toJson([options: safeEntries]))
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def ajaxGetSafeSessionVarianceReport(Integer storeNumber, String selectedSafes, String startDate, String endDate) {
+        def safes = null
+        def store = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, storeNumber)
+
+        if (selectedSafes != null && selectedSafes.length() > 0) {
+            def splitSafes = selectedSafes.split(',')
+            safes = splitSafes.collect { it.trim() }
+        }
+
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime start = startDate ? DateTime.parse(startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime end = endDate ? DateTime.parse(endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        /*  Get all safes for the store */
+        def storeSafes = safeService.getSafesForStore(store.id)
+        def safesMap = storeSafes.collectEntries { [(it.id): it.description] }
+
+        /* Get all safe sessions for the store in the selected time period */
+        def safeSessions = safeSessionService.getSafeSessions(store.id, start, end, "safeId", "asc")
+        def sessions = safeSessions.collect { it.getSafeSession() }
+
+        /* Filter out safe sessions for safes that are not of interest */
+        def filterMap = safesMap.findAll { entry -> safes.contains(entry.value) }
+        def filteredSessions = sessions.findAll { obj -> filterMap.containsKey(obj.safeId) }
+
+        def varianceReasons = filteredSessions.collectMany { session -> session.reconciliationTotals*.varianceReason}.findAll { it != null }.collect { it as Integer }
+
+        def reasonMap = null
+        if (varianceReasons.size() > 0) {
+            def reasons = reasonCodeService.findReasonCodesByIds(varianceReasons);
+            reasonMap = reasons.collectEntries { [(it.id): it.description] }
+        }
+
+        render(status: filteredSessions ? 200 : 204, template: "safeSessionVarianceReport", model: [store: store, safeSessions: filteredSessions, startDate: startDate, endDate: endDate, safes: safesMap, reasonCodes: reasonMap])
     }
 }
