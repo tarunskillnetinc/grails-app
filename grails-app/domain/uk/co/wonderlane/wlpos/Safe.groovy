@@ -84,6 +84,14 @@ class Safe {
         dateModified column: 'dateModified'
     }
 
+    String getSelectionText() {
+        if (active) {
+            description
+        } else {
+            description + " (inactive)"
+        }
+    }
+
     public uk.co.wonderlane.wlpos.entities.Safe getSafe() {
         uk.co.wonderlane.wlpos.entities.Safe safe = new uk.co.wonderlane.wlpos.entities.Safe()
 

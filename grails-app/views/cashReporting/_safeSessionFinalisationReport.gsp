@@ -2,33 +2,33 @@
     <table class="table">
         <thead class="bg-light">
             <tr>
-                <th id="reportData_header" scope="col" colspan="4" class="border">Till Finalised Report</th>
+                <th id="reportData_header" scope="col" colspan="4" class="border">Safe Finalised Report</th>
             </tr>
         </thead>
         <tbody>
             <tr class="border font-weight-bold">
                 <td>Store ID & Name</td>
-                <td id="reportData_store">${storeText}</td>
-                <td></td>
-                <td id="reportData_till">Till No: ${shift.tillId}</td>
+                <td colspan="3" id="reportData_store">${storeText}</td>
             </tr>
             <tr>
                 <td class="border font-weight-bold">Financial Week</td>
-                <td id="reportData_financialWeek" class="border">${shift.financialWeek?.weekNumber?: 'n/a'}</td>
-                <td class="border font-weight-bold">Shift No.:</td>
-                <td id="reportData_shiftNumber" class="border">${shift.shiftNumber}</td>
+                <td id="reportData_financialWeek" class="border">${safeSession.financialWeek?.weekNumber?: 'n/a'}</td>
+                <td class="border font-weight-bold">Session No.:</td>
+                <td id="reportData_sessionNumber" class="border">${safeSession.sessionNumber}</td>
             </tr>
             <tr>
-                <td class="border font-weight-bold">Shift Open Date & Time:</td>
-                <td id="reportData_shiftOpenTime" class="border">${shift.shiftOpenTime}</td>
-                <td class="border font-weight-bold">Shift Close Date & Time:</td>
-                <td id="reportData_shiftCloseTime" class="border">${shift.shiftCloseTime}</td>
+                <td class="border font-weight-bold">Session Open Date & Time:</td>
+                <td id="reportData_sessionOpenTime" class="border">${safeSession.openTime}</td>
+                <td class="border font-weight-bold">Counted Date & Time:</td>
+                <td id="reportData_sessionCountedTime" class="border">
+                    ${(safeSession.reReconciledDate?: safeSession.reconciledDate)?.toString("dd/MM/yyyy HH:mm")}
+                </td>
             </tr>
             <tr>
-                <td class="border font-weight-bold">Safe</td>
-                <td id="reportData_safe" class="border">${shift.finalisedSafeDescription} - ${shift.finalisedSafeId}</td>
+                <td class="border font-weight-bold">Safe:</td>
+                <td id="reportData_safe" class="border">${safeText}</td>
                 <td class="border font-weight-bold">Finalised By:</td>
-                <td id="reportData_user" class="border">${shift.finalisedUsersRealName} - ${shift.finalisedUserName}</td>
+                <td id="reportData_user" class="border">${safeSession.finalisedUsersRealName} - ${safeSession.finalisedUsername}</td>
             </tr>
         </tbody>
     </table>

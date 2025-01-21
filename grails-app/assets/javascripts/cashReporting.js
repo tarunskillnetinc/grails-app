@@ -27,7 +27,7 @@ function updateSelectionOptions(select, url, data) {
                 if (options && options.length > 0) {
                     select.appendChild(new Option('Please Select', ''));
                     options.forEach(function (option) {
-                        select.appendChild(new Option(option, option));
+                        select.appendChild(new Option(option.text, option.value));
                     });
                     select.removeAttribute("disabled");
                 } else {
