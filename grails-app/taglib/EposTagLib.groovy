@@ -542,6 +542,35 @@ class EposTagLib {
             out << '</div>'
         }
     }
+
+    /**
+     * Renders categories recursively.
+     * @attr category The top-level category object.
+     */
+    def renderCategory = { attrs ->
+        Category category = attrs.category
+        if (!category) return
+
+        // Render each child category starting with the top-level category
+        renderCategoryWithPrefix(category, category.description)
+    }
+
+    /**
+     * Recursive method to render categories with their full hierarchy.
+     */
+    private void renderCategoryWithPrefix(Category category, String prefix) {
+        if (!category.childCategories || category.childCategories.isEmpty()) {
+            // Render the category without children
+            out << prefix << "<br/>"
+            return
+        }
+
+        // Render each child category
+        category.childCategories.each { child ->
+            def newPrefix = "${prefix} -> ${child.description}"
+            renderCategoryWithPrefix(child, newPrefix)
+        }
+    }
     
     private static String getLocationField(String field) {
         def formattedFieldArray = field?.split("(?=\\p{Upper})")

@@ -68,7 +68,7 @@
 </section>
 
 <section class="mt-5">
-    <g:form method="post" action="saveSafe" class="mt-4" name="safeDetails">
+    <g:form method="post" action="savePartnerCategory" class="mt-4" name="partner-category-form">
         <g:hiddenField id="isUpdate" name="isUpdate" value="${isUpdate}"/>
 
         <div class="container">
@@ -81,8 +81,10 @@
                                    style="width: 120px; text-align: right;">Partner Name</label>
 
                             <div class="flex-grow-1">
-                                <g:select name="partnerNameFilter"
+                                <g:select name="partnerName"
                                           from="${ecomSupplierList}"
+                                          optionKey="id"
+                                          optionValue="name"
                                           value="${ecomSupplierCategory?.ecomSupplier?.name}"
                                           class="form-control select-border"></g:select>
                             </div>
@@ -96,7 +98,7 @@
                                    style="width: 120px; text-align: right;">Partner Category Name</label>
 
                             <div class="flex-grow-1">
-                                <g:textField id="description" name="description" value="${ecomSupplierCategory?.description}"
+                                <g:textField id="partnerCategoryName" name="partnerCategoryName" value="${ecomSupplierCategory?.description}"
                                              class="form-control bottom-border alpha-field" minLength="1" maxLength="45" size="45"/>
                             </div>
                         </div>
@@ -113,7 +115,7 @@
                                                   productCategoryList: partnerCategoryList,
                                                   selectedCategoryId: selectedCategoryId,
                                                   level: 1,
-                                                  triggerOnCategoryChange: true]" />
+                                                  triggerOnCategoryChange: false]" />
                             </div>
                         </div>
                     </div>
@@ -121,7 +123,7 @@
 
                     <div class="mt-5 text-center">
                         <button id="save-safe-cancel" type="button" name="safe-save-button" onclick="handleCancelAddSafe('${createLink(action:'closeSafeAdd')}')" class="btn btn-wl mr-2">Cancel</button>
-                        <button id="safe-save" type="button" name="safe-save-button" onclick="validateAndSave()" class="btn btn-success ml-2">Save</button>
+                        <button id="partner-category-save-btn" class="btn btn-success" name="save" onclick="$('#partner-category-form').submit();">Save</button>
                     </div>
 
                 </div>

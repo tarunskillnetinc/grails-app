@@ -8,41 +8,48 @@
     });
 </script>
 
-<div class="container-fluid mt-5 mb-3">
-
-
-    <div class="row mb-2 no-gutters" id="partner-category-menu-headers">
-        <div class="col-2 font-weight-bold text-center">Partner</div>
-        <div class="col-2 font-weight-bold text-center">Partner Category</div>
-        <div class="col-6 font-weight-bold text-center">Category & Subcategory List</div>
-        <div class="col-2 font-weight-bold text-center">Action</div>
+<div style="display: flex;">
+    <div style="flex-grow: 1;">
+        <div class="row ml-0 mr-0 pt-2 pb-2 table-wl bottom-border">
+            <div class="col-2 font-weight-bold text-center">Partner</div>
+            <div class="col-2 font-weight-bold text-center">Partner Category</div>
+            <div class="col-6 font-weight-bold text-center">Category & Subcategory List</div>
+            <div class="col-2 font-weight-bold text-center">Action</div>
+        </div>
     </div>
+</div>
 
-    <div class="card">
-        <!-- Each partner category as a Boxed Card -->
-        <g:if test="${!ecomSupplierList || ecomSupplierList?.isEmpty()}">
-            <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
-                <h3 class="text-muted">No results found</h3>
-            </div>
-        </g:if>
-        <g:else>
-            <g:each in="${ecomSupplierList}" var="ecomSupplier" status="i">
-                <div class="shift-card-body border rounded mb-2 shift-info-container pt-2 pb-2 wl-striped${i%2}">
-                    <div class="row mb-2 align-items-center">
-                        <div class="col-2 font-weight-bold text-center">${ecomSupplier?.name}</div>
-                        <div class="col-2 font-weight-bold text-center"></div>
-                        <div class="col-6 font-weight-bold text-center">
+<div id="search-results">
 
-                        </div>
-                        <div class="col-2 font-weight-bold text-center">
-                            <button class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="">Edit</button>
-                            <button class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="">Remove</button>
-                        </div>
+    <g:if test="${!ecomSupplierCategories || ecomSupplierCategories?.isEmpty()}">
+        <div class="row ml-0 mr-0 text-center">
+            <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
+        </div>
+    </g:if>
+
+    <g:each in="${ecomSupplierCategories}" var="ecomCategory" status="i">
+        <div style="flex-grow: 1;">
+            <div style="flex-grow: 1;">
+                <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" >
+                    <div class="col-2 font-weight-bold text-center">${ecomCategory?.ecomSupplier?.name}</div>
+                    <div class="col-2 font-weight-bold text-center">${ecomCategory?.description}</div>
+                    <div class="col-6 font-weight-bold text-center">
+                        <g:each var="mapping" in="${ecomCategory?.ecomSupplierCategoryMappings}">
+                            <div>
+                                <g:renderCategory category="${mapping?.category}" />
+                            </div>
+                        </g:each>
+                    </div>
+                    <div class="col-2 font-weight-bold text-center">
+                        <g:link elementId="edit-button" type="button" class="btn btn-wl p-1 me-1"
+                                action="addPartnerCategory" params="[isNew: false, supplierCategoryId: ecomCategory?.id]" style="min-width: 80px; font-size: 0.9rem;">Edit</g:link>
+                        <g:link elementId="edit-button" type="button" class="btn btn-danger p-1 me-1"
+                                action="deletePartnerCategory" params="[supplierCategoryId: ecomCategory?.id]" style="min-width: 80px; font-size: 0.9rem;">Delete</g:link>
                     </div>
                 </div>
-            </g:each>
-        </g:else>
-    </div>
+            </div>
+        </div>
+    </g:each>
 </div>
 
 <div class="my-3 text-right">

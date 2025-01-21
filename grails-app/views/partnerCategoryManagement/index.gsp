@@ -4,7 +4,7 @@
 
     <meta name="layout" content="main" />
 
-    <title>Till Assignment</title>
+    <title>Partner Category Management</title>
 
     <asset:javascript src="co-utils.js" />
     <asset:javascript src="validators/input-validator.js" />
@@ -14,63 +14,9 @@
         var getPartnerCategoriesUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxGetPartnerCategories')}"
         var addPartnerCategoryUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxAddPartnerCategory')}"
 
-
-        var deleteTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxDeleteTill')}"
-
-        var editTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxEditTill')}"
-        var unassignSerialUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxUnassignSerial')}"
-        var saveTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxSaveTill')}"
-        var generatePinUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxGeneratePin')}"
-        var cancelTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxCancelTill')}"
-        var advancedConfigurationUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxAdvancedConfiguration')}"
-        var saveAdvancedConfigurationUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxSaveAdvancedConfiguration')}"
-
         $(function() {
-            getPartnerCategories();
             applyListeners();
         });
-
-        function getPartnerCategories() {
-            tillId = $("#tillId").val();
-
-            $.ajax({
-                url: getPartnerCategoriesUrl(),
-                method: "POST",
-                data: { tillId: tillId },
-                success: function(resp) {
-                    $("#results-container").html(resp);
-                },
-                error: function() {
-                    $("#search-results").show();
-                    const result = document.createElement('div');
-                    $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0').html('No shifts found.');
-                    $("#search-results").html(result);
-                },
-            });
-        }
-
-        function loadPartnerCategories() {
-            $('#results-container').html("");
-            $("#loading-indicator").show();
-
-            var filterParams = {};
-
-            $("#filtersForm input").each(function() {
-                filterParams[$(this).attr("name")] = $(this).val();
-            }).get();
-
-            $("#filtersForm select").each(function() {
-                filterParams[$(this).attr("name")] = $(this).find(":selected").val();
-            }).get();
-
-            $.ajax({
-                url: ajaxGetPartnerCategories,
-                data: filterParams,
-                success: function(resp) {
-                    $('#results-container').html(resp);
-                }
-            });
-        }
 
         function filter(inputName, dropDownName) {
             var keyword = document.getElementById(inputName).value.toLowerCase();
@@ -85,18 +31,6 @@
             }
         }
 
-        function addPartnerCategory() {
-            $("#addTillContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-            $('#addTillModal').modal({show: true, backdrop: 'static', keyboard: false});
-            $.ajax({
-                url: addPartnerCategoryUrl,
-                method: "GET",
-                success: function (resp) {
-                    $("#addTillContent").html(resp);
-                    applyListeners();
-                }
-            });
-        }
 
         function applyListeners() {
             intListener("tillIdFilter", 10, 2147483647);
@@ -135,8 +69,7 @@
         </div>
 
         <div class="col-3 text-right">
-            <g:link elementId="count-safe-button" type="button" class="btn btn-wl p-2"
-                    action="addPartnerCategory" params="[isNew: true]">Add Partner Category</g:link>
+            <g:link elementId="count-safe-button" type="button" class="btn btn-wl p-2" action="addPartnerCategory" params="[isNew: true]">Add Partner Category</g:link>
         </div>
     </div>
 </section>
@@ -182,8 +115,19 @@
         </div>
     </div>
 
+    <div id="messages-container"></div>
+
+    <g:if test="${flash.message}">
+        <div id="alerts-success-container-message" class="alert alert-success  mt-4" role="alert">${flash.message}</div>
+    </g:if>
+
+    <g:if test="${flash.error}">
+        <div id="alerts-success-container-message" class="alert alert-danger mt-4" role="alert">${flash.error}</div>
+    </g:if>
+
+
     <div id="results-container" class="align-content-center">
-        <g:render template="partnerCategoryResults"/>
+        <g:render template="partnerCategoryResults" model="${[ ecomSupplierCategories: ecomSupplierCategories ]}"/>
     </div>
 
 </section>

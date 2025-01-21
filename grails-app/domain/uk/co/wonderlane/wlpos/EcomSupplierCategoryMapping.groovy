@@ -11,7 +11,7 @@ class EcomSupplierCategoryMapping implements Serializable{
         version false
 
         ecomSupplierCategory column: "ecomSupplierCategoryId"
-        category column: 'categoryId'
+        category column: 'categoryId' , fetch: 'join'
         ecomSupplier  column: "ecomSupplierId"
         id composite: ['ecomSupplierCategory', 'ecomSupplier', 'category']
     }
