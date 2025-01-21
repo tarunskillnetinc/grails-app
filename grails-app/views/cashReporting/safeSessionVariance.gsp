@@ -207,6 +207,6 @@
         <div class="col mt-4 mb-4 text-right" >
             <g:link elementId="cancel-btn" class="btn btn-wl text-center" uri="/" role="button" >Cancel</g:link>
         </div>
-    </session>
+    </section>
 </body>
 </html>
