@@ -1,3 +1,7 @@
+<%
+    def hasFinancialWeek = safeSessions?.any { it.financialWeek?.weekNumber != null }
+%>
+
 <div class="row col-12">
     <table class="table col-md-12 col-sm-12">
         <thead class="bg-light">
@@ -21,7 +25,9 @@
                 <th scope="col" class="border">Safe No</th>
                 <th scope="col" class="border">Safe Description</th>
                 <th scope="col" class="border">Session Number</th>
-                <th scope="col" class="border">Financial Week</th>
+                <% if (hasFinancialWeek) { %>
+                    <th scope="col" class="border">Financial Week</th>
+                <% } %>
                 <th scope="col" class="border">Finalized by User name</th>
                 <th scope="col" class="border">Finalized by User ID</th>
                 <th scope="col" class="border">Tender</th>
@@ -36,7 +42,9 @@
                     <td id="reportData_${i + 1}_safeId" scope="row" class="border">${session?.safeId}</td>
                     <td id="reportData_${i + 1}_safeDescription" scope="row" class="border">${safes[session?.safeId]}</td>
                     <td id="reportData_${i + 1}_sessionNumber" scope="row" class="border">${session?.sessionNumber}</td>
-                    <td id="reportData_${i + 1}_financialWeek" scope="row" class="border">${session?.financialWeek?.weekNumber}</td>
+                    <% if (hasFinancialWeek) { %>
+                        <td id="reportData_${i + 1}_financialWeek" scope="row" class="border">${session?.financialWeek?.weekNumber}</td>
+                    <% } %>
                     <td id="reportData_${i + 1}_usersName" scope="row" class="border">${session?.finalisedUsersRealName}</td>
                     <td id="reportData_${i + 1}_userId" scope="row" class="border">${session?.finalisedUsername}</td>
                     <td id="reportData_${i + 1}_tender" scope="row" class="border" style="padding: 0;">
