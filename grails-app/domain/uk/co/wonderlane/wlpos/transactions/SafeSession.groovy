@@ -22,7 +22,7 @@ class SafeSession {
     static mapping = {
         autowire true
         datasources(["transactions"])
-        table "safeSession"
+        table "safesession"
         version false
 
         retailerId column: "retailerId", sqlType: "tinyint"
