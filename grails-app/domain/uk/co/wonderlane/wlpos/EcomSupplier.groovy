@@ -9,7 +9,7 @@ class EcomSupplier implements Serializable{
     Collection<EcomSupplierCategory> ecomSupplierCategories = new ArrayList<>()
     Collection<EcomSupplierCategoryMapping> ecomSupplierCategoryMappings = new ArrayList<>()
 
-    static hasMany = [ecomSupplierCategories: EcomSupplierCategory, ecomSupplierCategoryMappings: EcomSupplierCategoryMapping]
+    static hasMany = [ecomSupplierCategories: EcomSupplierCategory]
 
     static mapping = {
         table "ecomsupplier"
@@ -20,7 +20,7 @@ class EcomSupplier implements Serializable{
         name column: "`name`"
         deleted column: "deleted" , sqlType: "BIT(1)"
         ecomSupplierCategories cascade: 'all-delete-orphan', key: 'ecomsupplierid'
-        ecomSupplierCategoryMappings cascade: 'save-update,delete', key: 'ecomsupplierId'
+        ecomSupplierCategoryMappings cascade: 'all-delete-orphan', key: 'ecomsupplierId'
     }
 
 

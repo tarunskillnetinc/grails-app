@@ -76,11 +76,11 @@ class PartnerCategoryManagementController {
                 ecomSupplierCategory = partnerCategoryManagementService.createNewEcomSupplierCategory(ecomSupplier, retailerId, partnerCategoryName)
             }
 
-
-            partnerCategoryManagementService.updateEcomSupplierCategoryMappings(ecomSupplier, updatedCategoryList, ecomSupplierCategory)
+            List<EcomSupplierCategoryMapping> removedEcomSupplierCategoryMappings = partnerCategoryManagementService.removedEcomSupplierCategoryMappings(updatedCategoryList, ecomSupplierCategory)
+            List<EcomSupplierCategoryMapping> addedEcomSupplierCategoryMappings = partnerCategoryManagementService.addedEcomSupplierCategoryMappings(ecomSupplier, updatedCategoryList, ecomSupplierCategory)
             ecomSupplierCategory.validate()
-            if (ecomSupplierCategory.hasErrors()) {
-                partnerCategoryManagementService.saveEcomSupplierCategory(ecomSupplierCategory)
+            if (!ecomSupplierCategory.hasErrors()) {
+                partnerCategoryManagementService.saveEcomSupplierCategory(ecomSupplierCategory, removedEcomSupplierCategoryMappings, addedEcomSupplierCategoryMappings)
                 flash.message = "Successfully save partner category"
                 redirect(action: "index")
             } else {

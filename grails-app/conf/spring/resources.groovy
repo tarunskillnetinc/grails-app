@@ -271,6 +271,7 @@ beans = {
     partnerCategoryManagementService(PartnerCategoryManagementService) {
         springSecurityService = ref('springSecurityService')
         categoryService = ref('categoryService')
+        sessionFactory = ref('sessionFactory')
     }
 
 

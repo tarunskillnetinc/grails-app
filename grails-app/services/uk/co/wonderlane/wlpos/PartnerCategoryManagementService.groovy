@@ -1,20 +1,23 @@
 package uk.co.wonderlane.wlpos
 
+import org.hibernate.Session
+import org.hibernate.Transaction
 import grails.gorm.transactions.Transactional
-import uk.co.wonderlane.wlpos.entities.transactionv2.Transaction
 
 @Transactional
 class PartnerCategoryManagementService {
     def springSecurityService
     def categoryService
+    def sessionFactory
 
-   EcomSupplierCategory createNewEcomSupplierCategory(EcomSupplier ecomSupplier, int retailerId, String partnerCategoryName){
+    EcomSupplierCategory createNewEcomSupplierCategory(EcomSupplier ecomSupplier, int retailerId, String partnerCategoryName){
        EcomSupplierCategory ecomSupplierCategory = new EcomSupplierCategory()
        ecomSupplierCategory.setEcomSupplier(ecomSupplier)
        ecomSupplierCategory.setRetailerId(retailerId)
        ecomSupplierCategory.setDescription(partnerCategoryName)
        return ecomSupplierCategory
-   }
+    }
+
 
     List<Category> updatedCategoryList(int categoryId){
         List<Category> categories = new ArrayList<>()
@@ -23,8 +26,7 @@ class PartnerCategoryManagementService {
         return categories
     }
 
-    @Transactional
-    void updateEcomSupplierCategoryMappings(EcomSupplier ecomSupplier, Collection<Category> newCategories, EcomSupplierCategory ecomSupplierCategory) {
+    List<EcomSupplierCategoryMapping> removedEcomSupplierCategoryMappings(Collection<Category> newCategories, EcomSupplierCategory ecomSupplierCategory) {
         // Fetch the existing mappings
         def existingMappings = ecomSupplierCategory.ecomSupplierCategoryMappings
 
@@ -32,18 +34,20 @@ class PartnerCategoryManagementService {
         def newCategoryIds = newCategories*.id
 
         // Find and remove mappings that are no longer in the new category list
-        def categoriesToRemove = existingMappings.findAll { mapping ->
+        List<EcomSupplierCategoryMapping> categoriesToRemove = existingMappings.findAll { mapping ->
             !newCategoryIds.contains(mapping?.categoryId)
         }
 
-        categoriesToRemove.each { mapping ->
-//            EcomSupplierCategoryMapping.executeUpdate(
-//                    "DELETE FROM EcomSupplierCategoryMapping WHERE ecomSupplierCategory.id = :ecomSupplierCategoryId AND ecomSupplier.id = :ecomSupplierId AND category.id = :categoryId",
-//                    [ecomSupplierCategoryId: mapping.ecomSupplierCategory.id, ecomSupplierId: mapping.ecomSupplier.id, categoryId: mapping.category.id]
-//            )
-            //mapping.delete(flush: true)
-            //ecomSupplierCategory.removeFromEcomSupplierCategoryMappings(mapping)
-        }
+        return categoriesToRemove
+    }
+
+
+    List<EcomSupplierCategoryMapping> addedEcomSupplierCategoryMappings(EcomSupplier ecomSupplier, Collection<Category> newCategories, EcomSupplierCategory ecomSupplierCategory) {
+
+        List<EcomSupplierCategoryMapping> newMappings = []
+
+        // Fetch the existing mappings
+        def existingMappings = ecomSupplierCategory.ecomSupplierCategoryMappings
 
         // Collect IDs of the existing categories
         def existingCategoryIds = existingMappings*.category*.id
@@ -55,17 +59,34 @@ class PartnerCategoryManagementService {
                 newMapping.setEcomSupplier(ecomSupplier)
                 newMapping.setCategory(category)
                 newMapping.setEcomSupplierCategory(ecomSupplierCategory)
-                ecomSupplierCategory.addToEcomSupplierCategoryMappings(newMapping)
+                newMappings.add(newMapping) // Add the mapping to the list
             }
         }
 
-        println ecomSupplierCategory
-
-       // return ecomSupplierCategory
+        return newMappings
     }
 
     @Transactional
-    void saveEcomSupplierCategory(EcomSupplierCategory ecomSupplierCategory){
+    void saveEcomSupplierCategory(EcomSupplierCategory ecomSupplierCategory, List<EcomSupplierCategoryMapping> removedEcomSupplierCategoryMappings, List<EcomSupplierCategoryMapping> addedEcomSupplierCategoryMappings){
+
+        if (removedEcomSupplierCategoryMappings != null && removedEcomSupplierCategoryMappings.size() > 0) {
+            removedEcomSupplierCategoryMappings.each { mapping ->
+//            EcomSupplierCategoryMapping.executeUpdate(
+//                    "DELETE FROM EcomSupplierCategoryMapping " +
+//                            "WHERE ecomSupplierCategoryId = :ecomSupplierCategoryId and ecomSupplierId = :ecomSupplierId and categoryId = :categoryId",
+//                    [ecomSupplierCategoryId: mapping.ecomSupplierCategoryId, ecomSupplierId: mapping.ecomSupplierId, categoryId: mapping.categoryId]
+//            )
+                ecomSupplierCategory.removeFromEcomSupplierCategoryMappings(mapping)
+                println "After remove: ${mapping.ecomSupplierCategory}"
+            }
+        }
+
+        if (addedEcomSupplierCategoryMappings != null && addedEcomSupplierCategoryMappings.size() > 0) {
+            addedEcomSupplierCategoryMappings.each { mapping ->
+                ecomSupplierCategory.addToEcomSupplierCategoryMappings(mapping)
+            }
+        }
+
         ecomSupplierCategory.save(flush: true)
     }
 
