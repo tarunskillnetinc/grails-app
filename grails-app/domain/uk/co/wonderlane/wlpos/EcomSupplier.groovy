@@ -20,7 +20,7 @@ class EcomSupplier implements Serializable{
         name column: "`name`"
         deleted column: "deleted" , sqlType: "BIT(1)"
         ecomSupplierCategories cascade: 'all-delete-orphan', key: 'ecomsupplierid'
-        ecomSupplierCategoryMappings cascade: 'all-delete-orphan', key: 'ecomsupplierId'
+        ecomSupplierCategoryMappings cascade: 'save-update,delete', key: 'ecomsupplierId'
     }
 
 

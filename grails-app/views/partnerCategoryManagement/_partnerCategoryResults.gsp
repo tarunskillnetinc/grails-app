@@ -30,7 +30,7 @@
     <g:each in="${ecomSupplierCategories}" var="ecomCategory" status="i">
         <div style="flex-grow: 1;">
             <div style="flex-grow: 1;">
-                <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" >
+                <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" >
                     <div class="col-2 font-weight-bold text-center">${ecomCategory?.ecomSupplier?.name}</div>
                     <div class="col-2 font-weight-bold text-center">${ecomCategory?.description}</div>
                     <div class="col-6 font-weight-bold text-center">

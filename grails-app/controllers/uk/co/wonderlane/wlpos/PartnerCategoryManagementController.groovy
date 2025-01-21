@@ -1,7 +1,5 @@
 package uk.co.wonderlane.wlpos
 
-import org.grails.datastore.mapping.query.Query
-
 class PartnerCategoryManagementController {
 
     def springSecurityService
@@ -53,30 +51,45 @@ class PartnerCategoryManagementController {
         try {
             int selectedCategoryId = -1
             int selectedPartnerSupplierId = -1
+            boolean isUpdate = false
+            EcomSupplierCategory ecomSupplierCategory = null
             int retailerId = springSecurityService.principal.retailerId
             String partnerCategoryName = params.partnerCategoryName
             Optional<Integer> partnerSupplierId = tryParseInt(params.partnerName)
+            Optional<Integer> supplierCategoryId = tryParseInt(params.supplierCategoryId)
             Optional<Integer> categoryId = tryParseInt(params.get("category.id"))
-            if (categoryId.present) {
-                selectedCategoryId = categoryId.get()
+            if (categoryId.present) {selectedCategoryId = categoryId.get()}
+            if (partnerSupplierId.present) {selectedPartnerSupplierId = partnerSupplierId.get()}
+            if (supplierCategoryId.present) {
+                int selectedPartnerCategoryId = supplierCategoryId.get()
+                isUpdate = true
+                ecomSupplierCategory = EcomSupplierCategory.findById(selectedPartnerCategoryId)
             }
 
-            if (partnerSupplierId.present) {
-                selectedPartnerSupplierId = partnerSupplierId.get()
-            }
             EcomSupplier ecomSupplier = EcomSupplier.findByRetailerIdAndId(retailerId, selectedPartnerSupplierId)
-            Category selectedCategory = categoryService.getCategory(selectedCategoryId)
-            EcomSupplierCategory ecomSupplierCategory =
-                    partnerCategoryManagementService.createNewEcomSupplierCategory(ecomSupplier, retailerId, partnerCategoryName)
-            EcomSupplierCategoryMapping ecomSupplierCategoryMapping =
-                    partnerCategoryManagementService.createNewEcomSupplierCategoryMapping(ecomSupplier, selectedCategory, ecomSupplierCategory)
-            ecomSupplierCategory.addToEcomSupplierCategoryMappings(ecomSupplierCategoryMapping)
-            partnerCategoryManagementService.saveEcomSupplierCategory(ecomSupplierCategory)
-            flash.message = "Successfully save partner category"
-            redirect(action: "index")
+            List<Category> updatedCategoryList = partnerCategoryManagementService.updatedCategoryList(selectedCategoryId)
+            if (isUpdate && ecomSupplierCategory && ecomSupplierCategory.deleted) {
+                flash.error = "Selected partner category ${ecomSupplierCategory?.description} already deleted. So Can not complete edit action"
+            } else if (isUpdate && !ecomSupplierCategory) {
+                flash.error = "Selected partner category ${partnerCategoryName} not exists. So Can not complete edit action"
+            } else if (!isUpdate){
+                ecomSupplierCategory = partnerCategoryManagementService.createNewEcomSupplierCategory(ecomSupplier, retailerId, partnerCategoryName)
+            }
+
+
+            partnerCategoryManagementService.updateEcomSupplierCategoryMappings(ecomSupplier, updatedCategoryList, ecomSupplierCategory)
+            ecomSupplierCategory.validate()
+            if (ecomSupplierCategory.hasErrors()) {
+                partnerCategoryManagementService.saveEcomSupplierCategory(ecomSupplierCategory)
+                flash.message = "Successfully save partner category"
+                redirect(action: "index")
+            } else {
+                flash.error = "Failed to save partner category"
+                redirect(action: "index")
+            }
         } catch (Exception ex) {
             log.error("Error saving partner categories, Exception " + ex.getMessage(), ex)
-            flash.message = "Failed to save partner category"
+            flash.error = "Failed to save partner category"
             redirect(action: "index")
         }
     }

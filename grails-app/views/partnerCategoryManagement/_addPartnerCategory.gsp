@@ -70,6 +70,7 @@
 <section class="mt-5">
     <g:form method="post" action="savePartnerCategory" class="mt-4" name="partner-category-form">
         <g:hiddenField id="isUpdate" name="isUpdate" value="${isUpdate}"/>
+        <g:hiddenField id="supplierCategoryId" name="supplierCategoryId" value="${ecomSupplierCategory?.id}"/>
 
         <div class="container">
             <div class="row justify-content-center">
@@ -82,6 +83,7 @@
 
                             <div class="flex-grow-1">
                                 <g:select name="partnerName"
+                                          id="partnerName"
                                           from="${ecomSupplierList}"
                                           optionKey="id"
                                           optionValue="name"
