@@ -14,6 +14,27 @@
         var getDataUrl = "${createLink(controller: 'reporting', action: 'ajaxBankingReport')}";
 
         $(document).ready(function () {
+            $('#startDate').prop("disabled", true);
+            $('#endDate').prop("disabled", true);
+            $('#bankingTypeId').prop("disabled", true);
+            $('#banking-report-button').prop("disabled", true);
+
+            $('#storeFilter').on("change", function () {
+                var selectedValue = $(this).val();
+
+                if (selectedValue !== '') {
+                    $('#startDate').prop("disabled", false);
+                    $('#endDate').prop("disabled", false);
+                    $('#bankingTypeId').prop("disabled", false);
+                    $('#banking-report-button').prop("disabled", false);
+                } else {
+                    $('#startDate').prop("disabled", true);
+                    $('#endDate').prop("disabled", true);
+                    $('#bankingTypeId').prop("disabled", true);
+                    $('#banking-report-button').prop("disabled", true);
+                }
+            });
+
             $('#startDate').on("change", function () {
                 $('#startDate').val(this.value);
                 $('#startDate').removeClass('is-invalid');
@@ -25,8 +46,6 @@
                 $('#endDate').removeClass('is-invalid');
                 $('#startDate').datepicker('setEndDate', this.value);
             });
-
-            filterReport();
         });
 
         $(function() {
@@ -62,20 +81,6 @@
                 orientation: "bottom auto"
             });
         });
-
-        function resetForm() {
-            $('#startDate').val("${new Date().format("dd/MM/yyyy")}");
-            $('#endDate').val("${new Date().format("dd/MM/yyyy")}");
-
-            $('#startDate').datepicker('setStartDate', "${(new Date() - 366).format('dd/MM/yyyy')}");
-            $('#startDate').datepicker('setEndDate', "${new Date().format('dd/MM/yyyy')}");
-
-            $('#endDate').datepicker('setStartDate', "${new Date().format('dd/MM/yyyy')}");
-            $('#endDate').datepicker('setEndDate', "${new Date().format('dd/MM/yyyy')}");
-
-            document.getElementById('storeFilter').value = '';
-            document.getElementById('bankingTypeId').value = '';
-        }
     </script>
 </head>
 
@@ -88,51 +93,45 @@
         </div>
 
         <div class="row mt-4">
-            <div class="col-5">
+            <div class="col-12">
                 <div class="card bg-light border-wl">
-                    <div id="filter-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                        <div class="row">
-                            <div id="filter-text" class="col-10">Filters</div>
-                            <div class="col-2 text-right">
-                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body collapse" id="filterCollapse">
+                    <div id="reportParams" class="card-body">
                         <g:form name="filtersForm" id="filtersForm">
                             <div class="form-group row">
-                                <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
-                                <div class="col-4">
-                                    <g:textField id="startDate" name="startDate" onkeydown="return false" class="form-control bottom-border" value="${startDate.toString("dd/MM/yyyy")}" autocomplete="off" />
+
+                                <div class="row col-xl-5 col-12 mb-4">
+                                    <label for="storeIdSelect" class="col-2 col-form-label-sm text-right">Store ID:</label>
+                                    <div class="col-4">
+
+                                        <g:select name="storeFilter" from="${stores}" optionValue="${{it.config.storeNumber}}"
+                                                  optionKey="id"
+                                                  noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'Please Select']}"
+                                                  class="form-control select-border"
+                                                  disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
+                                    </div>
+
+                                    <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
+                                    <div class="col-4">
+                                        <g:textField id="startDate" name="startDate" onkeydown="return false" class="form-control bottom-border text-center" value="${startDate?.toString("dd/MM/yyyy")}" autocomplete="off" />
+                                    </div>
                                 </div>
 
-                                <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
-                                <div class="col-4">
-                                    <g:textField id="endDate" name="endDate" onkeydown="return false" class="form-control bottom-border" value="${endDate.toString("dd/MM/yyyy")}" autocomplete="off" />
-                                </div>
-                            </div>
+                                <div class="row col-xl-5 col-12 mb-4">
+                                    <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
+                                    <div class="col-4">
+                                        <g:textField id="endDate" name="endDate" onkeydown="return false" class="form-control bottom-border text-center" value="${endDate?.toString("dd/MM/yyyy")}" autocomplete="off" />
+                                    </div>
 
-                            <div class="form-group row">
-                                <label for="storeFilter" class="col-2 col-form-label-sm text-right">Store ID</label>
-                                <div class="col-3">
-                                    <g:select name="storeFilter" from="${stores}" optionValue="${{it.config.storeNumber}}"
-                                              optionKey="id"
-                                              noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
-                                              class="form-control select-border"
-                                              disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
+                                    <label for="storeFilter2" class="col-3 col-form-label-sm text-right">Banking Type</label>
+                                    <div class="col-3">
+                                        <g:select id="bankingTypeId" name="bankingType" from="${bankingType}" noSelection="${['': 'All']}" value="everything" class="form-control select-border" />
+                                    </div>
                                 </div>
 
-                                <label for="storeFilter2" class="col-3 col-form-label-sm text-right">Banking Type</label>
-                                <div class="col-3">
-                                    <g:select id="bankingTypeId" name="bankingType" from="${bankingType}" noSelection="${['': 'All']}" value="everything" class="form-control select-border" style="z-index: 0;" />
-                                </div>
                             </div>
                             <div class="form-group row">
                                 <div class="col-12 text-right">
-                                    <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
-                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport()">Search</button>
+                                    <button id="banking-report-button" type="button" class="col-xl-3 col-5 btn btn-wl text-center" onclick="filterReport()">Search</button>
                                 </div>
                             </div>
                         </g:form>
@@ -141,8 +140,10 @@
             </div>
         </div>
 
-        <div id="results-container" class="align-content-center">
-            <g:render template="bankingReportResults"/>
+        <div id="results-container" class="align-content-center" style="padding-top: 50px;"></div>
+
+        <div class="col mt-4 mb-4 text-right" >
+            <g:link elementId="cancel-btn" class="btn btn-wl text-center" uri="/" role="button" >Cancel</g:link>
         </div>
     </section>
 </body>
