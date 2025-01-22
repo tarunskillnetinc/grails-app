@@ -127,7 +127,8 @@
                         <g:select id="productAttributeValues[${index}].value"
                                   name="productAttributeValues[${index}].value"
                                   from="${attributeValue?.productAttributes?.listValues?.sort { it.toLowerCase() }}"
-                                  value="${attributeValue?.value ?: attributeValue.productAttributes.defaultValue}"
+                                  noSelection="['': '']"
+                                  value="${attributeValue?.value ?: ''}"
                                   class="col-lg-12 form-control select-border"
                                   data-attribute-id="${attributeValue.productAttributes.id}"
                                   disabled="${!isStore}"/>

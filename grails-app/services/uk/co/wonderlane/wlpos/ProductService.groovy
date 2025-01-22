@@ -909,10 +909,7 @@ class ProductService extends MySqlDal {
         List<ProductAttributeValues> productAttributeValuesList = new ArrayList<>()
         int retailerId = springSecurityService.principal.retailerId
         if (product != null && product?.id > 0) {// If product id does not exists there can not be any history to return
-            productAttributeValuesList = ProductAttributeValues.findAllByRetailerIdAndProduct(
-                    retailerId,
-                    product,
-                    [sort: "productAttributeId", order: "asc"])
+            productAttributeValuesList = product?.productAttributeValues ?: new ArrayList<ProductAttributeValues>()
         }
         //Try to load from product attribute table
 
