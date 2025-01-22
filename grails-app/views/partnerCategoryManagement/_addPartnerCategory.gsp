@@ -80,7 +80,7 @@
 <section class="mt-5">
     <g:form method="post" action="savePartnerCategory" class="mt-4" name="partner-category-form">
         <g:hiddenField id="isUpdate" name="isUpdate" value="${isUpdate}"/>
-        <g:hiddenField id="supplierCategoryId" name="supplierCategoryId" value="${ecomSupplierCategory?.id}"/>
+        <g:hiddenField id="partnerCategoryId" name="partnerCategoryId" value="${ecomSupplierCategory?.id}"/>
 
         <div class="container">
             <div class="row justify-content-center">
@@ -88,12 +88,12 @@
 
                     <div class="mb-5">
                         <div class="d-flex align-items-center">
-                            <label for="partnerName" class="col-form-label mb-0 mr-3"
+                            <label for="partnerSupplierId" class="col-form-label mb-0 mr-3"
                                    style="width: 120px; text-align: right;">Partner Name</label>
 
                             <div class="flex-grow-1">
-                                <g:select name="partnerName"
-                                          id="partnerName"
+                                <g:select name="partnerSupplierId"
+                                          id="partnerSupplierId"
                                           from="${ecomSupplierList}"
                                           optionKey="id"
                                           optionValue="name"

@@ -71,46 +71,57 @@ class PartnerCategoryManagementController {
             int retailerId = springSecurityService.principal.retailerId
             String partnerCategoryName = params.partnerCategoryName
 
-            Integer partnerSupplierId = params.partnerName ? Integer.valueOf(params.partnerName) ? null
-//            Optional<Integer> partnerSupplierId = tryParseInt(params.partnerName)
-            Integer supplierCategoryId = params.supplierCategoryId ? Integer.valueOf(params.supplierCategoryId) ? null
-            String selectedCategoryIds = params.get("category.id")
             //here input recieved as selected category as this "[1, 2, 3, 4]"
             //So initially removed [ ] and parse into list of integers
+            String selectedCategoryIds = params.get("category.id")
             List<Integer> selectedCategoryList = selectedCategoryIds?.replaceAll("[\\[\\]]", "")?.split(",")?.collect { it.trim() as Integer } ?: []
             List<Category> updatedCategoryList = partnerCategoryManagementService.updatedCategoryList(selectedCategoryList)
+            if (!updatedCategoryList || updatedCategoryList.isEmpty()) { //Validate at least single category is created
+                flash.error = "Please select at least one category"
+                redirect(action: "index")
+                return
+            }
 
+            Optional<Integer> partnerSupplierId = tryParseInt(params.partnerSupplierId)
             if (partnerSupplierId.present) {selectedPartnerSupplierId = partnerSupplierId.get()}
-            EcomSupplier ecomSupplier = EcomSupplier.findByRetailerIdAndId(retailerId, selectedPartnerSupplierId)
-            if (ecomSupplier == null) {
+            EcomSupplier ecomSupplier = EcomSupplier.findByRetailerIdAndIdAndDeleted(retailerId, selectedPartnerSupplierId, false)
+            if (ecomSupplier == null) { //Validate partner supplier exists
                 flash.error = "Selected supplier not found"
                 redirect(action: "index")
                 return
             }
 
-            if (supplierCategoryId.present) {
-                int selectedPartnerCategoryId = supplierCategoryId.get()
+            Optional<Integer> partnerCategoryId = tryParseInt(params.partnerCategoryId)
+            if (partnerCategoryId.present) { //Check and validate partner category if it exists
+                int selectedPartnerCategoryId = partnerCategoryId.get()
                 isUpdate = true
                 ecomSupplierCategory = EcomSupplierCategory.findById(selectedPartnerCategoryId)
-            }
-            if (isUpdate && ecomSupplierCategory && ecomSupplierCategory.deleted) {
-                flash.error = "Selected partner category ${ecomSupplierCategory?.description} already deleted. So Can not complete edit action"
-                redirect(action: "index")
-                return
-            } else if (isUpdate && !ecomSupplierCategory) {
-                flash.error = "Selected partner category ${partnerCategoryName} not exists. So Can not complete edit action"
-                redirect(action: "index")
-                return
+                if (ecomSupplierCategory && ecomSupplierCategory.deleted) {
+                    flash.error = "Selected partner category ${ecomSupplierCategory?.description} already deleted. So Can not complete edit action"
+                    redirect(action: "index")
+                    return
+                } else if (!ecomSupplierCategory) {
+                    flash.error = "Selected partner category ${partnerCategoryName} not exists. So Can not complete edit action"
+                    redirect(action: "index")
+                    return
+                }
             }
 
-            if (!isUpdate){
+
+            if (!isUpdate){ //If this is not update action then create new supplier category
                 ecomSupplierCategory = partnerCategoryManagementService.createNewEcomSupplierCategory(ecomSupplier, retailerId, partnerCategoryName)
             }
 
-            List<EcomSupplierCategoryMapping> removedEcomSupplierCategoryMappings = partnerCategoryManagementService.removedEcomSupplierCategoryMappings(updatedCategoryList, ecomSupplierCategory)
-            List<EcomSupplierCategoryMapping> addedEcomSupplierCategoryMappings = partnerCategoryManagementService.addedEcomSupplierCategoryMappings(ecomSupplier, updatedCategoryList, ecomSupplierCategory)
-            ecomSupplierCategory.validate()
-            if (!ecomSupplierCategory.hasErrors()) {
+            //Load category mappings which should be removed
+            List<EcomSupplierCategoryMapping> removedEcomSupplierCategoryMappings =
+                    partnerCategoryManagementService.removedEcomSupplierCategoryMappings(updatedCategoryList, ecomSupplierCategory)
+
+            //Load category mappings which should be added
+            List<EcomSupplierCategoryMapping> addedEcomSupplierCategoryMappings =
+                    partnerCategoryManagementService.addedEcomSupplierCategoryMappings(ecomSupplier, updatedCategoryList, ecomSupplierCategory)
+
+            ecomSupplierCategory.validate() //Validate partner category
+            if (!ecomSupplierCategory.hasErrors()) { //Proceed if no error found
                 partnerCategoryManagementService.saveEcomSupplierCategory(ecomSupplierCategory, removedEcomSupplierCategoryMappings, addedEcomSupplierCategoryMappings)
                 flash.message = "Successfully save partner category"
                 redirect(action: "index")

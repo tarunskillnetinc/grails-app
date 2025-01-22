@@ -26,6 +26,17 @@ class EcomSupplierCategory implements Serializable{
     }
 
     static constraints = {
+        ecomSupplier nullable: false, validator: { val, obj ->
+            if (!val) {
+                return ['partnerCategory.ecom.supplier.not.nullable']
+            }
+        }
+        retailerId nullable: false, blank: false // Ensures retailerId is not null or empty
+        description nullable: false, blank: false , validator: { val, obj ->
+            if (!val) {
+                return ["partnerCategory.ecom.partner.category.not.nullable"]
+            }
+        }
     }
 
 
