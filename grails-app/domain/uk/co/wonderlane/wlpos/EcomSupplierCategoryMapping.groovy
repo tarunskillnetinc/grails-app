@@ -1,19 +1,23 @@
 package uk.co.wonderlane.wlpos
 
 class EcomSupplierCategoryMapping implements Serializable{
+//
+    Integer id
+    Category category
 
     static belongsTo = [ecomSupplier: EcomSupplier, ecomSupplierCategory: EcomSupplierCategory]
 
-    static hasOne = [category: Category]
+//    static hasOne = [category: Category]
 
     static mapping = {
         table "ecomsuppliercategorymapping"
         version false
 
+        id column: "id", type: "int"
         ecomSupplierCategory column: "ecomSupplierCategoryId"
         category column: 'categoryId' , fetch: 'join'
         ecomSupplier  column: "ecomSupplierId"
-        id composite: ['ecomSupplierCategory', 'ecomSupplier', 'category']
+        //id composite: ['ecomSupplierCategory', 'ecomSupplier', 'category']
     }
 
     static constraints = {
