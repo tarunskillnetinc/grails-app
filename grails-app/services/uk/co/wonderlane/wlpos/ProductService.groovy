@@ -909,7 +909,10 @@ class ProductService extends MySqlDal {
         List<ProductAttributeValues> productAttributeValuesList = new ArrayList<>()
         int retailerId = springSecurityService.principal.retailerId
         if (productId > 0) {// If product id does not exists there can not be any history to return
-            productAttributeValuesList = ProductAttributeValues.findAllByRetailerIdAndProductId(retailerId, productId)
+            productAttributeValuesList = ProductAttributeValues.findAllByRetailerIdAndProductId(
+                    retailerId,
+                    productId,
+                    [sort: "productAttributeId", order: "asc"])
         }
         //Try to load from product attribute table
 
@@ -931,14 +934,14 @@ class ProductService extends MySqlDal {
         def existingProductAttributeIds = productAttributeValuesList*.productAttributeId.toSet()
         def missingProductAttributes = productAttributeList.findAll {
             !existingProductAttributeIds.contains(it.id)
-        }
+        }?.sort { it.id }
 
         missingProductAttributes.each { productAttribute ->
             ProductAttributeValues dummyEntry = new ProductAttributeValues(
                     retailerId: retailerId,
                     productId: productId,
-                    productAttributeId: productAttribute.id,
-                    value: productAttribute.defaultValue ?: "", // Use defaultValue if available
+                    productAttributeId: productAttribute?.id,
+                    value: productAttribute?.defaultValue, // Use defaultValue if available
                     productAttributes: productAttribute
             )
             returnedAttributeValuesList << dummyEntry
@@ -1010,13 +1013,13 @@ class ProductService extends MySqlDal {
 
     boolean isProductAttributeUpdateValidationsPassed(productAttributes, editedAttr, product){
         boolean isValidationPassed = true
-        if (productAttributes?.type == ProductAttributeType.TEXT && editedAttr?.value) {
+        if (productAttributes?.type == ProductAttributeType.TEXT && editedAttr?.value != null) {
             if (editedAttr?.value?.length() > 50) {
                 product.errors.reject('productAttributeValues.text.max.size', [productAttributes?.name] as Object[],
                         "Product attribute ${productAttributes?.name} validation failed")
                 isValidationPassed = false
             }
-        } else if (productAttributes?.type == ProductAttributeType.NUMERIC && editedAttr?.value) {
+        } else if (productAttributes?.type == ProductAttributeType.NUMERIC && editedAttr?.value != null) {
             try {
                 // Try parsing the value as a BigDecimal
                 BigDecimal numericValue = new BigDecimal(editedAttr?.value)

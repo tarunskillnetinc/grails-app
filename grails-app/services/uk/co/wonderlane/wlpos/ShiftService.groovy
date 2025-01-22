@@ -701,17 +701,25 @@ class ShiftService extends MySqlPoolDal {
                     shift.reconciledDate = DateTime.now()
                     shift.reconciledByUserId = loggedInUser.getId()
                     shift.reconciledByUsersName = loggedInUser.getUsername()
+                    shift.reconciledByRealName = loggedInUser.getName()
                     shift.shiftStatus = ShiftStatus.RECONCILED
                 } else {
                     shift.reReconciledDate = DateTime.now()
                     shift.reReconciledByUserId = loggedInUser.getId()
                     shift.reReconciledByUsersName = loggedInUser.getUsername()
+                    shift.reReconciledByRealName = loggedInUser.getName()
                     shift.totalRecountAttempts = (shift.totalRecountAttempts ?: 0) + 1
                 }
                 // Once update done clear `pending` list
                 shift.getPendingReconciliationTotals().clear()
             } else {
                 shift.shiftStatus = ShiftStatus.FINALISED
+                shift.finalisedTime = DateTime.now()
+                shift.finalisedUserId = loggedInUser.getId()
+                shift.finalisedUserName = loggedInUser.getUsername()
+                shift.finalisedUsersRealName = loggedInUser.getName()
+                shift.finalisedSafeId = saveShiftCommand.safeId
+                shift.finalisedSafeDescription = safeService.getSafeDescriptionForId(saveShiftCommand.safeId)
             }
         }
     }
@@ -744,24 +752,6 @@ class ShiftService extends MySqlPoolDal {
             // In cash lift action there can only CASH type
             // from location should be location of till while to location should be location of safe where we move cash into
             createNewTenderMovement(tillLocation, safeLocation, tenderMovementType, TenderType.CASH, cashAmount)
-        }
-    }
-
-    private void shiftCashTenderUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
-        updateTenderTotalForCashUpdate(shift, TenderType.CASH, cashAmount)
-        if (isAddFloat) {
-            updateTenderTotalForCashUpdate(shift, TenderType.VOUCHER, voucherAmount)
-        }
-    }
-
-    private void updateCashDrawer(Shift shift, BigDecimal cashAmount){
-        if (cashAmount != null){
-            BigDecimal currentCash = shift.getCashInDrawer();
-            if (currentCash == null) {
-                currentCash = BigDecimal.ZERO;
-            }
-            BigDecimal newCashAmount = currentCash.add(cashAmount);
-            shift.setCashInDrawer(newCashAmount);
         }
     }
 

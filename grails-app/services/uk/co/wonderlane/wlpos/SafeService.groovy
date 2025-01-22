@@ -13,6 +13,7 @@ class SafeService {
     def messageSource
     def rabbitService
     def locationService
+    def storeService
 
     def serviceMethod() {}
 
@@ -100,10 +101,28 @@ class SafeService {
         }
     }
 
+    List<Safe> getSafesForStore(Integer storeId) {
+        return Safe.withCriteria {
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("storeId", storeId)
+            order("active", "desc")
+            order("description")
+        }
+    }
+
     List<Safe> getStoreSafes() {
         return Safe.withCriteria {
             eq("retailerId", springSecurityService.principal.retailerId)
             eq("storeId", springSecurityService.principal.storeId)
+            order("active", "desc")
+            order("description")
+        }
+    }
+
+    List<Safe> getSafesByStoreNumber(int storeNumber) {
+        return Safe.withCriteria {
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("storeId", storeService.getStoreIdByStoreNumber(storeNumber))
             order("active", "desc")
             order("description")
         }
@@ -115,8 +134,18 @@ class SafeService {
         return saveSafe(safe)
     }
 
-    def getSafeById(Integer id){
+    def getSafeById(int id){
         return Safe.findById(id)
+    }
+
+    def getSafeDescriptionForId(Integer id){
+        if (id != null) {
+            Safe safe = getSafeById(id)
+            if (safe != null) {
+                return safe.description
+            }
+        }
+        return ""
     }
 
     boolean isPrimaryExists(Integer retailerId, Integer storeId){

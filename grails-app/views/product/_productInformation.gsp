@@ -2,10 +2,9 @@
 
     $(document).ready(function() {
         // Initialize the datepicker only once after the page has loaded
-        $("[id^='attribute_date_']").datepicker({
+        $("[id^='product_attribute_information_date_']").datepicker({
             format: "dd/mm/yyyy",
             weekStart: 1,
-            endDate: new Date().toString(),
             todayHighlight: true,
             autoclose: true,
             todayBtn: "linked",
@@ -15,16 +14,17 @@
         addNumericMaskLogic();
     });
 
+
     function addNumericMaskLogic() {
         $('.numeric-mask').maskMoney({
+            allowZero: true,
+            allowEmpty: true,
             prefix: '',
             allowNegative: false,
-            thousands: ',',
             decimal: '.',
             affixesStay: true,
             precision: 2,
         });
-
 
         $('.numeric-mask').on('keydown', function (e) {
             // Allow navigation keys, backspace, delete, tab, enter, and arrow keys
@@ -38,6 +38,11 @@
             }
 
             let currentValue = $(this).val();
+
+            // Allow 0 as a valid starting value
+            if (currentValue === '0' && e.key === '0') {
+                return;
+            }
 
             // If empty, allow the user to input a new value
             if (!currentValue && e.key.match(/[0-9]/)) {
@@ -61,6 +66,7 @@
 
         // Ensure proper formatting on blur
         $('.numeric-mask').on('blur', function () {
+
             let value = $(this).val();
 
             // If value is empty, allow it
@@ -104,50 +110,58 @@
         </g:if>
         <div class="col-12 col-lg-6 mt-2">
             <div class="row form-group align-items-center">
-                <g:hiddenField name="productAttributeValues[${index}].retailerId" value="${attributeValue?.retailerId }" />
-                <g:hiddenField name="productAttributeValues[${index}].productId" value="${attributeValue?.productId }" />
-                <g:hiddenField name="productAttributeValues[${index}].productAttributeId" value="${attributeValue?.productAttributes?.id }" />
-                <g:hiddenField name="productAttributeValues[${index}].attributeName" value="${attributeValue?.productAttributes?.name }" />
-                <g:hiddenField name="productAttributeValues[${index}].attributeType" value="${attributeValue?.productAttributes?.type }" />
-                <div class="col-4 text-right pr-4">
-                    <label for="attribute_${attributeValue?.productAttributeId}" class="col-form-label wl-label" style="white-space: nowrap; display: inline-block; max-width: 100%;">${attributeValue?.productAttributes?.name}</label>
+                <g:hiddenField id="productAttributeValues[${index}].retailerId" name="productAttributeValues[${index}].retailerId" value="${attributeValue?.retailerId }" />
+                <g:hiddenField id="productAttributeValues[${index}].productId" name="productAttributeValues[${index}].productId" value="${attributeValue?.productId }" />
+                <g:hiddenField id="productAttributeValues[${index}].productAttributeId" name="productAttributeValues[${index}].productAttributeId" value="${attributeValue?.productAttributes?.id }" />
+                <g:hiddenField id="productAttributeValues[${index}].attributeName" name="productAttributeValues[${index}].attributeName" value="${attributeValue?.productAttributes?.name }" />
+                <g:hiddenField id="productAttributeValues[${index}].attributeType" name="productAttributeValues[${index}].attributeType" value="${attributeValue?.productAttributes?.type }" />
+                <div class="col-5 text-right">
+                    <label for="attribute_${attributeValue?.productAttributeId}"
+                           class="col-form-label wl-label"
+                           style="white-space: normal; text-align: right; display: inline-block; word-break: break-word; overflow-wrap: anywhere;max-width: 100%; min-width: 100%;">
+                        ${attributeValue?.productAttributes?.name}
+                    </label>
                 </div>
 
                 <div class="col-6">
                     <g:if test="${attributeValue?.productAttributes?.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.LIST}">
-                        <g:select name="productAttributeValues[${index}].value"
+                        <g:select id="productAttributeValues[${index}].value"
+                                  name="productAttributeValues[${index}].value"
                                   from="${attributeValue?.productAttributes?.listValues?.sort { it.toLowerCase() }}"
                                   value="${attributeValue?.value ?: attributeValue.productAttributes.defaultValue}"
-                                  class="col-12 form-control select-border"
+                                  class="col-lg-12 form-control select-border"
                                   data-attribute-id="${attributeValue.productAttributes.id}"
                                   disabled="${!isStore}"/>
                     </g:if>
 
                     <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.TEXT}">
-                        <g:textField name="productAttributeValues[${index}].value"
+                        <g:textField id="productAttributeValues[${index}].value"
+                                     name="productAttributeValues[${index}].value"
                                      value="${attributeValue.value}"
                                      maxlength="50"
                                      size="50"
                                      placeholder="${attributeValue.productAttributes.defaultValue ?: ''}"
-                                     class="col-12 form-control bottom-border"
+                                     class="col-lg-12 form-control bottom-border"
                                      disabled="${!isStore}"/>
                     </g:if>
 
                     <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.NUMERIC}">
-                        <g:textField name="productAttributeValues[${index}].value"
-                                 id="productAttributeValues[${index}].value"
+                        <g:textField id="productAttributeValues[${index}].value"
+                                 name="productAttributeValues[${index}].value"
+                                 min="0"
                                  max="999999.99"
                                  value="${attributeValue.value ? attributeValue.value : ''}"
-                                 class="col-12 form-control bottom-border numeric-mask"
+                                 class="col-lg-12 form-control bottom-border numeric-mask"
                                  disabled="${!isStore}"/>
                     </g:if>
 
                     <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.BOOLEAN}">
                         <div class="form-check d-flex align-items-center h-100 pl-0">
-                            <g:checkBox name="productAttributeValues[${index}].value"
+                            <g:checkBox id="productAttributeValues[${index}].value"
+                                        name="productAttributeValues[${index}].value"
                                         value="true"
                                         checked="${attributeValue.value == 'true'}"
-                                        class="col-12 form-check-input wl-checkbox"
+                                        class="col-lg-12 form-check-input wl-checkbox"
                                         style="margin-left: 0;"
                                         disabled="${!isStore}"/>
                         </div>
@@ -156,8 +170,8 @@
                     <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.DATE}">
                         <div class="form-check d-flex align-items-center h-100 pl-0">
                             <g:textField name="productAttributeValues[${index}].value"
-                                         id="attribute_date_${index}"
-                                         class="col-12 form-control bottom-border"
+                                         id="product_attribute_information_date_${index}"
+                                         class="col-lg-12 form-control bottom-border"
                                          value="${attributeValue.value}"
                                          disabled="${!isStore}"/>
                         </div>

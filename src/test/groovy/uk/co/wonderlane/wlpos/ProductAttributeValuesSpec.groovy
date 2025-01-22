@@ -10,9 +10,4 @@ class ProductAttributeValuesSpec extends Specification implements DomainUnitTest
 
     def cleanup() {
     }
-
-    void "test something"() {
-        expect:"fix me"
-            true == false
-    }
 }

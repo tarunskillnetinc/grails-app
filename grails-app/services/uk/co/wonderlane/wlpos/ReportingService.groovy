@@ -16,6 +16,7 @@ import uk.co.wonderlane.wlpos.reporting.*
 class ReportingService {
 
     def springSecurityService
+    def financialWeekService
 
     // For sales report grouped by department, no pagination on here as the results are grouped into categories.
     @ReadOnly('reportingReadOnly')
@@ -337,6 +338,33 @@ class ReportingService {
         return [totalCount: totalCount, tenderMovements: results]
     }
 
+    @ReadOnly('reportingReadOnly')
+    def getBankingTenderMovements(DateTime startDate, DateTime endDate, List<TenderMovementType> tenderMovementTypes, Integer storeId, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+        def tenderMovementCriteria = TenderMovement.withTransaction { TenderMovement.createCriteria() }
+
+        def results = tenderMovementCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+
+            if (springSecurityService.principal.storeId != null) {
+                eq ("storeId", springSecurityService.principal.storeId)
+            } else if (storeId) {
+                eq ("storeId", storeId)
+            }
+
+            if (tenderMovementTypes) {
+                inList("type", tenderMovementTypes)
+            }
+
+            between ("timestamp", startDate, endDate)
+        }
+
+        // Criteria.list() with max and offset returns a totalCount, but for some reason I am having to read that value otherwise an error is thrown when trying to use it back in the controller.
+        // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
+        // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
+        int totalCount = TenderMovement.withTransaction { results.totalCount }
+        return [totalCount: totalCount, tenderMovements: results]
+    }
+
     TenderMovement createNewTenderMovement(
             TenderMovementType movementType,
             TenderType tenderType,
@@ -349,12 +377,14 @@ class ReportingService {
             String comments,
             BigDecimal amount) {
 
-        TenderMovement tenderMovement = new TenderMovement()
+        def tenderMovement = new TenderMovement()
+        def financialWeek = financialWeekService.getFinancialWeek(springSecurityService.principal.retailerId)
 
         tenderMovement.setRetailerId(springSecurityService.principal.retailerId)
         tenderMovement.setStoreId(springSecurityService.principal.storeId)
         tenderMovement.setUserId(springSecurityService.principal.id)
-        tenderMovement.setUserName(springSecurityService.principal.usersName)
+        tenderMovement.setUserName(springSecurityService.principal.username)
+        tenderMovement.setUsersRealName(springSecurityService.principal.usersName)
         tenderMovement.setType(movementType)
         tenderMovement.setTenderType(tenderType)
         tenderMovement.setFromLocation(fromLocation)
@@ -365,6 +395,8 @@ class ReportingService {
         tenderMovement.setBankName(bank)
         tenderMovement.setBankReference(bankReferenceNumber)
         tenderMovement.setComment(comments)
+        tenderMovement.setFinancialWeekId(financialWeek?.getId())
+        tenderMovement.setFinancialWeekNumber(financialWeek?.getWeekNumber())
 
         if (bankingDate) {
             DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy")

@@ -119,7 +119,9 @@ class EposTagLib {
                 break
             case ReportType.PROMOTIONS_GROUPED:
                 out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All Promotional Sales</li>"""
-
+                break
+            case ReportType.BANKING_REPORT:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Banking Report</li>"""
                 break
             case ReportType.PROMOTIONS:
                 def promotion = promotionService.getPromotion(attrs.promotionId)
