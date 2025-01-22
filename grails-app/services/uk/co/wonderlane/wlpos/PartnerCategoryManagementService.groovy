@@ -19,10 +19,12 @@ class PartnerCategoryManagementService {
     }
 
 
-    List<Category> updatedCategoryList(int categoryId){
+    List<Category> updatedCategoryList(List<Integer> selectedCategoryList){
         List<Category> categories = new ArrayList<>()
-        Category selectedCategory = categoryService.getCategory(categoryId)
-        categories.add(selectedCategory) as List<Category>
+        selectedCategoryList?.each { category ->
+            Category selectedCategory = categoryService.getCategory(category)
+            categories.add(selectedCategory) as List<Category>
+        }
         return categories
     }
 

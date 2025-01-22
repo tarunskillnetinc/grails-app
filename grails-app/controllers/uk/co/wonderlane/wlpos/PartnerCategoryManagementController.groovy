@@ -31,13 +31,14 @@ class PartnerCategoryManagementController {
             List<EcomSupplier> ecomSupplierList = EcomSupplier.findAllByRetailerIdAndDeleted(retailerId, false)
             EcomSupplierCategory ecomSupplierCategory = EcomSupplierCategory.findByIdAndDeleted(selectedSupplierCategoryId, false)
             def categoryValues  = categoryService.getTopLevelCategories()
-            def selectedCategoryId = ecomSupplierCategory?.ecomSupplierCategoryMappings?.get(0)?.category?.id
+//            def selectedCategoryId = ecomSupplierCategory?.ecomSupplierCategoryMappings?.get(0)?.category?.id
+            def selectedCategoryIds = ecomSupplierCategory?.ecomSupplierCategoryMappings*.category*.id
 
             render(view: "_addPartnerCategory", model: [partnerCategoryList: partnerCategoryList,
                                                         ecomSupplierList: ecomSupplierList,
                                                         ecomSupplierCategory : ecomSupplierCategory,
                                                         categoryValues :categoryValues,
-                                                        selectedCategoryId : selectedCategoryId,
+                                                        selectedCategoryIds : selectedCategoryIds,
                                                         isUpdate : isUpdate])
         } catch (Exception ex) {
             log.error("Error saving partner categories, Exception " + ex.getMessage(), ex)
@@ -57,8 +58,8 @@ class PartnerCategoryManagementController {
             String partnerCategoryName = params.partnerCategoryName
             Optional<Integer> partnerSupplierId = tryParseInt(params.partnerName)
             Optional<Integer> supplierCategoryId = tryParseInt(params.supplierCategoryId)
-            Optional<Integer> categoryId = tryParseInt(params.get("category.id"))
-            if (categoryId.present) {selectedCategoryId = categoryId.get()}
+            String selectedCategoryIds = params.get("category.id")
+            List<Integer> selectedCategoryList = selectedCategoryIds?.collect { it as Integer } ?: []
             if (partnerSupplierId.present) {selectedPartnerSupplierId = partnerSupplierId.get()}
             if (supplierCategoryId.present) {
                 int selectedPartnerCategoryId = supplierCategoryId.get()
@@ -67,7 +68,7 @@ class PartnerCategoryManagementController {
             }
 
             EcomSupplier ecomSupplier = EcomSupplier.findByRetailerIdAndId(retailerId, selectedPartnerSupplierId)
-            List<Category> updatedCategoryList = partnerCategoryManagementService.updatedCategoryList(selectedCategoryId)
+            List<Category> updatedCategoryList = partnerCategoryManagementService.updatedCategoryList(selectedCategoryList)
             if (isUpdate && ecomSupplierCategory && ecomSupplierCategory.deleted) {
                 flash.error = "Selected partner category ${ecomSupplierCategory?.description} already deleted. So Can not complete edit action"
             } else if (isUpdate && !ecomSupplierCategory) {

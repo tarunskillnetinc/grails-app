@@ -112,10 +112,10 @@
                                    style="width: 120px; text-align: right;">Select Category</label>
 
                             <div class="flex-grow-1" style="overflow: auto;">
-                                <g:render template="/product/categorySelect"
+                                <g:render template="/multiSelectCategory/categorySelect"
                                           model="[categories: categoryValues,
                                                   productCategoryList: partnerCategoryList,
-                                                  selectedCategoryId: selectedCategoryId,
+                                                  selectedCategoryIds: selectedCategoryIds,
                                                   level: 1,
                                                   triggerOnCategoryChange: false]" />
                             </div>
