@@ -58,10 +58,8 @@
                         £${String.format("%.2f", value.value)}
                     </td>
                     <td id="reportData_${i + 1}_variance" class="border ${(value.variance < BigDecimal.ZERO) ? 'text-danger' : ''}">
-                        <g:if test="${value.variance <= BigDecimal.ZERO}">-</g:if>
-                        <g:if test="${value.variance != BigDecimal.ZERO}">
-                            £${String.format("%.2f", value.variance.abs())}
-                        </g:if>
+                        <g:if test="${value.variance < BigDecimal.ZERO}">-</g:if>
+                        £${String.format("%.2f", value.variance.abs())}
                     </td>
                 </tr>
             </g:each>
