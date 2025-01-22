@@ -53,5 +53,5 @@
 </div>
 
 <div class="my-3 text-right">
-    <util:remotePaginate controller="tillAssignment" action="ajaxSearchForTills" total="${totalResults ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" />
+    <util:remotePaginate controller="partnerCategoryManagement" action="ajaxSearchForTills" total="${totalResults ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" />
 </div>

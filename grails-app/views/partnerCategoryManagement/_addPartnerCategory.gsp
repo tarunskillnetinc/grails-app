@@ -15,17 +15,27 @@
 
     <script type="text/javascript">
 
-    let getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
-    let categorySearchUrl = "${createLink(controller: 'category', action: 'ajaxSearchMaintenanceCategories')}";
+        let getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
+        let categorySearchUrl = "${createLink(controller: 'category', action: 'ajaxSearchMaintenanceCategories')}";
 
-        $(document).ready(function () {
-            $("#messages-container").html('');
-
-            document.querySelector('.safe-configuration-link').addEventListener('click', function(event) {
-                event.preventDefault();
-                cancelAddSafeView('${createLink(action:'closeSafeAdd')}');
+        function handleCancelAddPartnerCategory(url) {
+            confirmAndSubmit("Are you sure you want to cancel ?", function() {
+                cancelAddPartnerCategory(url);
             });
-        });
+        }
+
+        function confirmAndSubmit(message, yesCallBack) {
+            let result = confirm(message);
+            if (result) {
+                yesCallBack();
+            }
+        }
+
+        function cancelAddPartnerCategory(url) {
+            var tempLink = document.createElement('a'); // Create a temporary anchor element
+            tempLink.href = url;
+            document.location.href = tempLink.href; // Navigate to the modified URL
+        }
 
     </script>
 
@@ -124,7 +134,7 @@
 
 
                     <div class="mt-5 text-center">
-                        <button id="save-safe-cancel" type="button" name="safe-save-button" onclick="handleCancelAddSafe('${createLink(action:'closeSafeAdd')}')" class="btn btn-wl mr-2">Cancel</button>
+                        <button id="save-safe-cancel" type="button" name="safe-save-button" onclick="handleCancelAddPartnerCategory('${createLink(action:'index')}')" class="btn btn-wl mr-2">Cancel</button>
                         <button id="partner-category-save-btn" class="btn btn-success" name="save" onclick="$('#partner-category-form').submit();">Save</button>
                     </div>
 
