@@ -55,6 +55,11 @@ function renderCashReportResult(url, data) {
                 $("#report-time").html('<div class="alert alert-wl mx-0 font-weight-light text-right" role="alert">' +
                     'Report generated at ' + new Date().toLocaleTimeString() + ' on ' + new Date().toLocaleDateString() + '</div>');
                 $("#report-container").html(response);
+            },
+            204: function (response) {
+                $("#report-time").html('');
+                $("#report-container").html('');
+                $("#error-container").html('<div class="alert alert-warning alert-wl mx-0 text-center" role="alert">No results found</div>');
             }
         }
     });
