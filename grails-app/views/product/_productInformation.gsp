@@ -111,7 +111,6 @@
         <div class="col-12 col-lg-6 mt-2">
             <div class="row form-group align-items-center">
                 <g:hiddenField id="productAttributeValues[${index}].retailerId" name="productAttributeValues[${index}].retailerId" value="${attributeValue?.retailerId }" />
-                <g:hiddenField id="productAttributeValues[${index}].productId" name="productAttributeValues[${index}].productId" value="${attributeValue?.productId }" />
                 <g:hiddenField id="productAttributeValues[${index}].productAttributeId" name="productAttributeValues[${index}].productAttributeId" value="${attributeValue?.productAttributes?.id }" />
                 <g:hiddenField id="productAttributeValues[${index}].attributeName" name="productAttributeValues[${index}].attributeName" value="${attributeValue?.productAttributes?.name }" />
                 <g:hiddenField id="productAttributeValues[${index}].attributeType" name="productAttributeValues[${index}].attributeType" value="${attributeValue?.productAttributes?.type }" />

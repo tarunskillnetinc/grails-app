@@ -2311,7 +2311,6 @@ class RangeProductCommand {
 class ProductAttributeValuesCommand {
 
     Integer retailerId
-    Integer productId
     Integer productAttributeId
     String value
     String attributeName

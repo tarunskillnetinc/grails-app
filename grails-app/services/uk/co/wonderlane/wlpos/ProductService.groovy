@@ -939,7 +939,6 @@ class ProductService extends MySqlDal {
         missingProductAttributes.each { productAttribute ->
             ProductAttributeValues dummyEntry = new ProductAttributeValues(
                     retailerId: retailerId,
-                    productId: productId,
                     productAttributeId: productAttribute?.id,
                     value: productAttribute?.defaultValue, // Use defaultValue if available
                     productAttributes: productAttribute
@@ -966,7 +965,7 @@ class ProductService extends MySqlDal {
 
         // Loop through the edited product attributes
         editedProduct?.productAttributeValues?.each { editedAttr ->
-            def key = "${editedAttr.productAttributeId}_${editedAttr.productId}_${editedAttr.retailerId}"
+            def key = "${editedAttr.productAttributeId}_${product.id}_${editedAttr.retailerId}"
             def existingAttr = existingAttributesMap.get(key)
             def productAttributes = productAttributesMap.get(editedAttr.productAttributeId)
 
@@ -994,7 +993,6 @@ class ProductService extends MySqlDal {
                         }
                     } else if (productAttributes?.defaultValue != editedAttr?.value) {
                         def newAttr = new ProductAttributeValues(
-                                productId: editedAttr?.productId,
                                 retailerId: editedAttr?.retailerId,
                                 productAttributeId: editedAttr?.productAttributeId,
                                 value: editedAttr?.value,
