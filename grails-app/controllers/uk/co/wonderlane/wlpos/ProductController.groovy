@@ -19,6 +19,7 @@ import org.springframework.validation.ObjectError
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.PriceMarkedType
+import uk.co.wonderlane.wlpos.enums.ProductAttributeType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.supplier.Pack
@@ -85,6 +86,7 @@ class ProductController extends BaseController {
         def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+        List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(id)
 
         render(view: "add", model: [product            : product,
                                     skuList            : skuList(product),
@@ -102,7 +104,8 @@ class ProductController extends BaseController {
                                     snappyEnabled      : springSecurityService.principal.retailer.config.snappyShopperEnabled,
                                     locationsEnabled   : locationsEnabled,
                                     locationsType      : locationsType,
-                                    loyaltyEnabled     : loyaltyEnabled])
+                                    loyaltyEnabled     : loyaltyEnabled,
+                                    productAttributeValuesList : productAttributeValuesList])
     }
 
     private void setEffectiveDate() {
@@ -137,6 +140,7 @@ class ProductController extends BaseController {
 
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+        List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(-1)
 
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
                                     statusValues    : ProductStatus.values(),
@@ -149,7 +153,8 @@ class ProductController extends BaseController {
                                     isNewProduct    : true,
                                     locationsEnabled: locationsEnabled,
                                     locationsType   : springSecurityService.principal.retailer.config.locationsType.name(),
-                                    loyaltyEnabled  : loyaltyEnabled])
+                                    loyaltyEnabled  : loyaltyEnabled,
+                                    productAttributeValuesList : productAttributeValuesList])
     }
 
     def search() {
@@ -590,6 +595,7 @@ class ProductController extends BaseController {
             return product
         }
 
+
         product.validate()
         if (duplicateItemCode) {
             product.errors.rejectValue("itemCode", "product.itemCode.validator.error")
@@ -602,11 +608,17 @@ class ProductController extends BaseController {
         }
 
         if (!product.hasErrors() && product.validate() && productService.isLocationValid(product)) {
+            // Load product attribute values
+            ArrayList<ProductAttributeValues> updatedAttributes = productService.getUpdatedProductAttributeValues(product, editedProduct, builder, effectiveDate)
+            if (product.hasErrors()) { //This is require here if product attribute validation loads any custom validation errors this will return
+                return product
+            }
+
             // Restrictions are validated as part of product.validate()
             restrictionsService.saveRestrictions(product.restrictions)
 
             // Check for errors after each save, otherwise the BO will report a 500 - EntityInsertAction was vetoed error.
-            productService.saveProduct(product, productVariantsList)
+            productService.saveProduct(product, productVariantsList, updatedAttributes)
             if (product.hasErrors()) {
                 return product
             }
@@ -752,6 +764,7 @@ class ProductController extends BaseController {
             def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
             def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
+            List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product?.id ?: -1)
 
             render(view: "add", model: [product            : product,
                                         skuList            : skuList(product),
@@ -768,7 +781,8 @@ class ProductController extends BaseController {
                                         vatValues          : vatValues,
                                         locationsType      : springSecurityService.principal.retailer.config.locationsType.name(),
                                         locationsEnabled   : locationsEnabled,
-                                        loyaltyEnabled     : loyaltyEnabled])
+                                        loyaltyEnabled     : loyaltyEnabled,
+                                        productAttributeValuesList : productAttributeValuesList])
         }
     }
 
@@ -2182,6 +2196,8 @@ class ProductCommand {
 //    Collection<Message> refundMessages = new ArrayList<>()
 //    Collection<DiscountRate> discountRates = new ArrayList<>()
     Collection<ProductVariantCommand> variants = new ArrayList<>()
+
+    Collection<ProductAttributeValuesCommand> productAttributeValues = new ArrayList<>()
 }
 
 class RestrictionsCommand implements Validateable {
@@ -2290,6 +2306,16 @@ class RangeProductCommand {
     int productId
     int rangeId
     boolean ranged
+}
+
+class ProductAttributeValuesCommand {
+
+    Integer retailerId
+    Integer productId
+    Integer productAttributeId
+    String value
+    String attributeName
+    ProductAttributeType attributeType
 }
 
 class CSVUploadProduct {
