@@ -2216,7 +2216,7 @@ class ReportingController {
          startDate          : startDate,
          endDate            : endDate,
          userColumns        : reportingService.getReportColumns(ReportType.BANKING_REPORT),
-         stores             : stores,
+         stores             : stores.sort { it.config.storeNumber },
          bankingType        : bankingType]
     }
 
@@ -2228,7 +2228,7 @@ class ReportingController {
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1).minusMillis(1) : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        Integer storeId = params.storeFilter ? getIntegerParam(params.storeFilter) : null
+        Integer storeId = getIntegerParam(params.storeFilter)
 
         def tenderMovementTypes = []
         def bankingType = params.bankingType ?: ""
@@ -2246,18 +2246,13 @@ class ReportingController {
                 break
         }
 
-        def locations
-
-        if (storeId == null) {
-            locations = locationService.getLocationsByRetailerId()
-        } else {
-            locations = locationService.getLocationsByStoreId(storeId)
-        }
-
+        def locations = locationService.getLocationsByStoreId(storeId)
         def locationMap = locations.collectEntries { [(it.id): it.description] }
 
+        def store = storeService.getStore(springSecurityService.principal.retailerId, storeId)
+
         /* Currently this should always only filter on the bankingDate anr return the results in descending order */
-        def tenderMovements = reportingService.getBankingTenderMovements(startDate, endDate.plusDays(1), tenderMovementTypes, storeId, sortParams.max, sortParams.offset, "bankingDate", "desc")
+        def tenderMovements = reportingService.getBankingTenderMovements(startDate, endDate, tenderMovementTypes, storeId, sortParams.max, sortParams.offset, "bankingDate", "desc")
 
         render (template: "bankingReportResults", model: [bankingReports: tenderMovements?.tenderMovements?.toList(),
                                                             userColumns: reportingService.getReportColumns(ReportType.BANKING_REPORT),
@@ -2266,6 +2261,7 @@ class ReportingController {
                                                             endDate: endDate,
                                                             locationMap: locationMap,
                                                             storeId: storeId,
+                                                            storeName: store?.config?.storeName,
                                                             totalResults: tenderMovements?.totalCount])
     }
 }

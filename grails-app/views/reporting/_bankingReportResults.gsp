@@ -1,15 +1,5 @@
 <%@ page import="uk.co.wonderlane.wlpos.enums.TenderMovementType" %>
-
-<div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border" style="display: grid; grid-template-columns: 10% 10% 10% 10% 10% 17% 10% 17% 6%;">
-    <div class="col font-weight-bold" style="text-align: center;"><a id="financialWeek">Financial Week</a></div>
-    <div class="col font-weight-bold" style="text-align: center;"><a id="date">Date</a></div>
-    <div class="col font-weight-bold" style="text-align: center;"><a id="type">Banking Type</a></div>
-    <div class="col font-weight-bold" style="text-align: center;"><a id="safe">Safe</a></div>
-    <div class="col font-weight-bold" style="text-align: center;"><a id="bank">Bank</a></div>
-    <div class="col font-weight-bold" style="text-align: center;"><a id="user">User</a></div>
-    <div class="col font-weight-bold" style="text-align: center;"><a id="amount">Amount</a></div>
-    <div class="col font-weight-bold" style="text-align: center;"><a id="comments">Comments</a></div>
-</div>
+<% def hasFinancialWeek = bankingReports?.any { it.financialWeekNumber != null } %>
 
 <div class="d-flex justify-content-center">
     <div id="loading-indicator" class="spinner-border" role="status" style="display: none;">
@@ -22,38 +12,75 @@
         <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
     </g:if>
 
-    <g:each in="${bankingReports}" var="bankingReport" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="display: grid; grid-template-columns: 10% 10% 10% 10% 10% 17% 10% 17% 6%;">
-            <div id="financialWeek-${i+1}" style="text-align: center;">
-                ${bankingReport.financialWeekNumber}
-            </div>
-            <div id="date-${i+1}" style="text-align: center;">
-                <g:formatDate format="dd/MM/yyyy" date="${bankingReport.bankingDate?.toDate()}" timeZone="Europe/London" />
-            </div>
-            <div id="type-${i+1}" style="text-align: center;">
-                ${bankingReport.type == TenderMovementType.BANKING ? 'Banking Deposit' : bankingReport.type == TenderMovementType.CASH_INBOUND ? 'Banking Receipt' : bankingReport.type}
-            </div>
-            <div id="safe-${i+1}" style="text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                ${bankingReport.type == TenderMovementType.BANKING ? locationMap[bankingReport?.fromLocation?.id] : locationMap[bankingReport?.toLocation?.id]}
-            </div>
-            <div id="bank-${i+1}" style="text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                <div class="text-truncate">${bankingReport.bankName}</div>
-                <div class="text-truncate">${bankingReport.bankReference}</div>
-            </div>
-            <div id="user-${i+1}" style="text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${bankingReport.userName}</div>
-                <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${bankingReport.usersRealName}</div>
-            </div>
-            <div id="amount-${i+1}" style="text-align: center;">
-                <div class="text-truncate">${bankingReport.tenderType}</div>
-                <div class="text-truncate">£${bankingReport.amount}</div>
-            </div>
-            <div id="comments-${i+1}" style="text-align: center; overflow: hidden; word-wrap: break-word;">
-                <div>${bankingReport.comment}</div>
-            </div>
-            <div id="padding-${i+1}"></div>
+    <g:if test="${bankingReports && bankingReports.size() > 0}">
+        <div class="row col-12">
+            <table class="table col-md-12 col-sm-12">
+                <thead class="bg-light">
+                    <tr>
+                        <th id="reportData_header" scope="col" colspan="4" class="border">Banking Report</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border font-weight-bold">
+                        <td id="reportData_store">Store ID & Name: ${storeId} ${storeName}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-    </g:each>
+
+        <table class="table col-md-12 col-sm-12">
+            <thead class="bg-light">
+                <tr>
+                    <% if (hasFinancialWeek) { %>
+                        <th scope="col" class="border">Financial Week</th>
+                    <% } %>
+                    <th scope="col" class="border">Date</th>
+                    <th scope="col" class="border">Banking Type</th>
+                    <th scope="col" class="border">Safe</th>
+                    <th scope="col" class="border">Bank</th>
+                    <th scope="col" class="border">User</th>
+                    <th scope="col" class="border">Amount</th>
+                    <th scope="col" class="border">Comments</th>
+                </tr>
+            </thead>
+
+            <div class="row col-12">
+                <tbody>
+                    <g:each in="${bankingReports}" var="bankingReport" status="i">
+                        <tr id="reportData_${i + 1}">
+                            <% if (hasFinancialWeek) { %>
+                                <td id="reportData_${i + 1}_financialWeek" scope="row" class="border">${bankingReport?.financialWeekNumber}</td>
+                            <% } %>
+                            <td id="reportData_${i + 1}_date" scope="row" class="border">
+                                <g:formatDate format="dd/MM/yyyy" date="${bankingReport?.bankingDate?.toDate()}" timeZone="Europe/London" />
+                            </td>
+                            <td id="reportData_${i + 1}_bankingType" scope="row" class="border">
+                                ${bankingReport?.type == TenderMovementType.BANKING ? 'Bank Deposit' : bankingReport?.type == TenderMovementType.CASH_INBOUND ? 'Bank Receipt' : bankingReport?.type}
+                            </td>
+                            <td id="reportData_${i + 1}_safe" scope="row" class="border">
+                                ${bankingReport?.type == TenderMovementType.BANKING ? locationMap[bankingReport?.fromLocation?.id] : locationMap[bankingReport?.toLocation?.id]}
+                            </td>
+                            <td id="reportData_${i + 1}_bank" scope="row" class="border">
+                                <div class="text-truncate">${bankingReport?.bankName}</div>
+                                <div class="text-truncate">${bankingReport?.bankReference}</div>
+                            </td>
+                            <td id="reportData_${i + 1}_user" scope="row" class="border">
+                                <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${bankingReport?.userName}</div>
+                                <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${bankingReport?.usersRealName}</div>
+                            </td>
+                            <td id="reportData_${i + 1}_amount" scope="row" class="border">
+                                <div class="text-truncate">${bankingReport?.tenderType}</div>
+                                <div class="text-truncate">£${bankingReport?.amount}</div>
+                            </td>
+                            <td id="reportData_${i + 1}_comments scope="row" class="border">
+                            ${bankingReport?.comment}
+                            </td>
+                        </tr>
+                    </g:each>
+                </tbody>
+            </div>
+        </table>
+    </g:if>
 </div>
 
 <g:if test="${totalResults > 0}">
