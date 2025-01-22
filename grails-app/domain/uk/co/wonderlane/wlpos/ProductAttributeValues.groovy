@@ -8,7 +8,6 @@ class ProductAttributeValues implements Serializable {
 
     Integer id
     Integer retailerId
-    Integer productId
     Integer productAttributeId
     String value
     ProductAttributes productAttributes
@@ -22,12 +21,11 @@ class ProductAttributeValues implements Serializable {
         table "productattributevalues"
         version false
 
-        productId column: "productId"
-        id composite: ['retailerId', 'productId', 'productAttributeId']
+        id composite: ['retailerId', 'product', 'productAttributeId']
         retailerId column: "retailerId", sqlType: "tinyint"
         productAttributeId column: "productAttributeId"
         value column: "value"
-        product column: "productId", insertable: false, updateable: false
+        product column: "productId"
     }
 
     static constraints = {
