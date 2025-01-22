@@ -11,7 +11,7 @@ class ProductGroup {
     static hasMany = [productGroupProducts: ProductGroupProduct]
 
     static mapping = {
-        table "productGroup"
+        table "productgroup"
         version false
 
         retailerId column: "retailerId", sqlType: "tinyint"
