@@ -140,7 +140,6 @@
                                      value="${attributeValue.value}"
                                      maxlength="50"
                                      size="50"
-                                     placeholder="${attributeValue.productAttributes.defaultValue ?: ''}"
                                      class="col-lg-12 form-control bottom-border"
                                      disabled="${!isStore}"/>
                     </g:if>
