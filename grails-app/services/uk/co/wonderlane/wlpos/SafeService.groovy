@@ -134,7 +134,7 @@ class SafeService {
         return saveSafe(safe)
     }
 
-    def getSafeById(int id){
+    def getSafeById(Integer id){
         return Safe.findById(id)
     }
 
