@@ -2254,15 +2254,18 @@ class ReportingController {
                 break
         }
 
-        def locations = locationService.getLocationsByStoreId(storeId)
-        def locationMap = locations.collectEntries { [(it.id): it.description] }
-
+        def locations = null
         def store = null
+        
         if (springSecurityService.principal.storeId) {
             store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            locations = locationService.getLocationsByStoreId(springSecurityService.principal.storeId)
         } else {
             store = storeService.getStore(springSecurityService.principal.retailerId, storeId)
+            locations = locationService.getLocationsByStoreId(storeId)
         }
+
+        def locationMap = locations.collectEntries { [(it.id): it.description] }
 
         /* Currently this should always only filter on the bankingDate anr return the results in descending order */
         def tenderMovements = reportingService.getBankingTenderMovements(startDate, endDate, tenderMovementTypes, storeId, sortParams.max, sortParams.offset, "bankingDate", "desc")
