@@ -110,7 +110,7 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    void updateFinaliseShiftToSafeSessionMovements(Shift shift, int safeId){
+    SafeSession updateFinaliseShiftToSafeSessionMovements(Shift shift, int safeId){
         Map<TenderType, BigDecimal> addedTenderAmounts = new HashMap<>()
         if (shift.reconciliationTotals) {
             for (tender in shift.reconciliationTotals) {
@@ -120,7 +120,11 @@ class ShiftService extends MySqlPoolDal {
                 }
             }
         }
-        safeManagementService.addTenderToSafe(safeId, addedTenderAmounts)
+        SafeSession safeSession = safeManagementService.addTenderToSafe(safeId, addedTenderAmounts)
+
+        List<TenderTotal> tenderTotalList = getTenderTotalList(shift)
+        User loggedInUser = loadLoggedInUser()
+        safeManagementService.addAudit(safeSession, SafeSessionAction.CASH_LIFT, true, loggedInUser, null, tenderTotalList)
     }
 
     void updateFinaliseTenderMovement(Shift shift, int safeId){
@@ -409,7 +413,7 @@ class ShiftService extends MySqlPoolDal {
             User loggedInUser = loadLoggedInUser()
             updateAutoShiftDataFields(shift, loggedInUser, true);
             updateFinaliseTenderMovement(shift, primarySafeId)
-            updateFinaliseShiftToSafeSessionMovements(shift, primarySafeId)
+            SafeSession safeSession = updateFinaliseShiftToSafeSessionMovements(shift, primarySafeId)
 
             Safe safe = safeService.getSafeById(primarySafeId)
             List<TenderTotal> tenderTotalList = getTenderTotalList(shift)
