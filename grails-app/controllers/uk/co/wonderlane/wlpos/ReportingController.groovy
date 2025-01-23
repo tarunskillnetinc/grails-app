@@ -2209,7 +2209,15 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1).minusMillis(1) : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().plusDays(1).minusMillis(1)
-        def stores = storeService.getStores(springSecurityService.principal.retailerId)
+
+        def stores = []
+        if (springSecurityService.principal.storeId) {
+            def store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            stores = [store]
+        } else {
+            stores = storeService.getStores(springSecurityService.principal.retailerId)
+        }
+
         def bankingType = ['Bank Deposit', 'Bank Receipt']
 
         [reportType         : ReportType.BANKING_REPORT,
@@ -2246,10 +2254,18 @@ class ReportingController {
                 break
         }
 
-        def locations = locationService.getLocationsByStoreId(storeId)
-        def locationMap = locations.collectEntries { [(it.id): it.description] }
+        def locations = null
+        def store = null
+        
+        if (springSecurityService.principal.storeId) {
+            store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            locations = locationService.getLocationsByStoreId(springSecurityService.principal.storeId)
+        } else {
+            store = storeService.getStore(springSecurityService.principal.retailerId, storeId)
+            locations = locationService.getLocationsByStoreId(storeId)
+        }
 
-        def store = storeService.getStore(springSecurityService.principal.retailerId, storeId)
+        def locationMap = locations.collectEntries { [(it.id): it.description] }
 
         /* Currently this should always only filter on the bankingDate anr return the results in descending order */
         def tenderMovements = reportingService.getBankingTenderMovements(startDate, endDate, tenderMovementTypes, storeId, sortParams.max, sortParams.offset, "bankingDate", "desc")
@@ -2260,7 +2276,7 @@ class ReportingController {
                                                             startDate: startDate,
                                                             endDate: endDate,
                                                             locationMap: locationMap,
-                                                            storeId: storeId,
+                                                            storeNumber: store?.config?.storeNumber,
                                                             storeName: store?.config?.storeName,
                                                             totalResults: tenderMovements?.totalCount])
     }
