@@ -194,10 +194,10 @@
 </head>
 <body>
     <section id="reporting-container" class="container-fluid">
-        <g:render template="titleCrumbs" model="[title: 'Safe Session Variance Report']" />
+        <g:render template="titleCrumbs" model="[title: 'Safe Variance Report']" />
 
         <div class="row mt-4">
-            <g:render template="safeSessionVarianceParams" />
+            <g:render template="safeVarianceParams" />
         </div>
 
         <div id="error-container"></div>

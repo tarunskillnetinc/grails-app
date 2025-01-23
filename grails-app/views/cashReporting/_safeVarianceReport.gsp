@@ -6,7 +6,7 @@
     <table class="table col-md-12 col-sm-12">
         <thead class="bg-light">
             <tr>
-                <th id="reportData_header" scope="col" colspan="4" class="border">Shift Variance Report</th>
+                <th id="reportData_header" scope="col" colspan="4" class="border">Safe Variance Report</th>
             </tr>
         </thead>
         <tbody>
@@ -69,7 +69,7 @@
                     </td>
                     <td id="reportData_${i + 1}_tender" scope="row" class="border">
                         <g:each in="${session?.reconciliationTotals}" var="total" status="j">
-                            <div>${reasonCodes[(total?.varianceReason as Integer) ?: 0]}</div>
+                            <div>${reasonCodes[total?.varianceReason]}</div>
                         </g:each>
                     </td>
                 </tr>

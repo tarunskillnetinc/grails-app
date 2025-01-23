@@ -41,7 +41,7 @@ class CashReportingController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
-    def safeSessionFinalisation() {
+    def safeFinalisation() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC).minusDays(7)
         DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
@@ -146,7 +146,7 @@ class CashReportingController {
             var additionalReason = values.stream().filter { StringUtils.isNotBlank(it.varianceReasonText) }
                     .map { it.varianceReasonText }.findFirst().orElse(null)
 
-            render(status: 200, template: "safeSessionFinalisationReport", model: [
+            render(status: 200, template: "safeFinalisationReport", model: [
                     storeText: storeText, safeText: safeText, safeSession: safeSession, values: values, reason: reason, additionalReason: additionalReason
             ])
         } else {
@@ -200,7 +200,7 @@ class CashReportingController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
-    def safeSessionVariance() {
+    def safeVariance() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
@@ -256,14 +256,14 @@ class CashReportingController {
         def filterMap = safesMap.findAll { entry -> safes.contains(entry.value) }
         def filteredSessions = sessions.findAll { obj -> filterMap.containsKey(obj.safeId) }
 
-        def varianceReasons = filteredSessions.collectMany { session -> session.reconciliationTotals*.varianceReason}.findAll { it != null }.collect { it as Integer }
+        def varianceReasons = filteredSessions.collectMany { session -> session.reconciliationTotals*.varianceReason}.findAll { it != null }
 
         def reasonMap = null
         if (varianceReasons.size() > 0) {
-            def reasons = reasonCodeService.findReasonCodesByIds(varianceReasons);
-            reasonMap = reasons.collectEntries { [(it.id): it.description] }
+            def reasons = reasonCodeService.findReasonCodesByCodes(springSecurityService.principal.retailerId, varianceReasons);
+            reasonMap = reasons.collectEntries { [(it.code): (it.description)] }
         }
 
-        render(status: filteredSessions ? 200 : 204, template: "safeSessionVarianceReport", model: [store: store, safeSessions: filteredSessions, startDate: startDate, endDate: endDate, safes: safesMap, reasonCodes: reasonMap])
+        render(status: filteredSessions ? 200 : 204, template: "safeVarianceReport", model: [store: store, safeSessions: filteredSessions, startDate: startDate, endDate: endDate, safes: safesMap, reasonCodes: reasonMap])
     }
 }
