@@ -86,7 +86,7 @@ class ProductController extends BaseController {
         def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
-        List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(id)
+        List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product)
 
         render(view: "add", model: [product            : product,
                                     skuList            : skuList(product),
@@ -140,7 +140,7 @@ class ProductController extends BaseController {
 
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
-        List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(-1)
+        List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(null)
 
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
                                     statusValues    : ProductStatus.values(),
@@ -469,6 +469,8 @@ class ProductController extends BaseController {
 
         List<RangeProduct> existingRangeProducts = new ArrayList<>()
 
+        ArrayList<ProductAttributeValues> updatedAttributes = new ArrayList<>()
+
         if (newProduct) {
             changeAffectsSel = true
             if (isRequest) {
@@ -581,6 +583,9 @@ class ProductController extends BaseController {
             // Variants.
             productVariantsList = getUpdatedProductVariantsOnSave(editedProduct, product, builder, changeAffectsSel, effectiveDate)
 
+            // Load product attribute values
+            updatedAttributes = productService.getUpdatedProductAttributeValues(product, editedProduct, builder, effectiveDate)
+
             // Range Products
             for (RangeProduct rangeProduct in product.ranges) {
                 // Copy the items without copying the list itself for later reference to which products have been unranged
@@ -608,11 +613,6 @@ class ProductController extends BaseController {
         }
 
         if (!product.hasErrors() && product.validate() && productService.isLocationValid(product)) {
-            // Load product attribute values
-            ArrayList<ProductAttributeValues> updatedAttributes = productService.getUpdatedProductAttributeValues(product, editedProduct, builder, effectiveDate)
-            if (product.hasErrors()) { //This is require here if product attribute validation loads any custom validation errors this will return
-                return product
-            }
 
             // Restrictions are validated as part of product.validate()
             restrictionsService.saveRestrictions(product.restrictions)
@@ -764,7 +764,7 @@ class ProductController extends BaseController {
             def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
             def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
-            List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product?.id ?: -1)
+            List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product ?: null)
 
             render(view: "add", model: [product            : product,
                                         skuList            : skuList(product),
@@ -2311,7 +2311,6 @@ class RangeProductCommand {
 class ProductAttributeValuesCommand {
 
     Integer retailerId
-    Integer productId
     Integer productAttributeId
     String value
     String attributeName
