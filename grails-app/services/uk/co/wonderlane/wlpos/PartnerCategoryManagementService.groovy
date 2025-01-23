@@ -11,6 +11,7 @@ class PartnerCategoryManagementService {
     def categoryService
     def sessionFactory
 
+    //Loading partner categories based on filter criteria
     List<EcomSupplierCategory> getFilterPartnerCategories(Integer retailerId, EcomSupplier ecomSupplier, String partnerCategoryNameFilter){
         List<EcomSupplierCategory> ecomSupplierCategories = []
 
@@ -31,6 +32,7 @@ class PartnerCategoryManagementService {
         return ecomSupplierCategories
     }
 
+    //Create new supplier category
     EcomSupplierCategory createNewEcomSupplierCategory(EcomSupplier ecomSupplier, int retailerId, String partnerCategoryName){
        EcomSupplierCategory ecomSupplierCategory = new EcomSupplierCategory()
        ecomSupplierCategory.setEcomSupplier(ecomSupplier)
@@ -39,7 +41,7 @@ class PartnerCategoryManagementService {
        return ecomSupplierCategory
     }
 
-
+    //Update selected categories
     List<Category> updatedCategoryList(List<Integer> selectedCategoryList){
         List<Category> categories = new ArrayList<>()
         selectedCategoryList?.each { category ->
@@ -49,6 +51,7 @@ class PartnerCategoryManagementService {
         return categories
     }
 
+    //Filter out and returned removed categories
     List<EcomSupplierCategoryMapping> removedEcomSupplierCategoryMappings(Collection<Category> newCategories, EcomSupplierCategory ecomSupplierCategory) {
         // Fetch the existing mappings
         def existingMappings = ecomSupplierCategory?.ecomSupplierCategoryMappings
@@ -69,12 +72,13 @@ class PartnerCategoryManagementService {
     }
 
 
+    //Filter out and returned all newly added categories
     List<EcomSupplierCategoryMapping> addedEcomSupplierCategoryMappings(EcomSupplier ecomSupplier, Collection<Category> newCategories, EcomSupplierCategory ecomSupplierCategory) {
 
         List<EcomSupplierCategoryMapping> newMappings = []
 
         // Fetch the existing mappings
-        def existingMappings = ecomSupplierCategory.ecomSupplierCategoryMappings
+        def existingMappings = ecomSupplierCategory?.ecomSupplierCategoryMappings ?: []
 
         // Collect IDs of the existing categories
         def existingCategoryIds = existingMappings*.category*.id
@@ -95,25 +99,26 @@ class PartnerCategoryManagementService {
 
     @Transactional
     void saveEcomSupplierCategory(EcomSupplierCategory ecomSupplierCategory, List<EcomSupplierCategoryMapping> removedEcomSupplierCategoryMappings, List<EcomSupplierCategoryMapping> addedEcomSupplierCategoryMappings){
-
-        if (removedEcomSupplierCategoryMappings != null && removedEcomSupplierCategoryMappings.size() > 0) {
-            removedEcomSupplierCategoryMappings.each { mapping ->
-            EcomSupplierCategoryMapping.executeUpdate(
-                    "DELETE FROM EcomSupplierCategoryMapping " +
-                            "WHERE ecomSupplierCategoryId = :ecomSupplierCategoryId and ecomSupplierId = :ecomSupplierId and categoryId = :categoryId",
-                    [ecomSupplierCategoryId: mapping.ecomSupplierCategoryId, ecomSupplierId: mapping.ecomSupplierId, categoryId: mapping.categoryId]
-            )
-                ecomSupplierCategory.removeFromEcomSupplierCategoryMappings(mapping)
+        try {
+            //If any category mapping is removed then removed them from supplier category association
+            if (removedEcomSupplierCategoryMappings != null && removedEcomSupplierCategoryMappings.size() > 0) {
+                removedEcomSupplierCategoryMappings.each { mapping ->
+                    ecomSupplierCategory.removeFromEcomSupplierCategoryMappings(mapping)
+                }
             }
-        }
 
-        if (addedEcomSupplierCategoryMappings != null && addedEcomSupplierCategoryMappings.size() > 0) {
-            addedEcomSupplierCategoryMappings.each { mapping ->
-                ecomSupplierCategory.addToEcomSupplierCategoryMappings(mapping)
+            //If any category mapping is added then add them from supplier category association
+            if (addedEcomSupplierCategoryMappings != null && addedEcomSupplierCategoryMappings.size() > 0) {
+                addedEcomSupplierCategoryMappings.each { mapping ->
+                    ecomSupplierCategory.addToEcomSupplierCategoryMappings(mapping)
+                }
             }
-        }
 
-        ecomSupplierCategory.save(flush: true)
+            ecomSupplierCategory.save(flush: true)
+        } catch (Exception ex) {
+            log.error("Error saving partner categories, Exception " + ex.getMessage(), ex)
+            throw new RuntimeException("Error saving ecom supplier categories, exception " + ex)
+        }
     }
 
 

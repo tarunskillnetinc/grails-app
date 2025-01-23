@@ -46,7 +46,7 @@ class PartnerCategoryManagementController {
             List<EcomSupplier> ecomSupplierList = EcomSupplier.findAllByRetailerIdAndDeleted(retailerId, false)
             EcomSupplierCategory ecomSupplierCategory = EcomSupplierCategory.findByIdAndDeleted(selectedSupplierCategoryId, false)
             def categoryValues  = categoryService.getTopLevelCategories()
-            def selectedCategoryIds = ecomSupplierCategory?.ecomSupplierCategoryMappings*.category*.id
+            def selectedCategoryIds = ecomSupplierCategory?.ecomSupplierCategoryMappings?.collect { it?.category?.id }?.findAll { it != null } ?: []
 
             render(view: "_addPartnerCategory", model: [partnerCategoryList: partnerCategoryList,
                                                         ecomSupplierList: ecomSupplierList,
@@ -78,7 +78,7 @@ class PartnerCategoryManagementController {
             List<Category> updatedCategoryList = partnerCategoryManagementService.updatedCategoryList(selectedCategoryList)
             if (!updatedCategoryList || updatedCategoryList.isEmpty()) { //Validate at least single category is created
                 flash.error = "Please select at least one category"
-                redirect(action: "index")
+                redirect(action: "addPartnerCategory")
                 return
             }
 
@@ -87,7 +87,7 @@ class PartnerCategoryManagementController {
             EcomSupplier ecomSupplier = EcomSupplier.findByRetailerIdAndIdAndDeleted(retailerId, selectedPartnerSupplierId, false)
             if (ecomSupplier == null) { //Validate partner supplier exists
                 flash.error = "Selected supplier not found"
-                redirect(action: "index")
+                redirect(action: "addPartnerCategory")
                 return
             }
 
@@ -98,11 +98,11 @@ class PartnerCategoryManagementController {
                 ecomSupplierCategory = EcomSupplierCategory.findById(selectedPartnerCategoryId)
                 if (ecomSupplierCategory && ecomSupplierCategory.deleted) {
                     flash.error = "Selected partner category ${ecomSupplierCategory?.description} already deleted. So Can not complete edit action"
-                    redirect(action: "index")
+                    redirect(action: "addPartnerCategory")
                     return
                 } else if (!ecomSupplierCategory) {
                     flash.error = "Selected partner category ${partnerCategoryName} not exists. So Can not complete edit action"
-                    redirect(action: "index")
+                    redirect(action: "addPartnerCategory")
                     return
                 }
             }
@@ -127,12 +127,12 @@ class PartnerCategoryManagementController {
                 redirect(action: "index")
             } else {
                 flash.error = "Failed to save partner category"
-                redirect(action: "index")
+                redirect(action: "addPartnerCategory")
             }
         } catch (Exception ex) {
             log.error("Error saving partner categories, Exception " + ex.getMessage(), ex)
             flash.error = "Failed to save partner category"
-            redirect(action: "index")
+            redirect(action: "addPartnerCategory")
         }
     }
 
