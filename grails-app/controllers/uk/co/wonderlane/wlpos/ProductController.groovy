@@ -19,6 +19,7 @@ import org.springframework.validation.ObjectError
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.PriceMarkedType
+import uk.co.wonderlane.wlpos.enums.ProductAttributeType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.supplier.Pack
@@ -85,6 +86,7 @@ class ProductController extends BaseController {
         def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+        List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product)
 
         render(view: "add", model: [product            : product,
                                     skuList            : skuList(product),
@@ -102,7 +104,8 @@ class ProductController extends BaseController {
                                     snappyEnabled      : springSecurityService.principal.retailer.config.snappyShopperEnabled,
                                     locationsEnabled   : locationsEnabled,
                                     locationsType      : locationsType,
-                                    loyaltyEnabled     : loyaltyEnabled])
+                                    loyaltyEnabled     : loyaltyEnabled,
+                                    productAttributeValuesList : productAttributeValuesList])
     }
 
     private void setEffectiveDate() {
@@ -137,6 +140,7 @@ class ProductController extends BaseController {
 
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+        List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(null)
 
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
                                     statusValues    : ProductStatus.values(),
@@ -149,7 +153,8 @@ class ProductController extends BaseController {
                                     isNewProduct    : true,
                                     locationsEnabled: locationsEnabled,
                                     locationsType   : springSecurityService.principal.retailer.config.locationsType.name(),
-                                    loyaltyEnabled  : loyaltyEnabled])
+                                    loyaltyEnabled  : loyaltyEnabled,
+                                    productAttributeValuesList : productAttributeValuesList])
     }
 
     def search() {
@@ -464,6 +469,8 @@ class ProductController extends BaseController {
 
         List<RangeProduct> existingRangeProducts = new ArrayList<>()
 
+        ArrayList<ProductAttributeValues> updatedAttributes = new ArrayList<>()
+
         if (newProduct) {
             changeAffectsSel = true
             if (isRequest) {
@@ -576,6 +583,9 @@ class ProductController extends BaseController {
             // Variants.
             productVariantsList = getUpdatedProductVariantsOnSave(editedProduct, product, builder, changeAffectsSel, effectiveDate)
 
+            // Load product attribute values
+            updatedAttributes = productService.getUpdatedProductAttributeValues(product, editedProduct, builder, effectiveDate)
+
             // Range Products
             for (RangeProduct rangeProduct in product.ranges) {
                 // Copy the items without copying the list itself for later reference to which products have been unranged
@@ -590,6 +600,7 @@ class ProductController extends BaseController {
             return product
         }
 
+
         product.validate()
         if (duplicateItemCode) {
             product.errors.rejectValue("itemCode", "product.itemCode.validator.error")
@@ -602,11 +613,12 @@ class ProductController extends BaseController {
         }
 
         if (!product.hasErrors() && product.validate() && productService.isLocationValid(product)) {
+
             // Restrictions are validated as part of product.validate()
             restrictionsService.saveRestrictions(product.restrictions)
 
             // Check for errors after each save, otherwise the BO will report a 500 - EntityInsertAction was vetoed error.
-            productService.saveProduct(product, productVariantsList)
+            productService.saveProduct(product, productVariantsList, updatedAttributes)
             if (product.hasErrors()) {
                 return product
             }
@@ -752,6 +764,7 @@ class ProductController extends BaseController {
             def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
             def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
+            List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product ?: null)
 
             render(view: "add", model: [product            : product,
                                         skuList            : skuList(product),
@@ -768,7 +781,8 @@ class ProductController extends BaseController {
                                         vatValues          : vatValues,
                                         locationsType      : springSecurityService.principal.retailer.config.locationsType.name(),
                                         locationsEnabled   : locationsEnabled,
-                                        loyaltyEnabled     : loyaltyEnabled])
+                                        loyaltyEnabled     : loyaltyEnabled,
+                                        productAttributeValuesList : productAttributeValuesList])
         }
     }
 
@@ -1355,6 +1369,7 @@ class ProductController extends BaseController {
         builder.compare("quantityChangeForced", product.restrictions.quantityChangeForced, editedProduct.restrictions.quantityChangeForced)
         builder.compare("receiptPrintForced", product.restrictions.receiptPrintForced, editedProduct.restrictions.receiptPrintForced)
         builder.compare("allowsLoyaltyPointsCollection", product.restrictions.allowsLoyaltyPointsCollection, editedProduct.restrictions.allowsLoyaltyPointsCollection)
+        builder.compare("alwaysOpenCashDrawer", product.restrictions.alwaysOpenCashDrawer, editedProduct.restrictions.alwaysOpenCashDrawer)
 
         builder.compare("vatCode", product.vatCode?.description, editedProduct.vatCode?.description)
 
@@ -1800,7 +1815,8 @@ class ProductController extends BaseController {
                 first.quantityChangeAllowed != second.quantityChangeAllowed ||
                 first.quantityChangeForced != second.quantityChangeForced ||
                 first.receiptPrintForced != second.receiptPrintForced ||
-                first.allowsLoyaltyPointsCollection != second.allowsLoyaltyPointsCollection
+                first.allowsLoyaltyPointsCollection != second.allowsLoyaltyPointsCollection ||
+                first.alwaysOpenCashDrawer != second.alwaysOpenCashDrawer
     }
 
     private static void copyRestrictions(RestrictionsCommand from, Restrictions to) {
@@ -1819,6 +1835,7 @@ class ProductController extends BaseController {
         to.quantityChangeForced = from.quantityChangeForced
         to.receiptPrintForced = from.receiptPrintForced
         to.allowsLoyaltyPointsCollection = from.allowsLoyaltyPointsCollection
+        to.alwaysOpenCashDrawer = from.alwaysOpenCashDrawer
     }
 
     private void copyProduct(ProductCommand from, Product to) {
@@ -2179,6 +2196,8 @@ class ProductCommand {
 //    Collection<Message> refundMessages = new ArrayList<>()
 //    Collection<DiscountRate> discountRates = new ArrayList<>()
     Collection<ProductVariantCommand> variants = new ArrayList<>()
+
+    Collection<ProductAttributeValuesCommand> productAttributeValues = new ArrayList<>()
 }
 
 class RestrictionsCommand implements Validateable {
@@ -2198,6 +2217,7 @@ class RestrictionsCommand implements Validateable {
     Boolean quantityChangeForced
     Boolean receiptPrintForced
     Boolean allowsLoyaltyPointsCollection
+    Boolean alwaysOpenCashDrawer
 
     static constraints = {
         importFrom Restrictions
@@ -2286,6 +2306,15 @@ class RangeProductCommand {
     int productId
     int rangeId
     boolean ranged
+}
+
+class ProductAttributeValuesCommand {
+
+    Integer retailerId
+    Integer productAttributeId
+    String value
+    String attributeName
+    ProductAttributeType attributeType
 }
 
 class CSVUploadProduct {

@@ -36,6 +36,7 @@ class Product {
     Collection<Message> saleMessages = new ArrayList<>()
     Collection<Message> refundMessages = new ArrayList<>()
     Collection<ProductVariant> variants = new ArrayList<>()
+    Collection<ProductAttributeValues> productAttributeValues = new ArrayList<>()
 
     BigDecimal retailPrice
     BigDecimal costPrice
@@ -44,7 +45,7 @@ class Product {
     SelType selType
     String productImgUrl
 
-    static hasMany = [ saleMessages: Message, refundMessages: Message, variants: ProductVariant ]
+    static hasMany = [ saleMessages: Message, refundMessages: Message, variants: ProductVariant, productAttributeValues: ProductAttributeValues ]
     static belongsTo = [selType: SelType]
 
     static transients = ['retailPrice', 'costPrice']
@@ -76,6 +77,7 @@ class Product {
         status column: "`status`", sqlType: "enum", enumType: "string"
         retailerProductId column: "retailerProductId"
         variants cascade: "save-update,delete"
+        productAttributeValues cascade: "save-update,delete"
         selDescription column: "selDescription"
         selType column: "selType"
         productImgUrl column: "productImgUrl"

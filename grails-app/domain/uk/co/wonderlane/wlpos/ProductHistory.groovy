@@ -45,7 +45,7 @@ class ProductHistory {
         priceBandId nullable: true
         retailerId nullable: false
         storeId nullable: true
-        field nullable: true, maxSize: 45
+        field nullable: true, maxSize: 60
         fromValue nullable: true, maxSize: 100
         toValue nullable: true, maxSize: 100
         userId nullable: true

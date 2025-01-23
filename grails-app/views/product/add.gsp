@@ -1186,7 +1186,8 @@
                                                         isNewProduct       : isNewProduct,
                                                         snappyEnabled      : snappyEnabled,
                                                         locationsEnabled   : locationsEnabled,
-                                                        locationsType      : locationsType]" />
+                                                        locationsType      : locationsType,
+                                                        productAttributeValuesList : productAttributeValuesList]" />
         </section>
 
         <section id="addVariant-modal" class="container-fluid">
