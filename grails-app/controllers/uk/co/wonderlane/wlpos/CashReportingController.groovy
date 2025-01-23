@@ -164,7 +164,7 @@ class CashReportingController {
             if (!values.stream().filter { value -> total.tenderType == value.tenderType }.findFirst().isPresent()) {
                 def recTotal = new ReconciliationTotal(total.tenderType)
                 recTotal.setValue(total.value)
-                values.add(total)
+                values.add(recTotal)
             }
         }
         // now force all tender types except cashback
