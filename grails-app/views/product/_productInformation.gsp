@@ -130,43 +130,43 @@
                                   noSelection="['': '']"
                                   value="${attributeValue?.value ?: ''}"
                                   class="col-lg-12 form-control select-border"
-                                  data-attribute-id="${attributeValue.productAttributes.id}"
+                                  data-attribute-id="${attributeValue?.productAttributes?.id}"
                                   disabled="${!isStore}"/>
                     </g:if>
 
-                    <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.TEXT}">
+                    <g:if test="${attributeValue.productAttributes?.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.TEXT}">
                         <g:textField id="productAttributeValues[${index}].value"
                                      name="productAttributeValues[${index}].value"
-                                     value="${attributeValue.value}"
+                                     value="${attributeValue?.value}"
                                      maxlength="50"
                                      size="50"
                                      class="col-lg-12 form-control bottom-border"
                                      disabled="${!isStore}"/>
                     </g:if>
 
-                    <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.NUMERIC}">
+                    <g:if test="${attributeValue?.productAttributes?.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.NUMERIC}">
                         <g:textField id="productAttributeValues[${index}].value"
                                  name="productAttributeValues[${index}].value"
                                  min="0"
                                  max="999999.99"
-                                 value="${attributeValue.value ? attributeValue.value : ''}"
+                                 value="${attributeValue?.value ? attributeValue.value : ''}"
                                  class="col-lg-12 form-control bottom-border numeric-mask"
                                  disabled="${!isStore}"/>
                     </g:if>
 
-                    <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.BOOLEAN}">
+                    <g:if test="${attributeValue?.productAttributes?.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.BOOLEAN}">
                         <div class="form-check d-flex align-items-center h-100 pl-0">
                             <g:checkBox id="productAttributeValues[${index}].value"
                                         name="productAttributeValues[${index}].value"
                                         value="true"
-                                        checked="${attributeValue.value == 'true'}"
+                                        checked="${attributeValue?.value == 'true'}"
                                         class="col-lg-12 form-check-input wl-checkbox"
                                         style="margin-left: 0;"
                                         disabled="${!isStore}"/>
                         </div>
                     </g:if>
 
-                    <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.DATE}">
+                    <g:if test="${attributeValue?.productAttributes?.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.DATE}">
                         <div class="form-check d-flex align-items-center h-100 pl-0">
                             <g:textField name="productAttributeValues[${index}].value"
                                          id="product_attribute_information_date_${index}"
