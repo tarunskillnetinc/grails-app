@@ -71,7 +71,7 @@
         <thead class="bg-light">
             <tr>
                 <th scope="col" class="border">Reason</th>
-                <th scope="col" class="border">Additional Reason Code</th>
+                <th scope="col" class="border">Comments</th>
             </tr>
         </thead>
         <tbody>
