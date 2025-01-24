@@ -582,7 +582,7 @@ class ProductService extends MySqlDal {
         }
     }
 
-    def searchProductPrices(String searchTerm, Integer categoryId, Integer tagId) {
+    def searchProductPrices(String searchTerm, Integer categoryId, Integer productGroupId) {
         def results = []
 
         Connection conn = getConnection()
@@ -609,8 +609,8 @@ class ProductService extends MySqlDal {
                 cstmt.setNull(4, Types.INTEGER)
             }
 
-            if (tagId != null) {
-                cstmt.setInt(5, tagId)
+            if (productGroupId != null) {
+                cstmt.setInt(5, productGroupId)
             } else {
                 cstmt.setNull(5, Types.INTEGER)
             }

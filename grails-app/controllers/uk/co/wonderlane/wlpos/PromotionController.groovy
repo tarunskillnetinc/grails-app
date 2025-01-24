@@ -286,7 +286,7 @@ class PromotionController {
         List<uk.co.wonderlane.wlpos.entities.PromotionGroup> tagGroups = new ArrayList<>();
         for (uk.co.wonderlane.wlpos.entities.PromotionGroup offerGroup : tillPromo.getPromotionOfferGroups()) {
             if (offerGroup.getProductGroupId() != null) {
-                for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(offerGroup.tagId, springSecurityService.principal.retailerId).productGroupProducts) {
+                for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(offerGroup.productGroupId, springSecurityService.principal.retailerId).productGroupProducts) {
                     uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
                     promotionGroup.setId(offerGroup.getId())
                     promotionGroup.setPromotionId(offerGroup.getPromotionId())
@@ -307,7 +307,7 @@ class PromotionController {
 
         for (uk.co.wonderlane.wlpos.entities.PromotionGroup requiredGroup : tillPromo.getPromotionRequiredGroups()) {
             if (requiredGroup.getProductGroupId() != null) {
-                for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(requiredGroup.tagId, springSecurityService.principal.retailerId).productGroupProducts) {
+                for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(requiredGroup.productGroupId, springSecurityService.principal.retailerId).productGroupProducts) {
                     uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
                     promotionGroup.setId(requiredGroup.getId())
                     promotionGroup.setPromotionId(requiredGroup.getPromotionId())
