@@ -42,7 +42,8 @@ class PartnerCategoryManagementService {
     }
 
     //Update selected categories
-    List<Category> updatedCategoryList(List<Integer> selectedCategoryList){
+    List<Category> updatedCategoryList(String selectedCategoryIds){
+        List<Integer> selectedCategoryList = selectedCategoryIds?.replaceAll("[\\[\\]]", "")?.split(",")?.collect { it.trim() as Integer } ?: []
         List<Category> categories = new ArrayList<>()
         selectedCategoryList?.each { category ->
             Category selectedCategory = categoryService.getCategory(category)
@@ -95,6 +96,14 @@ class PartnerCategoryManagementService {
         }
 
         return newMappings
+    }
+
+    void updateEcomSupplierCategory(EcomSupplierCategory ecomSupplierCategory, EcomSupplier ecomSupplier, String partnerCategoryName){
+        ecomSupplierCategory.setEcomSupplier(ecomSupplier)
+        ecomSupplierCategory.setDescription(partnerCategoryName)
+        ecomSupplierCategory?.ecomSupplierCategoryMappings?.each { mapping ->
+            mapping.ecomSupplier = ecomSupplier
+        }
     }
 
     @Transactional

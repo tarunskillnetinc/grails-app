@@ -7,7 +7,7 @@
 
     <asset:stylesheet href="radio.css" />
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
-    <asset:javascript src="category-select.js" />
+    <asset:javascript src="multi-category-select.js" />
     <asset:javascript src="money-mask.js" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
     <asset:javascript src="co-utils.js"/>
@@ -15,7 +15,7 @@
 
     <script type="text/javascript">
 
-        let getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
+        let getChildCategoriesUrl = "${createLink(controller: 'multiSelectCategory', action: 'ajaxGetChildCategories')}";
         let categorySearchUrl = "${createLink(controller: 'category', action: 'ajaxSearchMaintenanceCategories')}";
 
         function handleCancelAddPartnerCategory(url) {
@@ -35,6 +35,48 @@
             var tempLink = document.createElement('a'); // Create a temporary anchor element
             tempLink.href = url;
             document.location.href = tempLink.href; // Navigate to the modified URL
+        }
+
+        function validateForm() {
+            let isValid = true;
+            let messages = [];
+
+            // Get the input values
+            let partnerSupplierId = document.getElementById('partnerSupplierId').value.trim();
+            let partnerCategoryName = document.getElementById('partnerCategoryName').value.trim();
+            let selectedCategories = document.querySelectorAll('input[name="category.id[]"]:checked');
+
+            // Validate Partner Name
+            if (!partnerSupplierId) {
+                isValid = false;
+                messages.push("Partner name is required. Please select partner name.");
+            }
+
+            // Validate Partner Category Name
+            if (!partnerCategoryName) {
+                isValid = false;
+                messages.push("Partner category name is required. Please add category name.");
+            }
+
+            if (selectedCategories.length === 0) {
+                isValid = false;
+                messages.push("Category is required. Please select at least one category.");
+            }
+
+            // Display error messages if validation fails
+            const messagesContainer = document.getElementById('messages-container');
+            messagesContainer.innerHTML = ''; // Clear previous messages
+            if (!isValid) {
+                const messagesContainer = document.getElementById('messages-container');
+                messagesContainer.innerHTML = ''; // Clear any previous messages
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger';
+                alertDiv.innerHTML = messages.join('<br>'); // Join all messages with <br>
+                messagesContainer.appendChild(alertDiv);
+                return false; // Prevent form submission
+            }
+
+            return true; // Allow form submission
         }
 
     </script>
@@ -65,6 +107,14 @@
         </div>
     </div>
 
+    <g:hasErrors bean="${ecomSupplierCategory}">
+        <section id="errors-container" class="container-fluid">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <g:renderErrors bean="${ecomSupplierCategory}" as="list" />
+            </div>
+        </section>
+    </g:hasErrors>
+
     <div id="messages-container"></div>
 
     <g:if test="${flash.message}">
@@ -78,7 +128,7 @@
 </section>
 
 <section class="mt-5">
-    <g:form method="post" action="savePartnerCategory" class="mt-4" name="partner-category-form">
+    <g:form method="post" action="savePartnerCategory" class="mt-4" name="partner-category-form" onsubmit="return validateForm();">
         <g:hiddenField id="isUpdate" name="isUpdate" value="${isUpdate}"/>
         <g:hiddenField id="partnerCategoryId" name="partnerCategoryId" value="${ecomSupplierCategory?.id}"/>
 
@@ -97,7 +147,7 @@
                                           from="${ecomSupplierList}"
                                           optionKey="id"
                                           optionValue="name"
-                                          value="${ecomSupplierCategory?.ecomSupplier?.name}"
+                                          value="${selectedPartnerId}"
                                           class="form-control select-border"></g:select>
                             </div>
                         </div>
@@ -123,7 +173,7 @@
 
                             <div class="flex-grow-1" style="overflow: auto;">
                                 <g:render template="/multiSelectCategory/categorySelect"
-                                          model="[categories: categoryValues,
+                                          model="[categories: categories,
                                                   productCategoryList: partnerCategoryList,
                                                   selectedCategoryIds: selectedCategoryIds,
                                                   level: 1,

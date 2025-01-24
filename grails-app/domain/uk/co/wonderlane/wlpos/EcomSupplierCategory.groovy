@@ -20,9 +20,8 @@ class EcomSupplierCategory implements Serializable{
         retailerId column: "retailerId", sqlType: "tinyint"
         description column: "description"
         deleted column: "deleted" , sqlType: "BIT(1)"
-        ecomSupplier  column: "ecomSupplierId"
+        ecomSupplier  column: "ecomSupplierId" , fetch: 'join'
         ecomSupplierCategoryMappings cascade: 'all-delete-orphan', key: 'ecomSupplierCategoryId'
-//        ecomSupplierCategoryMappings key: 'ecomSupplierCategoryId'
     }
 
     static constraints = {
@@ -36,7 +35,28 @@ class EcomSupplierCategory implements Serializable{
             if (!val) {
                 return ["partnerCategory.ecom.partner.category.not.nullable"]
             }
+
+//            def existingCategory = findByRetailerIdAndDescriptionAndDeleted(obj.retailerId, val, false)
+//            if (existingCategory) {
+//                return ['partnerCategory.ecom.description.not.unique']
+//            }
         }
+    }
+
+    def getMappedCategories(){
+        def partnerCategoryList = []
+        // Loop through all mappings
+        ecomSupplierCategoryMappings?.each { mapping ->
+            def category = mapping.category
+            while (category) {
+                if (!partnerCategoryList.contains(category.id)) {// Add the current category ID to the list if not already added
+                    partnerCategoryList << category.id
+                }
+                category = category.parentCategory // Move to the parent category
+            }
+        }
+
+        return partnerCategoryList
     }
 
 

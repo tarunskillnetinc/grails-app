@@ -13,7 +13,7 @@
         <div class="row ml-0 mr-0 pt-2 pb-2 table-wl bottom-border">
             <div class="col-2 font-weight-bold text-center">Partner</div>
             <div class="col-2 font-weight-bold text-center">Partner Category</div>
-            <div class="col-6 font-weight-bold text-center">Category & Subcategory List</div>
+            <div class="col-6 font-weight-bold text-left">Category & Subcategory List</div>
             <div class="col-2 font-weight-bold text-center">Action</div>
         </div>
     </div>
@@ -31,16 +31,18 @@
         <div style="flex-grow: 1;">
             <div style="flex-grow: 1;">
                 <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" >
-                    <div class="col-2 font-weight-bold text-center">${ecomCategory?.ecomSupplier?.name}</div>
-                    <div class="col-2 font-weight-bold text-center">${ecomCategory?.description}</div>
-                    <div class="col-6 font-weight-bold text-center">
-                        <g:each var="mapping" in="${ecomCategory?.ecomSupplierCategoryMappings}">
-                            <div>
-                                <g:renderCategory category="${mapping?.category}" />
-                            </div>
-                        </g:each>
+                    <div class="col-2 text-center">${ecomCategory?.ecomSupplier?.name}</div>
+                    <div class="col-2 text-center">${ecomCategory?.description}</div>
+                    <div class="col-6 text-left">
+                        <g:if test="${ecomCategory?.ecomSupplierCategoryMappings}">
+                            <g:renderCategoryHierarchy
+                                    mappings ="${ecomCategory?.ecomSupplierCategoryMappings}"
+                                    selectedCategories="${ecomCategory?.ecomSupplierCategoryMappings?.collect { it.category.id }?.findAll { it != null }}"
+                            />
+                        </g:if>
                     </div>
-                    <div class="col-2 font-weight-bold text-center">
+
+                    <div class="col-2 text-center">
                         <g:link elementId="edit-button" type="button" class="btn btn-wl p-1 me-1"
                                 action="addPartnerCategory" params="[isNew: false, supplierCategoryId: ecomCategory?.id]" style="min-width: 80px; font-size: 0.9rem;">Edit</g:link>
                         <g:link elementId="edit-button" type="button" class="btn btn-danger p-1 me-1"

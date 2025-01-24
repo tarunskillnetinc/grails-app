@@ -36,24 +36,44 @@ class PartnerCategoryManagementController {
     def addPartnerCategory(){
         try {
             int retailerId = springSecurityService.principal.retailerId
-            int selectedSupplierCategoryId = -1
+            EcomSupplierCategory ecomSupplierCategory = params.ecomSupplierCategory
             Optional<Integer> supplierCategoryId = tryParseInt(params.supplierCategoryId)
-            if (supplierCategoryId.present) {
-                selectedSupplierCategoryId = supplierCategoryId.get()
+            if (ecomSupplierCategory == null && supplierCategoryId.present) {
+                int selectedSupplierCategoryId = supplierCategoryId.get()
+                ecomSupplierCategory = EcomSupplierCategory.findByIdAndDeleted(selectedSupplierCategoryId, false)
+                if (!ecomSupplierCategory) {
+                    flash.error = "Selected partner category not available for edit."
+                    redirect(action: "index")
+                    return
+                }
             }
             def isUpdate = false
-            def partnerCategoryList = []
             List<EcomSupplier> ecomSupplierList = EcomSupplier.findAllByRetailerIdAndDeleted(retailerId, false)
-            EcomSupplierCategory ecomSupplierCategory = EcomSupplierCategory.findByIdAndDeleted(selectedSupplierCategoryId, false)
-            def categoryValues  = categoryService.getTopLevelCategories()
+            def categories  = categoryService.getTopLevelCategories()
             def selectedCategoryIds = ecomSupplierCategory?.ecomSupplierCategoryMappings?.collect { it?.category?.id }?.findAll { it != null } ?: []
+            def selectedPartnerId = ecomSupplierCategory?.ecomSupplier?.id
+
+            def partnerCategoryList = []
+            // Loop through all mappings
+            ecomSupplierCategory?.ecomSupplierCategoryMappings?.each { mapping ->
+                def category = mapping.category
+                while (category) {
+                    // Add the current category ID to the list if not already added
+                    if (!partnerCategoryList.contains(category.id)) {
+                        partnerCategoryList << category.id
+                    }
+                    // Move to the parent category
+                    category = category.parentCategory
+                }
+            }
 
             render(view: "_addPartnerCategory", model: [partnerCategoryList: partnerCategoryList,
                                                         ecomSupplierList: ecomSupplierList,
                                                         ecomSupplierCategory : ecomSupplierCategory,
-                                                        categoryValues :categoryValues,
+                                                        categories :categories,
                                                         selectedCategoryIds : selectedCategoryIds,
-                                                        isUpdate : isUpdate])
+                                                        isUpdate : isUpdate,
+                                                        selectedPartnerId: selectedPartnerId])
         } catch (Exception ex) {
             log.error("Error saving partner categories, Exception " + ex.getMessage(), ex)
             flash.error = "Failed to save partner category"
@@ -70,19 +90,19 @@ class PartnerCategoryManagementController {
             EcomSupplierCategory ecomSupplierCategory = null
             int retailerId = springSecurityService.principal.retailerId
             String partnerCategoryName = params.partnerCategoryName
+            String selectedCategoryIds = params.get("category.id[]")
+            Optional<Integer> partnerSupplierId = tryParseInt(params.partnerSupplierId)
+            Optional<Integer> partnerCategoryId = tryParseInt(params.partnerCategoryId)
 
             //here input recieved as selected category as this "[1, 2, 3, 4]"
             //So initially removed [ ] and parse into list of integers
-            String selectedCategoryIds = params.get("category.id")
-            List<Integer> selectedCategoryList = selectedCategoryIds?.replaceAll("[\\[\\]]", "")?.split(",")?.collect { it.trim() as Integer } ?: []
-            List<Category> updatedCategoryList = partnerCategoryManagementService.updatedCategoryList(selectedCategoryList)
+            List<Category> updatedCategoryList = partnerCategoryManagementService.updatedCategoryList(selectedCategoryIds)
             if (!updatedCategoryList || updatedCategoryList.isEmpty()) { //Validate at least single category is created
-                flash.error = "Please select at least one category"
+                flash.error = "Category is required. Please select at least one category."
                 redirect(action: "addPartnerCategory")
                 return
             }
 
-            Optional<Integer> partnerSupplierId = tryParseInt(params.partnerSupplierId)
             if (partnerSupplierId.present) {selectedPartnerSupplierId = partnerSupplierId.get()}
             EcomSupplier ecomSupplier = EcomSupplier.findByRetailerIdAndIdAndDeleted(retailerId, selectedPartnerSupplierId, false)
             if (ecomSupplier == null) { //Validate partner supplier exists
@@ -91,7 +111,6 @@ class PartnerCategoryManagementController {
                 return
             }
 
-            Optional<Integer> partnerCategoryId = tryParseInt(params.partnerCategoryId)
             if (partnerCategoryId.present) { //Check and validate partner category if it exists
                 int selectedPartnerCategoryId = partnerCategoryId.get()
                 isUpdate = true
@@ -111,6 +130,11 @@ class PartnerCategoryManagementController {
             if (!isUpdate){ //If this is not update action then create new supplier category
                 ecomSupplierCategory = partnerCategoryManagementService.createNewEcomSupplierCategory(ecomSupplier, retailerId, partnerCategoryName)
             }
+
+            //Update partner category name
+            //If updated partner category supplier
+            //If updated all mappping item's supplier
+            partnerCategoryManagementService.updateEcomSupplierCategory(ecomSupplierCategory, ecomSupplier, partnerCategoryName)
 
             //Load category mappings which should be removed
             List<EcomSupplierCategoryMapping> removedEcomSupplierCategoryMappings =
@@ -136,6 +160,7 @@ class PartnerCategoryManagementController {
         }
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def deletePartnerCategory(){
         try {
             int selectedSupplierCategoryId = -1
