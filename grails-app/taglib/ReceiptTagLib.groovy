@@ -9,7 +9,7 @@ import uk.co.wonderlane.wlpos.receipts.ReceiptLineHelper
 import java.math.RoundingMode
 import java.text.NumberFormat
 
-class ReceiptProductGroupLib {
+class ReceiptTagLib {
 
     def brandAssetsService
 

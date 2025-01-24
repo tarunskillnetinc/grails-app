@@ -8,9 +8,9 @@ import uk.co.wonderlane.wlpos.reporting.ReportType
 
 import java.math.RoundingMode
 
-class EposProductGroupLib {
+class EposTagLib {
 
-    static returnObjectForProductGroups = ['showQuantityField', 'showValueField']
+    static returnObjectForTags = ['showQuantityField', 'showValueField']
 
     def springSecurityService
     def reportingService
