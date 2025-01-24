@@ -2,10 +2,9 @@ package uk.co.wonderlane.wlpos
 
 import grails.plugin.springsecurity.annotation.Secured
 
-class PartnerCategoryManagementController {
+class PartnerCategoryManagementController extends BaseController{
 
     def springSecurityService
-    def categoryService
     def partnerCategoryManagementService
 
     def index() {
@@ -174,12 +173,34 @@ class PartnerCategoryManagementController {
         }
     }
 
+    def ajaxSearchCategories(String searchTerm, boolean triggerOnCategoryChange, int level, int selectedCategoryId, int specialId) {
+        def searchResults = baseSearchCategories(searchTerm)
+        def selectedCategoryIds = params?.list('selectedCategoryId[]')?.collect { it.toInteger() } ?: []
+        boolean isSearch = searchTerm?.length() > 0
+        EcomSupplierCategory ecomSupplierCategory = EcomSupplierCategory.findByIdAndDeleted(specialId, false)
+        def partnerCategoryList = ecomSupplierCategory?.mappedCategories ?: []
+        render(template: "/multiSelectCategory/categorySelectInputs", model: [categories: searchResults.aValue.unique(), level: isSearch ? level : 1, productCategoryList: partnerCategoryList,
+                                                                              selectedCategoryIds: selectedCategoryIds, triggerOnCategoryChange: triggerOnCategoryChange, isSearch: isSearch])
+    }
+
+    def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId, boolean triggerOnCategoryChange) {
+        def category = categoryService.getCategory(categoryId)
+        def selectedCategoryIds = params?.list('selectedCategoryId[]')?.collect { it.toInteger() } ?: []
+        render(template: "/multiSelectCategory/categorySelectInputs", model: [categories: category?.childCategories, level: level, selectedCategoryIds: selectedCategoryIds,
+                                                                              triggerOnCategoryChange: triggerOnCategoryChange])
+    }
+
     private static Optional<Integer> tryParseInt(String str) {
         try {
             return Optional.of(Integer.parseInt(str))
         } catch (Exception ignored) {
             return Optional.empty()
         }
+    }
+
+    @Override
+    def getColumns() {
+        return null
     }
 
 }

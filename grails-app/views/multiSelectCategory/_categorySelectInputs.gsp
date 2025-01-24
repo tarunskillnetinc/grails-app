@@ -1,5 +1,5 @@
 <g:each in="${categories}" var="category" status="i">
-    <g:if test="${!isSearch || (isSearch && productCategoryList?.contains(category.id))}">
+    <g:if test="${!isSearch || (isSearch)}">
         <div id="category-${i+1}" class="radio-container level-${level}">
             <g:if test="${category.childCategories}">
                 <!-- Is this department/category part of the selected category hierarchy? -->

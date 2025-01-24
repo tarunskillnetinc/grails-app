@@ -15,8 +15,8 @@
 
     <script type="text/javascript">
 
-        let getChildCategoriesUrl = "${createLink(controller: 'multiSelectCategory', action: 'ajaxGetChildCategories')}";
-        let categorySearchUrl = "${createLink(controller: 'category', action: 'ajaxSearchMaintenanceCategories')}";
+        let getChildCategoriesUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxGetChildCategories')}";
+        let categorySearchUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxSearchCategories')}";
 
         function handleCancelAddPartnerCategory(url) {
             confirmAndSubmit("Are you sure you want to cancel ?", function() {
@@ -160,8 +160,13 @@
                                    style="width: 120px; text-align: right;">Partner Category Name</label>
 
                             <div class="flex-grow-1">
-                                <g:textField id="partnerCategoryName" name="partnerCategoryName" value="${ecomSupplierCategory?.description}"
-                                             class="form-control bottom-border alpha-field" minLength="1" maxLength="45" size="45"/>
+                                <g:textField id="partnerCategoryName"
+                                             name="partnerCategoryName"
+                                             value="${ecomSupplierCategory?.description}"
+                                             class="form-control bottom-border alpha-field"
+                                             minLength="1"
+                                             maxLength="45"
+                                             size="45"/>
                             </div>
                         </div>
                     </div>
@@ -177,7 +182,11 @@
                                                   productCategoryList: partnerCategoryList,
                                                   selectedCategoryIds: selectedCategoryIds,
                                                   level: 1,
-                                                  triggerOnCategoryChange: false]" />
+                                                  triggerOnCategoryChange: false,
+                                                  specialId: ecomSupplierCategory?.id
+                                          ]"
+
+                                />
                             </div>
                         </div>
                     </div>

@@ -1,10 +1,54 @@
-// Declare checkboxStates globally so it can be accessed throughout the script
-// var checkboxStates = {};
+var currentTimeout;
+var searchInProgress = false;
 
 $(document).ready(function () {
     // Set up click actions for checkboxes initially
     setCheckboxClickAction('input[name="category.id[]"]');
 });
+
+function searchCategories(e, level, triggerOnCategoryChange, searchTerm, selectedCategoryIds, specialId) {
+    // Since all keyup events trigger this, here are a couple of standard keys to be ignored..
+    if (e.keyCode === 16 || e.keyCode === 17 || e.keyCode === 20) {
+        return;
+    }
+
+    if (searchInProgress === false) {
+        $("#category-container-results").html("<div class=\"d-flex justify-content-center pt-2\">\n" +
+            "  <div class=\"spinner-border\" role=\"status\">\n" +
+            "    <span class=\"sr-only\">Loading...</span>\n" +
+            "  </div>\n" +
+            "</div>");
+    }
+
+    clearTimeout(currentTimeout);
+
+    searchInProgress = true;
+
+    currentTimeout = setTimeout(function() {
+        var params = {};
+        params["level"] = level;
+        params["triggerOnCategoryChange"] = triggerOnCategoryChange;
+        params["searchTerm"] = searchTerm;
+        params["selectedCategoryId"] = selectedCategoryIds;
+        params["specialId"] = specialId;
+
+        $.ajax({
+            url: categorySearchUrl,
+            method: "GET",
+            data: params,
+            success: function(resp) {
+
+                $("#category-container-results").html(resp);
+
+
+                setCheckboxClickAction('#categoryContainer-' + categoryId + ' input[name="category.id[]"]');
+
+                searchInProgress = false;
+            }
+        });
+    }, 750);
+}
+
 
 function expandCollapseCategory(categoryId, level, selectedCategoryId, triggerOnCategoryChange) {
     event.preventDefault();
@@ -12,7 +56,7 @@ function expandCollapseCategory(categoryId, level, selectedCategoryId, triggerOn
     var plusMinusButton = $("#plusMinus-" + categoryId);
     var expanded = plusMinusButton.attr("aria-expanded");
 
-    // Check if parent is selected
+    // // Check if parent is selected
     var parentCheckbox = $('#category-' + categoryId);
     if (parentCheckbox.is(':checked')) {
         // Disable the '-' button if parent is selected
@@ -22,6 +66,7 @@ function expandCollapseCategory(categoryId, level, selectedCategoryId, triggerOn
         // Re-enable the button if parent is not selected
         plusMinusButton.prop('disabled', false);
     }
+
 
     // Save checkbox states before collapsing
     if (expanded === "true") {
@@ -234,9 +279,6 @@ function selectParentCategories(categoryId) {
 }
 
 
-
-
-
 // var currentTimeout;
 // var searchInProgress = false;
 //
@@ -399,47 +441,7 @@ function selectParentCategories(categoryId) {
 // //     });
 // // }
 //
-// function searchCategories(e, level, triggerOnCategoryChange, searchTerm, selectedCategoryId) {
-//     // Since all keyup events trigger this, here are a couple of standard keys to be ignored..
-//     if (e.keyCode === 16 || e.keyCode === 17 || e.keyCode === 20) {
-//         return;
-//     }
-//
-//     if (searchInProgress === false) {
-//         $("#category-container-results").html("<div class=\"d-flex justify-content-center pt-2\">\n" +
-//             "  <div class=\"spinner-border\" role=\"status\">\n" +
-//             "    <span class=\"sr-only\">Loading...</span>\n" +
-//             "  </div>\n" +
-//             "</div>");
-//     }
-//
-//     clearTimeout(currentTimeout);
-//
-//     searchInProgress = true;
-//
-//     currentTimeout = setTimeout(function() {
-//         var params = {};
-//         params["level"] = level;
-//         params["triggerOnCategoryChange"] = triggerOnCategoryChange;
-//         params["searchTerm"] = searchTerm;
-//         params["selectedCategoryId"] = selectedCategoryId;
-//
-//         $.ajax({
-//             url: categorySearchUrl,
-//             method: "GET",
-//             data: params,
-//             success: function(resp) {
-//
-//                 $("#category-container-results").html(resp);
-//
-//
-//                 setRadioClickAction('#category-container-results input[name="category.id"]');
-//
-//                 searchInProgress = false;
-//             }
-//         });
-//     }, 750);
-// }
+
 //
 // // function setCheckboxClickAction(selector) {
 // //     $(selector).each(function () {

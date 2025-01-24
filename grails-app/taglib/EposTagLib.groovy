@@ -583,6 +583,7 @@ class EposTagLib {
         } else if (selectedCategories.contains(category.id)) {
             // Render the current category only if it is a leaf node or explicitly selected
             output << "${fullPath}<br/>"
+            output << "<hr style='margin: 5px 0; border: 0; border-top: 1px solid #ccc;'/>"
         }
 
         return output.toString()
