@@ -135,7 +135,7 @@
         <g:render template="titleCrumbs" model="[title: 'Safe Finalisation Report']" />
 
         <div class="row mt-4">
-            <g:render template="safeSessionFinalisationParams" />
+            <g:render template="safeFinalisationParams" />
         </div>
 
         <div id="error-container"></div>
