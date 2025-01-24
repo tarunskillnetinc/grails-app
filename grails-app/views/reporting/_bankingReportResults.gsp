@@ -50,7 +50,7 @@
                         <g:each in="${bankingReports}" var="bankingReport" status="i">
                             <tr id="reportData_${i + 1}">
                                 <% if (hasFinancialWeek) { %>
-                                    <td id="reportData_${i + 1}_financialWeek" scope="row" class="border">${bankingReport?.financialWeekNumber}</td>
+                                    <td id="reportData_${i + 1}_financialWeek" scope="row" class="border">${bankingReport?.financialWeekNumber ?: 'n/a'}</td>
                                 <% } %>
                                 <td id="reportData_${i + 1}_date" scope="row" class="border">
                                     <g:formatDate format="dd/MM/yyyy" date="${bankingReport?.bankingDate?.toDate()}" timeZone="Europe/London" />
