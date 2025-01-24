@@ -15,7 +15,7 @@
             });
 
             function search() {
-                var URL = "${createLink(controller: 'productGroup', action: 'ajaxGetTags')}";
+                var URL = "${createLink(controller: 'productGroup', action: 'ajaxGetProductGroups')}";
                 var searchTerm = $('#productGroupSearchTerm').val();
                 var searchBy = $('#productGroupSearchBy').val();
 

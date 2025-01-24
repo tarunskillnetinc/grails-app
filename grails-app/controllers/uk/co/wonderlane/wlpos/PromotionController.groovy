@@ -111,7 +111,7 @@ class PromotionController {
         render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: productVariant?.product?.description, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
     }
 
-    def ajaxGetTag(int id, String promotionType, String promotionGroupType, int groupId) {
+    def ajaxGetProductGroup(int id, String promotionType, String promotionGroupType, int groupId) {
         def tag = productGroupService.getProductGroup(id)
 
         def (showQuantityField, showValueField) = getQuantityAndValueFieldVisibility(PromotionType.valueOf(promotionType))
