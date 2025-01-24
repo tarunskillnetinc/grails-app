@@ -38,6 +38,7 @@ class PartnerCategoryManagementController {
             int retailerId = springSecurityService.principal.retailerId
             EcomSupplierCategory ecomSupplierCategory = params.ecomSupplierCategory
             Optional<Integer> supplierCategoryId = tryParseInt(params.supplierCategoryId)
+            def isUpdate = false
             if (ecomSupplierCategory == null && supplierCategoryId.present) {
                 int selectedSupplierCategoryId = supplierCategoryId.get()
                 ecomSupplierCategory = EcomSupplierCategory.findByIdAndDeleted(selectedSupplierCategoryId, false)
@@ -46,26 +47,13 @@ class PartnerCategoryManagementController {
                     redirect(action: "index")
                     return
                 }
+                isUpdate = true
             }
-            def isUpdate = false
             List<EcomSupplier> ecomSupplierList = EcomSupplier.findAllByRetailerIdAndDeleted(retailerId, false)
             def categories  = categoryService.getTopLevelCategories()
             def selectedCategoryIds = ecomSupplierCategory?.ecomSupplierCategoryMappings?.collect { it?.category?.id }?.findAll { it != null } ?: []
             def selectedPartnerId = ecomSupplierCategory?.ecomSupplier?.id
-
-            def partnerCategoryList = []
-            // Loop through all mappings
-            ecomSupplierCategory?.ecomSupplierCategoryMappings?.each { mapping ->
-                def category = mapping.category
-                while (category) {
-                    // Add the current category ID to the list if not already added
-                    if (!partnerCategoryList.contains(category.id)) {
-                        partnerCategoryList << category.id
-                    }
-                    // Move to the parent category
-                    category = category.parentCategory
-                }
-            }
+            def partnerCategoryList = ecomSupplierCategory?.mappedCategories ?: []
 
             render(view: "_addPartnerCategory", model: [partnerCategoryList: partnerCategoryList,
                                                         ecomSupplierList: ecomSupplierList,

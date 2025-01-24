@@ -35,11 +35,6 @@ class EcomSupplierCategory implements Serializable{
             if (!val) {
                 return ["partnerCategory.ecom.partner.category.not.nullable"]
             }
-
-//            def existingCategory = findByRetailerIdAndDescriptionAndDeleted(obj.retailerId, val, false)
-//            if (existingCategory) {
-//                return ['partnerCategory.ecom.description.not.unique']
-//            }
         }
     }
 

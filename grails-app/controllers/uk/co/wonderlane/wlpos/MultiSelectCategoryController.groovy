@@ -11,7 +11,9 @@ class MultiSelectCategoryController extends BaseController {
     def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId, boolean triggerOnCategoryChange) {
         def category = categoryService.getCategory(categoryId)
 
-        render(template: "categorySelectInputs", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange])
+        def selectedCategoryIds = params?.list('selectedCategoryId[]')?.collect { it.toInteger() } ?: []
+
+        render(template: "/multiSelectCategory/categorySelectInputs", model: [categories: category?.childCategories, level: level, selectedCategoryIds: selectedCategoryIds, triggerOnCategoryChange: triggerOnCategoryChange])
     }
 
     @Override

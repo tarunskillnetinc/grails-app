@@ -4,11 +4,11 @@
             <g:if test="${category.childCategories}">
                 <!-- Is this department/category part of the selected category hierarchy? -->
                 <g:if test="${productCategoryList?.contains(category.id)}">
-                    <span id="plusMinus-${category.id}" class="plus-minus" aria-expanded="true"
+                    <span id="plusMinus-${category.id}" class="plus-minus" aria-expanded="true" data-level="${level + 1}"
                           onclick="expandCollapseCategory(${category.id}, ${level + 1}, ${selectedCategoryIds ?: '[]'}, ${triggerOnCategoryChange ?: false})">-</span>
                 </g:if>
                 <g:else>
-                    <span id="plusMinus-${category.id}" class="plus-minus" aria-expanded="false"
+                    <span id="plusMinus-${category.id}" class="plus-minus" aria-expanded="false" data-level="${level + 1}"
                           onclick="expandCollapseCategory(${category.id}, ${level + 1}, ${selectedCategoryIds ?: '[]'}, ${triggerOnCategoryChange ?: false})">+</span>
                 </g:else>
             </g:if>
@@ -18,6 +18,8 @@
                         checked="${selectedCategoryIds?.contains(category.id)}"
                         value="${category.id}"
                         class="col-1 form-check-input wl-checkbox"
+                        data-parent-id="${category?.parentCategory?.id}"
+                        data-level="${level}"
                         onclick="${triggerOnCategoryChange ? 'onCategoryChanged('+category.id+');' : 'return;'}" />
                 <span id="category-${i+1}-checkmark" class="checkmark"></span>
             </label>

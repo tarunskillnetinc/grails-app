@@ -592,7 +592,7 @@ class EposTagLib {
         if (!category.parentCategory) {
             return category.description // Root category
         }
-        return "${buildFullPath(category.parentCategory)} -> ${category.description}"
+        return "${buildFullPath(category.parentCategory)} →  ${category.description}"
     }
 
     private boolean isCategoryOrDescendantSelected(Category category, List<Integer> selectedCategories, Map<Integer, Category> categoryMap) {
