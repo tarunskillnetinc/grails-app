@@ -7,6 +7,10 @@
     </div>
 </div>
 
+<div id="report-time">
+    <div class="alert alert-wl mx-0 font-weight-light text-right" role="alert"></div>
+</div>
+
 <div id="search-results">
     <g:if test="${!bankingReports || bankingReports?.size() == 0}">
         <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>

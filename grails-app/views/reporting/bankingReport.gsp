@@ -141,10 +141,6 @@
                 </div>
             </div>
         </div>
-
-        <div id="report-time">
-            <div class="alert alert-wl mx-0 font-weight-light text-right" role="alert"></div>
-        </div>
         
         <div id="results-container" class="align-content-center"></div>
 
