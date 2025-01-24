@@ -11,7 +11,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         [ProductGroupProduct, ProductGroup] as Class<?>[]
     }
 
-    //-------------------------------getTags function Unit tests----------------------------//
+    //-------------------------------getProductGroups function Unit tests----------------------------//
 
     void "should retrieve product groups with search criteria"() {
         given:
@@ -28,10 +28,10 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         productGroupProduct.setProductGroupId(productGroup)
         productGroup.save()
 
-        when: 'getTags action is executed'
+        when: 'getProductGroups action is executed'
         def serviceResponse = service.getProductGroups(searchKeyword)
 
-        then: 'getTags action response is correct'
+        then: 'getProductGroups action response is correct'
         serviceResponse != null
         serviceResponse.size() > 0
 
@@ -76,23 +76,23 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
 
     }
 
-    //-------------------------------getTag function Unit tests----------------------------//
+    //-------------------------------getProductGroup function Unit tests----------------------------//
 
     void "should retrieve productGroup with productGroup id"() {
         given:
         service.springSecurityService = getFakeSpringSecurityService()
 
-        ProductGroup testTag = new ProductGroup(retailerId: 9)
-        testTag.setDescription("test description")
+        ProductGroup productGroup = new ProductGroup(retailerId: 9)
+        productGroup.setDescription("test description")
 
-        testTag.setId(100)
+        productGroup.setId(100)
 
-        mockDomain(ProductGroup, [testTag])
+        mockDomain(ProductGroup, [productGroup])
 
-        when: 'getTag action is executed'
+        when: 'getProductGroup action is executed'
         ProductGroup serviceResponse = service.getProductGroup(100)
 
-        then: 'getTag action response is correct'
+        then: 'getProductGroup action response is correct'
         serviceResponse != null
     }
 
@@ -100,11 +100,11 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         given:
         service.springSecurityService = getFakeSpringSecurityService()
 
-        ProductGroup testTag = new ProductGroup(retailerId: 9)
-        testTag.setDescription("test description")
-        testTag.setId(100)
+        ProductGroup productGroup = new ProductGroup(retailerId: 9)
+        productGroup.setDescription("test description")
+        productGroup.setId(100)
 
-        mockDomain(ProductGroup, [testTag])
+        mockDomain(ProductGroup, [productGroup])
 
         when: 'getTag action is executed'
         ProductGroup serviceResponse = service.getProductGroup(105)
@@ -113,7 +113,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         serviceResponse == null
     }
 
-    //-------------------------------saveTag function Unit tests----------------------------//
+    //-------------------------------saveProductGroup function Unit tests----------------------------//
 
     void "should save productGroup correctly"() {
         given:
@@ -121,10 +121,10 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         testTag.setId(100)
         testTag.setDescription("test description")
 
-        when: 'getTag action is executed'
+        when: 'saveProductGroup action is executed'
         ProductGroup serviceResponse = service.saveProductGroup(testTag)
 
-        then: 'getTag action response is correct'
+        then: 'saveProductGroup action response is correct'
         serviceResponse
         serviceResponse.getId() == 100
     }

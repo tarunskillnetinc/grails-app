@@ -113,7 +113,7 @@
                 $("#promotionOfferGroupsContainer").html("");
                 $("#promotionRequiredGroupsContainer").html("");
 
-                // Ensure all add Tag or Category buttons are re-enabled.
+                // Ensure all add ProductGroup or Category buttons are re-enabled.
                 enableOrDisablePromotionGroupButtons("offer");
                 enableOrDisablePromotionGroupButtons("required");
 
@@ -190,7 +190,7 @@
                 });
             }
 
-            // Enable or disable the Add Tag/Category buttons depending on the promo type and how many groups are already selected.
+            // Enable or disable the Add ProductGroup/Category buttons depending on the promo type and how many groups are already selected.
             function enableOrDisablePromotionGroupButtons(promotionGroupType) {
                 var promoType = $("#type").val();
 
@@ -258,7 +258,7 @@
             function setPromotionGroupButtonEnabledness(promotionGroupType, productButtonEnabled, categoryButtonEnabled, tagButtonEnabled) {
                 $("#" +promotionGroupType +"AddProductButton").attr("disabled", !productButtonEnabled);
                 $("#" +promotionGroupType +"AddCategoryButton").attr("disabled", !categoryButtonEnabled);
-                $("#" +promotionGroupType +"AddTagButton").attr("disabled", !tagButtonEnabled);
+                $("#" + promotionGroupType + "AddProductGroupButton").attr("disabled", !tagButtonEnabled);
             }
 
             function deletePromotionGroup(promotionGroupName, promotionGroupType) {

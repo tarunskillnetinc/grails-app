@@ -2174,7 +2174,7 @@ class ProductCommand {
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
 
-//    Collection<Tag> tags = new ArrayList<>()
+//    Collection<ProductGroup> tags = new ArrayList<>()
 //    Collection<Message> saleMessages = new ArrayList<>()
 //    Collection<Message> refundMessages = new ArrayList<>()
 //    Collection<DiscountRate> discountRates = new ArrayList<>()

@@ -32,7 +32,7 @@ class ProductVariant implements Serializable {
     Integer minimumDisplayQuantity
 
     Collection<Pack> packs = new ArrayList<>()
-//    Collection<Tag> tags = new ArrayList<>()
+//    Collection<ProductGroup> tags = new ArrayList<>()
 
     Collection<Barcode> barcodez = new ArrayList<>()
     Collection<Location> locationz = new ArrayList<>()
@@ -229,9 +229,6 @@ class ProductVariant implements Serializable {
 
             productVariant.getPacks().add(pack.getPack())
         }
-
-        // TODO Set tags
-//        productVariant.getTags().add(it.getTag())
 
         getLocations()?.each {
             productVariant.getLocations().add(it.getCommonLocation())
