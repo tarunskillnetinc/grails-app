@@ -223,6 +223,7 @@ class PromotionController {
             try {
                 sendToTills(promotion)
             } catch (Exception e) {
+                e.printStackTrace()
                 flash.error = "Promotion was unable to be sent to tills."
             }
 
@@ -284,7 +285,7 @@ class PromotionController {
 
         List<uk.co.wonderlane.wlpos.entities.PromotionGroup> tagGroups = new ArrayList<>();
         for (uk.co.wonderlane.wlpos.entities.PromotionGroup offerGroup : tillPromo.getPromotionOfferGroups()) {
-            if (offerGroup.getTagId() != null) {
+            if (offerGroup.getProductGroupId() != null) {
                 for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(offerGroup.tagId, springSecurityService.principal.retailerId).productGroupProducts) {
                     uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
                     promotionGroup.setId(offerGroup.getId())
@@ -293,7 +294,7 @@ class PromotionController {
                     promotionGroup.setType(offerGroup.getType())
                     promotionGroup.setRequiredQuantity(offerGroup.getRequiredQuantity())
                     promotionGroup.setExcessQuantity(offerGroup.isExcessQuantity())
-                    promotionGroup.setProductGroupId(offerGroup.getTagId())
+                    promotionGroup.setProductGroupId(offerGroup.getProductGroupId())
                     promotionGroup.setSku(productGroupProduct.sku)
 
                     tagGroups.add(promotionGroup)
@@ -305,7 +306,7 @@ class PromotionController {
         tagGroups.clear()
 
         for (uk.co.wonderlane.wlpos.entities.PromotionGroup requiredGroup : tillPromo.getPromotionRequiredGroups()) {
-            if (requiredGroup.getTagId() != null) {
+            if (requiredGroup.getProductGroupId() != null) {
                 for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(requiredGroup.tagId, springSecurityService.principal.retailerId).productGroupProducts) {
                     uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
                     promotionGroup.setId(requiredGroup.getId())
@@ -314,7 +315,7 @@ class PromotionController {
                     promotionGroup.setType(requiredGroup.getType())
                     promotionGroup.setRequiredQuantity(requiredGroup.getRequiredQuantity())
                     promotionGroup.setExcessQuantity(requiredGroup.isExcessQuantity())
-                    promotionGroup.setProductGroupId(requiredGroup.getTagId())
+                    promotionGroup.setProductGroupId(requiredGroup.getProductGroupId())
                     promotionGroup.setSku(productGroupProduct.sku)
 
                     tagGroups.add(promotionGroup)
