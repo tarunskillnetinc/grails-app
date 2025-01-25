@@ -172,11 +172,11 @@
                     </div>
 
                     <div class="mb-5">
-                        <div class="d-flex align-items-top">
+                        <div class="d-flex align-items-top" style="overflow: hidden;">
                             <label for="category" class="col-form-label mb-0 mr-3"
                                    style="width: 120px; text-align: right;">Select Category</label>
 
-                            <div class="flex-grow-1" style="overflow: auto;">
+                            <div class="flex-grow-1" style="overflow: hidden;">
                                 <g:render template="/multiSelectCategory/categorySelect"
                                           model="[categories: categories,
                                                   productCategoryList: partnerCategoryList,
