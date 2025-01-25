@@ -19,15 +19,17 @@ class PartnerCategoryManagementController extends BaseController{
         Integer supplierId = params.partnerSupplierIdFilter ? Integer.valueOf(params.partnerSupplierIdFilter) : null
         String partnerCategoryNameFilter = params.partnerCategoryNameFilter ? params.partnerCategoryNameFilter : null
         int offset = params.offset ? Integer.parseInt(params.offset) : 0
-        int max = params.max ? Integer.parseInt(params.max) : 50
+        int max = params.max ? Integer.parseInt(params.max) : 10
         session.PARTNER = supplierId
         session.PARTNER_CATEGORY = partnerCategoryNameFilter
         if (supplierId != null) {
             ecomSupplier = EcomSupplier.findByIdAndDeletedAndRetailerId(supplierId, false, retailerId)
         }
         List<EcomSupplierCategory> ecomSupplierCategories = partnerCategoryManagementService.getFilterPartnerCategories(retailerId, ecomSupplier, partnerCategoryNameFilter)
-        int totalResults = ecomSupplierCategories.size()
-        ecomSupplierCategories = ecomSupplierCategories.drop(offset).take(max)
+        // Order by `id` (ascending)
+        ecomSupplierCategories = ecomSupplierCategories?.sort { it.id } // Ascending order
+        int totalResults = ecomSupplierCategories?.size()
+        ecomSupplierCategories = ecomSupplierCategories?.drop(offset)?.take(max)
         render(view: "_partnerCategoryResults", model: [ecomSupplierCategories: ecomSupplierCategories, offset: offset, max: max, totalResults: totalResults])
     }
 
@@ -81,30 +83,13 @@ class PartnerCategoryManagementController extends BaseController{
             Optional<Integer> partnerSupplierId = tryParseInt(params.partnerSupplierId)
             Optional<Integer> partnerCategoryId = tryParseInt(params.partnerCategoryId)
 
-            //here input recieved as selected category as this "[1, 2, 3, 4]"
-            //So initially removed [ ] and parse into list of integers
-            List<Category> updatedCategoryList = partnerCategoryManagementService.updatedCategoryList(selectedCategoryIds)
-            if (!updatedCategoryList || updatedCategoryList.isEmpty()) { //Validate at least single category is created
-                flash.error = "Category is required. Please select at least one category."
-                redirect(action: "addPartnerCategory")
-                return
-            }
-
-            if (partnerSupplierId.present) {selectedPartnerSupplierId = partnerSupplierId.get()}
-            EcomSupplier ecomSupplier = EcomSupplier.findByRetailerIdAndIdAndDeleted(retailerId, selectedPartnerSupplierId, false)
-            if (ecomSupplier == null) { //Validate partner supplier exists
-                flash.error = "Selected supplier not found"
-                redirect(action: "addPartnerCategory")
-                return
-            }
-
             if (partnerCategoryId.present) { //Check and validate partner category if it exists
                 int selectedPartnerCategoryId = partnerCategoryId.get()
                 isUpdate = true
                 ecomSupplierCategory = EcomSupplierCategory.findById(selectedPartnerCategoryId)
                 if (ecomSupplierCategory && ecomSupplierCategory.deleted) {
                     flash.error = "Selected partner category ${ecomSupplierCategory?.description} already deleted. So Can not complete edit action"
-                    redirect(action: "addPartnerCategory")
+                    redirect(action: "addPartnerCategory", params : [ecomSupplierCategory: ecomSupplierCategory])
                     return
                 } else if (!ecomSupplierCategory) {
                     flash.error = "Selected partner category ${partnerCategoryName} not exists. So Can not complete edit action"
@@ -113,9 +98,25 @@ class PartnerCategoryManagementController extends BaseController{
                 }
             }
 
-
             if (!isUpdate){ //If this is not update action then create new supplier category
                 ecomSupplierCategory = partnerCategoryManagementService.createNewEcomSupplierCategory(ecomSupplier, retailerId, partnerCategoryName)
+            }
+
+            //here input recieved as selected category as this "[1, 2, 3, 4]"
+            //So initially removed [ ] and parse into list of integers
+            List<Category> updatedCategoryList = partnerCategoryManagementService.updatedCategoryList(selectedCategoryIds)
+            if (!updatedCategoryList || updatedCategoryList.isEmpty()) { //Validate at least single category is created
+                flash.error = "Category is required. Please select at least one category."
+                redirect(action: "addPartnerCategory", params : [ecomSupplierCategory: ecomSupplierCategory])
+                return
+            }
+
+            if (partnerSupplierId.present) {selectedPartnerSupplierId = partnerSupplierId.get()}
+            EcomSupplier ecomSupplier = EcomSupplier.findByRetailerIdAndIdAndDeleted(retailerId, selectedPartnerSupplierId, false)
+            if (ecomSupplier == null) { //Validate partner supplier exists
+                flash.error = "Selected supplier not found"
+                redirect(action: "addPartnerCategory", params : [ecomSupplierCategory: ecomSupplierCategory])
+                return
             }
 
             //Update partner category name
@@ -138,7 +139,7 @@ class PartnerCategoryManagementController extends BaseController{
                 redirect(action: "index")
             } else {
                 flash.error = "Failed to save partner category"
-                redirect(action: "addPartnerCategory")
+                redirect(action: "addPartnerCategory", params : [ecomSupplierCategory: ecomSupplierCategory])
             }
         } catch (Exception ex) {
             log.error("Error saving partner categories, Exception " + ex.getMessage(), ex)

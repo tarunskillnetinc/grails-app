@@ -123,7 +123,7 @@ class PartnerCategoryManagementService {
                 }
             }
 
-            ecomSupplierCategory.save(flush: true)
+            ecomSupplierCategory.save(flush: true, failOnError: true)
         } catch (Exception ex) {
             log.error("Error saving partner categories, Exception " + ex.getMessage(), ex)
             throw new RuntimeException("Error saving ecom supplier categories, exception " + ex)

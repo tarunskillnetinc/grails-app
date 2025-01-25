@@ -5,7 +5,7 @@
     <meta name="layout" content="main"/>
     <title>${isUpdate ? "Edit" : "Add"} Partner Category</title>
 
-    <asset:stylesheet href="radio.css" />
+    <asset:stylesheet href="checkbox.css" />
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
     <asset:javascript src="multi-category-select.js" />
     <asset:javascript src="money-mask.js" />
@@ -52,11 +52,11 @@
                 messages.push("Partner name is required. Please select partner name.");
             }
 
-            // Validate Partner Category Name
-            if (!partnerCategoryName) {
-                isValid = false;
-                messages.push("Partner category name is required. Please add category name.");
-            }
+            // // Validate Partner Category Name
+            // if (!partnerCategoryName) {
+            //     isValid = false;
+            //     messages.push("Partner category name is required. Please add category name.");
+            // }
 
             if (selectedCategories.length === 0) {
                 isValid = false;

@@ -13,7 +13,7 @@ class EcomSupplierCategoryMapping implements Serializable{
 
         id column: "id", type: "int"
         ecomSupplierCategory column: "ecomSupplierCategoryId"
-        category column: 'categoryId' , fetch: 'join'
+        category column: 'categoryId' , fetch: 'join', cascade: "none"
         ecomSupplier  column: "ecomSupplierId"
     }
 

@@ -28,7 +28,7 @@
     </g:if>
 
     <g:each in="${ecomSupplierCategories}" var="ecomCategory" status="i">
-        <div style="flex-grow: 1;">
+        <div style="flex-grow: 1; overflow: hidden;">
             <div style="flex-grow: 1;">
                 <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" >
                     <div class="col-2 text-center">${ecomCategory?.ecomSupplier?.name}</div>
@@ -55,5 +55,5 @@
 </div>
 
 <div class="my-3 text-right">
-    <util:remotePaginate controller="partnerCategoryManagement" action="ajaxSearchForTills" total="${totalResults ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" />
+    <util:remotePaginate controller="partnerCategoryManagement" action="ajaxGetPartnerCategories" total="${totalResults ?: 10}" update="results-container" offset="${offset ?: 0}" max="${max ?: 10}" />
 </div>
