@@ -14,10 +14,6 @@
         var getPartnerCategoriesUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxGetPartnerCategories')}"
         var addPartnerCategoryUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxAddPartnerCategory')}"
 
-        $(function() {
-            getPartnerCategories()
-        });
-
         function getPartnerCategories() {
             $('#results-container').html("");
             $("#loading-indicator").show();
@@ -94,7 +90,7 @@
         <div class="row mt-3">
             <div class="col-6">
                 <div id="filters" class="card bg-light border-wl">
-                    <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="collapseExample">
+                    <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="collapseExample">
                         <div class="row">
                             <div class="col-10">Filters</div>
                             <div class="col-2 text-right">
@@ -104,17 +100,17 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-body collapse" id="filterCollapse">
+                    <div class="card-body" id="filterCollapse">
                         <g:form name="filtersForm" id="filtersForm">
                             <div class="form-group row">
                                 <label for="partnerSupplierIdFilter" class="col-2 col-form-label-sm text-right">Partner Name</label>
-                                <div class="col-3">
+                                <div class="col-4">
                                     <g:select name="partnerSupplierIdFilter"
                                               from="${ecomSuppliers}"
                                               optionKey="id"
                                               optionValue="name"
                                               value="${session.PARTNER}"
-                                              noSelection="['':'All']"
+                                              noSelection="['':'']"
                                               class="form-control select-border">
 
                                     </g:select>
@@ -142,19 +138,13 @@
             </div>
         </div>
 
-        <div id="messages-container"></div>
-
-        <g:if test="${flash.message}">
-            <div id="alerts-success-container-message" class="alert alert-success  mt-4" role="alert">${flash.message}</div>
-        </g:if>
-
-        <g:if test="${flash.error}">
-            <div id="alerts-success-container-message" class="alert alert-danger mt-4" role="alert">${flash.error}</div>
-        </g:if>
-
+        <div id="messages-container">
+            <g:if test="${flash.message}"><div id="alerts-success-container-message" class="alert alert-success  mt-4" role="alert">${flash.message}</div></g:if>
+            <g:if test="${flash.error}"><div id="alerts-success-container-message" class="alert alert-danger mt-4" role="alert">${flash.error}</div></g:if>
+        </div>
 
         <div id="results-container" class="align-content-center">
-    %{--        <g:render template="partnerCategoryResults" model="${[ ecomSupplierCategories: ecomSupplierCategories ]}"/>--}%
+            <g:render template="partnerCategoryResults"/>
         </div>
 
     </section>

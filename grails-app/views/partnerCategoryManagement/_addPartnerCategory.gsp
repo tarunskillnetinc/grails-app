@@ -12,6 +12,18 @@
     <asset:javascript src="bootstrap-datepicker.min.js" />
     <asset:javascript src="co-utils.js"/>
 
+    <style>
+        .alert.alert-danger.alert-wl ul {
+            list-style: none; /* Remove bullets */
+            padding: 0; /* Remove left padding */
+            margin: 0; /* Remove margin */
+        }
+
+        .alert.alert-danger.alert-wl li {
+            margin-bottom: 5px; /* Add spacing between items */
+        }
+    </style>
+
 
     <script type="text/javascript">
 
@@ -70,7 +82,7 @@
                 const messagesContainer = document.getElementById('messages-container');
                 messagesContainer.innerHTML = ''; // Clear any previous messages
                 const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-danger';
+                alertDiv.className = 'alert alert-danger alert-wl';
                 alertDiv.innerHTML = messages.join('<br>'); // Join all messages with <br>
                 messagesContainer.appendChild(alertDiv);
                 return false; // Prevent form submission
@@ -107,23 +119,24 @@
         </div>
     </div>
 
-    <g:hasErrors bean="${ecomSupplierCategory}">
-        <section id="errors-container" class="container-fluid">
-            <div class="alert alert-danger alert-wl mx-0" role="alert">
-                <g:renderErrors bean="${ecomSupplierCategory}" as="list" />
-            </div>
-        </section>
-    </g:hasErrors>
 
-    <div id="messages-container"></div>
-
-    <g:if test="${flash.message}">
-        <div id="alerts-success-container-message" class="alert alert-success" role="alert">${flash.message}</div>
-    </g:if>
-
-    <g:if test="${flash.error}">
-        <div id="alerts-success-container-message" class="alert alert-danger" role="alert">${flash.error}</div>
-    </g:if>
+    <div id="messages-container">
+        <g:if test="${ecomSupplierCategory?.hasErrors()}">
+            <section id="errors-container">
+                <div class="alert alert-danger alert-wl" role="alert">
+                    <g:renderErrors bean="${ecomSupplierCategory}"/>
+                </div>
+            </section>
+        </g:if>
+        <g:else>
+            <g:if test="${flash.categoryMessage}">
+                <div id="alerts-success-container-message" class="alert alert-success" role="alert">${flash.message}</div>
+            </g:if>
+            <g:if test="${flash.categoryError}">
+                <div id="alerts-success-container-message" class="alert alert-danger" role="alert">${flash.error}</div>
+            </g:if>
+        </g:else>
+    </div>
 
 </section>
 

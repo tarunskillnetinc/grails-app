@@ -32,12 +32,25 @@ class EcomSupplierCategory implements Serializable{
         }
         retailerId nullable: false, validator: { val, obj ->
             if (!val && val > 0) {
-                return ["partnerCategory.ecom.partner.category.valid.retailer"]
+                return ['partnerCategory.ecom.partner.category.valid.retailer']
             }
         }
         description nullable: false, validator: { val, obj ->
             if (!val || val.trim().isEmpty()) {
-                return ["partnerCategory.ecom.partner.category.not.nullable"]
+                return ['partnerCategory.ecom.partner.category.not.nullable']
+            }
+
+            def existingCategory = EcomSupplierCategory.createCriteria().get { // check any description there for same name
+                eq('retailerId', obj.retailerId)
+                eq('ecomSupplier', obj.ecomSupplier)
+                eq('deleted', false)
+                eq('description', val.trim())
+                if (obj.id) {
+                    ne('id', obj.id) // Exclude the current object from the uniqueness check
+                }
+            }
+            if (existingCategory) {
+                return ['partnerCategory.ecom.partner.category.description.unique', val.trim(), obj?.ecomSupplier?.name]
             }
         }
     }

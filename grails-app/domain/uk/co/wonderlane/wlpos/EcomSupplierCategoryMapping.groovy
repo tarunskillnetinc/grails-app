@@ -18,5 +18,17 @@ class EcomSupplierCategoryMapping implements Serializable{
     }
 
     static constraints = {
+        ecomSupplier nullable: false
+        category nullable: false
+        ecomSupplierCategory nullable: false
+
+        // Custom validator for uniqueness
+        category validator: { val, obj ->
+            EcomSupplierCategoryMapping ecomSupplierCategoryMapping = EcomSupplierCategoryMapping.findByIdNotEqualAndCategoryAndEcomSupplier(obj?.id, val,  obj.ecomSupplier)
+            if (ecomSupplierCategoryMapping) {
+                return ['partnerCategory.ecom.partner.category.mapping.category.unique', val?.description, obj?.ecomSupplier?.name]
+            }
+        }
+
     }
 }

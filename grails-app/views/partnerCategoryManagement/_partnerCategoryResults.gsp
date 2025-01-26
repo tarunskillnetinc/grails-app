@@ -23,7 +23,7 @@
 
     <g:if test="${!ecomSupplierCategories || ecomSupplierCategories?.isEmpty()}">
         <div class="row ml-0 mr-0 text-center">
-            <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
+            <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">Please add search criteria to find partner categories.</div>
         </div>
     </g:if>
 
