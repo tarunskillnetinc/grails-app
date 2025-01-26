@@ -11,8 +11,8 @@
         </thead>
         <tbody>
             <tr class="border font-weight-bold">
-                <td id="reportData_store" style="width: 40%;">Store ID: ${store.id}</td>
-                <td id="reportData_store" style="width: 40%;">Store Name: ${store.config.storeName}</td>
+                <td id="reportData_store" style="width: 40%;">Store ID: ${store?.config?.storeNumber}</td>
+                <td id="reportData_store" style="width: 40%;">Store Name: ${store?.config?.storeName}</td>
                 <td id="reportData_dateRange" style="width: 20%;">Date: ${startDate} - ${endDate}</td>
             </tr>
         </tbody>
