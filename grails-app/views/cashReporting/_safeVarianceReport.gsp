@@ -74,7 +74,7 @@
                         <%
                             boolean displayedReasonCode = false;
                             for (reasoncode in session?.reconciliationTotals) {
-                                if (!displayedReasonCode && reasonCodes[reasoncode?.varianceReason]) {
+                                if (!displayedReasonCode && reasonCodes?.get(reasoncode?.varianceReason)) {
                         %>
                                     <div>${reasonCodes[reasoncode?.varianceReason]}</div>
                         <%
