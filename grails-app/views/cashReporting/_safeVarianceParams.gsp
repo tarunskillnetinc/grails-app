@@ -5,7 +5,7 @@
                 <div class="form-group row">
                     <div class="row col-xl-7 col-12 mb-4">
                         <label for="storeIdSelect" class="col-2 col-form-label-sm text-right">Store ID:</label>
-                        <div class="col-2">
+                        <div class="col-3">
                             <g:select id="storeIdSelect"
                                       name="storeIdSelect"
                                       from="${stores}"
@@ -17,7 +17,7 @@
                                       disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}">
                             </g:select>
                         </div>
-                        <label for="safeId" class="col-3 col-form-label-sm text-right">Safe:</label>
+                        <label for="safeId" class="col-2 col-form-label-sm text-right">Safe:</label>
                         <div class="dropdown col-5">
                             <div class="form-control" id="safes">
                                 <span id="selectedSafes" style="display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Select Safes</span>
