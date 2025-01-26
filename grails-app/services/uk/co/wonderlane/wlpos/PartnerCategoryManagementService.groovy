@@ -13,20 +13,15 @@ class PartnerCategoryManagementService {
 
     //Loading partner categories based on filter criteria
     List<EcomSupplierCategory> getFilterPartnerCategories(Integer retailerId, EcomSupplier ecomSupplier, String partnerCategoryNameFilter){
-        List<EcomSupplierCategory> ecomSupplierCategories = []
-
-        if (ecomSupplier && partnerCategoryNameFilter) {
-            // Filter by both ecomSupplier and partnerCategoryNameFilter
-            ecomSupplierCategories = EcomSupplierCategory.findAllByRetailerIdAndDeletedAndEcomSupplierAndDescriptionLike(retailerId, false, ecomSupplier, "%${partnerCategoryNameFilter}%")
-        } else if (ecomSupplier) {
-            // Filter only by ecomSupplier
-            ecomSupplierCategories = EcomSupplierCategory.findAllByRetailerIdAndDeletedAndEcomSupplier(retailerId, false, ecomSupplier)
-        } else if (partnerCategoryNameFilter) {
-            // Filter only by partnerCategoryNameFilter
-            ecomSupplierCategories = EcomSupplierCategory.findAllByRetailerIdAndDeletedAndDescriptionLike(retailerId, false, "%${partnerCategoryNameFilter}%")
-        } else {
-            // No filters, fetch all
-            ecomSupplierCategories = EcomSupplierCategory.findAllByRetailerIdAndDeleted(retailerId, false)
+        List<EcomSupplierCategory> ecomSupplierCategories
+        if (ecomSupplier && partnerCategoryNameFilter) { // Filter by both ecomSupplier and partnerCategoryNameFilter
+            ecomSupplierCategories = EcomSupplierCategory.findAllByRetailerIdAndDeletedAndEcomSupplierAndDescriptionLike(retailerId, false, ecomSupplier, "%${partnerCategoryNameFilter}%") ?: []
+        } else if (ecomSupplier) { // Filter only by ecomSupplier
+            ecomSupplierCategories = EcomSupplierCategory.findAllByRetailerIdAndDeletedAndEcomSupplier(retailerId, false, ecomSupplier) ?: []
+        } else if (partnerCategoryNameFilter) { // Filter only by partnerCategoryNameFilter
+            ecomSupplierCategories = EcomSupplierCategory.findAllByRetailerIdAndDeletedAndDescriptionLike(retailerId, false, "%${partnerCategoryNameFilter}%") ?: []
+        } else { // No filters, fetch all
+            ecomSupplierCategories = EcomSupplierCategory.findAllByRetailerIdAndDeleted(retailerId, false) ?: []
         }
 
         return ecomSupplierCategories
@@ -56,36 +51,24 @@ class PartnerCategoryManagementService {
     List<EcomSupplierCategoryMapping> removedEcomSupplierCategoryMappings(Collection<Category> newCategories, EcomSupplierCategory ecomSupplierCategory) {
         // Fetch the existing mappings
         def existingMappings = ecomSupplierCategory?.ecomSupplierCategoryMappings
-
         if (!newCategories) {// If newCategories is null, return all existing mappings as they should be removed
             return existingMappings?.toList() ?: []
         }
-
-        // Collect IDs of the new categories
-        def newCategoryIds = newCategories*.id
-
-        // Find and remove mappings that are no longer in the new category list
+        def newCategoryIds = newCategories*.id // Collect IDs of the new categories
         List<EcomSupplierCategoryMapping> categoriesToRemove = existingMappings.findAll { mapping ->
-            !newCategoryIds.contains(mapping?.categoryId)
+            !newCategoryIds.contains(mapping?.categoryId) // Find and remove mappings that are no longer in the new category list
         }
-
         return categoriesToRemove
     }
 
 
     //Filter out and returned all newly added categories
     List<EcomSupplierCategoryMapping> addedEcomSupplierCategoryMappings(EcomSupplier ecomSupplier, Collection<Category> newCategories, EcomSupplierCategory ecomSupplierCategory) {
-
         List<EcomSupplierCategoryMapping> newMappings = []
-
         // Fetch the existing mappings
         def existingMappings = ecomSupplierCategory?.ecomSupplierCategoryMappings ?: []
-
-        // Collect IDs of the existing categories
-        def existingCategoryIds = existingMappings*.category*.id
-
-        // Find and add new mappings for categories that are not already mapped
-        newCategories.each { category ->
+        def existingCategoryIds = existingMappings*.category*.id // Collect IDs of the existing categories
+        newCategories.each { category -> // Find and add new mappings for categories that are not already mapped
             if (!existingCategoryIds.contains(category.id)) {
                 EcomSupplierCategoryMapping newMapping = new EcomSupplierCategoryMapping()
                 newMapping.setEcomSupplier(ecomSupplier)
@@ -94,7 +77,6 @@ class PartnerCategoryManagementService {
                 newMappings.add(newMapping) // Add the mapping to the list
             }
         }
-
         return newMappings
     }
 
@@ -129,8 +111,6 @@ class PartnerCategoryManagementService {
             throw new RuntimeException("Error saving ecom supplier categories, exception " + ex)
         }
     }
-
-
 
 
 }

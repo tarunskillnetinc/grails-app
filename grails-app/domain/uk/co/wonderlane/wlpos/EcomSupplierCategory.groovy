@@ -30,9 +30,13 @@ class EcomSupplierCategory implements Serializable{
                 return ['partnerCategory.ecom.supplier.not.nullable']
             }
         }
-        retailerId nullable: false, blank: false // Ensures retailerId is not null or empty
-        description nullable: false, blank: false , validator: { val, obj ->
-            if (!val) {
+        retailerId nullable: false, validator: { val, obj ->
+            if (!val && val > 0) {
+                return ["partnerCategory.ecom.partner.category.valid.retailer"]
+            }
+        }
+        description nullable: false, validator: { val, obj ->
+            if (!val || val.trim().isEmpty()) {
                 return ["partnerCategory.ecom.partner.category.not.nullable"]
             }
         }
@@ -50,12 +54,11 @@ class EcomSupplierCategory implements Serializable{
                 category = category.parentCategory // Move to the parent category
             }
         }
-
         return partnerCategoryList
     }
 
 
-    public uk.co.wonderlane.wlpos.entities.EcomSupplierCategory getEcomSupplierCategory(){
+    uk.co.wonderlane.wlpos.entities.EcomSupplierCategory getEcomSupplierCategory(){
         uk.co.wonderlane.wlpos.entities.EcomSupplierCategory ecomSupplierCategory = new uk.co.wonderlane.wlpos.entities.EcomSupplierCategory()
         ecomSupplierCategory.setId(id)
         ecomSupplierCategory.setRetailerId(retailerId)
