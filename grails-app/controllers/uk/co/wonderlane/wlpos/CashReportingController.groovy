@@ -266,4 +266,64 @@ class CashReportingController {
 
         render(status: filteredSessions ? 200 : 204, template: "safeVarianceReport", model: [store: store, safeSessions: filteredSessions, startDate: startDate, endDate: endDate, safes: safesMap, reasonCodes: reasonMap])
     }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def shiftVariance() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        def stores = []
+        def tills = null
+
+        if (springSecurityService.principal.storeId) {
+            stores = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            tills = tillAssignmentService.getTillsByStoreId(springSecurityService.principal.storeNumber)
+            tills.sort { it.tillId }
+        } else {
+            stores = storeService.getStores(springSecurityService.principal.retailerId)
+        }
+
+        [startDate: startDate, endDate: endDate, stores: stores, tills: tills]
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def ajaxGetTillsForStoreNumber(Integer storeNumber) {
+        def tills = tillAssignmentService.getTillsByStoreId(storeNumber)
+
+        def tillEntries = tills.collect { till ->
+            [id: till.id, description: till.tillId]
+        }.sort { it.description }
+
+        render(status: 200, contentType: 'application/json', text: JsonOutput.toJson([options: tillEntries]))
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def ajaxGetShiftVarianceReport(Integer storeNumber, String selectedTills, String startDate, String endDate) {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime start = startDate ? DateTime.parse(startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime end = endDate ? DateTime.parse(endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        def store = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, storeNumber)
+
+        def tills = null
+
+        if (selectedTills != null && selectedTills.length() > 0) {
+            def splitTills = selectedTills.split(',')
+            tills = splitTills.collect { it.trim().toInteger() }
+        }
+
+        def shiftRecords = cashReportingService.getShiftsForStoreAndTillIds(store.id, tills, start, end, "tillId", "asc")
+        def shifts = (shiftRecords ?: []).collect { it.getShift() }
+
+        def varianceReasons = shifts.collectMany { shift -> shift.reconciliationTotals*.varianceReason}.findAll { it != null }
+
+        def reasonMap = null
+        if (varianceReasons.size() > 0) {
+            def reasons = reasonCodeService.findReasonCodesByCodes(springSecurityService.principal.retailerId, varianceReasons);
+            reasonMap = reasons.collectEntries { [(it.code): (it.description)] }
+        }
+        
+        render(status: shifts ? 200 : 204, template: "shiftVarianceReport", model: [store: store, shifts: shifts, startDate: startDate, endDate: endDate, reasonCodes: reasonMap])
+    }
 }

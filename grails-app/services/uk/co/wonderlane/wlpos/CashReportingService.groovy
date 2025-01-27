@@ -86,4 +86,23 @@ class CashReportingService {
             eq("sessionNumber", sessionNumber)
         }
     }
+
+    def getShiftsForStoreAndTillIds(int storeId, List<Integer> tillIds, DateTime startDate, DateTime endDate, String sortColumn, String sortOrder) {
+        def shiftCriteria = Shift.createCriteria()
+
+        def shifts = shiftCriteria.list() {
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("storeId", storeId)
+            eq("shiftStatus", "FINALISED")
+            
+            if (tillIds) {
+                inList("tillId", tillIds)
+            }
+
+            between("dateCreated", startDate, endDate)
+            order(sortColumn ?: "tillId", sortOrder ?: "asc")
+        }
+
+        return shifts
+    }
 }
