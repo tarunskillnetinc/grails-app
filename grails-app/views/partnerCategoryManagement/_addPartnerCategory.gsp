@@ -166,6 +166,7 @@
                                           noSelection="['':'Please select partner']"
                                           onchange="filterCategories(this.value, '${ecomSupplierCategory?.id ?: ''}')"
                                           disabled="${isUpdate}"></g:select>
+                                <g:hiddenField name="partnerSupplierId" value="${selectedPartnerId}" />
                             </div>
                         </div>
                     </div>
