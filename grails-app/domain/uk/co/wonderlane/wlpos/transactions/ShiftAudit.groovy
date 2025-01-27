@@ -29,7 +29,7 @@ class ShiftAudit {
     static mapping = {
         autowire true
         datasources(["transactions"])
-        table "shiftAudit"
+        table "shiftaudit"
         version false
 
         shiftId column: "shiftId"
