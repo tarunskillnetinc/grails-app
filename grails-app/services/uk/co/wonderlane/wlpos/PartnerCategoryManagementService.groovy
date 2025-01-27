@@ -120,26 +120,33 @@ class PartnerCategoryManagementService {
     }
 
     List<Category> getAvailableTopLevelCategories(EcomSupplier ecomSupplier, EcomSupplierCategory ecomSupplierCategory) {
-        List<Category> categories = categoryService.getTopLevelCategories()
+        List<Category> categories = new ArrayList<>()
+        try {
+            categories = categoryService.getTopLevelCategories()
 
-        // Get the mappings for the given supplier
-        ArrayList<EcomSupplierCategoryMapping> ecomSupplierCategoryMappings = ecomSupplier?.ecomSupplierCategoryMappings ?: []
-        ArrayList<EcomSupplierCategoryMapping> currentEcomSupplierCategoryMappings = []
+            // Get the mappings for the given supplier
+            ArrayList<EcomSupplierCategoryMapping> ecomSupplierCategoryMappings = ecomSupplier?.ecomSupplierCategoryMappings ?: []
+            ArrayList<EcomSupplierCategoryMapping> currentEcomSupplierCategoryMappings = []
 
-        // If supplierCategoryId is provided, load the corresponding category mappings
-        if (ecomSupplierCategory != null) {
-            currentEcomSupplierCategoryMappings = ecomSupplierCategory?.ecomSupplierCategoryMappings ?: []
+            // If supplierCategoryId is provided, load the corresponding category mappings
+            if (ecomSupplierCategory != null) {
+                currentEcomSupplierCategoryMappings = ecomSupplierCategory?.ecomSupplierCategoryMappings ?: []
+            }
+
+            // Filter out the categories already assigned to this supplier
+            List<Category> currentAssignedTopLevelCategories = ecomSupplierCategoryMappings?.findAll { !currentEcomSupplierCategoryMappings.contains(it) }
+                    ?.collect { it.category }
+                    ?.findAll { it.parentCategory == null }
+
+            // Return the categories that are not already assigned
+            List<Category> unassignedTopLevelCategories = categories.findAll { category -> !currentAssignedTopLevelCategories.any { it.id == category.id }}
+
+            return unassignedTopLevelCategories
+        } catch (Exception ex) {
+            log.error("Error loading available top level categories, Exception " + ex.getMessage(), ex)
+            return categories
         }
 
-        // Filter out the categories already assigned to this supplier
-        List<Category> currentAssignedTopLevelCategories = ecomSupplierCategoryMappings?.findAll { !currentEcomSupplierCategoryMappings.contains(it) }
-                ?.collect { it.category }
-                ?.findAll { it.parentCategory == null }
-
-        // Return the categories that are not already assigned
-        List<Category> unassignedTopLevelCategories = categories.findAll { category -> !currentAssignedTopLevelCategories.any { it.id == category.id }}
-
-        return unassignedTopLevelCategories
     }
 
 

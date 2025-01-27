@@ -182,36 +182,45 @@ class PartnerCategoryManagementController extends BaseController{
     }
 
     def ajaxFilterValidCategories(){
-        Integer supplierId = params.supplierId ? Integer.valueOf(params.supplierId) : null
-        Integer  supplierCategoryId = params.supplierCategoryId ? Integer.valueOf(params.supplierCategoryId) : null
-        int retailerId = springSecurityService.principal.retailerId
-        EcomSupplier ecomSupplier = EcomSupplier.findByIdAndDeletedAndRetailerId(supplierId, false, retailerId)
-        ArrayList<EcomSupplierCategoryMapping>  partnerCategoryList= new ArrayList<>()
-        ArrayList<Integer> selectedCategoryIds = new ArrayList<>()
-        //load category mappings not belonging to this partner categories
-        ArrayList<EcomSupplierCategoryMapping> ecomSupplierCategoryMappings = ecomSupplier?.ecomSupplierCategoryMappings ?: []
-        EcomSupplierCategory ecomSupplierCategory = null
-        if (supplierCategoryId > 0) {
-            ArrayList<EcomSupplierCategory> ecomSupplierCategories = ecomSupplier.ecomSupplierCategories ?: []
-            ecomSupplierCategory = ecomSupplierCategories.find { it.id == supplierCategoryId }
-            if (ecomSupplierCategory) {
-                partnerCategoryList = ecomSupplierCategory.mappedCategories ?: []
-                selectedCategoryIds = ecomSupplierCategory?.ecomSupplierCategoryMappings?.collect { it?.category?.id }?.findAll { it != null } ?: []
+        try {
+            Integer supplierId = params.supplierId ? Integer.valueOf(params.supplierId) : null
+            Integer supplierCategoryId = params.supplierCategoryId ? Integer.valueOf(params.supplierCategoryId) : null
+            int retailerId = springSecurityService.principal.retailerId
+            EcomSupplier ecomSupplier = EcomSupplier.findByIdAndDeletedAndRetailerId(supplierId, false, retailerId)
+            if (ecomSupplier) {
+                ArrayList<EcomSupplierCategoryMapping>  partnerCategoryList= new ArrayList<>()
+                ArrayList<Integer> selectedCategoryIds = new ArrayList<>()
+                EcomSupplierCategory ecomSupplierCategory = null
+                if (supplierCategoryId > 0) {
+                    ArrayList<EcomSupplierCategory> ecomSupplierCategories = ecomSupplier.ecomSupplierCategories ?: []
+                    ecomSupplierCategory = ecomSupplierCategories.find { it.id == supplierCategoryId }
+                    if (ecomSupplierCategory) {
+                        partnerCategoryList = ecomSupplierCategory.mappedCategories ?: []
+                        selectedCategoryIds = ecomSupplierCategory?.ecomSupplierCategoryMappings?.collect { it?.category?.id }?.findAll { it != null } ?: []
+                    }
+                }
+
+                List<Category> categories = partnerCategoryManagementService.getAvailableTopLevelCategories(ecomSupplier, ecomSupplierCategory)
+
+                render(template: "/multiSelectCategory/categorySelectInputs", model: [categories: categories,
+                                                                                      level: 1,
+                                                                                      productCategoryList: partnerCategoryList,
+                                                                                      selectedCategoryIds: selectedCategoryIds,
+                                                                                      triggerOnCategoryChange: true,
+                                                                                      isSearch: false])
+            } else {
+                flash.error = "Selected partner not available."
+                redirect(action: "index")
             }
+        } catch (Exception ex) {
+            log.error("Error filtering partner eligible categories, Exception " + ex.getMessage(), ex)
+            flash.error = "Unknown error when selecting eligible categories for partner."
+            redirect(action: "index")
         }
-
-        List<Category> categories = partnerCategoryManagementService.getAvailableTopLevelCategories(ecomSupplier, ecomSupplierCategory)
-
-        render(template: "/multiSelectCategory/categorySelectInputs", model: [categories: categories,
-                                                                              level: 1,
-                                                                              productCategoryList: partnerCategoryList,
-                                                                              selectedCategoryIds: selectedCategoryIds,
-                                                                              triggerOnCategoryChange: true,
-                                                                              isSearch: false])
-        }
+    }
 
 
-    def ajaxSearchCategories(String searchTerm, boolean triggerOnCategoryChange, int level, int selectedCategoryId, int specialId) {
+    def ajaxSearchCategories(String searchTerm, boolean triggerOnCategoryChange, int level, int specialId) {
         def searchResults = baseSearchCategories(searchTerm)
         def selectedCategoryIds = params?.list('selectedCategoryId[]')?.collect { it.toInteger() } ?: []
         boolean isSearch = searchTerm?.length() > 0
@@ -225,7 +234,7 @@ class PartnerCategoryManagementController extends BaseController{
                                                                               isSearch: isSearch])
     }
 
-    def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId, boolean triggerOnCategoryChange) {
+    def ajaxGetChildCategories(int categoryId, int level, boolean triggerOnCategoryChange) {
         def category = categoryService.getCategory(categoryId)
         def selectedCategoryIds = params?.list('selectedCategoryId[]')?.collect { it.toInteger() } ?: []
         render(template: "/multiSelectCategory/categorySelectInputs", model: [categories: category?.childCategories,
@@ -240,7 +249,7 @@ class PartnerCategoryManagementController extends BaseController{
         def selectedPartnerId = ecomSupplierCategory?.ecomSupplier?.id
         def partnerCategoryList = ecomSupplierCategory?.mappedCategories ?: []
         def categories = partnerCategoryManagementService.getAvailableTopLevelCategories(ecomSupplierCategory?.ecomSupplier, ecomSupplierCategory)
-        render(view: "_addPartnerCategory", model: [partnerCategoryList: partnerCategoryList,
+        render(view: "_addPartnerCategory", model: [productCategoryList: partnerCategoryList,
                                                     ecomSupplierList: ecomSupplierList,
                                                     ecomSupplierCategory : ecomSupplierCategory,
                                                     categories :categories,

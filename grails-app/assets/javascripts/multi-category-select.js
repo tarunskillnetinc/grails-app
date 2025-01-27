@@ -37,12 +37,8 @@ function searchCategories(e, level, triggerOnCategoryChange, searchTerm, selecte
             method: "GET",
             data: params,
             success: function(resp) {
-
                 $("#category-container-results").html(resp);
-
-
                 setCheckboxClickAction('#categoryContainer-' + categoryId + ' input[name="category.id[]"]');
-
                 searchInProgress = false;
             }
         });
@@ -109,17 +105,7 @@ function expandCollapseCategory(categoryId, level, selectedCategoryId, triggerOn
             success: function (resp) {
                 plusMinusButton.text("-");
                 plusMinusButton.attr("aria-expanded", "true");
-
                 $("#categoryContainer-" + categoryId).html(resp);
-
-                // Reapply the previously saved checkbox states
-                //reapplyCheckboxStates(categoryId);
-
-                // Automatically check child checkboxes if parent is selected
-                // if ($('#category-' + categoryId).is(':checked')) {
-                //     checkAllChildCategories(categoryId);
-                // }
-
                 setCheckboxClickAction('#categoryContainer-' + categoryId + ' input[name="category.id[]"]');
             }
         });
