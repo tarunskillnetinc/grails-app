@@ -11,8 +11,8 @@
         </thead>
         <tbody>
             <tr class="border font-weight-bold">
-                <td id="reportData_store" style="width: 40%;">Store ID: ${store.id}</td>
-                <td id="reportData_store" style="width: 40%;">Store Name: ${store.config.storeName}</td>
+                <td id="reportData_store" style="width: 40%;">Store ID: ${store?.config?.storeNumber}</td>
+                <td id="reportData_store" style="width: 40%;">Store Name: ${store?.config?.storeName}</td>
                 <td id="reportData_dateRange" style="width: 20%;">Date: ${startDate} - ${endDate}</td>
             </tr>
         </tbody>
@@ -43,34 +43,60 @@
                     <td id="reportData_${i + 1}_safeDescription" scope="row" class="border">${safes[session?.safeId]}</td>
                     <td id="reportData_${i + 1}_sessionNumber" scope="row" class="border">${session?.sessionNumber}</td>
                     <% if (hasFinancialWeek) { %>
-                        <td id="reportData_${i + 1}_financialWeek" scope="row" class="border">${session?.financialWeek?.weekNumber}</td>
+                        <td id="reportData_${i + 1}_financialWeek" scope="row" class="border">${session?.financialWeek?.weekNumber?: 'n/a'}</td>
                     <% } %>
                     <td id="reportData_${i + 1}_usersName" scope="row" class="border">${session?.finalisedUsersRealName}</td>
                     <td id="reportData_${i + 1}_userId" scope="row" class="border">${session?.finalisedUsername}</td>
-                    <td id="reportData_${i + 1}_tender" scope="row" class="border" style="padding: 0;">
-                        <g:each in="${session.reconciliationTotals}" var="total" status="j">
-                            <div style="width: 100%; border-bottom: 1px solid #c0c0c0; padding: 5px 0 5px 10px;">
-                                <g:message code="TenderType.${total?.tenderType}" />
-                            </div>
-                        </g:each>
+                    <td id="reportData_${i + 1}_tender" scope="row" class="border" style="padding: 0; border-top-style: none; border-style: none;">
+                        <table class="table" style="margin-bottom: 0px">
+                            <g:each in="${session.reconciliationTotals}" var="total" status="j">
+                                <tr>
+                                    <td style="padding-bottom: 4px;padding-top: 4px; ${j == 0 ? 'border-top: none !important;' : ''}">
+                                        <g:message code="TenderType.${total?.tenderType}" />
+                                    </td>
+                                </tr>
+                            </g:each>
+                        </table>
                     </td>
                     <td id="reportData_${i + 1}_varianceAmount" scope="row" class="border" style="padding: 0;">
-                        <g:each in="${session.reconciliationTotals}" var="total" status="j">
-                            <div style="width: 100%; border-bottom: 1px solid #c0c0c0; padding: 5px 0 5px 10px; ${total?.variance < BigDecimal.ZERO ? 'color: red;' : ''}">
-                                <g:if test="${total?.variance < BigDecimal.ZERO}">-</g:if>
-                                £${String.format("%.2f", total?.variance.abs())}
-                            </div>
-                        </g:each>
+                        <table class="table" style="margin-bottom: 0px">
+                            <g:each in="${session.reconciliationTotals}" var="total" status="j">
+                                <tr>
+                                    <td style="padding-bottom: 4px;padding-top: 4px; ${total?.variance < BigDecimal.ZERO ? 'color: red;' : ''} ${j == 0 ? 'border-top: none !important;' : ''}">
+                                        <g:if test="${total?.variance < BigDecimal.ZERO}">-</g:if>
+                                        £${String.format("%.2f", total?.variance.abs())}
+                                    </td>
+                                </tr>
+                            </g:each>
+                        </table>
                     </td>
-                    <td id="reportData_${i + 1}_tender" scope="row" class="border">
-                        <g:each in="${session?.reconciliationTotals}" var="total" status="j">
-                            <div>${total?.varianceReasonText}</div>
-                        </g:each>
+                    <td id="reportData_${i + 1}_reasonCode" scope="row" class="border">
+                        <%
+                            boolean displayedReasonCode = false;
+                            for (reasoncode in session?.reconciliationTotals) {
+                                if (!displayedReasonCode && reasonCodes?.get(reasoncode?.varianceReason)) {
+                        %>
+                                    <div>${reasonCodes[reasoncode?.varianceReason]}</div>
+                        <%
+                                    displayedReasonCode = true;
+                                    break;
+                                }
+                            }
+                        %>
                     </td>
-                    <td id="reportData_${i + 1}_tender" scope="row" class="border">
-                        <g:each in="${session?.reconciliationTotals}" var="total" status="j">
-                            <div>${reasonCodes[total?.varianceReason]}</div>
-                        </g:each>
+                    <td id="reportData_${i + 1}_comments" scope="row" class="border">
+                        <%
+                            boolean displayedComment = false;
+                            for (comment in session?.reconciliationTotals) {
+                                if (!displayedComment && comment?.varianceReasonText) {
+                        %>
+                                    <div>${comment?.varianceReasonText}</div>
+                        <%
+                                    displayedComment = true;
+                                    break;
+                                }
+                            }
+                        %>
                     </td>
                 </tr>
             </g:each>
