@@ -130,10 +130,10 @@
         </g:if>
         <g:else>
             <g:if test="${flash.categoryMessage}">
-                <div id="alerts-success-container-message" class="alert alert-success" role="alert">${flash.message}</div>
+                <div id="alerts-success-container-message" class="alert alert-success" role="alert">${flash.categoryMessage}</div>
             </g:if>
             <g:if test="${flash.categoryError}">
-                <div id="alerts-success-container-message" class="alert alert-danger" role="alert">${flash.error}</div>
+                <div id="alerts-success-container-message" class="alert alert-danger" role="alert">${flash.categoryError}</div>
             </g:if>
         </g:else>
     </div>
