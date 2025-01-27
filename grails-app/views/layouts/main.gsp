@@ -175,7 +175,7 @@
                                     <div class="dropdown-menu" aria-labelledby="buttonGridsDropdown">
                                         <g:link elementId="shift-activity-report-dropdown" controller="cashReporting" action="tillActivity" class="dropdown-item">Till Activity</g:link>
                                         <g:link elementId="shift-finalisation-report-dropdown" controller="cashReporting" action="shiftFinalisation" class="dropdown-item">Shift Finalisation</g:link>
-                                        <g:link elementId="shift-variance-report-dropdown" class="dropdown-item disabled">Shift Variance</g:link>
+                                        <g:link elementId="shift-variance-report-dropdown" controller="cashReporting" action="shiftVariance" class="dropdown-item">Shift Variance</g:link>
                                         <div class="dropdown-divider"></div>
                                         <g:link elementId="safe-activity-report-dropdown" class="dropdown-item disabled">Safe Activity</g:link>
                                         <g:link elementId="safe-finalisation-report-dropdown" controller="cashReporting" action="safeFinalisation" class="dropdown-item">Safe Finalisation</g:link>
