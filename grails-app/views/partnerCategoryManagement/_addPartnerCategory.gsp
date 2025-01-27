@@ -31,11 +31,6 @@
         let categorySearchUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxSearchCategories')}";
         let categoryFilterUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxFilterValidCategories')}";
 
-        $(document).ready(function() {
-            // Trigger the 'change' event for the partnerSupplierId dropdown
-            $('#partnerSupplierId').trigger('change');
-        });
-
         function handleCancelAddPartnerCategory(url) {
             confirmAndSubmit("Are you sure you want to cancel ?", function() {
                 cancelAddPartnerCategory(url);
@@ -169,7 +164,8 @@
                                           value="${selectedPartnerId}"
                                           class="form-control select-border"
                                           noSelection="['':'Please select partner']"
-                                          onchange="filterCategories(this.value, '${ecomSupplierCategory?.id ?: ''}')"></g:select>
+                                          onchange="filterCategories(this.value, '${ecomSupplierCategory?.id ?: ''}')"
+                                          disabled="${isUpdate}"></g:select>
                             </div>
                         </div>
                     </div>

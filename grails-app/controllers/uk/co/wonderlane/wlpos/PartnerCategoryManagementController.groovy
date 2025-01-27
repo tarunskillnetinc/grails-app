@@ -115,7 +115,7 @@ class PartnerCategoryManagementController extends BaseController{
             //Update partner category name
             //If updated partner category supplier
             //If updated all mappping item's supplier
-            partnerCategoryManagementService.updateEcomSupplierCategory(ecomSupplierCategory, ecomSupplier, partnerCategoryName)
+            partnerCategoryManagementService.updateEcomSupplierCategory(ecomSupplierCategory, partnerCategoryName)
 
             //Load category mappings which should be removed
             List<EcomSupplierCategoryMapping> removedEcomSupplierCategoryMappings =

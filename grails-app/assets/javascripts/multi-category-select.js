@@ -56,7 +56,6 @@ function filterCategories(supplierId, supplierCategoryId) {
         data: params,
         success: function(resp) {
             $("#category-container-results").html(resp);
-            setCheckboxClickAction('#categoryContainer-' + categoryId + ' input[name="category.id[]"]');
         }
     });
 }

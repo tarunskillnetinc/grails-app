@@ -55,13 +55,6 @@
             }
         }
 
-        document.getElementById('filtersForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent form submission
-        });
-
-
-
-
 </script>
 </head>
 

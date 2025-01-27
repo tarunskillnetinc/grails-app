@@ -78,12 +78,8 @@ class PartnerCategoryManagementService {
         return newMappings
     }
 
-    void updateEcomSupplierCategory(EcomSupplierCategory ecomSupplierCategory, EcomSupplier ecomSupplier, String partnerCategoryName){
-        ecomSupplierCategory.setEcomSupplier(ecomSupplier)
+    void updateEcomSupplierCategory(EcomSupplierCategory ecomSupplierCategory, String partnerCategoryName){
         ecomSupplierCategory.setDescription(partnerCategoryName)
-        ecomSupplierCategory?.ecomSupplierCategoryMappings?.each { mapping ->
-            mapping.ecomSupplier = ecomSupplier
-        }
     }
 
     void updateEcomSupplierCategoryMapping(EcomSupplierCategory ecomSupplierCategory, List<EcomSupplierCategoryMapping> removedEcomSupplierCategoryMappings, List<EcomSupplierCategoryMapping> addedEcomSupplierCategoryMappings){
