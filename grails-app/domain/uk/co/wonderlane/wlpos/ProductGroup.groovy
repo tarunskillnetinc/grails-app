@@ -32,7 +32,7 @@ class ProductGroup {
         productGroup.setMaxSellQuantity(maxSellQuantity)
 
         productGroupProducts?.each {
-            productGroup.getProductGroupProducts().add(it)
+            productGroup.getProductGroupProducts().add(it.getProductGroupProduct())
         }
 
         return productGroup
