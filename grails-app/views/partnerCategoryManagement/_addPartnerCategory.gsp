@@ -29,6 +29,7 @@
 
         let getChildCategoriesUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxGetChildCategories')}";
         let categorySearchUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxSearchCategories')}";
+        let categoryFilterUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxFilterValidCategories')}";
 
         function handleCancelAddPartnerCategory(url) {
             confirmAndSubmit("Are you sure you want to cancel ?", function() {
@@ -161,7 +162,9 @@
                                           optionKey="id"
                                           optionValue="name"
                                           value="${selectedPartnerId}"
-                                          class="form-control select-border"></g:select>
+                                          class="form-control select-border"
+                                          noSelection="['':'Please select partner']"
+                                          onchange="filterCategories(this.value, '${ecomSupplierCategory?.id ?: ''}')"></g:select>
                             </div>
                         </div>
                     </div>

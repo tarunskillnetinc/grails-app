@@ -49,6 +49,22 @@ function searchCategories(e, level, triggerOnCategoryChange, searchTerm, selecte
     }, 750);
 }
 
+function filterCategories(supplierId, supplierCategoryId) {
+    var params = {};
+    params["supplierId"] = (supplierId) ? supplierId : null; // Pass null if supplierId is missing
+    params["supplierCategoryId"] = (supplierCategoryId) ? supplierCategoryId : null; // Pass null if supplierCategoryId is missing
+
+    $.ajax({
+        url: categoryFilterUrl,
+        method: "GET",
+        data: params,
+        success: function(resp) {
+            $("#category-container-results").html(resp);
+            setCheckboxClickAction('#categoryContainer-' + categoryId + ' input[name="category.id[]"]');
+        }
+    });
+}
+
 
 function expandCollapseCategory(categoryId, level, selectedCategoryId, triggerOnCategoryChange) {
     event.preventDefault();
@@ -185,31 +201,6 @@ function expandAndSelectAllChildCategories(parentCategoryId) {
     }
 }
 
-
-// function getCheckboxStates(categoryId) {
-//     var states = {};
-//     // Loop through all checkboxes under the category and save their checked state
-//     $("#categoryContainer-" + categoryId + ' input[name="category.id[]"]').each(function () {
-//         var checkbox = $(this);
-//         states[checkbox.val()] = checkbox.prop('checked');
-//     });
-//     return states;
-// }
-
-// function reapplyCheckboxStates(categoryId) {
-//     // Check if there are stored states for this category
-//     if (checkboxStates[categoryId]) {
-//         // Loop through each checkbox and reapply the saved checked state
-//         $("#categoryContainer-" + categoryId + ' input[name="category.id[]"]').each(function () {
-//             var checkbox = $(this);
-//             var id = checkbox.val();
-//             if (checkboxStates[categoryId][id] !== undefined) {
-//                 checkbox.prop('checked', checkboxStates[categoryId][id]);
-//             }
-//         });
-//     }
-// }
-
 function checkAllChildCategories(categoryId) {
     // Check all child categories recursively
     $("#categoryContainer-" + categoryId + ' input[name="category.id[]"]').each(function () {
@@ -255,7 +246,6 @@ function updateParentCheckboxState(parentCategoryId) {
     }
 }
 
-
 // Select all child categories recursively
 function selectChildCategories(categoryId) {
     $("#categoryContainer-" + categoryId + ' input[name="category.id[]"]').each(function () {
@@ -278,190 +268,3 @@ function selectParentCategories(categoryId) {
     }
 }
 
-
-// var currentTimeout;
-// var searchInProgress = false;
-//
-// var checkboxStates = {};
-//
-// // Expand or collapse the category and show all children categories.
-// function expandCollapseCategory(categoryId, level, selectedCategoryId, triggerOnCategoryChange) {
-//     event.preventDefault();
-//
-//     var plusMinusButton = $("#plusMinus-" +categoryId);
-//     var expanded = plusMinusButton.attr("aria-expanded");
-//     if (expanded === "true") {
-//         plusMinusButton.text("+");
-//         plusMinusButton.attr("aria-expanded", "false");
-//
-//         checkboxStates[categoryId] = getCheckboxStates(categoryId);
-//
-//         $("#categoryContainer-" +categoryId).html("");
-//     } else {
-//         var params = {};
-//         params["categoryId"] = categoryId;
-//         params["level"] = level;
-//         params["selectedCategoryId"] = selectedCategoryId;
-//         params["triggerOnCategoryChange"] = triggerOnCategoryChange;
-//
-//         $.ajax({
-//             url: getChildCategoriesUrl,
-//             method: "GET",
-//             data: params,
-//             success: function(resp) {
-//                 plusMinusButton.text("-");
-//                 plusMinusButton.attr("aria-expanded", "true");
-//
-//                 $("#categoryContainer-" +categoryId).html(resp);
-//
-//                // reapplyCheckboxStates(selectedCategoryId);
-//
-//                 // Automatically check child checkboxes if parent is selected
-//                 if ($('#category-' + categoryId).is(':checked')) {
-//                     alert("parent is checked")
-//                     checkAllChildCategories(categoryId);
-//                 } else {
-//                     alert("parent is not checked")
-//                 }
-//
-//                 setCheckboxClickAction('#categoryContainer-' +categoryId +' input[name="category.id[]"]');
-//             }
-//         });
-//     }
-// }
-//
-// function checkAllChildCategories(categoryId) {
-//     // Check all child categories recursively
-//     $("#categoryContainer-" + categoryId + ' input[name="category.id[]"]').each(function () {
-//         $(this).prop('checked', true);
-//         var childId = $(this).val();
-//         checkAllChildCategories(childId);
-//     });
-// }
-//
-// // function reapplyCheckboxStates(selectedCategoryIds) {
-// //     if (!selectedCategoryIds || selectedCategoryIds.length === 0) return;
-// //
-// //     // Loop through the selected IDs and re-check corresponding checkboxes
-// //     selectedCategoryIds.forEach(function (id) {
-// //         $('#category-' + id).prop('checked', true);
-// //     });
-// // }
-//
-// $(document).ready(function () {
-//     setCheckboxClickAction('input[name="category.id[]"]');
-// });
-//
-// function setCheckboxClickAction(selector) {
-//     $(document).on('change', selector, function () {
-//         var isChecked = $(this).is(':checked');
-//         var categoryId = $(this).val();
-//
-//         if (isChecked) {
-//             selectParentCategories(categoryId);
-//             selectChildCategories(categoryId);
-//         } else {
-//             unselectChildCategories(categoryId);
-//         }
-//     });
-// }
-//
-// // Select all child categories recursively
-// function selectChildCategories(categoryId) {
-//     $("#categoryContainer-" + categoryId + ' input[name="category.id[]"]').each(function () {
-//         $(this).prop('checked', true);
-//         var childId = $(this).val();
-//         selectChildCategories(childId);
-//     });
-// }
-//
-// // Unselect all child categories recursively
-// function unselectChildCategories(categoryId) {
-//     $("#categoryContainer-" + categoryId + ' input[name="category.id[]"]').each(function () {
-//         $(this).prop('checked', false);
-//         var childId = $(this).val();
-//         unselectChildCategories(childId);
-//     });
-// }
-//
-// // Select all parent categories up the hierarchy
-// function selectParentCategories(categoryId) {
-//     var parentCheckbox = $(`#category-${categoryId}`).closest(".radio-container").prevAll(".radio-input").find('input[name="category.id[]"]');
-//     if (parentCheckbox.length > 0) {
-//         parentCheckbox.prop('checked', true);
-//         var parentId = parentCheckbox.val();
-//         selectParentCategories(parentId);
-//     }
-// }
-//
-// function getCheckboxStates(categoryId) {
-//     var states = {};
-//     $("#categoryContainer-" + categoryId + ' input[name="category.id[]"]').each(function () {
-//         var checkbox = $(this);
-//         states[checkbox.val()] = checkbox.prop('checked');
-//     });
-//     return states;
-// }
-//
-// function reapplyCheckboxStates(categoryId) {
-//     if (checkboxStates[categoryId]) {
-//         // Reapply stored checkbox states
-//         $("#categoryContainer-" + categoryId + ' input[name="category.id[]"]').each(function () {
-//             var checkbox = $(this);
-//             var id = checkbox.val();
-//             if (checkboxStates[categoryId][id] !== undefined) {
-//                 checkbox.prop('checked', checkboxStates[categoryId][id]);
-//             }
-//         });
-//     }
-// }
-//
-//
-// // function setCheckboxClickAction(selector) {
-// //     $(document).on('change', selector, function () {
-// //         var isChecked = $(this).is(':checked');
-// //         var categoryId = $(this).val();
-// //
-// //         if (isChecked) {
-// //             console.log('Child category selected:', categoryId);
-// //         } else {
-// //             console.log('Child category unselected:', categoryId);
-// //         }
-// //     });
-// // }
-//
-// // function setCheckboxClickAction(selector) {
-// //     $(selector).click(function () {
-// //         var $checkbox = $(this);
-// //
-// //         // If you want to trigger some action on change, you can add it here
-// //         if (typeof onCategoryChanged === 'function') {
-// //             onCategoryChanged($(this).val(), $(this).prop('checked'));
-// //         }
-// //     });
-// // }
-//
-
-//
-// // function setCheckboxClickAction(selector) {
-// //     $(selector).each(function () {
-// //         // Initialize the state for each checkbox
-// //         $(this).data('waschecked', $(this).prop('checked'));
-// //     });
-// //
-// //     $(selector).click(function () {
-// //         var $checkbox = $(this);
-// //
-// //         // Toggle the `waschecked` state
-// //         if ($checkbox.data('waschecked') === true) {
-// //             $checkbox.prop('checked', false);
-// //             $checkbox.data('waschecked', false);
-// //         } else {
-// //             $checkbox.prop('checked', true);
-// //             $checkbox.data('waschecked', true);
-// //         }
-// //
-// //         // Perform additional actions if necessary
-// //         console.log('Checkbox clicked:', $checkbox.val(), 'Checked:', $checkbox.prop('checked'));
-// //     });
-// // }

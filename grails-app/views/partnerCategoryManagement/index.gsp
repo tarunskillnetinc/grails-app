@@ -40,7 +40,6 @@
         function clearFilters() {
             $("#partnerCategoryNameFilter").val("");
             $("#partnerSupplierIdFilter").val("");
-            getPartnerCategories();
         }
 
         function filter(inputName, dropDownName) {
@@ -56,8 +55,14 @@
             }
         }
 
+        document.getElementById('filtersForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+        });
 
-    </script>
+
+
+
+</script>
 </head>
 
 <body>
@@ -101,11 +106,12 @@
                         </div>
                     </div>
                     <div class="card-body" id="filterCollapse">
-                        <g:form name="filtersForm" id="filtersForm">
+                        <g:form name="filtersForm" id="filtersForm" >
                             <div class="form-group row">
                                 <label for="partnerSupplierIdFilter" class="col-2 col-form-label-sm text-right">Partner Name</label>
                                 <div class="col-4">
                                     <g:select name="partnerSupplierIdFilter"
+                                              id="partnerSupplierIdFilter"
                                               from="${ecomSuppliers}"
                                               optionKey="id"
                                               optionValue="name"
@@ -121,6 +127,7 @@
                                 <label for="partnerCategoryNameFilter" class="col-2 col-form-label-sm text-right">Partner Category</label>
                                 <div class="col-4">
                                     <g:textField name="partnerCategoryNameFilter"
+                                                 id="partnerCategoryNameFilter"
                                                  class="form-control bottom-border"
                                                  value="${session.PARTNER_CATEGORY}"
                                                  autocomplete="off"/>

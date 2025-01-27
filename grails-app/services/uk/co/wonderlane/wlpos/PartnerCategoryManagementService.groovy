@@ -1,9 +1,7 @@
 package uk.co.wonderlane.wlpos
 
-import org.hibernate.Session
-import org.hibernate.Transaction
+
 import grails.gorm.transactions.Transactional
-import software.amazon.awssdk.services.s3.endpoints.internal.Value.Str
 
 @Transactional
 class PartnerCategoryManagementService {
@@ -88,8 +86,7 @@ class PartnerCategoryManagementService {
         }
     }
 
-    @Transactional
-    void saveEcomSupplierCategory(EcomSupplierCategory ecomSupplierCategory, List<EcomSupplierCategoryMapping> removedEcomSupplierCategoryMappings, List<EcomSupplierCategoryMapping> addedEcomSupplierCategoryMappings){
+    void updateEcomSupplierCategoryMapping(EcomSupplierCategory ecomSupplierCategory, List<EcomSupplierCategoryMapping> removedEcomSupplierCategoryMappings, List<EcomSupplierCategoryMapping> addedEcomSupplierCategoryMappings){
         try {
             //If any category mapping is removed then removed them from supplier category association
             if (removedEcomSupplierCategoryMappings != null && removedEcomSupplierCategoryMappings.size() > 0) {
@@ -105,6 +102,16 @@ class PartnerCategoryManagementService {
                 }
             }
 
+            ecomSupplierCategory.save(flush: true, failOnError: true)
+        } catch (Exception ex) {
+            log.error("Error saving partner categories, Exception " + ex.getMessage(), ex)
+            throw new RuntimeException("Error saving ecom supplier categories, exception " + ex)
+        }
+    }
+
+    @Transactional
+    void saveEcomSupplierCategory(EcomSupplierCategory ecomSupplierCategory){
+        try {
             ecomSupplierCategory.save(flush: true, failOnError: true)
         } catch (Exception ex) {
             log.error("Error saving partner categories, Exception " + ex.getMessage(), ex)

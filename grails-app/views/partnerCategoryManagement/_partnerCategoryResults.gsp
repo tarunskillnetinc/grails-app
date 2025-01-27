@@ -23,7 +23,7 @@
 
     <g:if test="${!ecomSupplierCategories || ecomSupplierCategories?.isEmpty()}">
         <div class="row ml-0 mr-0 text-center">
-            <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">Please add search criteria to find partner categories.</div>
+            <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">Please enter search term to find partner categories.</div>
         </div>
     </g:if>
 
@@ -55,5 +55,5 @@
 </div>
 
 <div class="my-3 text-right">
-    <util:remotePaginate controller="partnerCategoryManagement" action="ajaxGetPartnerCategories" total="${totalResults ?: 10}" update="results-container" offset="${offset ?: 0}" max="${max ?: 10}" />
+    <util:remotePaginate controller="partnerCategoryManagement" action="ajaxGetPartnerCategories" total="${totalResults ?: 10}" update="results-container" offset="${offset ?: 0}" max="${max ?: 10}" params="[partnerSupplierIdFilter: partnerSupplierIdFilter, partnerCategoryNameFilter: partnerCategoryNameFilter]" />
 </div>
