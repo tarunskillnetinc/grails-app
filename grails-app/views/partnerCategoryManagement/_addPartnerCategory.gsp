@@ -31,6 +31,11 @@
         let categorySearchUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxSearchCategories')}";
         let categoryFilterUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxFilterValidCategories')}";
 
+        $(document).ready(function() {
+            // Trigger the 'change' event for the partnerSupplierId dropdown
+            $('#partnerSupplierId').trigger('change');
+        });
+
         function handleCancelAddPartnerCategory(url) {
             confirmAndSubmit("Are you sure you want to cancel ?", function() {
                 cancelAddPartnerCategory(url);
@@ -195,7 +200,7 @@
                             <div class="flex-grow-1" style="overflow: hidden;">
                                 <g:render template="/multiSelectCategory/categorySelect"
                                           model="[categories: categories,
-                                                  productCategoryList: partnerCategoryList,
+                                                  productCategoryList: productCategoryList,
                                                   selectedCategoryIds: selectedCategoryIds,
                                                   level: 1,
                                                   triggerOnCategoryChange: false,
