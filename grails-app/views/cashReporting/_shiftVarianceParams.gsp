@@ -17,23 +17,25 @@
                                       disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}">
                             </g:select>
                         </div>
-                        <label for="safeId" class="col-2 col-form-label-sm text-right">Safe:</label>
-                        <div class="dropdown col-5">
-                            <div class="form-control" id="safes">
-                                <span id="selectedSafes" style="display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Select Safes</span>
+
+                        <label for="tillId" class="col-2 col-form-label-sm text-right">Till ID:</label>
+                        <div class="dropdown col-4">
+                            <div class="form-control" id="tills">
+                                <span id="selectedTills" style="display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Select Tills</span>
                                 <span class="caret"></span>
                             </div>
-                            <div id="safeIdSelect" class="dropdown-menu">
-                                <g:each in="${safes}" var="safe">
+                            <div id="tillIdSelect" class="dropdown-menu">
+                                <g:each in="${tills}" var="till">
                                     <div class="dropdown-item">
                                         <label class="mb-0">
-                                            <input id="${safe.id}" type="checkbox" name="safes" value="${safe.description}"> ${safe.description}${safe.active ? '' : ' - (Inactive Safe)'}</input>
+                                            <input id="${till.id}" type="checkbox" name="tills" value="${till.tillId}"> ${till.tillId}</input>
                                         </label>
                                     </div>
                                 </g:each>
                             </div>
                         </div>
                     </div>
+
                     <div class="row col-xl-5 col-12 mb-4">
                         <label for="startDate" class="col-3 col-form-label-sm text-right">From Date:</label>
                         <div class="col-4">
@@ -49,7 +51,7 @@
 
                 <div class="form-group row">
                     <div class="col-12 text-right">
-                        <button id="get-report-button" type="button" class="col-xl-3 col-5 btn btn-wl text-center" onclick="getReport()">Get Report</button>
+                        <button id="shift-variance-report" type="button" class="col-xl-3 col-5 btn btn-wl text-center" onclick="getReport()">Get Report</button>
                     </div>
                 </div>
             </g:form>

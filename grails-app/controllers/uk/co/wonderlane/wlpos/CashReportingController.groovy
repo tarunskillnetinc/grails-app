@@ -10,12 +10,12 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
+import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.TenderType
 
 class CashReportingController {
 
     def cashReportingService
-    def financialWeekService
     def reasonCodeService
     def safeService
     def safeSessionService
@@ -55,6 +55,20 @@ class CashReportingController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def tillActivity() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC).minusDays(7)
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
+        def tills = []
+        if (springSecurityService.principal.storeNumber) {
+            tills = tillAssignmentService.getTillsByStoreId(springSecurityService.principal.storeNumber)
+        }
+
+        [stores: stores, tills: tills, startDate: startDate, endDate: endDate]
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
     def ajaxGetTillsForStore(int storeNumber) {
         def tillIds = []
         def tills = tillAssignmentService.getTillsByStoreId(storeNumber)
@@ -68,6 +82,22 @@ class CashReportingController {
         def safes = safeService.getSafesByStoreNumber(storeNumber)
         safes.forEach { safeOptions.add(text: it.selectionText, value: it.id) }
         render status: 200, contentType: 'application/json', text: JsonOutput.toJson([options: safeOptions])
+    }
+
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def ajaxGetAllShiftsForTill(Integer storeNumber, int tillId, String startDate, String endDate) {
+        if (!startDate || !endDate) {
+            render status: 500
+        }
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDateTime = DateTime.parse(startDate, dateFormatter).withTimeAtStartOfDay()
+        DateTime endDateTime = DateTime.parse(endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1)
+
+        def shifts = cashReportingService.getAllShiftsForTill(storeNumber, tillId, startDateTime, endDateTime)
+        def shiftNumbers = []
+        shifts.forEach { shiftNumbers.add(text: it.shiftNumber, value: it.shiftNumber) }
+        render status: 200, contentType: 'application/json', text: JsonOutput.toJson([options: shiftNumbers])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
@@ -154,10 +184,75 @@ class CashReportingController {
         }
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def ajaxGetTillActivityReport(Integer storeNumber, int tillId, int shiftNumber) {
+        def shift = cashReportingService.getShiftForShiftNumber(storeNumber, tillId, shiftNumber).getShift()
+        if (shift) {
+            def storeConfig = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId,
+                    storeNumber?:springSecurityService.principal.storeNumber).getConfig()
+            var storeText = storeConfig.storeNumber + ' - ' + storeConfig.storeName
+
+            // As we made these strings and not dates we have to reformat them for the reports
+            shift.setShiftOpenTime(reformatDateTime(shift.getShiftOpenTime()))
+            shift.setShiftCloseTime(reformatDateTime(shift.getShiftCloseTime()))
+
+            // easier to unpack data here than on the page!
+            def reportLines = getShiftAuditReportLines(shift.id)
+
+            render(status: 200, template: "tillActivityReport", model: [
+                    storeText: storeText, shift: shift, reportLines: reportLines
+            ])
+        } else {
+            render status: 500
+        }
+    }
+
+    private getShiftAuditReportLines(int shiftId) {
+        def reportLines = []
+        def auditRecords = cashReportingService.getShiftAuditRecords(shiftId)
+        auditRecords?.forEach {audit ->
+            def tenderValues = []
+            def showReconciled = [
+                    ShiftAction.RECONCILE.toString(), ShiftAction.RECOUNT.toString(), ShiftAction.FINALISE.toString()
+            ].contains(audit.action)
+            if (showReconciled || audit.action == ShiftAction.SPOT_CHECK.toString()) {
+                // show saved shift values
+                try {
+                    forcePopulateReconciledValues(
+                            showReconciled ? audit.shiftValues?.reconciliationTotals : null,
+                            audit.shiftValues?.tenderTotals
+                    ).forEach { recTotal ->
+                        tenderValues.add([type: recTotal.tenderType, value: recTotal.value])
+                    }
+                } catch (Exception e) {
+                    log.error("Invalid shift 'extras' on shift audit " + audit.id, e)
+                }
+            } else {
+                // show specific tender movement values(s) if recorded
+                try {
+                    audit.tenderMovementValues?.forEach { tenderTotal ->
+                        tenderValues.add([type: tenderTotal.tenderType, value: tenderTotal.value])
+                    }
+                } catch (Exception e) {
+                    log.error("Invalid tender movement on shift audit " + audit.id, e)
+                }
+            }
+
+            reportLines.add([
+                    id          : audit.id, timestamp: audit.timestamp,
+                    name        : audit.usersRealName, username: audit.username,
+                    action      : audit.action, source: audit.backoffice ? "Back Office" : "Till",
+                    rowspan     : Math.max(tenderValues.size(), 1),
+                    tenderValues: tenderValues.toSorted { value -> value.type }
+            ])
+        }
+        return reportLines.toSorted { line -> line.id }
+    }
+
     private List<ReconciliationTotal> forcePopulateReconciledValues(
             List<ReconciliationTotal> reconciliationTotals, List<TenderTotal> tenderTotals
     ) {
-        // todo - Update to use tender config
+        // todo - Update to use tender config (Warning: used on multiple reports and not just as reconciled values)
         def values = reconciliationTotals?: []
         // add totals that didnt get reconciled
         tenderTotals?.forEach { total ->
@@ -190,6 +285,9 @@ class CashReportingController {
     }
 
     private static String reformatDateTime(String dateTime) {
+        if (dateTime == null) {
+            return null
+        }
         try {
             DateTimeFormatter from = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZoneUTC()
             DateTimeFormatter to = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm").withZoneUTC()
@@ -265,5 +363,65 @@ class CashReportingController {
         }
 
         render(status: filteredSessions ? 200 : 204, template: "safeVarianceReport", model: [store: store, safeSessions: filteredSessions, startDate: startDate, endDate: endDate, safes: safesMap, reasonCodes: reasonMap])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def shiftVariance() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        def stores = []
+        def tills = null
+
+        if (springSecurityService.principal.storeId) {
+            stores = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            tills = tillAssignmentService.getTillsByStoreId(springSecurityService.principal.storeNumber)
+            tills.sort { it.tillId }
+        } else {
+            stores = storeService.getStores(springSecurityService.principal.retailerId)
+        }
+
+        [startDate: startDate, endDate: endDate, stores: stores, tills: tills]
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def ajaxGetTillsForStoreNumber(Integer storeNumber) {
+        def tills = tillAssignmentService.getTillsByStoreId(storeNumber)
+
+        def tillEntries = tills.collect { till ->
+            [id: till.id, description: till.tillId]
+        }.sort { it.description }
+
+        render(status: 200, contentType: 'application/json', text: JsonOutput.toJson([options: tillEntries]))
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def ajaxGetShiftVarianceReport(Integer storeNumber, String selectedTills, String startDate, String endDate) {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime start = startDate ? DateTime.parse(startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime end = endDate ? DateTime.parse(endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        def store = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, storeNumber)
+
+        def tills = null
+
+        if (selectedTills != null && selectedTills.length() > 0) {
+            def splitTills = selectedTills.split(',')
+            tills = splitTills.collect { it.trim().toInteger() }
+        }
+
+        def shiftRecords = cashReportingService.getShiftsForStoreAndTillIds(store.id, tills, start, end, "tillId", "asc")
+        def shifts = (shiftRecords ?: []).collect { it.getShift() }
+
+        def varianceReasons = shifts.collectMany { shift -> shift.reconciliationTotals*.varianceReason}.findAll { it != null }
+
+        def reasonMap = null
+        if (varianceReasons.size() > 0) {
+            def reasons = reasonCodeService.findReasonCodesByCodes(springSecurityService.principal.retailerId, varianceReasons);
+            reasonMap = reasons.collectEntries { [(it.code): (it.description)] }
+        }
+        
+        render(status: shifts ? 200 : 204, template: "shiftVarianceReport", model: [store: store, shifts: shifts, startDate: startDate, endDate: endDate, reasonCodes: reasonMap])
     }
 }
