@@ -111,7 +111,7 @@ class PromotionController {
         render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: productVariant?.product?.description, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
     }
 
-    def ajaxGetTag(int id, String promotionType, String promotionGroupType, int groupId) {
+    def ajaxGetProductGroup(int id, String promotionType, String promotionGroupType, int groupId) {
         def tag = productGroupService.getProductGroup(id)
 
         def (showQuantityField, showValueField) = getQuantityAndValueFieldVisibility(PromotionType.valueOf(promotionType))
@@ -223,6 +223,7 @@ class PromotionController {
             try {
                 sendToTills(promotion)
             } catch (Exception e) {
+                e.printStackTrace()
                 flash.error = "Promotion was unable to be sent to tills."
             }
 
@@ -284,8 +285,8 @@ class PromotionController {
 
         List<uk.co.wonderlane.wlpos.entities.PromotionGroup> tagGroups = new ArrayList<>();
         for (uk.co.wonderlane.wlpos.entities.PromotionGroup offerGroup : tillPromo.getPromotionOfferGroups()) {
-            if (offerGroup.getTagId() != null) {
-                for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(offerGroup.tagId, springSecurityService.principal.retailerId).productGroupProducts) {
+            if (offerGroup.getProductGroupId() != null) {
+                for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(offerGroup.productGroupId, springSecurityService.principal.retailerId).productGroupProducts) {
                     uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
                     promotionGroup.setId(offerGroup.getId())
                     promotionGroup.setPromotionId(offerGroup.getPromotionId())
@@ -293,7 +294,7 @@ class PromotionController {
                     promotionGroup.setType(offerGroup.getType())
                     promotionGroup.setRequiredQuantity(offerGroup.getRequiredQuantity())
                     promotionGroup.setExcessQuantity(offerGroup.isExcessQuantity())
-                    promotionGroup.setProductGroupId(offerGroup.getTagId())
+                    promotionGroup.setProductGroupId(offerGroup.getProductGroupId())
                     promotionGroup.setSku(productGroupProduct.sku)
 
                     tagGroups.add(promotionGroup)
@@ -305,8 +306,8 @@ class PromotionController {
         tagGroups.clear()
 
         for (uk.co.wonderlane.wlpos.entities.PromotionGroup requiredGroup : tillPromo.getPromotionRequiredGroups()) {
-            if (requiredGroup.getTagId() != null) {
-                for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(requiredGroup.tagId, springSecurityService.principal.retailerId).productGroupProducts) {
+            if (requiredGroup.getProductGroupId() != null) {
+                for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(requiredGroup.productGroupId, springSecurityService.principal.retailerId).productGroupProducts) {
                     uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
                     promotionGroup.setId(requiredGroup.getId())
                     promotionGroup.setPromotionId(requiredGroup.getPromotionId())
@@ -314,7 +315,7 @@ class PromotionController {
                     promotionGroup.setType(requiredGroup.getType())
                     promotionGroup.setRequiredQuantity(requiredGroup.getRequiredQuantity())
                     promotionGroup.setExcessQuantity(requiredGroup.isExcessQuantity())
-                    promotionGroup.setProductGroupId(requiredGroup.getTagId())
+                    promotionGroup.setProductGroupId(requiredGroup.getProductGroupId())
                     promotionGroup.setSku(productGroupProduct.sku)
 
                     tagGroups.add(promotionGroup)

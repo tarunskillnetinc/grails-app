@@ -24,7 +24,7 @@ class ProductGroupService {
                     }
                 } else if (searchBy == "description") {
                     like("description", "%$searchTerm%")
-                } else if (searchBy == "tagId") {
+                } else if (searchBy == "productGroupId") {
                     sqlRestriction "cast( id AS char( 256 )) like '%${searchTerm}%'"
                 }
             }

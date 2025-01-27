@@ -70,9 +70,9 @@ class PromotionServiceSpec extends Specification implements ServiceUnitTest<Prom
                 categoryId: 100, productGroupId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroupCategoryMatch)
 
-        PromotionGroup promotionGroupTagMatch = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: null,
+        PromotionGroup promotionGroupProductGroupMatch = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: null,
                 categoryId: null, productGroupId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
-        testPromotion.groups.add(promotionGroupTagMatch)
+        testPromotion.groups.add(promotionGroupProductGroupMatch)
 
         testPromotion.save(flush: true, failOnError: true)
 
@@ -80,9 +80,9 @@ class PromotionServiceSpec extends Specification implements ServiceUnitTest<Prom
         category.setId(100)
         category.save(flush: true, failOnError: true)
 
-        ProductGroup testTag = new ProductGroup(description: "Test")
-        testTag.setId(150)
-        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 250, productGroupId: testTag)
+        ProductGroup productGroup = new ProductGroup(description: "Test")
+        productGroup.setId(150)
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 250, productGroupId: productGroup)
         productGroupProduct.save(flush: true, failOnError: true)
 
         Product product = new Product(itemCode: "100", description: "Test", receiptDescription: "Test", retailerId: 9,

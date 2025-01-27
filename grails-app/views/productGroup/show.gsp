@@ -16,7 +16,7 @@
                             <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link
                                     controller="productGroup" action="index">Product Group Management</g:link></li>
                             <li id="breadcrumb-3" class="breadcrumb-item active"
-                                aria-current="page">${productGroup?.description ?: "View Tag"}</li>
+                                aria-current="page">${productGroup?.description ?: "View Product Group"}</li>
                         </ol>
                     </div>
                 </div>
