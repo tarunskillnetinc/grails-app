@@ -560,14 +560,6 @@ class EposTagLib {
         // Build the full path dynamically using parent categories
         String fullPath = buildFullPath(category)
 
-        // Skip rendering if the full path has already been rendered
-        if (renderedPaths.contains(fullPath)) {
-            return "" // Avoid duplicates
-        }
-
-        // Add the full path to the rendered set
-        renderedPaths.add(fullPath)
-
         // Check if the category has relevant children (descendants that are selected)
         boolean hasRelevantChildren = category.childCategories?.any { child ->
             isCategoryOrDescendantSelected(child, selectedCategories, categoryMap)
