@@ -352,7 +352,12 @@ class CashReportingController {
 
         /* Filter out safe sessions for safes that are not of interest */
         def filterMap = safesMap.findAll { entry -> safes.contains(entry.value) }
-        def filteredSessions = sessions.findAll { obj -> filterMap.containsKey(obj.safeId) }
+        def varianceSessions = sessions.findAll { obj -> filterMap.containsKey(obj.safeId) }
+        
+        /* Remove all safes witout a variance */
+        def filteredSessions = varianceSessions.findAll { filteredSession ->
+            !filteredSession.reconciliationTotals.every { it.variance == 0 }
+        }
 
         def varianceReasons = filteredSessions.collectMany { session -> session.reconciliationTotals*.varianceReason}.findAll { it != null }
 
@@ -412,7 +417,12 @@ class CashReportingController {
         }
 
         def shiftRecords = cashReportingService.getShiftsForStoreAndTillIds(store.id, tills, start, end, "tillId", "asc")
-        def shifts = (shiftRecords ?: []).collect { it.getShift() }
+        def allShifts = (shiftRecords ?: []).collect { it.getShift() }
+
+        /* Remove all shifts witout a variance */
+        def shifts = allShifts.findAll { allShift ->
+            !allShift.reconciliationTotals.every { it.variance == 0 }
+        }
 
         def varianceReasons = shifts.collectMany { shift -> shift.reconciliationTotals*.varianceReason}.findAll { it != null }
 
