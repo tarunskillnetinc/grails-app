@@ -43,7 +43,7 @@
                     <td id="reportData_${i + 1}_safeDescription" scope="row" class="border">${safes[session?.safeId]}</td>
                     <td id="reportData_${i + 1}_sessionNumber" scope="row" class="border">${session?.sessionNumber}</td>
                     <% if (hasFinancialWeek) { %>
-                        <td id="reportData_${i + 1}_financialWeek" scope="row" class="border">${session.financialWeek?.weekNumber?: 'n/a'}</td>
+                        <td id="reportData_${i + 1}_financialWeek" scope="row" class="border">${session?.financialWeek?.weekNumber?: 'n/a'}</td>
                     <% } %>
                     <td id="reportData_${i + 1}_usersName" scope="row" class="border">${session?.finalisedUsersRealName}</td>
                     <td id="reportData_${i + 1}_userId" scope="row" class="border">${session?.finalisedUsername}</td>
