@@ -339,8 +339,8 @@ class CashReportingController {
         }
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-        DateTime start = startDate ? DateTime.parse(startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime end = endDate ? DateTime.parse(endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime start = DateTime.parse(startDate, dateFormatter).withTimeAtStartOfDay()
+        DateTime end = DateTime.parse(endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1)
 
         /*  Get all safes for the store */
         def storeSafes = safeService.getSafesForStore(store.id)
@@ -404,8 +404,8 @@ class CashReportingController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
     def ajaxGetShiftVarianceReport(Integer storeNumber, String selectedTills, String startDate, String endDate) {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-        DateTime start = startDate ? DateTime.parse(startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime end = endDate ? DateTime.parse(endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime start = DateTime.parse(startDate, dateFormatter).withTimeAtStartOfDay()
+        DateTime end = DateTime.parse(endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1)
 
         def store = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, storeNumber)
 
