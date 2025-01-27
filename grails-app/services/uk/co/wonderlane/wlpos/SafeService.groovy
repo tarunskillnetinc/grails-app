@@ -13,6 +13,7 @@ class SafeService {
     def messageSource
     def rabbitService
     def locationService
+    def storeService
 
     def serviceMethod() {}
 
@@ -100,10 +101,28 @@ class SafeService {
         }
     }
 
+    List<Safe> getSafesForStore(Integer storeId) {
+        return Safe.withCriteria {
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("storeId", storeId)
+            order("active", "desc")
+            order("description")
+        }
+    }
+
     List<Safe> getStoreSafes() {
         return Safe.withCriteria {
             eq("retailerId", springSecurityService.principal.retailerId)
             eq("storeId", springSecurityService.principal.storeId)
+            order("active", "desc")
+            order("description")
+        }
+    }
+
+    List<Safe> getSafesByStoreNumber(int storeNumber) {
+        return Safe.withCriteria {
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("storeId", storeService.getStoreIdByStoreNumber(storeNumber))
             order("active", "desc")
             order("description")
         }

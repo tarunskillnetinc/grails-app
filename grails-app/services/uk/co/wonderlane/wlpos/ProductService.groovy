@@ -5,14 +5,14 @@ import org.apache.commons.lang3.StringUtils
 import org.hibernate.Session
 import org.hibernate.Transaction
 import org.hibernate.criterion.Projections
-import org.hibernate.transform.AliasToBeanResultTransformer
-import org.hibernate.transform.AliasedTupleSubsetResultTransformer
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.LocationsType
+import uk.co.wonderlane.wlpos.enums.ProductAttributeType
+import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
@@ -157,9 +157,13 @@ class ProductService extends MySqlDal {
         product.save()
     }
 
-    def saveProduct(Product product, List<ProductVariant> productVariantList) {
+    def saveProduct(Product product, List<ProductVariant> productVariantList, ArrayList<ProductAttributeValues> updatedAttributes) {
         if (productVariantList != null && productVariantList.size() > 0) {
             productVariantList.each { pv -> product.addToVariants(pv) }
+        }
+
+        if (updatedAttributes != null && updatedAttributes.size() > 0) {
+            updatedAttributes.each { productAttributeValues -> product.addToProductAttributeValues(productAttributeValues)}
         }
 
         product.save(flush: true)
@@ -899,4 +903,136 @@ class ProductService extends MySqlDal {
 
         return results.sort { it.id }
     }
+
+    List<ProductAttributeValues> getProductInformation(Product product) {
+        List<ProductAttributeValues> returnedAttributeValuesList = new ArrayList<>()
+        List<ProductAttributeValues> productAttributeValuesList = new ArrayList<>()
+        int retailerId = springSecurityService.principal.retailerId
+        if (product != null) {// If product id does not exists there can not be any history to return
+            productAttributeValuesList = product?.productAttributeValues ?: new ArrayList<ProductAttributeValues>()
+        }
+        //Try to load from product attribute table
+
+        //If it is empty then load from attribute table
+        List<ProductAttributes> productAttributeList = ProductAttributes.findAllByRetailerIdAndDisplayAttribute(retailerId, true)
+
+        HashMap<Integer, ProductAttributes> productAttributesMap = productAttributeList?.collectEntries {[(it.id): it]} ?: [:] as HashMap<Integer, ProductAttributes>
+
+        productAttributeValuesList?.each {
+            productAttribute -> {
+                ProductAttributes productAttributes = productAttributesMap.get(productAttribute.productAttributeId)
+                if (productAttributes) {
+                    productAttribute.productAttributes = productAttributes
+                    returnedAttributeValuesList.add(productAttribute)
+                }
+            }
+        }
+
+        def existingProductAttributeIds = productAttributeValuesList*.productAttributeId.toSet()
+        def missingProductAttributes = productAttributeList.findAll {
+            !existingProductAttributeIds.contains(it.id)
+        }?.sort { it.id }
+
+        missingProductAttributes.each { productAttribute ->
+            ProductAttributeValues dummyEntry = new ProductAttributeValues(
+                    retailerId: retailerId,
+                    productAttributeId: productAttribute?.id,
+                    value: productAttribute?.defaultValue, // Use defaultValue if available
+                    productAttributes: productAttribute
+            )
+            returnedAttributeValuesList << dummyEntry
+        }
+        return returnedAttributeValuesList
+    }
+
+    ArrayList<ProductAttributeValues> getUpdatedProductAttributeValues(Product product, ProductCommand editedProduct, ProductHistoryBuilder builder, effectiveDate) {
+        ArrayList<ProductAttributeValues> updatedOrNewAttributes = []
+
+        if (builder == null){
+            builder = new ProductHistoryBuilder(product.id, springSecurityService, effectiveDate)
+        }
+
+        // Create a map with composite keys for existing product overriden attributes
+        def existingAttributesMap = product?.productAttributeValues?.collectEntries {
+            ["${it.productAttributeId}_${it.productId}_${it.retailerId}": it]} ?: [:]
+
+        // Create a map for all product attributes
+        def productAttributesMap = ProductAttributes.findAllByRetailerId(
+                springSecurityService.principal.retailerId)?.collectEntries { [(it.id): it] } ?: [:]
+
+        // Loop through the edited product attributes
+        editedProduct?.productAttributeValues?.each { editedAttr ->
+            def key = "${editedAttr.productAttributeId}_${product.id}_${editedAttr.retailerId}"
+            def existingAttr = existingAttributesMap.get(key)
+            def productAttributes = productAttributesMap.get(editedAttr.productAttributeId)
+
+            if (productAttributes) { //Check master product attribute exists
+
+                if (productAttributes?.type == ProductAttributeType.BOOLEAN && !editedAttr?.value) {
+                    // Set default value for BOOLEAN type attributes
+                    // From UI when user deselect checkbox value will be null so assign edited value as false for those cases
+                    editedAttr.value = 'false'
+                }
+
+                //server level validations
+                //This include validation if type is text then it's length
+                //If type is numeric then it's values
+                boolean isValidationPassed = isProductAttributeUpdateValidationsPassed(productAttributes, editedAttr, product)
+
+                if (isValidationPassed) {
+                    if (existingAttr) {
+                        //If updated attribute already on `productattributevalues` table
+                        //If so then check updated value is change to current value
+                        //If it does then update current value to new value
+                        if (existingAttr?.value != editedAttr?.value) {
+                            builder.compare(editedAttr?.attributeName, existingAttr?.value, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
+                            existingAttr?.value = editedAttr?.value
+                        }
+                    } else if (productAttributes?.defaultValue != editedAttr?.value) {
+                        def newAttr = new ProductAttributeValues(
+                                retailerId: editedAttr?.retailerId,
+                                productAttributeId: editedAttr?.productAttributeId,
+                                value: editedAttr?.value,
+                                id: editedAttr?.productAttributeId,
+                                attributeName: editedAttr?.attributeName,
+                                attributeType: editedAttr?.attributeType
+                        )
+                        builder.compare(editedAttr?.attributeName, productAttributes?.defaultValue, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
+                        updatedOrNewAttributes << newAttr
+                    }
+                }
+            }
+        }
+        return updatedOrNewAttributes
+    }
+
+    boolean isProductAttributeUpdateValidationsPassed(productAttributes, editedAttr, product){
+        boolean isValidationPassed = true
+        if (productAttributes?.type == ProductAttributeType.TEXT && editedAttr?.value != null) {
+            if (editedAttr?.value?.length() > 50) {
+                product.errors.reject('productAttributeValues.text.max.size', [productAttributes?.name] as Object[],
+                        "Product attribute ${productAttributes?.name} validation failed")
+                isValidationPassed = false
+            }
+        } else if (productAttributes?.type == ProductAttributeType.NUMERIC && editedAttr?.value != null) {
+            try {
+                // Try parsing the value as a BigDecimal
+                BigDecimal numericValue = new BigDecimal(editedAttr?.value)
+
+                // Check if the value exceeds the maximum allowed value
+                if (numericValue.compareTo(BigDecimal.ZERO) < 0 || numericValue.compareTo(new BigDecimal("999999.99")) > 0) {
+                    product.errors.reject('productAttributeValues.numeric.default.out.of.range', [productAttributes?.name] as Object[],
+                            "Product attribute ${productAttributes?.name} validation failed")
+                    isValidationPassed = false
+                }
+            } catch (Exception e) {
+                // If the value is not a valid number, return the appropriate error message
+                product.errors.reject('productAttributeValues.numeric.default.not.a.number', [productAttributes?.name] as Object[],
+                        "Product attribute ${productAttributes?.name} validation failed")
+                isValidationPassed = false
+            }
+        }
+        return isValidationPassed
+    }
+
 }
