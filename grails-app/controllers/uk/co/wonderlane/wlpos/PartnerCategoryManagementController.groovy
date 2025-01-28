@@ -182,14 +182,15 @@ class PartnerCategoryManagementController extends BaseController{
     }
 
     def ajaxFilterValidCategories(){
+        List<Category> categories
+        ArrayList<EcomSupplierCategoryMapping>  partnerCategoryList= new ArrayList<>()
+        ArrayList<Integer> selectedCategoryIds = new ArrayList<>()
         try {
             Integer supplierId = params.supplierId ? Integer.valueOf(params.supplierId) : null
             Integer supplierCategoryId = params.supplierCategoryId ? Integer.valueOf(params.supplierCategoryId) : null
             int retailerId = springSecurityService.principal.retailerId
             EcomSupplier ecomSupplier = EcomSupplier.findByIdAndDeletedAndRetailerId(supplierId, false, retailerId)
             if (ecomSupplier) {
-                ArrayList<EcomSupplierCategoryMapping>  partnerCategoryList= new ArrayList<>()
-                ArrayList<Integer> selectedCategoryIds = new ArrayList<>()
                 EcomSupplierCategory ecomSupplierCategory = null
                 if (supplierCategoryId > 0) {
                     ArrayList<EcomSupplierCategory> ecomSupplierCategories = ecomSupplier.ecomSupplierCategories ?: []
@@ -199,19 +200,16 @@ class PartnerCategoryManagementController extends BaseController{
                         selectedCategoryIds = ecomSupplierCategory?.ecomSupplierCategoryMappings?.collect { it?.category?.id }?.findAll { it != null } ?: []
                     }
                 }
-
-                List<Category> categories = partnerCategoryManagementService.getAvailableTopLevelCategories(ecomSupplier, ecomSupplierCategory)
-
-                render(template: "/multiSelectCategory/categorySelectInputs", model: [categories: categories,
-                                                                                      level: 1,
-                                                                                      productCategoryList: partnerCategoryList,
-                                                                                      selectedCategoryIds: selectedCategoryIds,
-                                                                                      triggerOnCategoryChange: true,
-                                                                                      isSearch: false])
+                categories = partnerCategoryManagementService.getAvailableTopLevelCategories(ecomSupplier, ecomSupplierCategory)
             } else {
-                flash.error = "Selected partner not available."
-                redirect(action: "index")
+                categories = categoryService.getTopLevelCategories()
             }
+            render(template: "/multiSelectCategory/categorySelectInputs", model: [categories: categories,
+                                                                                  level: 1,
+                                                                                  productCategoryList: partnerCategoryList,
+                                                                                  selectedCategoryIds: selectedCategoryIds,
+                                                                                  triggerOnCategoryChange: true,
+                                                                                  isSearch: false])
         } catch (Exception ex) {
             log.error("Error filtering partner eligible categories, Exception " + ex.getMessage(), ex)
             flash.error = "Unknown error when selecting eligible categories for partner."

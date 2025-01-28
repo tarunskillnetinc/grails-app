@@ -129,8 +129,10 @@ class PartnerCategoryManagementService {
                 currentEcomSupplierCategoryMappings = ecomSupplierCategory?.ecomSupplierCategoryMappings ?: []
             }
 
-            // Filter out the categories already assigned to this supplier
+            // Filter out the categories already assigned to this supplier and partner category
             List<Long> currentMappingIds = currentEcomSupplierCategoryMappings?.collect { it?.id } ?: []
+
+            //Then filter out all assigned categories for this supplier except for selected partner category
             List<Category> currentAssignedTopLevelCategories = ecomSupplierCategoryMappings?.findAll { !currentMappingIds.contains(it.id)  }
                     ?.collect { it.category }
                     ?.findAll { it.parentCategory == null }

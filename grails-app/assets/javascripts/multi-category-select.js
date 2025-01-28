@@ -67,16 +67,18 @@ function expandCollapseCategory(categoryId, level, selectedCategoryId, triggerOn
     var plusMinusButton = $("#plusMinus-" + categoryId);
     var expanded = plusMinusButton.attr("aria-expanded");
 
-    // // Check if parent is selected
+    // Check if parent is selected
+    // Check if categoryId is in selectedCategoryId array
     var parentCheckbox = $('#category-' + categoryId);
-    if (parentCheckbox.is(':checked')) {
-        // Disable the '-' button if parent is selected
+    if (parentCheckbox.is(':checked') || (selectedCategoryId && selectedCategoryId.includes(categoryId))) {
+        // Disable the '+'/'-' button if parent is selected or categoryId is selected
         plusMinusButton.prop('disabled', true);
         return; // Stop further execution
     } else {
-        // Re-enable the button if parent is not selected
+        // Re-enable the button if neither parent nor categoryId is selected
         plusMinusButton.prop('disabled', false);
     }
+
 
 
     // Save checkbox states before collapsing
