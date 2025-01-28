@@ -6,6 +6,10 @@
             $('html, body').animate({ scrollTop: 0 }, 'fast');
         });
     });
+
+    function confirmDelete() {
+        return confirm('Are you sure you want to delete this partner category?');
+    }
 </script>
 
 <div style="display: flex;">
@@ -46,7 +50,7 @@
                         <g:link elementId="edit-button" type="button" class="btn btn-wl p-1 me-1"
                                 action="addPartnerCategory" params="[isNew: false, supplierCategoryId: ecomCategory?.id]" style="min-width: 80px; font-size: 0.9rem;">Edit</g:link>
                         <g:link elementId="edit-button" type="button" class="btn btn-danger p-1 me-1"
-                                action="deletePartnerCategory" params="[supplierCategoryId: ecomCategory?.id]" style="min-width: 80px; font-size: 0.9rem;">Delete</g:link>
+                                action="deletePartnerCategory" params="[supplierCategoryId: ecomCategory?.id]" style="min-width: 80px; font-size: 0.9rem;" onclick="return confirmDelete();">Delete</g:link>
                     </div>
                 </div>
             </div>

@@ -124,13 +124,14 @@ class PartnerCategoryManagementService {
             ArrayList<EcomSupplierCategoryMapping> ecomSupplierCategoryMappings = ecomSupplier?.ecomSupplierCategoryMappings ?: []
             ArrayList<EcomSupplierCategoryMapping> currentEcomSupplierCategoryMappings = []
 
-            // If supplierCategoryId is provided, load the corresponding category mappings
+            // If supplierCategory is provided, load the corresponding category mappings
             if (ecomSupplierCategory != null) {
                 currentEcomSupplierCategoryMappings = ecomSupplierCategory?.ecomSupplierCategoryMappings ?: []
             }
 
             // Filter out the categories already assigned to this supplier
-            List<Category> currentAssignedTopLevelCategories = ecomSupplierCategoryMappings?.findAll { !currentEcomSupplierCategoryMappings.contains(it) }
+            List<Long> currentMappingIds = currentEcomSupplierCategoryMappings?.collect { it?.id } ?: []
+            List<Category> currentAssignedTopLevelCategories = ecomSupplierCategoryMappings?.findAll { !currentMappingIds.contains(it.id)  }
                     ?.collect { it.category }
                     ?.findAll { it.parentCategory == null }
 
