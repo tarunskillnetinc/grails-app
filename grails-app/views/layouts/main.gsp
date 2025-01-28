@@ -177,7 +177,7 @@
                                         <g:link elementId="shift-finalisation-report-dropdown" controller="cashReporting" action="shiftFinalisation" class="dropdown-item">Shift Finalisation</g:link>
                                         <g:link elementId="shift-variance-report-dropdown" controller="cashReporting" action="shiftVariance" class="dropdown-item">Shift Variance</g:link>
                                         <div class="dropdown-divider"></div>
-                                        <g:link elementId="safe-activity-report-dropdown" class="dropdown-item disabled">Safe Activity</g:link>
+                                        <g:link elementId="safe-activity-report-dropdown" controller="cashReporting" action="safeActivity" class="dropdown-item">Safe Activity</g:link>
                                         <g:link elementId="safe-finalisation-report-dropdown" controller="cashReporting" action="safeFinalisation" class="dropdown-item">Safe Finalisation</g:link>
                                         <g:link elementId="safe-variance-report-dropdown" controller="cashReporting" action="safeVariance" class="dropdown-item">Safe Variance</g:link>
                                         <div class="dropdown-divider"></div>

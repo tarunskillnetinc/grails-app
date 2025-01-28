@@ -10,6 +10,7 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
+import uk.co.wonderlane.wlpos.enums.SafeSessionAction
 import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.TenderType
 
@@ -66,6 +67,20 @@ class CashReportingController {
         }
 
         [stores: stores, tills: tills, startDate: startDate, endDate: endDate]
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])    
+    def safeActivity() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC).minusDays(7)
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
+        def safes = []
+        if (springSecurityService.principal.storeId) {
+            safes = safeService.getStoreSafes()
+        }
+
+        [stores: stores, safes: safes, startDate: startDate, endDate: endDate]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
@@ -131,6 +146,21 @@ class CashReportingController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def ajaxGetSafeSessionsForSafe(Integer storeNumber, int safeId, String startDate, String endDate) {
+        if (!startDate || !endDate) {
+            render status: 500
+        }
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDateTime = DateTime.parse(startDate, dateFormatter).withTimeAtStartOfDay()
+        DateTime endDateTime = DateTime.parse(endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1)
+
+        def safeSessions = cashReportingService.getSafeSessionsForSafe(storeNumber, safeId, startDateTime, endDateTime)
+        def sessionNumbers = []
+        safeSessions.forEach { sessionNumbers.add(text: it.sessionNumber, value: it.sessionNumber) }
+        render status: 200, contentType: 'application/json', text: JsonOutput.toJson([options: sessionNumbers])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
     def ajaxGetFinalisedShiftReport(Integer storeNumber, int tillId, int shiftNumber) {
         def shift = cashReportingService.getShiftForShiftNumber(storeNumber, tillId, shiftNumber).getShift()
         if (shift) {
@@ -185,6 +215,33 @@ class CashReportingController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
+    def ajaxGetSafeActivityReport(Integer storeNumber, int safeId, int sessionNumber) {
+
+        def safeSession = cashReportingService.getSafeSessionForSessionNumber(storeNumber, safeId, sessionNumber).getSafeSession()
+        if (safeSession) {
+
+            def storeConfig = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId,
+                    storeNumber?:springSecurityService.principal.storeNumber).getConfig()
+
+            var storeText = storeConfig.storeNumber + ' - ' + storeConfig.storeName
+            var safeText = safeId + " - " + safeService.getSafeById(safeId)?.selectionText
+
+            // As we made these strings and not dates we have to reformat them for the reports
+            safeSession.setOpenTime(reformatDateTime(safeSession.getOpenTime()))
+
+            // easier to unpack data here than on the page!
+            def reportLines = getSafeSessionAuditReportLines(safeSession.getId())
+
+            render(status: 200, template: "safeActivityReport", model: [
+                    storeText: storeText, safeText: safeText, safeSession: safeSession,
+                    reportLines: reportLines
+            ])
+        } else {
+            render status: 500
+        }
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
     def ajaxGetTillActivityReport(Integer storeNumber, int tillId, int shiftNumber) {
         def shift = cashReportingService.getShiftForShiftNumber(storeNumber, tillId, shiftNumber).getShift()
         if (shift) {
@@ -205,6 +262,64 @@ class CashReportingController {
         } else {
             render status: 500
         }
+    }
+
+    private getSafeSessionAuditReportLines(int shiftId) {
+        def reportLines = []
+        def auditRecords = cashReportingService.getAuditEventsForSafe(shiftId)
+        auditRecords?.forEach { audit ->
+
+            def tenderValues = []
+            def showReconciled = [
+                    SafeSessionAction.RECONCILE.toString(), SafeSessionAction.RECOUNT.toString(), SafeSessionAction.FINALISE.toString()
+            ].contains(audit.action)
+
+            if (audit.action == SafeSessionAction.SPOT_CHECK.toString()) {
+                try {
+                    forcePopulateReconciledValues(
+                            null,
+                            audit.safeSessionValues?.transferPendingTotals()
+                    ).forEach { recTotal ->
+                        tenderValues.add([type: recTotal.tenderType, value: recTotal.value])
+                    }
+                } catch (Exception e) {
+                    log.error("Invalid shift 'extras' on shift audit " + audit.id, e)
+                }
+            } else if (showReconciled) {
+                // show saved shift values
+                try {
+                    forcePopulateReconciledValues(
+                            audit.safeSessionValues?.reconciliationTotals,
+                            audit.safeSessionValues?.tenderTotals
+                    ).forEach { recTotal ->
+                        tenderValues.add([type: recTotal.tenderType, value: recTotal.value])
+                    }
+                } catch (Exception e) {
+                    log.error("Invalid shift 'extras' on shift audit " + audit.id, e)
+                }
+            } else {
+                // show specific tender movement values(s) if recorded
+                try {
+                    audit.tenderMovementValues?.forEach { tenderTotal ->
+                        tenderValues.add([type: tenderTotal.tenderType, value: tenderTotal.value])
+                    }
+                } catch (Exception e) {
+                    log.error("Invalid tender movement on shift audit " + audit.id, e)
+                }
+            }
+
+            reportLines.add([
+                    id          : audit.id,
+                    timestamp: audit.timestamp,
+                    name        : audit.usersRealName,
+                    username: audit.userName,
+                    transactionType: audit.action,
+                    rowspan     : Math.max(tenderValues.size(), 1),
+                    tenderValues: tenderValues.toSorted { value -> value.type }
+            ])
+        }
+
+        return reportLines.toSorted { line -> line.id }
     }
 
     private getShiftAuditReportLines(int shiftId) {
