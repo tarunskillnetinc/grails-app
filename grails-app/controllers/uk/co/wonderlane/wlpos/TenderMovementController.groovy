@@ -232,7 +232,7 @@ class TenderMovementController {
                 //update shift cash in drawer
                 //update shift tender totals
                 //add shift audit
-                tenderMovementService.updateShiftBalanceTotals(ShiftAction.CASH_LIFT, tender, amount.negate(), tenderMovementId, tillId)
+                tenderMovementService.updateShiftBalanceTotals(ShiftAction.CASH_LIFT, tender, amount.negate(), tenderMovementId, tillId, safeId)
 
                 redirect(action: "tenderLift", params: [success: "Successfully processed tender lift for till ${tillId}"])
             }
@@ -328,7 +328,7 @@ class TenderMovementController {
                             //update shift cash in drawer
                             //update shift tender totals
                             //add shift audit
-                            tenderMovementService.updateShiftBalanceTotals(ShiftAction.ADD_FLOAT, tender, amount, tenderMovementId, tillId)
+                            tenderMovementService.updateShiftBalanceTotals(ShiftAction.ADD_FLOAT, tender, amount, tenderMovementId, tillId, safeId)
 
                             tillSuccessMessages.add("Successfully processed add float for Till ${tillId}")
                         }

@@ -13,24 +13,24 @@
         $(document).ready(function () {
             $('#startDate').prop("disabled", true);
             $('#endDate').prop("disabled", true);
-            $('#get-report-button').prop("disabled", true);
+            $('#shift-variance-report').prop("disabled", true);
 
             $('#storeIdSelect').on("change", function () {
                 var selectedValue = $(this).val();
 
                 if (selectedValue !== '') {
-                    resetSafeSelection();
+                    resetTillSelection();
 
-                    $('#selectedSafes').prop("disabled", false);
+                    $('#selectedTills').prop("disabled", false);
                 } else {
-                    $('#safes').off('click');
+                    $('#tills').off('click');
 
-                    $('#selectedSafes').text('Select Safes');
-                    $('#selectedSafes').prop("disabled", true);
+                    $('#selectedTills').text('Select Tills');
+                    $('#selectedTills').prop("disabled", true);
 
                     $('#startDate').prop("disabled", true);
                     $('#endDate').prop("disabled", true);
-                    $('#get-report-button').prop("disabled", true);
+                    $('#shift-variance-report').prop("disabled", true);
                 }
             });
 
@@ -78,38 +78,38 @@
                 $('#startDate').datepicker('setEndDate', this.value);
             });
 
-            <g:if test="${safes != null}">
+            <g:if test="${tills != null}">
                 initializeMultiSelect();
             </g:if>
         });
 
         function initializeMultiSelect() {
-            function updateSelectedSafes() {
-                const selected = $('input[name="safes"]:checked').map(function () {
+            function updateSelectedTills() {
+                const selected = $('input[name="tills"]:checked').map(function () {
                     return $(this).val();
                 }).get();
 
                 if (selected.length > 0) {
                     $('#startDate').prop("disabled", false);
                     $('#endDate').prop("disabled", false);
-                    $('#get-report-button').prop("disabled", false);
+                    $('#shift-variance-report').prop("disabled", false);
 
-                    $('#selectedSafes').text(selected.join(', '));
+                    $('#selectedTills').text(selected.join(', '));
                 } else {
                     $('#startDate').prop("disabled", true);
                     $('#endDate').prop("disabled", true);
-                    $('#get-report-button').prop("disabled", true);
+                    $('#shift-variance-report').prop("disabled", true);
 
-                    $('#selectedSafes').text('Select Safes');
+                    $('#selectedTills').text('Select Tills');
                 }
             }
 
             // Update selected safes on page load
-            updateSelectedSafes();
+            updateSelectedTills();
 
-            $('#safes').off('click');
+            $('#tills').off('click');
 
-            $('#safes').on('click', function (e) {
+            $('#tills').on('click', function (e) {
                 e.preventDefault();
                 $(this).parent().toggleClass('show');
                 $(this).next('.dropdown-menu').toggleClass('show');
@@ -117,7 +117,7 @@
 
             $(document).on('click', function (e) {
                 if (!$(e.target).closest('.dropdown').length) {
-                    if ($('#safeIdSelect .dropdown-item').length === 0) {
+                    if ($('#tillIdSelect .dropdown-item').length === 0) {
                         return;
                     }
                     $('.dropdown-menu').removeClass('show');
@@ -125,8 +125,8 @@
                 }
             });
 
-            $(document).on('change', 'input[name="safes"]', function() {
-                updateSelectedSafes();
+            $(document).on('change', 'input[name="tills"]', function() {
+                updateSelectedTills();
             });
         }
 
@@ -138,11 +138,11 @@
                         window.location.href = '/';
                     },
                     200: function (response) {
-                        let safeSelection = document.getElementById("safeIdSelect");
-                        let safes = response?.options;
+                        let tillSelection = document.getElementById("tillIdSelect");
+                        let tills = response?.options;
 
-                        if (safes && safes.length > 0) {
-                            safes.forEach(safe => {
+                        if (tills && tills.length > 0) {
+                            tills.forEach(till => {
                                 let div = document.createElement('div');
                                 div.className = 'dropdown-item';
 
@@ -151,15 +151,15 @@
 
                                 let input = document.createElement('input');
                                 input.type = 'checkbox';
-                                input.id = safe.id;
-                                input.name = 'safes';
-                                input.value = safe.description;
+                                input.id = till.id;
+                                input.name = 'tills';
+                                input.value = till.description;
 
                                 label.appendChild(input);
-                                label.appendChild(document.createTextNode(' ' + safe.description + (safe.active ? '' : ' - (Inactive Safe)')));
+                                label.appendChild(document.createTextNode(' ' + till.description));
 
                                 div.appendChild(label);
-                                safeSelection.appendChild(div);
+                                tillSelection.appendChild(div);
                             });
 
                             initializeMultiSelect();
@@ -168,36 +168,37 @@
                 }
             });
         }
-
-        function resetSafeSelection() {
-            let getSafesForStoreUrl = "${createLink(controller: 'cashReporting', action: 'ajaxGetSafeListForStore')}";
-            let safeSelection = document.getElementById("safeIdSelect");
-            safeSelection.innerHTML = '';
+        
+        function resetTillSelection() {
+            let getTillsForStoreUrl = "${createLink(controller: 'cashReporting', action: 'ajaxGetTillsForStoreNumber')}";
+            let tillSelection = document.getElementById("tillIdSelect");
+            tillSelection.innerHTML = '';
 
             let storeNumber = $("#storeIdSelect").val();
 
             if (storeNumber) {
-                updateMultiSelectionOptions(safeSelection, getSafesForStoreUrl, { storeNumber: storeNumber });
+                updateMultiSelectionOptions(tillSelection, getTillsForStoreUrl, { storeNumber: storeNumber });
             }
         }
 
         function getReport() {
-            let getReportUrl = "${createLink(controller: 'cashReporting', action: 'ajaxGetSafeSessionVarianceReport')}";
+            let getReportUrl = "${createLink(controller: 'cashReporting', action: 'ajaxGetShiftVarianceReport')}";
             let storeNumber = $("#storeIdSelect").val();
-            let selectedSafes = $("#selectedSafes").text();
+            let selectedTills = $("#selectedTills").text();
             let startDate = $("#startDate").val();
             let endDate = $("#endDate").val();
 
-            renderCashReportResult(getReportUrl, {storeNumber: storeNumber, selectedSafes: selectedSafes, startDate: startDate, endDate: endDate});
+            renderCashReportResult(getReportUrl, {storeNumber: storeNumber, selectedTills: selectedTills, startDate: startDate, endDate: endDate});
         }
-</script>
+    </script>
 </head>
+
 <body>
     <section id="reporting-container" class="container-fluid">
-        <g:render template="titleCrumbs" model="[title: 'Safe Session Variance Report']" />
+        <g:render template="titleCrumbs" model="[title: 'Shift Variance Report']" />
 
         <div class="row mt-4">
-            <g:render template="safeSessionVarianceParams" />
+            <g:render template="shiftVarianceParams" />
         </div>
 
         <div id="error-container"></div>

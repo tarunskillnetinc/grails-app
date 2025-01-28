@@ -173,13 +173,13 @@
                                 <div class="dropdown-submenu">
                                     <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="cashManagementReportingDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Cash Management</a>
                                     <div class="dropdown-menu" aria-labelledby="buttonGridsDropdown">
-                                        <g:link elementId="shift-activity-report-dropdown" class="dropdown-item disabled">Shift Activity</g:link>
+                                        <g:link elementId="shift-activity-report-dropdown" controller="cashReporting" action="tillActivity" class="dropdown-item">Till Activity</g:link>
                                         <g:link elementId="shift-finalisation-report-dropdown" controller="cashReporting" action="shiftFinalisation" class="dropdown-item">Shift Finalisation</g:link>
-                                        <g:link elementId="shift-variance-report-dropdown" class="dropdown-item disabled">Shift Variance</g:link>
+                                        <g:link elementId="shift-variance-report-dropdown" controller="cashReporting" action="shiftVariance" class="dropdown-item">Shift Variance</g:link>
                                         <div class="dropdown-divider"></div>
-                                        <g:link elementId="safe-activity-report-dropdown" class="dropdown-item disabled">Safe Session Activity</g:link>
-                                        <g:link elementId="safe-finalisation-report-dropdown" controller="cashReporting" action="safeSessionFinalisation" class="dropdown-item">Safe Session Finalisation</g:link>
-                                        <g:link elementId="safe-variance-report-dropdown" controller="cashReporting" action="safeSessionVariance" class="dropdown-item">Safe Session Variance</g:link>
+                                        <g:link elementId="safe-activity-report-dropdown" class="dropdown-item disabled">Safe Activity</g:link>
+                                        <g:link elementId="safe-finalisation-report-dropdown" controller="cashReporting" action="safeFinalisation" class="dropdown-item">Safe Finalisation</g:link>
+                                        <g:link elementId="safe-variance-report-dropdown" controller="cashReporting" action="safeVariance" class="dropdown-item">Safe Variance</g:link>
                                         <div class="dropdown-divider"></div>
                                         <g:link elementId="tender-movements-dropdown" controller="reporting" action="tenderMovements" class="dropdown-item">Tender Movements</g:link>
                                         <g:link elementId="safe-banking-report-dropdown" controller="reporting" action="bankingReport" class="dropdown-item">Banking</g:link>

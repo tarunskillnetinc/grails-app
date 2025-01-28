@@ -68,7 +68,7 @@ class Restrictions {
         quantityChangeForced nullable: true
         receiptPrintForced nullable: true
         allowsLoyaltyPointsCollection nullable: true
-        alwaysOpenCashDrawer nullable: false
+        alwaysOpenCashDrawer nullable: true
     }
 
     public uk.co.wonderlane.wlpos.entities.Restrictions getRestrictions() {
