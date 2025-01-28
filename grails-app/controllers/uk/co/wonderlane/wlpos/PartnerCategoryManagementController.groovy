@@ -170,7 +170,7 @@ class PartnerCategoryManagementController extends BaseController{
                     flash.message = "Successfully delete partner category ${ecomSupplierCategory?.description}"
                     redirect(action: "index")
                 } else {
-                    flash.error = "Failed to delete partner category"
+                    flash.error = "Failed to delete partner category ${ecomSupplierCategory?.description}"
                     redirect(action: "index")
                 }
             }
