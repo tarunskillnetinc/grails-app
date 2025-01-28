@@ -2218,6 +2218,7 @@ class RestrictionsCommand implements Validateable {
     Boolean receiptPrintForced
     Boolean allowsLoyaltyPointsCollection
     Boolean alwaysOpenCashDrawer
+    Boolean excludedFromPromotion
 
     static constraints = {
         importFrom Restrictions

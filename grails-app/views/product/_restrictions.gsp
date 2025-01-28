@@ -105,6 +105,12 @@
                     <g:checkBox name="restrictions.alwaysOpenCashDrawer" id="restrictions.alwaysOpenCashDrawer" class="col-1 form-check-input wl-checkbox" checked="${restrictions?.alwaysOpenCashDrawer}"/>
                 </div>
             </div>
+            <div class="row form-group form-check pl-0">
+                <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
+                    <label for="restrictions.excludedFromPromotion" class="col-form-label text-right wl-label">Always Open Cash Drawer</label>
+                    <g:checkBox name="restrictions." id="restrictions.excludedFromPromotion" class="col-1 form-check-input wl-checkbox" checked="${restrictions?.excludedFromPromotion}"/>
+                </div>
+            </div>
         </div>
     </div>
 </div>
