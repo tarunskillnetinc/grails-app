@@ -271,8 +271,7 @@ class CashReportingController {
 
             def tenderValues = []
             def showReconciled = [
-                    SafeSessionAction.RECONCILE.toString(), SafeSessionAction.RECOUNT.toString(), SafeSessionAction.FINALISE.toString(),
-                    SafeSessionAction.SPOT_CHECK.toString()
+                    SafeSessionAction.RECONCILE.toString(), SafeSessionAction.RECOUNT.toString(), SafeSessionAction.FINALISE.toString()
             ].contains(audit.action)
 
             if (audit.action == SafeSessionAction.SPOT_CHECK.toString()) {
@@ -288,11 +287,9 @@ class CashReportingController {
                 }
             } else if (showReconciled) {
                 // show saved shift values
-                audit.safeSessionValues?.transferPendingTotals()
-
                 try {
                     forcePopulateReconciledValues(
-                                    showReconciled ? audit.safeSessionValues?.reconciliationTotals : null,
+                            audit.safeSessionValues?.reconciliationTotals,
                             audit.safeSessionValues?.tenderTotals
                     ).forEach { recTotal ->
                         tenderValues.add([type: recTotal.tenderType, value: recTotal.value])
@@ -321,7 +318,7 @@ class CashReportingController {
                     tenderValues: tenderValues.toSorted { value -> value.type }
             ])
         }
-        
+
         return reportLines.toSorted { line -> line.id }
     }
 

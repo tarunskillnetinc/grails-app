@@ -23,7 +23,7 @@
                 </td>
                 <td class="border font-weight-bold">Session Number</td>
                 <td id="reportData_sessionNumber" class="border">
-                    ${safeSession?.sessionNumber}
+                    ${safeSession?.sessionNumber} - <g:message code="SafeSessionStatus.${safeSession.sessionStatus}" />
                 </td>
             </tr>
             <tr>
@@ -63,7 +63,6 @@
                 <td id="reportData_${i + 1}_username" rowspan="${span}" class="border">${line.username}</td>
                 <td id="reportData_${i + 1}_action" rowspan="${span}" class="border">
                     <g:message code="SafeSessionAction.${line.transactionType}" />
-                    ${line.action}
                 </td>
 
                 <g:if test="${line.tenderValues.size == 0}">

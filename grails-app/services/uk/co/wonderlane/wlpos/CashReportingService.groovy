@@ -55,17 +55,10 @@ class CashReportingService {
     }
 
     List<SafeSession> getSafeSessionsForSafe(Integer storeNumber, int safeId, DateTime startDate, DateTime endDate) {
-        int storeId
-        if (storeNumber) {
-            storeId = storeService.getStoreIdByStoreNumber(storeNumber)
-        } else {
-            storeId = springSecurityService.principal.storeId
-        }
-
         def criteria = SafeSession.withTransaction { SafeSession.createCriteria() }
         return criteria.list([sort: "sessionNumber", order: "ASC"]) {
             eq("retailerId", springSecurityService.principal.retailerId)
-            eq("storeId", storeId)
+            eq("storeId", getStoreId(storeNumber))
             eq("safeId", safeId)
             between("dateCreated", startDate, endDate)
         }
