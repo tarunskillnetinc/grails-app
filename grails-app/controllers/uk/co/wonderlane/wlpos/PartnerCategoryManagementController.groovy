@@ -223,8 +223,23 @@ class PartnerCategoryManagementController extends BaseController{
         def selectedCategoryIds = params?.list('selectedCategoryId[]')?.collect { it.toInteger() } ?: []
         boolean isSearch = searchTerm?.length() > 0
         EcomSupplierCategory ecomSupplierCategory = EcomSupplierCategory.findByIdAndDeleted(specialId, false)
-        def partnerCategoryList = ecomSupplierCategory?.mappedCategories ?: []
-        render(template: "/multiSelectCategory/categorySelectInputs", model: [categories: searchResults.aValue.unique(),
+        List<Category> searchedResults = searchResults?.aValue?.unique() ?: []
+        List<Category> allAvailableCategories = partnerCategoryManagementService.getAvailableTopLevelCategories(ecomSupplierCategory?.ecomSupplier, ecomSupplierCategory) ?: []
+        List<Category> filteredResults = searchedResults?.findAll { it in allAvailableCategories } ?: []
+        List<Category> remainingResults = allAvailableCategories?.findAll { !(it in filteredResults) } ?: []
+        // Combine filtered results at the top and the remaining items in the tail
+        List<Category> combinedResults = filteredResults + remainingResults
+        def partnerCategoryList = []
+        for (Integer categoryId : (selectedCategoryIds as List<Integer>)) {
+            def category = categoryService.getCategory(categoryId)
+            while (category) {
+                if (!partnerCategoryList.contains(category.id)) {// Add the current category ID to the list if not already added
+                    partnerCategoryList << category.id
+                }
+                category = category.parentCategory // Move to the parent category
+            }
+        }
+        render(template: "/multiSelectCategory/categorySelectInputs", model: [categories: combinedResults,
                                                                               level: isSearch ? level : 1,
                                                                               productCategoryList: partnerCategoryList,
                                                                               selectedCategoryIds: selectedCategoryIds,
