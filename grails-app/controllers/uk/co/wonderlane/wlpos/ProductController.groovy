@@ -19,6 +19,7 @@ import org.springframework.validation.ObjectError
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.PriceMarkedType
+import uk.co.wonderlane.wlpos.enums.ProductAttributeType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.supplier.Pack
@@ -85,6 +86,7 @@ class ProductController extends BaseController {
         def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+        List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product)
 
         render(view: "add", model: [product            : product,
                                     skuList            : skuList(product),
@@ -102,7 +104,8 @@ class ProductController extends BaseController {
                                     snappyEnabled      : springSecurityService.principal.retailer.config.snappyShopperEnabled,
                                     locationsEnabled   : locationsEnabled,
                                     locationsType      : locationsType,
-                                    loyaltyEnabled     : loyaltyEnabled])
+                                    loyaltyEnabled     : loyaltyEnabled,
+                                    productAttributeValuesList : productAttributeValuesList])
     }
 
     private void setEffectiveDate() {
@@ -137,6 +140,7 @@ class ProductController extends BaseController {
 
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+        List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(null)
 
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
                                     statusValues    : ProductStatus.values(),
@@ -149,7 +153,8 @@ class ProductController extends BaseController {
                                     isNewProduct    : true,
                                     locationsEnabled: locationsEnabled,
                                     locationsType   : springSecurityService.principal.retailer.config.locationsType.name(),
-                                    loyaltyEnabled  : loyaltyEnabled])
+                                    loyaltyEnabled  : loyaltyEnabled,
+                                    productAttributeValuesList : productAttributeValuesList])
     }
 
     def search() {
@@ -464,6 +469,8 @@ class ProductController extends BaseController {
 
         List<RangeProduct> existingRangeProducts = new ArrayList<>()
 
+        ArrayList<ProductAttributeValues> updatedAttributes = new ArrayList<>()
+
         if (newProduct) {
             changeAffectsSel = true
             if (isRequest) {
@@ -486,6 +493,9 @@ class ProductController extends BaseController {
                     }
                 }
                 product = new Product(paramsMap)
+                if (product.variants != null) {
+                    product.variants.removeAll { it == null } // Remove any null variants from list.
+                }
             } else {
                 product = new Product()
                 copyProduct(editedProduct, product)
@@ -513,7 +523,7 @@ class ProductController extends BaseController {
                     barcode.sku = variant.sku
                     barcode.effectiveDate = barcode.effectiveDate ?: effectiveDate
 
-                    if (!barcode.validate()) {
+                    if (!StringUtils.isEmpty(barcode.barcode) && !barcode.validate()) {
                         handleBarcodeValidation(barcode, product)
                     }
                 }
@@ -573,6 +583,9 @@ class ProductController extends BaseController {
             // Variants.
             productVariantsList = getUpdatedProductVariantsOnSave(editedProduct, product, builder, changeAffectsSel, effectiveDate)
 
+            // Load product attribute values
+            updatedAttributes = productService.getUpdatedProductAttributeValues(product, editedProduct, builder, effectiveDate)
+
             // Range Products
             for (RangeProduct rangeProduct in product.ranges) {
                 // Copy the items without copying the list itself for later reference to which products have been unranged
@@ -587,6 +600,7 @@ class ProductController extends BaseController {
             return product
         }
 
+
         product.validate()
         if (duplicateItemCode) {
             product.errors.rejectValue("itemCode", "product.itemCode.validator.error")
@@ -599,11 +613,12 @@ class ProductController extends BaseController {
         }
 
         if (!product.hasErrors() && product.validate() && productService.isLocationValid(product)) {
+
             // Restrictions are validated as part of product.validate()
             restrictionsService.saveRestrictions(product.restrictions)
 
             // Check for errors after each save, otherwise the BO will report a 500 - EntityInsertAction was vetoed error.
-            productService.saveProduct(product, productVariantsList)
+            productService.saveProduct(product, productVariantsList, updatedAttributes)
             if (product.hasErrors()) {
                 return product
             }
@@ -749,6 +764,7 @@ class ProductController extends BaseController {
             def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
             def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
+            List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product ?: null)
 
             render(view: "add", model: [product            : product,
                                         skuList            : skuList(product),
@@ -765,7 +781,8 @@ class ProductController extends BaseController {
                                         vatValues          : vatValues,
                                         locationsType      : springSecurityService.principal.retailer.config.locationsType.name(),
                                         locationsEnabled   : locationsEnabled,
-                                        loyaltyEnabled     : loyaltyEnabled])
+                                        loyaltyEnabled     : loyaltyEnabled,
+                                        productAttributeValuesList : productAttributeValuesList])
         }
     }
 
@@ -856,7 +873,7 @@ class ProductController extends BaseController {
 
                         newVariant.barcodez.add(newBarcode)
 
-                        if (!newBarcode.validate()) {
+                        if (!StringUtils.isEmpty(newBarcode.barcode) && !newBarcode.validate()) {
                             handleBarcodeValidation(newBarcode, product)
                         }
                 })
@@ -899,13 +916,13 @@ class ProductController extends BaseController {
 
                 existingVariant.barcodez.add(barcode)
 
-                 if (!barcode.validate()) {
+                if (!StringUtils.isEmpty(barcode.barcode) && !barcode.validate()) {
                      handleBarcodeValidation(barcode, product)
                 }
             } else { // If barcode do exists change update existing values
 
                 //Only update if user has changed barcode value or else skip
-                if (existingBarcode.barcode != null && existingBarcode.barcode != editedBarcode.barcode) {
+                if (existingBarcode.barcode != editedBarcode.barcode) {
 
                     //Mark current barcode to delete this will insert new mark delete entry to DB
                     existingBarcode.delete = true
@@ -917,10 +934,11 @@ class ProductController extends BaseController {
                     futureBarcode.sku = existingVariant.sku
                     futureBarcode.retailerId = springSecurityService.principal.retailerId
                     futureBarcode.barcode = editedBarcode.barcode
+
                     futureBarcode.effectiveDate = effectiveDate
                     futureBarcode.recordStatus = 'C'
 
-                    if (!futureBarcode.validate()) {
+                    if (!StringUtils.isEmpty(futureBarcode.barcode) && !futureBarcode.validate()) {
                         handleBarcodeValidation(futureBarcode, product)
                     } else {
                         //Add mark deleted barcode and newly updated barcode to add into DB
@@ -1351,6 +1369,8 @@ class ProductController extends BaseController {
         builder.compare("quantityChangeForced", product.restrictions.quantityChangeForced, editedProduct.restrictions.quantityChangeForced)
         builder.compare("receiptPrintForced", product.restrictions.receiptPrintForced, editedProduct.restrictions.receiptPrintForced)
         builder.compare("allowsLoyaltyPointsCollection", product.restrictions.allowsLoyaltyPointsCollection, editedProduct.restrictions.allowsLoyaltyPointsCollection)
+        builder.compare("alwaysOpenCashDrawer", product.restrictions.alwaysOpenCashDrawer, editedProduct.restrictions.alwaysOpenCashDrawer)
+        builder.compare("excludedFromPromotion", product.restrictions.excludedFromPromotion, editedProduct.restrictions.excludedFromPromotion)
 
         builder.compare("vatCode", product.vatCode?.description, editedProduct.vatCode?.description)
 
@@ -1726,6 +1746,7 @@ class ProductController extends BaseController {
         if (category != null) {
             restrictions = category.restrictions
         }
+
         //when rendering restriction tab manually set isNewProduct to false since category mapped restriction should be loaded rather default values
         render(view: "/product/_restrictions", model: [restrictions: restrictions, productOpenPrice: productOpenPrice, isNewProduct: false])
     }
@@ -1796,7 +1817,9 @@ class ProductController extends BaseController {
                 first.quantityChangeAllowed != second.quantityChangeAllowed ||
                 first.quantityChangeForced != second.quantityChangeForced ||
                 first.receiptPrintForced != second.receiptPrintForced ||
-                first.allowsLoyaltyPointsCollection != second.allowsLoyaltyPointsCollection
+                first.allowsLoyaltyPointsCollection != second.allowsLoyaltyPointsCollection ||
+                first.alwaysOpenCashDrawer != second.alwaysOpenCashDrawer ||
+                first.excludedFromPromotion != second.excludedFromPromotion
     }
 
     private static void copyRestrictions(RestrictionsCommand from, Restrictions to) {
@@ -1815,6 +1838,8 @@ class ProductController extends BaseController {
         to.quantityChangeForced = from.quantityChangeForced
         to.receiptPrintForced = from.receiptPrintForced
         to.allowsLoyaltyPointsCollection = from.allowsLoyaltyPointsCollection
+        to.alwaysOpenCashDrawer = from.alwaysOpenCashDrawer
+        to.excludedFromPromotion = from.excludedFromPromotion
     }
 
     private void copyProduct(ProductCommand from, Product to) {
@@ -1906,10 +1931,7 @@ class ProductController extends BaseController {
     }
 
     def handleBarcodeValidation(Barcode barcode, Product product) {
-        if (barcode == null || StringUtils.isEmpty(barcode.getBarcode())) {
-            product.errors.reject('product.barcodes.empty', 'Barcode is empty.')
-        }
-        if (barcode.hasErrors() && barcode.errors != null && barcode.errors.allErrors.size() > 0) {
+        if (barcode != null && barcode.hasErrors() && barcode.errors != null && barcode.errors.allErrors.size() > 0) {
             barcode.errors.allErrors
                     .each { FieldError error ->
                         final String field = error.field?.replace('profile.', '')
@@ -1928,7 +1950,7 @@ class ProductController extends BaseController {
     }
 
     def isValidBarcode(Barcode barcode) {
-        barcode == null || StringUtils.isEmpty(barcode.getBarcode()) || barcode.validate()
+        StringUtils.isEmpty(barcode.getBarcode()) || barcode.validate()
     }
 
 
@@ -1969,8 +1991,8 @@ class ProductController extends BaseController {
     }
 
     def isValidSku(long sku) {
-        def existingVariant = ProductVariant.findBySku(sku)
-        return existingVariant == null
+        def existingVariants = ProductVariant.countMatchingSkusForRetailer(sku, springSecurityService.principal.retailerId)
+        return existingVariants == 0
     }
 }
 
@@ -2178,6 +2200,8 @@ class ProductCommand {
 //    Collection<Message> refundMessages = new ArrayList<>()
 //    Collection<DiscountRate> discountRates = new ArrayList<>()
     Collection<ProductVariantCommand> variants = new ArrayList<>()
+
+    Collection<ProductAttributeValuesCommand> productAttributeValues = new ArrayList<>()
 }
 
 class RestrictionsCommand implements Validateable {
@@ -2197,6 +2221,8 @@ class RestrictionsCommand implements Validateable {
     Boolean quantityChangeForced
     Boolean receiptPrintForced
     Boolean allowsLoyaltyPointsCollection
+    Boolean alwaysOpenCashDrawer
+    Boolean excludedFromPromotion
 
     static constraints = {
         importFrom Restrictions
@@ -2285,6 +2311,15 @@ class RangeProductCommand {
     int productId
     int rangeId
     boolean ranged
+}
+
+class ProductAttributeValuesCommand {
+
+    Integer retailerId
+    Integer productAttributeId
+    String value
+    String attributeName
+    ProductAttributeType attributeType
 }
 
 class CSVUploadProduct {

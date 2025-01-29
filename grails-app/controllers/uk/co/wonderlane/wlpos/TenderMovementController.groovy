@@ -286,7 +286,7 @@ class TenderMovementController {
                 //update shift cash in drawer
                 //update shift tender totals
                 //add shift audit
-                tenderMovementService.updateShiftBalanceTotals(ShiftAction.CASH_LIFT, tenderType?.id, tenderType?.name, tenderType?.cashTender, amount.negate(), tenderMovementId, tillId)
+                tenderMovementService.updateShiftBalanceTotals(ShiftAction.CASH_LIFT, tenderType?.id, tenderType?.name, tenderType?.cashTender, amount.negate(), tenderMovementId, tillId, safeId)
 
                 redirect(action: "tenderLift", params: [success: "Successfully processed tender lift for till ${tillId}"])
             }
@@ -341,6 +341,56 @@ class TenderMovementController {
                 tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.PAID_IN, tenderType?.id, tenderType?.name, tenderType?.cashTender, amount, tenderMovementId, safeId)
 
                 redirect(action: "payIn", params: [success: "Pay In successfully processed. Funds added to safe '${safe?.description}'"])
+            //This will done all validations
+            //1. Validate safe is selected
+            //2. Validate enter amount is correct
+            //3. Validate any selected tills
+            //4. Validate tender is selected
+            //5. Validate selected safe is active
+ //           List<String> validationFailureMessages = tenderMovementService.preValidateAddFloatRequest(safeId, tillNos, amount, tender)
+ //           if (!validationFailureMessages.isEmpty() && validationFailureMessages.size() > 0) { //If safe trying to distribute money is inactive then throw error
+ //              def errorParams  = validationFailureMessages.join("<br>")
+ //               redirect(action: "addFloat", params: [error: errorParams])
+ //           } else {
+ //               List<String> tillSuccessMessages = []
+ //               List<String> tillFailureMessages = []
+ //               for (Integer tillId : tillNos) {
+ //                   try {
+ //                       if (!tenderMovementService.isOpenShiftAvailable(tillId)) {
+ //                           tillFailureMessages.add("No open shift available for till ${tillId}.")
+ //                       } else {
+ //                           //create tender totals
+ //                           Integer tenderMovementId = tenderMovementService.recordTenderTransfer(tillId, safeId, tender, amount, false)
+
+                            //update safe session values
+                            //update safe session tender totals
+                            //add safe session audit
+ //                           tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.ADD_FLOAT, tender, amount.negate(), tenderMovementId, safeId)
+
+                            //update shift values
+                            //update shift cash in drawer
+                            //update shift tender totals
+                            //add shift audit
+ //                           tenderMovementService.updateShiftBalanceTotals(ShiftAction.ADD_FLOAT, tender, amount, tenderMovementId, tillId, safeId)
+
+ //                           tillSuccessMessages.add("Successfully processed add float for Till ${tillId}")
+ //                       }
+ //                   } catch (Exception ex) {
+ //                       log.error("Add float item saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
+ //                       tillFailureMessages.add("Failed to update balances for Till ${tillId}")
+ //                   }
+ //               }
+
+                // Combine success and failure messages
+ //               def resultParams = [:]
+ //               if (!tillSuccessMessages.isEmpty()) {
+ //                   resultParams.success = tillSuccessMessages.join("<br>")
+ //               }
+ //               if (!tillFailureMessages.isEmpty()) {
+ //                   resultParams.error = tillFailureMessages.join("<br>")
+ //               }
+
+ //               redirect(action: "addFloat", params: [success: resultParams.success, error: resultParams.error])
             }
         } catch (Exception ex) {
             log.error("Pay In saving error for safe id : ${safeId} reason code: ${reasonCode} tender type: ${tenderTypeId} error: ${ex.getMessage()}", ex)

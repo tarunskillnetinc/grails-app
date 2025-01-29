@@ -96,6 +96,15 @@ class ProductVariant implements Serializable {
         locationz bindable: true
     }
 
+    static int countMatchingSkusForRetailer(Long sku, Integer retailerId) {
+        def query = "FROM ProductVariant pv JOIN pv.product p WHERE pv.sku = :sku AND p.retailerId = :retailerId"
+        def params = [sku: sku, retailerId: retailerId]
+
+        def count = ProductVariant.executeQuery(query, params).size()
+
+        return count
+    }
+
     List<ProductPrice> getPrices() {
         return ProductPrice.findAllBySkuAndEffectiveDateLessThanEquals(sku, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"])?.unique { it.priceBand }
     }
@@ -157,8 +166,11 @@ class ProductVariant implements Serializable {
 
         // Group by barcode, ensuring each group is sorted by id in descending order
         // Collect into linkedHashMap to ensure the map maintains insertion order
-        def groupedByBarcodeValue = sortedBarcodes.stream().collect(Collectors.groupingBy({it.barcode},
-                {-> new LinkedHashMap<>()}, Collectors.toList()))
+        def groupedByBarcodeValue = sortedBarcodes.stream().collect(Collectors.groupingBy(
+                { it -> it.barcode ?: "NULL" },  // Use "NULL" as key for null barcodes
+                { -> new LinkedHashMap<>() },
+                Collectors.toList()
+        ))
 
         // They're already sorted in effective date, so if the first is valid then display it, if not then it's deleted and shouldn't be displayed.
         groupedByBarcodeValue?.each {

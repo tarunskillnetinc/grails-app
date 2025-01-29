@@ -619,13 +619,20 @@ class LoyaltyController {
 
             DateTime startDate = originalLoyaltyOffer?.startDate ? dateFormatter.parseDateTime(dateFormatter.print(new DateTime(originalLoyaltyOffer?.startDate.getTime()))) : null
             DateTime endDate = originalLoyaltyOffer?.endDate ? dateFormatter.parseDateTime(dateFormatter.print(new DateTime(originalLoyaltyOffer?.endDate.getTime()))) : null
+            def now = DateTime.now(DateTimeZone.UTC)
 
             //load all promotions for retailer
             //List<Promotion> promotions = promotionService.getPromotionForRetailer(springSecurityService.principal.retailerId)
             def promotions = promotionService.searchPromotions(DateTime.now(DateTimeZone.UTC), null, null, "", false, null, null, null, null,
                     null, null, true)
-            List<uk.co.wonderlane.wlpos.entities.Promotion> promotionEntityList = new ArrayList<>()
-            promotions?.each {promotion -> promotionEntityList.add(promotion.getPromotion())}
+            List<uk.co.wonderlane.wlpos.entities.Promotion> promotionEntityList = promotions?.findAll { promotion ->
+                def p = promotion.getPromotion()
+
+                def isActive = (p.startDate <= now && (p.endDate == null || p.endDate > now))
+                def hasRequiredAttributes = p.loyalty == true && p.active == true
+
+                return isActive && hasRequiredAttributes
+            }?.collect { it.getPromotion() } ?: []
 
             //load all segments for retailer
             List<Segment> segments = loyaltyService.getLoyaltySegmentForRetailer(springSecurityService.principal.retailerId, SegmentStatus.ACTIVE)
@@ -640,7 +647,7 @@ class LoyaltyController {
 
             render(view: "/loyalty/addLoyaltyOffer", model: [
                     loyaltyOffer : originalLoyaltyOffer,
-                    promotions: promotions,
+                    promotions: promotionEntityList,
                     segments  : segments,
                     promotionsJson: promotionsJson,
                     segmentsJson: segmentsJson,

@@ -19,11 +19,14 @@ class TenderMovement {
     BigDecimal amount
     Integer userId
     String userName
+    String usersRealName
     DateTime timestamp
     String bankName
     String bankReference
     DateTime bankingDate  // Changed from String to DateTime
     String comment
+    Integer financialWeekId
+    Integer financialWeekNumber
 
     static transients = ['store']
 
@@ -46,11 +49,14 @@ class TenderMovement {
         amount column: "amount"
         userId column: "userId"
         userName column: "userName"
+        usersRealName column: "usersRealName"
         timestamp column: "timestamp"
         bankName column: "bankName"
         bankReference column: "bankReference"
         bankingDate column: "bankingDate"  // Added mapping for bankingDate
         comment column: "comment"
+        financialWeekId column: "financialWeekId"
+        financialWeekNumber column: "financialWeekNumber"
     }
 
     static constraints = {
@@ -67,11 +73,14 @@ class TenderMovement {
         amount nullable: false
         userId nullable: false
         userName nullable: false, blank: false, maxSize: 45
+        usersRealName nullable: false, blank: true, maxSize: 50
         timestamp nullable: true
         bankName nullable: true
         bankReference nullable: true
         bankingDate nullable: true  // Added constraint for bankingDate
         comment nullable: true
+        financialWeekId nullable: true
+        financialWeekNumber nullable: true
     }
 
     Store getStore() {

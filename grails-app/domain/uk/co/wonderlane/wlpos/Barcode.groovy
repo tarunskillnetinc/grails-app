@@ -91,20 +91,22 @@ class Barcode {
     private String barcodeSignifiersType(int retailerId){
         ArrayList<BarcodeSignifier> barcodeSignifiers = BarcodeSignifier.findAllByRetailerId(retailerId)
 
-        for (BarcodeSignifier barcodeSignifier : barcodeSignifiers) {
-            if (barcodeSignifier.getLength() != null && barcodeSignifier.getLength() != 0) {
-                if (barcode.length() != barcodeSignifier.getLength()) {
+        if(barcode != null) {
+            for (BarcodeSignifier barcodeSignifier : barcodeSignifiers) {
+                if (barcodeSignifier.getLength() != null && barcodeSignifier.getLength() != 0) {
+                    if (barcode.length() != barcodeSignifier.getLength()) {
+                        continue
+                    }
+                }
+
+                if (barcode.length() < barcodeSignifier.getPattern().length()) {
                     continue
                 }
-            }
 
-            if (barcode.length() < barcodeSignifier.getPattern().length()) {
-                continue
-            }
-
-            String sub = barcode.substring(0, barcodeSignifier.getPattern().length());
-            if (sub.equals(barcodeSignifier.getPattern())) {
-                return barcodeSignifier.getType()
+                String sub = barcode.substring(0, barcodeSignifier.getPattern().length());
+                if (sub.equals(barcodeSignifier.getPattern())) {
+                    return barcodeSignifier.getType()
+                }
             }
         }
         return null

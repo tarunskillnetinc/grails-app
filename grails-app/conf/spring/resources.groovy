@@ -213,6 +213,15 @@ beans = {
         gsonProvider = ref("gsonProvider")
     }
 
+    safeSessionService(SafeSessionService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.transactions.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.transactions.port')),
+                    grailsApplication.config.getProperty('mysql.transactions.username'),
+                    grailsApplication.config.getProperty('mysql.transactions.password'),
+                    grailsApplication.config.getProperty('mysql.transactions.database'))) {
+        springSecurityService = ref('springSecurityService')
+    }
+
     loyaltyService(LoyaltyService,
             new DatabaseCredentials(grailsApplication.config.getProperty('mysql.loyalty.host'),
                     Integer.parseInt(grailsApplication.config.getProperty('mysql.loyalty.port')),
@@ -230,6 +239,7 @@ beans = {
         messageSource = ref('messageSource')
         rabbitService = ref('rabbitService')
         locationService = ref('locationService')
+        storeService = ref('storeService')
     }
 
     safeManagementService(SafeManagementService,
