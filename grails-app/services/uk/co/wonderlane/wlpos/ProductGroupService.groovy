@@ -44,6 +44,6 @@ class ProductGroupService {
     }
 
     def deleteProductGroupProduct(int productGroupId, long sku) {
-        ProductGroupProduct.executeUpdate("delete ProductGroupProduct tp where tp.productGroup.id = :productGroupId and tp.sku = :sku", [productGroupId: productGroupId, sku: sku])
+        ProductGroupProduct.executeUpdate("delete productgroupproduct pgp where pgp.productGroup.id = :productGroupId and pgp.sku = :sku", [productGroupId: productGroupId, sku: sku])
     }
 }
