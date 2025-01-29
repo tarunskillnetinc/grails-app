@@ -1370,6 +1370,7 @@ class ProductController extends BaseController {
         builder.compare("receiptPrintForced", product.restrictions.receiptPrintForced, editedProduct.restrictions.receiptPrintForced)
         builder.compare("allowsLoyaltyPointsCollection", product.restrictions.allowsLoyaltyPointsCollection, editedProduct.restrictions.allowsLoyaltyPointsCollection)
         builder.compare("alwaysOpenCashDrawer", product.restrictions.alwaysOpenCashDrawer, editedProduct.restrictions.alwaysOpenCashDrawer)
+        builder.compare("excludedFromPromotion", product.restrictions.excludedFromPromotion, editedProduct.restrictions.excludedFromPromotion)
 
         builder.compare("vatCode", product.vatCode?.description, editedProduct.vatCode?.description)
 
@@ -1816,7 +1817,8 @@ class ProductController extends BaseController {
                 first.quantityChangeForced != second.quantityChangeForced ||
                 first.receiptPrintForced != second.receiptPrintForced ||
                 first.allowsLoyaltyPointsCollection != second.allowsLoyaltyPointsCollection ||
-                first.alwaysOpenCashDrawer != second.alwaysOpenCashDrawer
+                first.alwaysOpenCashDrawer != second.alwaysOpenCashDrawer ||
+                first.excludedFromPromotion != second.excludedFromPromotion
     }
 
     private static void copyRestrictions(RestrictionsCommand from, Restrictions to) {
@@ -1836,6 +1838,7 @@ class ProductController extends BaseController {
         to.receiptPrintForced = from.receiptPrintForced
         to.allowsLoyaltyPointsCollection = from.allowsLoyaltyPointsCollection
         to.alwaysOpenCashDrawer = from.alwaysOpenCashDrawer
+        to.excludedFromPromotion = from.excludedFromPromotion
     }
 
     private void copyProduct(ProductCommand from, Product to) {
@@ -2218,6 +2221,7 @@ class RestrictionsCommand implements Validateable {
     Boolean receiptPrintForced
     Boolean allowsLoyaltyPointsCollection
     Boolean alwaysOpenCashDrawer
+    Boolean excludedFromPromotion
 
     static constraints = {
         importFrom Restrictions
