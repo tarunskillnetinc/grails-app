@@ -22,6 +22,7 @@
             prefix: '',
             allowNegative: false,
             decimal: '.',
+            thousands: '',
             affixesStay: true,
             precision: 2,
         });
@@ -98,6 +99,17 @@
         });
     }
 
+    function restrictInput(event) {
+        // Allow Backspace, Delete, Tab, Escape, and Arrow keys
+        const allowedKeys = [8, 9, 27, 37, 39, 46];
+
+        if (allowedKeys.includes(event.keyCode) || event.ctrlKey || event.metaKey) {
+            return true; // Allow these keys
+        }
+
+        return false; // Block all other key inputs
+    }
+
 
 </script>
 
@@ -172,6 +184,7 @@
                                          id="product_attribute_information_date_${index}"
                                          class="col-lg-12 form-control bottom-border"
                                          value="${attributeValue.value}"
+                                         onkeydown="return restrictInput(event)"
                                          disabled="${!isStore}"/>
                         </div>
                     </g:if>
