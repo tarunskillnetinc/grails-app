@@ -291,9 +291,8 @@
                                     <span id="product-configuration" class="dropdown-header">Product Configuration</span>
 
                                     <g:link elementId="category-maintenance-dropdown" controller="category" class="dropdown-item">Departments & Categories</g:link>
-                                    <g:link elementId="product-groups-dropdown" controller="productGroup"
-                                            class="dropdown-item">Product Groups</g:link>
-                                    <g:link elementId="partner-category-dropdown" class="dropdown-item disabled">Partner Category Managment</g:link>
+                                    <g:link elementId="product-groups-dropdown" controller="productGroup" class="dropdown-item">Product Groups</g:link>
+                                    <g:link elementId="partner-category-dropdown" controller ="partnerCategoryManagement" class="dropdown-item">Partner Category Managment</g:link>
                                     <g:link elementId="retailer-product-attributes-dropdown" controller="productAttributes" class="dropdown-item" action="productAttributes">Retailer Product Attributes</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
