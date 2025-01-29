@@ -4,7 +4,7 @@ class ProductGroupProduct implements Serializable {
 
     def springSecurityService
 
-    static belongsTo = [productGroupId: ProductGroup]
+    static belongsTo = [productgroup: ProductGroup]
 
     long sku
 
@@ -22,9 +22,9 @@ class ProductGroupProduct implements Serializable {
         table "productgroupproduct"
         version false
 
-        id composite: ['productGroupId', 'sku']
+        id composite: ['productgroup', 'sku']
 
-        productGroupId column: "productGroupId"
+        productgroup column: "productGroupId"
         sku column: "sku"
     }
 
@@ -85,6 +85,6 @@ class ProductGroupProduct implements Serializable {
 
     @Override
     int hashCode() {
-        return sku.hashCode() + productVariantId.hashCode() + productId.hashCode() + (productGroupId?.id?.hashCode() ?: 123)
+        return sku.hashCode() + productVariantId.hashCode() + productId.hashCode() + (productgroup?.id?.hashCode() ?: 123)
     }
 }
