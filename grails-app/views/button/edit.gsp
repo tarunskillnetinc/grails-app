@@ -17,7 +17,6 @@
                 displayTextCheck.attr("disabled", true);
             }
 
-            const legacyTenderTypeInput = $("#legacyTenderTypeInput");
             const tenderTypeInput = $("#tenderTypeInput");
 
             const exactInputDiv = $("#exactEntryDiv");
@@ -130,10 +129,6 @@
                     $("#percentageEntryHolder").hide()
                     $("#quantity").val(null);
                 }
-            });
-
-            legacyTenderTypeInput.on("change", function() {
-                $("#legacyTenderType").val($(this).val());
             });
 
             tenderTypeInput.on("change", function() {
@@ -331,7 +326,6 @@
                 $("input[id*=subPageIdInput]").val("");
                 $("input[id*=processInput]").val("");
                 $("input[id*=amountInput]").val("");
-                $("input[id*=legacyTenderTypeInput]").val("");
 
                 if (newType === "BLANK") {
                     $("input[id*=descriptionInput]").val("Blank");
@@ -358,7 +352,6 @@
                 $("input[id*=subPageIdInput]").val("${button?.subPageId}");
                 $("input[id*=processInput]").val("${button?.process}");
                 $("input[id*=amountInput]").val("${button?.amount}");
-                $("input[id*=legacyTenderTypeInput]").val("${button?.tenderType}");
 
                 type.val(newType);
             }
@@ -523,14 +516,6 @@
                             </div>
 
                             <div class="form-group row">
-                                <label for="tenderType" class="col-4 col-sm-2 offset-sm-2 col-form-label">Legacy Tender type:</label>
-                                <div class="col-6 col-sm-2">
-                                    <g:select name="legacyTenderTypeInput" from="${availableLegacyTenderTypes}" valueMessagePrefix="TenderType" value="${button.legacyTenderType}" noSelection="['':'Please select']" class="form-control select-border" />
-                                </div>
-                                <div class="col-2 col-sm-6 my-auto"><i>This feature will be removed in a future release.</i></div>
-                            </div>
-
-                            <div class="form-group row">
                                 <label for="tenderTypeId" class="col-4 col-sm-2 offset-sm-2 col-form-label">Tender type:</label>
                                 <div class="col-6 col-sm-2">
                                     <select name="tenderTypeInput" class="form-control select-border" id="tenderTypeInput">
@@ -657,7 +642,6 @@
                 <g:hiddenField name="subPageId" value="${button?.subPageId}"/>
                 <g:hiddenField name="process" value="${button?.process}" />
                 <g:hiddenField name="amount" value="${button?.amount}" />
-                <g:hiddenField name="legacyTenderType" value="${button?.legacyTenderType}" />
                 <g:hiddenField name="tenderType.id" value="${button?.tenderType?.id}" />
                 <g:hiddenField name="bgColour" value="${button?.bgColour}" />
                 <g:hiddenField name="textColour" value="${button?.textColour}" />

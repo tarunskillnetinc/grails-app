@@ -416,10 +416,11 @@ class ShiftService extends MySqlPoolDal {
         return false
     }
 
-    Shift updateRollingFloatCalculations(Shift oldShift){
+    Shift updateRollingFloatCalculations(Shift oldShift) {
         Shift newShift = null
         def cashManagementConfig = cashManagementService.getCashManagementConfig(oldShift.getRetailerId(), oldShift.getStoreId())
         BigDecimal currentCashTotal = oldShift.cashInDrawer
+
         //Following conditions were considered when checking rolling float
         //1. Auto float cash management flag should be enable
         //2. Configured rolling float value should be positive
@@ -427,31 +428,47 @@ class ShiftService extends MySqlPoolDal {
         //4. Current shift should have positive value (zero or greater)
         if (cashManagementConfig.rollingFloatEnabled && cashManagementConfig.rollingFloatValue > 0 && currentCashTotal != null && currentCashTotal.compareTo(BigDecimal.ZERO) > 0 && isCashManagementEnable(oldShift.tillId)) {
             User loggedInUser = loadLoggedInUser()
+
             newShift = populateNewShift(oldShift.retailerId, oldShift.storeId, oldShift.tillId,loggedInUser) //call function to open shift
+
             BigDecimal rollingFloatAmount = calculateMovingRollingFloat(currentCashTotal, cashManagementConfig.rollingFloatValue)
-            moveRollingFloatToNewShift(newShift, rollingFloatAmount)
-            updateRollingFloatToOldShift(oldShift, rollingFloatAmount)
+
+            def cashTender = tenderTypeService.getApplicableTenderTypes()?.find { it.cashTender }
+
+            if (cashTender) {
+                moveRollingFloatToNewShift(newShift, cashTender, rollingFloatAmount)
+
+                updateRollingFloatToOldShift(oldShift, cashTender, rollingFloatAmount)
+            }
         }
+
         return newShift
     }
 
-    boolean addRollingFloatAuditAndTenderMovements(Shift oldShift, Shift newShift){
+    boolean addRollingFloatAuditAndTenderMovements(Shift oldShift, Shift newShift) {
         //This exists mean rolling float is enabled and action succeeded
         if (newShift != null) {
             Safe primarySafe = safeService.getPrimaryStoreSafes()
             User loggedInUser = loadLoggedInUser()
+
+            def cashTender = tenderTypeService.getApplicableTenderTypes()?.find { it.cashTender }
+
             addAudit(oldShift, ShiftAction.CASH_LIFT, true, loggedInUser, null)// Add audit for cash lift from old shift action in rolling float action
             addAudit(newShift, ShiftAction.ADD_FLOAT, true, loggedInUser, null)// Add audit for add float to new shift action in rolling float action
-            shiftCashTenderMovementUpdate(oldShift, primarySafe.id, false, oldShift.autoFloatOut, BigDecimal.ZERO)// Add tender movement for cash moving into safe
-            shiftCashTenderMovementUpdate(newShift, primarySafe.id, true, newShift.autoFloatIn, BigDecimal.ZERO)// Add tender movement for cash moving out safe
+
+            shiftCashTenderMovementUpdate(oldShift, primarySafe.id, false, cashTender?.id, cashTender?.name, oldShift.autoFloatOut)// Add tender movement for cash moving into safe
+            shiftCashTenderMovementUpdate(newShift, primarySafe.id, true, cashTender?.id, cashTender?.name, newShift.autoFloatIn)// Add tender movement for cash moving out safe
+
             return true
         }
+
         return false
     }
 
-    private void moveRollingFloatToNewShift(Shift newShift, BigDecimal rollingFloatAmount) {
-        TenderTotal newTende0rTotal = new TenderTotal(TenderType.CASH)
+    private void moveRollingFloatToNewShift(Shift newShift, TenderType cashTender, BigDecimal rollingFloatAmount) {
+        TenderTotal newTenderTotal = new TenderTotal(cashTender?.id, cashTender?.name, cashTender?.cashTender)
         newTenderTotal.value = rollingFloatAmount
+
         newShift.tenderTotals.add(newTenderTotal)
         newShift.cashInDrawer = rollingFloatAmount
         newShift.autoFloatIn = rollingFloatAmount
@@ -756,39 +773,18 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    private void shiftCashTenderMovementUpdate(Shift shift, int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount) {
+    private void shiftCashTenderMovementUpdate(Shift shift, int safeId, boolean isAddFloat, Integer tenderTypeId, String tenderTypeName, BigDecimal tenderAmount) {
         TenderMovementType tenderMovementType = isAddFloat ? TenderMovementType.ADD_FLOAT : TenderMovementType.CASH_LIFT
         Location tillLocation = locationService.getTillLocation(shift.tillId) as Location
         Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as Location
 
         if (isAddFloat) {
-            // If this is add float action then we can have both CASH and VOUCHER types
-            // For add float action from location should be location of safe we are moving money into
-            // To location should be location of till where we move cash/voucher into
-            createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, TenderType.CASH, cashAmount)
-            createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, TenderType.VOUCHER, voucherAmount)
+            // For add float action from location should be location of safe we are moving tender into
+            // To location should be location of till where we move tender into
+            createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, tenderTypeId, tenderTypeName, tenderAmount)
         } else {
-            // In cash lift action there can only CASH type
-            // from location should be location of till while to location should be location of safe where we move cash into
-            createNewTenderMovement(tillLocation, safeLocation, tenderMovementType, TenderType.CASH, cashAmount)
-        }
-    }
-
-    private void shiftCashTenderUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
-        updateTenderTotalForCashUpdate(shift, TenderType.CASH, cashAmount)
-        if (isAddFloat) {
-            updateTenderTotalForCashUpdate(shift, TenderType.VOUCHER, voucherAmount)
-        }
-    }
-
-    private void updateCashDrawer(Shift shift, BigDecimal cashAmount){
-        if (cashAmount != null){
-            BigDecimal currentCash = shift.getCashInDrawer();
-            if (currentCash == null) {
-                currentCash = BigDecimal.ZERO;
-            }
-            BigDecimal newCashAmount = currentCash.add(cashAmount);
-            shift.setCashInDrawer(newCashAmount);
+            // From location should be location of till while to location should be location of safe where we move cash into
+            createNewTenderMovement(tillLocation, safeLocation, tenderMovementType, tenderTypeId, tenderTypeName, tenderAmount)
         }
     }
 
@@ -812,21 +808,6 @@ class ShiftService extends MySqlPoolDal {
             } catch (Exception ex) {
                 log.error("Error saving tender movement for tender type: ${tenderType} error: ${ex.getMessage()}", ex)
             }
-        }
-    }
-
-    private void updateTenderTotalForCashUpdate(Shift shift, TenderType tenderType, BigDecimal updateAmount) {
-        if (updateAmount != 0) { //update amount either can be negative or positive
-            TenderTotal tenderTotal = shift.getTenderTotals().stream()
-                    .filter(tt -> tt.getTenderType() == tenderType).findFirst()
-                    .orElseGet(() -> {
-                        TenderTotal newTenderTotal = new TenderTotal(tenderType);
-                        shift.getTenderTotals().add(newTenderTotal);
-                        return newTenderTotal;
-                    });
-
-            tenderTotal.setQuantity(tenderTotal.getQuantity() + 1);
-            tenderTotal.setValue(tenderTotal.getValue().add(updateAmount));
         }
     }
 
@@ -863,11 +844,12 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    private void updateRollingFloatToOldShift(Shift oldShift, BigDecimal rollingFloatAmount){
-        def oldTotal = oldShift.tenderTotals.find { it.tenderType == TenderType.CASH }
-        oldTotal.value = oldTotal.value.subtract(rollingFloatAmount)
-        oldShift.cashInDrawer = oldShift.cashInDrawer.subtract(rollingFloatAmount)
-        oldShift.autoFloatOut = rollingFloatAmount
+    private void updateRollingFloatToOldShift(Shift oldShift, TenderType cashTender, BigDecimal rollingFloatAmount){
+        def oldTotal = oldShift.tenderTotals.find { it.tenderTypeId == cashTender?.id }
+
+        oldTotal?.value = oldTotal?.value?.subtract(rollingFloatAmount)
+        oldShift?.cashInDrawer = oldShift?.cashInDrawer?.subtract(rollingFloatAmount)
+        oldShift?.autoFloatOut = rollingFloatAmount
     }
 
     private BigDecimal calculateMovingRollingFloat(BigDecimal expectedValue, int rollingFloatValue) {

@@ -50,7 +50,13 @@ class SaveButtonFormCommand implements Validateable {
         subPageId nullable: true
         process nullable: true
         legacyTenderType nullable: true
-        tenderType nullable: true
+        tenderType nullable: true, validator: {val, obj ->
+            if (obj.type == ButtonType.TENDER && !val) {
+                return ['button.error.tenderType.nullable']
+            }
+
+            return true
+        }
         bgColour nullable: true
         textColour nullable: true
         imageDisplay nullable: true

@@ -85,9 +85,9 @@ class SafeManagementService extends MySqlPoolDal {
             int attempt = 0
             while (attempt < 10) {
                 attempt++
-                SafeSession session = getActiveSessionUsingConnection(conn, safeId)
+                SafeSession safeSession = getActiveSessionUsingConnection(conn, safeId)
 
-                if (session) {
+                if (safeSession) {
                     for (amount in tenderAmounts) {
                         if (safeSession.getSessionStatus() != SafeSessionStatus.OPEN) {
                             safeSession.addToPendingTotals(amount.tenderTypeId, amount.tenderTypeName, amount.cashTender, amount.value)
@@ -107,6 +107,7 @@ class SafeManagementService extends MySqlPoolDal {
                 }
             }
         }
+
         String errorMsg = "Failed to add tender movements for retailer: ${springSecurityService.principal.retailerId}," +
                 " store: ${springSecurityService.principal.storeId} and safeId: ${safeId}"
         log.error(errorMsg)
@@ -231,7 +232,7 @@ class SafeManagementService extends MySqlPoolDal {
         }
     }
 
-    SafeSession processInterimReconciliationSave(SafeSessionCashUpCommand command, SafeSession safeSession) throws SafeSessionUpdateException {
+    SafeSession processInterimReconciliationSave(SafeSessionCashUpCommand safeSessionCashUpCommand, SafeSession safeSession) throws SafeSessionUpdateException {
         // This will called session save method to process on hold Reconciliation values
         try {
             def applicableTenderTypes = tenderTypeService.getApplicableTenderTypes()
@@ -248,7 +249,7 @@ class SafeManagementService extends MySqlPoolDal {
 
             safeSession.setPendingReconciliationTotals(totals)
 
-            saveSafeSession(safeSession)
+            return saveSafeSession(safeSession)
         } catch (SafeSessionUpdateException ex) {
             throw ex
         } catch (Exception ex) {
@@ -258,9 +259,9 @@ class SafeManagementService extends MySqlPoolDal {
     }
 
     private static ReconciliationTotal populateReconciliationTotal(Integer tenderTypeId, String tenderTypeName, boolean cashTender, BigDecimal value, SafeSession session) {
-        BigDecimal expectedTotal = (session.tenderTotals?.findAll { it.tenderTypeId == tenderTypeId }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
-        BigDecimal pendingTotal = (session.pendingTenderTotals?.findAll { it.tenderTypeId == tenderTypeId }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
-        expectedTotal = expectedTotal?.add(pendingTotal) ?: BigDecimal.ZERO
+        BigDecimal expectedTotal = session.tenderTotals?.find { it.tenderTypeId == tenderTypeId }?.value ?: BigDecimal.ZERO
+        BigDecimal pendingTotal = session.pendingTenderTotals?.find { it.tenderTypeId == tenderTypeId }?.value ?: BigDecimal.ZERO
+        expectedTotal = expectedTotal?.add(pendingTotal ?: BigDecimal.ZERO) ?: BigDecimal.ZERO
 
         ReconciliationTotal total = new ReconciliationTotal(tenderTypeId, tenderTypeName, cashTender)
 
@@ -270,14 +271,16 @@ class SafeManagementService extends MySqlPoolDal {
         return total
     }
 
-    void processDataSave(SafeSessionSaveCommand command, SafeSession safeSession) {
+    void processDataSave(SafeSessionSaveCommand safeSessionSaveCommand, SafeSession safeSession) {
         try {
             User loggedInUser = loadLoggedInUser()
 
             // This method will populate session data corresponding at action requested
             // Based on request (reconcile, recount or finalise) session object is populated differently
-            updateSafeSessionSaveFields(command, safeSession, loggedInUser)
+            updateSafeSessionSaveFields(safeSessionSaveCommand, safeSession, loggedInUser)
 
+            // TODO looks like version ID gets updated but the safe session isn't updated so then something goes wrong somewhere?
+            // TODO Should we be assigning the result of saveSafeSession to safeSession?
             saveSafeSession(safeSession) //This will called session save method to process close
 
             SafeSessionAction auditSafeSessionAction = safeSessionSaveCommand.isRecount ? SafeSessionAction.RECOUNT : safeSessionSaveCommand.isFinalise ? SafeSessionAction.FINALISE : SafeSessionAction.RECONCILE
@@ -456,6 +459,7 @@ class SafeManagementService extends MySqlPoolDal {
                 // And update variance reason and reason text
                 safeSession.setReconciliationTotals(safeSession.getPendingReconciliationTotals())
                 safeSession.setPendingReconciliationTotals(new ArrayList<ReconciliationTotal>())
+
                 // And if the version hasn't changed then pending totals would have been counted
                 safeSession.transferPendingTotals()
 

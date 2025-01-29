@@ -24,7 +24,6 @@ class TenderTypeController {
         int offset = params.offset ? Integer.parseInt(params.offset) : 0
         int max = params.max ? Integer.parseInt(params.max) : 50
         String tenderTypeFilter = params.tenderTypeFilter
-        // TODO parse and handle exception
         boolean includeDeleted = params.showDeletedFilter ? Boolean.parseBoolean(params.showDeletedFilter) : false
 
         def (searchResults, totalCount) = tenderTypeService.getTenderTypes(tenderTypeFilter, includeDeleted, sortColumn, sortOrder, offset, max)
@@ -72,7 +71,7 @@ class TenderTypeController {
             tenderTypeService.saveTenderType(tenderType)
         }
 
-//        sendSyncMessage(tenderType, false)
+        sendSyncMessage(tenderType, false)
 
         render(status: 200, text: "${tenderTypeCommand.name} saved successfully.")
     }

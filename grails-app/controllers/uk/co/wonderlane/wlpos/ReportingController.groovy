@@ -7,22 +7,21 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
-import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.*
 
 import java.math.RoundingMode
-import java.util.stream.Collectors
 
 class ReportingController {
 
+    def springSecurityService
     def reportingService
     def supplierService
     def productListService
     def storeService
-    def springSecurityService
+    def tenderTypeService
 
     private static final SALES_REPORT_CATEGORY_SORT_COLUMNS = ["description", "quantity", "avgCostPrice", "avgRetailPrice", "retailPrice", "vatAmount", "avgMargin"]
     private static final SALES_REPORT_PRODUCT_SORT_COLUMNS = ["usersName", "category", "description", "quantity", "costPrice", "netTotal", "vatAmount", "profit", "margin", "dateCreated"]
@@ -1534,13 +1533,25 @@ class ReportingController {
 
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        def movementTypes = TenderMovementType.values().stream()
-                .sorted(Comparator.comparing(t -> t.toString()))
-                .collect(Collectors.toList())
-        [reportType: ReportType.TENDER_MOVEMENTS, tenderTypes: TenderType.values(), tenderMovementTypes: movementTypes, stores: stores, startDate: startDate, endDate: endDate, storeId: storeId, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS)]
+        def movementTypes = TenderMovementType.values().sort { it.name() }
+        def tenderTypes
+
+        if (springSecurityService.principal.storeId) {
+            tenderTypes = tenderTypeService.getApplicableTenderTypes()
+        } else {
+            int totalCount
+            (tenderTypes, totalCount) = tenderTypeService.getTenderTypes(null, false, null, null, 0, 9999)
+        }
+
+        [reportType: ReportType.TENDER_MOVEMENTS, tenderTypes: tenderTypes, tenderMovementTypes: movementTypes, stores: stores, startDate: startDate, endDate: endDate, storeId: storeId, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS)]
     }
 
     def ajaxTenderMovements(SortParams sortParams) {
+        if (sortParams?.sortColumn == "id") {
+            sortParams.sortColumn = "timestamp"
+            sortParams.sortOrder = "desc"
+        }
+
         sortParams.validateParams(TENDER_MOVEMENT_REPORT_SORT_COLUMNS)
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
@@ -1548,8 +1559,10 @@ class ReportingController {
         DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         TenderMovementType tenderMovementType = params.tenderMovementType ? TenderMovementType.valueOf(params.tenderMovementType) : null
-        TenderType tenderType = params.tenderType ? TenderType.valueOf(params.tenderType) : null
+        Integer tenderTypeId = params.tenderTypeId ? Integer.parseInt(params.tenderTypeId) : null
         Integer storeId = params.storeFilter ? getIntegerParam(params.storeFilter) : null
+
+        TenderType tenderType = tenderTypeId ? tenderTypeService.getTenderType(tenderTypeId) : null
 
         def tenderMovements = reportingService.getTenderMovements(startDate, endDate.plusDays(1), tenderMovementType, tenderType, storeId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
 

@@ -8,7 +8,6 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
-import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.reporting.*
 
@@ -320,7 +319,7 @@ class ReportingService {
             }
 
             if (tenderType) {
-                eq("tenderType", tenderType)
+                eq("tenderTypeId", tenderType.id)
             }
 
             if (tenderMovementType) {
@@ -334,7 +333,6 @@ class ReportingService {
         return [totalCount: totalCount, tenderMovements: results]
     }
 
-    //TODOCDMERGE Whatever calls this function probably needs updating.
     TenderMovement createNewTenderMovement(TenderMovementType movementType, Integer tenderTypeId, String tenderTypeName, uk.co.wonderlane.wlpos.reporting.Location fromLocation, uk.co.wonderlane.wlpos.reporting.Location toLocation , String reasonCode, String bankingDate,
                                                String bank, String bankReferenceNumber, String comments, BigDecimal amount) {
 

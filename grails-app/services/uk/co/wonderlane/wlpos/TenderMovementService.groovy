@@ -9,7 +9,6 @@ import uk.co.wonderlane.wlpos.enums.SafeSessionAction
 import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.ShiftStatus
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
-import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.reporting.TenderMovement
 
 import java.text.ParseException
@@ -82,85 +81,49 @@ class TenderMovementService {
         return [safeLocations, primarySafe]
     }
 
-    //Return eligible tenders for tender lift and add float (Here it is only CASH and VOUCHER)
-    List<TenderType> getEligibleTendersForTenderUpdate() {
-        return Arrays.stream(TenderType.values()).filter(type -> type == TenderType.CASH || type == TenderType.VOUCHER)
-                .collect(Collectors.toList());
-    }
-
-    List<TenderType> getCashOnlyTenders() {
-        return Arrays.stream(TenderType.values()).filter(type -> type == TenderType.CASH)
-                .collect(Collectors.toList());
-    }
-
-    //Return eligible tenders for Pay Out (Here it is only CASH)
-    List<TenderType> getEligibleTendersForPayOut() {
-        return Arrays.stream(TenderType.values()).filter(type -> type == TenderType.CASH)
-                .collect(Collectors.toList());
-    }
-
-    List<TenderType> getCashTenders() {
-        return Arrays.stream(TenderType.values()).filter(type -> type == TenderType.CASH)
-                .collect(Collectors.toList());
-    }
-
     //Update shift values and add a audit for tender lift
-    void updateShiftBalanceTotals(ShiftAction shiftAction, TenderType tenderType, BigDecimal updateAmount, Integer tenderMovementId, int tillId){
+    void updateShiftBalanceTotals(ShiftAction shiftAction, Integer tenderTypeId, String tenderTypeName, boolean cashTender, BigDecimal updateAmount, Integer tenderMovementId, int tillId) {
         Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillId)
         User loggedInUser = loadLoggedInUser()
-        updateShiftBalance(shift, tenderType, updateAmount)
+
+        updateShiftBalance(shift, tenderTypeId, tenderTypeName, cashTender, updateAmount)
+
         addShiftAudit(shift, shiftAction, true,  loggedInUser, tenderMovementId)
     }
 
     //Update safe session values and add a audit for tender lift
-    void updateSafeSessionBalanceTotals(SafeSessionAction safeSessionAction, TenderType tenderType, BigDecimal updateAmount, Integer tenderMovementId, int safeId){
+    void updateSafeSessionBalanceTotals(SafeSessionAction safeSessionAction, Integer tenderTypeId, String tenderTypeName, boolean cashTender, BigDecimal updateAmount, Integer tenderMovementId, int safeId){
         User loggedInUser = loadLoggedInUser()
-        SafeSession safeSession = safeSessionUpdate(safeId, tenderType, updateAmount) //Update safe session
+
+        SafeSession safeSession = safeSessionUpdate(safeId, tenderTypeId, tenderTypeName, cashTender, updateAmount) //Update safe session
+
         addSafeSessionAudit(safeSession, safeSessionAction, true,  loggedInUser, tenderMovementId)
     }
 
-    //TODOCDMERGE this was changed in remote, wherever calls it will need tenderTypeId and name adding.
-    Integer recordTenderTransfer(int tillId, int safeId, Integer tenderTypeId, String tenderTypeName, BigDecimal amount, boolean intoSafe){
+    Integer recordTenderTransfer(int tillId, int safeId, Integer tenderTypeId, String tenderTypeName, BigDecimal amount, boolean intoSafe) {
         uk.co.wonderlane.wlpos.reporting.Location tillLocation = locationService.getTillLocation(tillId) as uk.co.wonderlane.wlpos.reporting.Location
         uk.co.wonderlane.wlpos.reporting.Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as uk.co.wonderlane.wlpos.reporting.Location
+
         return saveTenderMovement(intoSafe ? TenderMovementType.CASH_LIFT : TenderMovementType.ADD_FLOAT, tenderTypeId, tenderTypeName, amount, null, intoSafe ? tillLocation : safeLocation, intoSafe ? safeLocation : tillLocation, null, null, null, null)
     }
 
-    Integer recordSafeTenderMovement(int safeId, TenderType tenderType, BigDecimal amount, String reasonCode, boolean intoSafe) {
+    Integer recordSafeTenderMovement(int safeId, Integer tenderTypeId, String tenderTypeName, BigDecimal amount, String reasonCode, boolean intoSafe) {
         uk.co.wonderlane.wlpos.reporting.Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as uk.co.wonderlane.wlpos.reporting.Location
-        return saveTenderMovement(
-                intoSafe ? TenderMovementType.PAID_IN : TenderMovementType.PAID_OUT,
-                tenderType, amount, reasonCode,
-                intoSafe ? null : safeLocation,
-                intoSafe ? safeLocation : null,
-                null, null, null, null
-        )
+
+        return saveTenderMovement(intoSafe ? TenderMovementType.PAID_IN : TenderMovementType.PAID_OUT, tenderTypeId, tenderTypeName, amount, reasonCode, intoSafe ? null : safeLocation, intoSafe ? safeLocation : null, null, null, null, null)
     }
 
-    Integer recordBankingMovement(int safeId, TenderType tenderType, BigDecimal amount, boolean intoSafe,
-                          String bankingDate, String bank, String bagReferenceNumber, String comments) {
+    Integer recordBankingMovement(int safeId, Integer tenderTypeId, String tenderTypeName, BigDecimal amount, boolean intoSafe, String bankingDate, String bank, String bagReferenceNumber, String comments) {
         uk.co.wonderlane.wlpos.reporting.Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as uk.co.wonderlane.wlpos.reporting.Location
-        return saveTenderMovement(
-                intoSafe ? TenderMovementType.CASH_INBOUND : TenderMovementType.BANKING,
-                tenderType, amount, null,
-                intoSafe ? null : safeLocation,
-                intoSafe ? safeLocation : null,
-                bankingDate, bank, bagReferenceNumber, comments
-        )
+
+        return saveTenderMovement(intoSafe ? TenderMovementType.CASH_INBOUND : TenderMovementType.BANKING, tenderTypeId, tenderTypeName, amount, null, intoSafe ? null : safeLocation, intoSafe ? safeLocation : null, bankingDate, bank, bagReferenceNumber, comments)
     }
 
-    private Integer saveTenderMovement(
-            TenderMovementType tenderMovementType,
-            TenderType tenderType, BigDecimal amount, String reasonCode,
-            uk.co.wonderlane.wlpos.reporting.Location fromLocation,
-            uk.co.wonderlane.wlpos.reporting.Location toLocation,
-            String bankingDate, String bank, String bagReferenceNumber,
-            String comments
-    ) {
-        TenderMovement tenderMovement = reportingService.createNewTenderMovement(
-                tenderMovementType, tenderType, fromLocation, toLocation, reasonCode,
-                bankingDate, bank, bagReferenceNumber, comments, amount
-        )
+    private Integer saveTenderMovement(TenderMovementType tenderMovementType, Integer tenderTypeId, String tenderTypeName, BigDecimal amount, String reasonCode, uk.co.wonderlane.wlpos.reporting.Location fromLocation,
+                                       uk.co.wonderlane.wlpos.reporting.Location toLocation, String bankingDate, String bank, String bagReferenceNumber, String comments) {
+
+        TenderMovement tenderMovement = reportingService.createNewTenderMovement(tenderMovementType, tenderTypeId, tenderTypeName, fromLocation, toLocation, reasonCode, bankingDate, bank, bagReferenceNumber, comments, amount)
+
         return reportingService.saveTenderMovement(tenderMovement)
     }
 
@@ -186,13 +149,14 @@ class TenderMovementService {
         return shift != null
     }
 
-    List<String> preValidateAddFloatRequest(int safeId, List<Integer> tillNos, BigDecimal amount, TenderType tenderType){
+    List<String> preValidateAddFloatRequest(int safeId, List<Integer> tillNos, BigDecimal amount, TenderType tenderType) {
         List<String> failureMessages = []
         validateSafeId(safeId, failureMessages)
         validateAddAmount(amount, failureMessages)
         validateSelectedTillIds(tillNos, failureMessages)
         validateTender(tenderType, failureMessages)
         validateSafeStatus(safeId, failureMessages)
+
         return failureMessages
     }
 
@@ -232,21 +196,21 @@ class TenderMovementService {
         return tillNos
     }
 
-    SafeSession safeSessionUpdate(int safeId, TenderType tenderType, BigDecimal cashAmount) {
+    SafeSession safeSessionUpdate(int safeId, Integer tenderTypeId, String tenderTypeName, boolean cashTender, BigDecimal cashAmount) {
         List<TenderTotal> addedTenderAmounts = new ArrayList<>()
         if (cashAmount != null && cashAmount.compareTo(BigDecimal.ZERO) != 0) {
-            TenderTotal tenderTotal = new TenderTotal(tenderType)
+            TenderTotal tenderTotal = new TenderTotal(tenderTypeId, tenderTypeName, cashTender)
             tenderTotal.value = cashAmount
             tenderTotal.quantity = 1
+
             addedTenderAmounts.add(tenderTotal)
         }
-        //This method will check if any active safe session available if not create new one
-        //Then will update tender totals
-        return safeManagementService.createNewSafeSessionWithTenderTotals(springSecurityService.principal.retailerId, springSecurityService.principal.storeId,
-                safeId, addedTenderAmounts as List<TenderTotal>, true)
+
+        //This method will check if any active safe session available if not create new one, then will update tender totals
+        return safeManagementService.createNewSafeSessionWithTenderTotals(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, safeId, addedTenderAmounts as List<TenderTotal>, true)
     }
 
-    List<String> preValidateBankTransferRequest(int safeId, String bankDate, BigDecimal amount, TenderType tenderType){
+    List<String> preValidateBankTransferRequest(int safeId, String bankDate, BigDecimal amount, TenderType tenderType) {
         List<String> failureMessages = []
         validateSafeId(safeId, failureMessages)
         validateBankTransferAmount(amount, failureMessages)
@@ -261,22 +225,26 @@ class TenderMovementService {
 
 
     // This method can generally use for shift balance update
-    private void updateShiftBalance(Shift shift, TenderType tenderType, BigDecimal updateAmount){
-        updateShiftTenderTotals(shift, tenderType, updateAmount)
-        if (tenderType.equals(TenderType.CASH)){
+    private void updateShiftBalance(Shift shift, Integer tenderTypeId, String tenderTypeName, boolean cashTender, BigDecimal updateAmount) {
+        updateShiftTenderTotals(shift, tenderTypeId, tenderTypeName, cashTender, updateAmount)
+
+        if (cashTender) {
             updateCashDrawer(shift, updateAmount)
         }
+
         shiftService.saveShift(shift)
     }
 
     // Generic method for shift's tender total update
-    private void updateShiftTenderTotals(Shift shift, TenderType tenderType, BigDecimal updateAmount){
+    private void updateShiftTenderTotals(Shift shift, Integer tenderTypeId, String tenderTypeName, boolean cashTender, BigDecimal updateAmount) {
         if (updateAmount != 0) { //update amount either can be negative or positive
             TenderTotal tenderTotal = shift.getTenderTotals().stream()
-                    .filter(tt -> tt.getTenderType() == tenderType).findFirst()
+                    .filter(tt -> tt.getTenderTypeId() == tenderTypeId).findFirst()
                     .orElseGet(() -> {
-                        TenderTotal newTenderTotal = new TenderTotal(tenderType);
+                        TenderTotal newTenderTotal = new TenderTotal(tenderTypeId, tenderTypeName, cashTender);
+
                         shift.getTenderTotals().add(newTenderTotal);
+
                         return newTenderTotal;
                     });
 
@@ -286,13 +254,15 @@ class TenderMovementService {
     }
 
     // Generic method for shift's cash drawer update
-    private void updateCashDrawer(Shift shift, BigDecimal cashAmount){
+    private void updateCashDrawer(Shift shift, BigDecimal cashAmount) {
         if (cashAmount != null){
             BigDecimal currentCash = shift.getCashInDrawer()
             if (currentCash == null) {
                 currentCash = BigDecimal.ZERO
             }
+
             BigDecimal newCashAmount = currentCash.add(cashAmount)
+
             shift.setCashInDrawer(newCashAmount)
         }
     }
@@ -326,9 +296,9 @@ class TenderMovementService {
         }
     }
 
-    private validateTender(TenderType tenderType, List<String> failureMessages){
+    private validateTender(TenderType tenderType, List<String> failureMessages) {
         if (tenderType == null) {
-            failureMessages.add("Please select a Tender.")
+            failureMessages.add("Please select a tender type.")
         }
     }
 
@@ -348,15 +318,15 @@ class TenderMovementService {
         amount >= MIN_AMOUNT_ADD_FLOAT && amount <= MAX_AMOUNT_ADD_FLOAT
     }
 
-    private validateBankTransferAmount(BigDecimal amount, List<String> failureMessages){
-        if (!(amount >= MIN_AMOUNT_BANK_TRANSFER && amount <= MAX_AMOUNT_BANK_TRANSFER)){
+    private validateBankTransferAmount(BigDecimal amount, List<String> failureMessages) {
+        if (!(amount >= MIN_AMOUNT_BANK_TRANSFER && amount <= MAX_AMOUNT_BANK_TRANSFER)) {
             failureMessages.add("Bank deposit amount must be between ${MIN_AMOUNT_BANK_TRANSFER} and ${MAX_AMOUNT_BANK_TRANSFER}.")
         }
     }
 
-    private validateBankTransferTenderType(TenderType tenderType, List<String> failureMessages){
-        if (tenderType != TenderType.CASH){
-            failureMessages.add("Only cash tender type allowed.")
+    private validateBankTransferTenderType(TenderType tenderType, List<String> failureMessages) {
+        if (!tenderType?.eligibleForBanking) {
+            failureMessages.add("Selected tender is not eligible for banking.")
         }
     }
 

@@ -21,7 +21,7 @@
         handleResponseMessages(successMessage, errorMessage);
     });
 
-    function processBankDepositActionButton(){
+    function processBankDepositActionButton() {
         // Remove any existing click handlers for #tender-lift-save
         $(document).off('click', '#bank-deposit-save');
 
@@ -61,14 +61,12 @@
             $("#messages-container").append(errorHtml);
         }
     }
-
 </script>
-
 
 <div id="bankDeposit" class="centered-content">
     <div class="form-container">
 
-        <section id="bank-deposit-details"> <div id="messages-container"></div></section>
+        <section id="bank-deposit-details" class="container-fluid px-0"><div id="messages-container"></div></section>
 
         <section class="mt-1">
             <g:form method="post" action="processBankDeposit" class="mt-1" name="processBankDeposit">
@@ -83,14 +81,8 @@
                                       class="form-control select-border"/>
                         </div>
                         <div class="form-group">
-                            <label for="tender" class="col-form-label">Tender</label>
-                            <g:select
-                                    name="tempTenderField"
-                                    from="${tenders}"
-                                    disabled="disabled"
-                                    optionValue="${{ it.toString().toLowerCase().capitalize() }}"
-                                    class="form-control select-border"/>
-                            <g:hiddenField name="tender" value="${tenders.get(0).toString()}"/>
+                            <label for="tenderTypeId" class="col-form-label">Tender</label>
+                            <g:select name="tenderTypeId" from="${tenders}" optionKey="id" optionValue="name" class="form-control select-border" />
                         </div>
                     </div>
                     <div class="form-col">

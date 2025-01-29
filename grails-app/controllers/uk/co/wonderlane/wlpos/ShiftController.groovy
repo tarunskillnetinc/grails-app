@@ -116,7 +116,7 @@ class ShiftController {
                     // For that select if no have create safe location
                     def safes = safeService.getStoreSafes()
                     def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
-                    //TODOCDMERGE new modal created? Used to use cashUpSummaryModal now uses finalize, used to be a isShiftFinalizeMode:true assume not needed anymore.
+
                     render(template: "cashUpFinalizeModal", model: [shift: shift, safes: safes, varianceReasons:varianceReasons, tenderTypes: applicableTenderTypes])
                     return
                 }
@@ -213,7 +213,7 @@ class ShiftController {
 
                 if (shift.getShiftStatus() == ShiftStatus.RECONCILED && !shiftService.isShiftRecountAmountNotExceed(shift)) {
                     def safes = safeService.getStoreSafes()
-                    //TODOCDMERGE as above, changed from cashUpSummaryModal to cashUpFinalizeModal
+
                     render(template: "cashUpFinalizeModal", model: [shift: shift, safes: safes, varianceReasons:varianceReasons, tenderTypes: applicableTenderTypes])
                     return
                 }

@@ -52,7 +52,7 @@
             $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
             $('#tenderMovementType').prop("selectedIndex", 0);
-            $('#tenderType').prop("selectedIndex", 0);
+            $('#tenderTypeId').prop("selectedIndex", 0);
             $('#storeId').prop("selectedIndex", 0);
         }
     </script>
@@ -101,11 +101,9 @@
                                               valueMessagePrefix="TenderMovementType" class="form-control select-border" />
                                 </div>
 
-                                <label for="tenderType" class="col-2 col-form-label-sm text-right">Tender Type</label>
+                                <label for="tenderTypeId" class="col-2 col-form-label-sm text-right">Tender Type</label>
                                 <div class="col-4">
-                                    <g:select name="tenderType" from="${tenderTypes}"
-                                              noSelection="['':'All Tender Types']" value="${tenderType}"
-                                              valueMessagePrefix="TenderType" class="form-control select-border" />
+                                    <g:select name="tenderTypeId" from="${tenderTypes}" noSelection="['':'All Tender Types']" optionKey="id" optionValue="name" value="${tenderTypeId}" class="form-control select-border" />
                                 </div>
                             </div>
 

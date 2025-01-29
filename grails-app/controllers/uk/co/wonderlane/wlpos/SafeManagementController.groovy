@@ -98,7 +98,6 @@ class SafeManagementController {
                                                                    isSafeFinalisingWarningRequired: isSafeFinalisingWarningRequired,
                                                                    tenderTypes: applicableTenderTypes])
                 } else {
-                    //TODO CDMERGE
                     safeSession.transferPendingTotals() // if counting then pending totals need to be included
 
                     applicableTenderTypes?.removeAll { it.cashTender } // Cash is handled completely separately.
@@ -108,11 +107,13 @@ class SafeManagementController {
                 }
             } else {
                 String errorMsg = "Failed to reconcile safe ${safeDescription}. Already reconciled."
+
                 if (isRecount) {
                     errorMsg = "Failed to recount safe ${safeDescription}. Already recounted."
                 } else if (isFinalise) {
                     errorMsg = "Failed to finalise safe ${safeDescription}. Already finalised."
                 }
+
                 render(status: 400, contentType: 'application/json', message: errorMsg)
             }
         } catch (Exception ex) {
@@ -134,7 +135,7 @@ class SafeManagementController {
 
                 def varianceReasons = reasonCodeService.getReasonCodesByType(safeSession.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)
 
-                safeManagementService.processInterimReconciliationSave(safeSessionCashUpCommand, safeSession)
+                safeSession = safeManagementService.processInterimReconciliationSave(safeSessionCashUpCommand, safeSession)
 
                 def cashManagementConfig = cashManagementService.getCashManagementConfig(safeSession.getRetailerId(), safeSession.getStoreId())
                 def tillSafeSessionVarianceLimit = cashManagementConfig ? new BigDecimal(cashManagementConfig.getSafeVarianceLimit()).movePointLeft(2) : 0.00
@@ -191,7 +192,6 @@ class SafeManagementController {
                     List<TenderTotal> tenderTotals = safeSession.getCombinedReconciledAndPendingTotals()
 
                     //If safe is active or if save is inactive but have cash to move then create new safe session and assign counted values to new session
-                    //TODOCDMERGE check the any works.
                     if (safe.active || tenderTotals?.any { it.value != BigDecimal.ZERO }) {
                         safeManagementService.createNewSafeSessionWithTenderTotals(safe.retailerId, safe.storeId, safe.id, tenderTotals, false)
                     }
