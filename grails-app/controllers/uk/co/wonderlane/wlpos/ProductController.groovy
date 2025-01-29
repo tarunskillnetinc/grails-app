@@ -1746,6 +1746,7 @@ class ProductController extends BaseController {
         if (category != null) {
             restrictions = category.restrictions
         }
+
         //when rendering restriction tab manually set isNewProduct to false since category mapped restriction should be loaded rather default values
         render(view: "/product/_restrictions", model: [restrictions: restrictions, productOpenPrice: productOpenPrice, isNewProduct: false])
     }
