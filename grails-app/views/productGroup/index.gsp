@@ -98,48 +98,6 @@
                 <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
             </g:if>
 
-%{--            <div class="row mt-4">--}%
-%{--                <div class="col-6">--}%
-%{--                    <div class="card bg-light border-wl">--}%
-%{--                        <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">--}%
-%{--                            <div class="row">--}%
-%{--                                <div class="col-10">Filters</div>--}%
-%{--                                <div class="col-2 text-right">--}%
-%{--                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">--}%
-%{--                                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>--}%
-%{--                                    </svg>--}%
-%{--                                </div>--}%
-%{--                            </div>--}%
-%{--                        </div>--}%
-
-%{--                        <div class="card-body collapse" id="filterCollapse">--}%
-%{--                            <div class="form-group row">--}%
-%{--                                <label for="productGroupSearchTerm"--}%
-%{--                                       class="col-2 col-form-label-sm text-right">Search Term</label>--}%
-%{--                                <div class="col-10 input-group">--}%
-%{--                                    <g:textField id="productGroupSearchTerm" name="productGroupSearchTerm"--}%
-%{--                                                 maxlength="100" class="form-control" placeholder="Enter a search term."--}%
-%{--                                                 aria-describedby="select-addon2"/>--}%
-%{--                                    <div class="input-group-append">--}%
-%{--                                        <g:select id="productGroupSearchBy" name="productGroupSearchBy"--}%
-%{--                                                  from="${['everything', 'description', 'tagId']}" value="everything"--}%
-%{--                                                  valueMessagePrefix="ProductGroupSearchBy"--}%
-%{--                                                  class="form-control select-border" style="z-index: 0;"/>--}%
-%{--                                    </div>--}%
-%{--                                </div>--}%
-%{--                            </div>--}%
-
-%{--                            <div class="form-group row">--}%
-%{--                                <div class="col-4 offset-8 text-right">--}%
-%{--                                    <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>--}%
-%{--                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>--}%
-%{--                                </div>--}%
-%{--                            </div>--}%
-%{--                        </div>--}%
-%{--                    </div>--}%
-%{--                </div>--}%
-%{--            </div>--}%
-
             <div class="row mt-4">
                 <div class="col-6">
                     <div class="card bg-light border-wl">
