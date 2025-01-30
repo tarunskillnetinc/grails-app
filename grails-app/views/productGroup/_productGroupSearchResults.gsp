@@ -14,15 +14,27 @@
 
 <g:each in="${productGroups}" var="productGroup" status="i">
     <div id="productGroup-${i + 1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable pointer"
-         title="Click to view."
-         onclick="document.location.href = '${createLink(action:'show', id: productGroup.id)}';">
-        <div id="productGroup-${i + 1}-id" class="col-2">${productGroup.id}</div>
-
-        <div id="productGroup-${i + 1}-description" class="col-6">${productGroup.description}</div>
-
+         title="Click to view." onclick="document.location.href = '${createLink(action:'show', id: productGroup.id)}';">
+        <div id="productGroup-${i + 1}-id" class="col-1">${productGroup.id}</div>
+        <div id="productGroup-${i + 1}-description" class="col-2">${productGroup.name}</div>
+        <div id="productGroup-${i + 1}-description" class="col-2">
+            <g:if test="${productGroup?.startDate}">
+                <g:formatDate format="dd/MM/yyyy" date="${productGroup?.startDate?.toDate()}"/>
+            </g:if>
+            <g:else>&nbsp;</g:else>
+        </div>
+        <div id="productGroup-${i + 1}-description" class="col-2">
+            <g:if test="${productGroup?.endDate}">
+                <g:formatDate format="dd/MM/yyyy" date="${productGroup?.endDate?.toDate()}"/>
+            </g:if>
+            <g:else>&nbsp;</g:else>
+        </div>
+        <div id="productGroup-${i + 1}-description" class="col-2">${productGroup.name}</div>
         <div id="productGroup-${i + 1}-prod-count" class="col-2">${productGroup.productGroupProducts?.size()}</div>
-
-        <div id="productGroup-${i + 1}-max-sell-quantity" class="col-2">${productGroup.maxSellQuantity}</div>
+        <div id="productGroup-${i + 1}-max-sell-quantity" class="col-1">
+            <g:if test="${productGroup?.active}">Active</g:if>
+            <g:else>Inactive</g:else>
+        </div>
     </div>
 </g:each>
 

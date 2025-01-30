@@ -1,6 +1,6 @@
 package uk.co.wonderlane.wlpos
 
-import org.joda.time.LocalDate
+import org.joda.time.DateTime
 
 class ProductGroup {
 
@@ -8,8 +8,8 @@ class ProductGroup {
     int retailerId
     String name
     boolean hidden
-    LocalDate startDate
-    LocalDate endDate
+    DateTime startDate
+    DateTime endDate
     String timeRestriction
     Integer maxSellQuantity
     Integer maxSellQty
@@ -24,8 +24,8 @@ class ProductGroup {
         retailerId column: "retailerId", sqlType: "tinyint unsigned"
         name column: "name"
         hidden column: "hidden"
-        startDate column: "startDate", type: "date"
-        endDate column: "endDate", type: "date"
+        startDate column: "startDate"
+        endDate column: "endDate"
         timeRestriction column: "timeRestriction", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         maxSellQuantity column: "maxSellQuantity"
         maxSellQty column: "maxSellQty"

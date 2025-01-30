@@ -5,8 +5,30 @@
 
         <title>Product Group Management</title>
 
+        <asset:stylesheet src="bootstrap-datepicker3.min.css" />
+        <asset:javascript src="bootstrap-datepicker.min.js" />
+
         <script type="text/javascript">
             $(document).ready(function () {
+
+                $('#startDateFilter').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
+
+                $('#endDateFilter').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
+
                 $('#productGroupSearchTerm').on('keyup', function (event) {
                     if (event.key === 'Enter') {
                         search();
@@ -49,7 +71,7 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Product Groups</li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Product Group Management</li>
                         </ol>
                     </div>
                 </div>
@@ -59,7 +81,7 @@
         <section id="central-count-search" class="container-fluid">
             <div class="row header-wl mt-3">
                 <div class="col-8 offset-2">
-                    <h2 id="tag-page-title" class="mx-auto">Product Groups</h2>
+                    <h2 id="tag-page-title" class="mx-auto">Product Group Management</h2>
                 </div>
 
                 <div class="col-2 text-right">
@@ -90,39 +112,67 @@
                             </div>
                         </div>
 
-                        <div class="card-body collapse" id="filterCollapse">
+                        <div class="card-body collapse show" id="filterCollapse">
                             <div class="form-group row">
-                                <label for="productGroupSearchTerm"
-                                       class="col-2 col-form-label-sm text-right">Search Term</label>
+                                <label for="productGroupSearchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
                                 <div class="col-10 input-group">
-                                    <g:textField id="productGroupSearchTerm" name="productGroupSearchTerm"
-                                                 maxlength="100" class="form-control" placeholder="Enter a search term."
-                                                 aria-describedby="select-addon2"/>
+                                    <g:textField id="productGroupSearchTerm" name="productGroupSearchTerm" maxlength="100" value="${session.PROMOTION_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
+
                                     <div class="input-group-append">
                                         <g:select id="productGroupSearchBy" name="productGroupSearchBy"
                                                   from="${['everything', 'description', 'tagId']}" value="everything"
+                                                  value="everything"
                                                   valueMessagePrefix="ProductGroupSearchBy"
-                                                  class="form-control select-border" style="z-index: 0;"/>
+                                                  class="form-control select-border" style="z-index: 0;" />
                                     </div>
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-4 offset-8 text-right">
-                                    <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
-                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>
+                                <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
+                                <div class="col-4">
+                                    <g:textField name="startDate" onkeydown="return false" id="startDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                </div>
+
+                                <label for="endDate" class="col-2 col-form-label-sm text-right">End Since</label>
+                                <div class="col-4">
+                                    <g:textField name="endDate" onkeydown="return false" id="endDateFilter" class="form-control bottom-border" autocomplete="off"/>
                                 </div>
                             </div>
+
+                            <div class="form-group row">
+                                <label for="status" class="col-2 col-form-label-sm text-right">Status</label>
+                                <div class="col-4">
+                                    <g:select name="status" id="statusFilter" from="${['ACTIVE', 'INACTIVE']}" valueMessagePrefix="PromotionStatus" noSelection="['': '']" class="form-control select-border"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="loyalty" class="col-2 col-form-label-sm text-right">Active only</label>
+                                <div class="col-4">
+                                    <g:checkBox name="enable" id="loyaltyFilter" class="form-check-input loy-checkbox promo-loyalty"/>
+                                </div>
+                                <div class="col-6  text-right">
+                                    <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked()">Search</button>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
 
+
+
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                <div class="col-2 font-weight-bold">ProductGroup ID</div>
-                <div class="col-6 font-weight-bold">Description</div>
+                <div class="col-1 font-weight-bold">Product Group ID</div>
+                <div class="col-2 font-weight-bold">Description</div>
+                <div class="col-2 font-weight-bold">Start Date</div>
+                <div class="col-2 font-weight-bold">End Date</div>
+                <div class="col-2 font-weight-bold">Restriction Type</div>
                 <div class="col-2 font-weight-bold">Product Count</div>
-                <div class="col-2 font-weight-bold">Maximum Sell Quantity</div>
+                <div class="col-1 font-weight-bold">Status</div>
             </div>
 
             <div id="search-results" class="align-content-center">
