@@ -5,8 +5,30 @@
 
         <title>Product Group Management</title>
 
+        <asset:stylesheet src="bootstrap-datepicker3.min.css" />
+        <asset:javascript src="bootstrap-datepicker.min.js" />
+
         <script type="text/javascript">
             $(document).ready(function () {
+
+                $('#startDateFilter').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
+
+                $('#endDateFilter').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
+
                 $('#productGroupSearchTerm').on('keyup', function (event) {
                     if (event.key === 'Enter') {
                         search();
@@ -149,26 +171,14 @@
                             </div>
 
                             <div class="form-group row">
-                                <label for="validDate" class="col-2 col-form-label-sm text-right">Date Valid</label>
+                                <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                 <div class="col-4">
-                                    <g:textField name="validDate" onkeydown="return false" id="validDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                    <g:textField name="startDate" onkeydown="return false" id="startDateFilter" class="form-control bottom-border" autocomplete="off"/>
                                 </div>
 
-                                <label for="updatedDate" class="col-2 col-form-label-sm text-right">Updated Since</label>
+                                <label for="endDate" class="col-2 col-form-label-sm text-right">End Since</label>
                                 <div class="col-4">
-                                    <g:textField name="updatedDate" onkeydown="return false" id="updatedDateFilter" class="form-control bottom-border" autocomplete="off"/>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="types" class="col-2 col-form-label-sm text-right">Type</label>
-                                <div class="col-4">
-                                    <g:select name="types" id="typeFilter" placeholder="Please Select" from="${types}" optionValue="friendlyName" noSelection="['': '']" class="form-control select-border"/>
-                                </div>
-
-                                <label for="supplier" class="col-2 col-form-label-sm text-right">Supplier</label>
-                                <div class="col-4">
-                                    <g:select name="supplier" id="supplierFilter" from="${symbolGroups}" optionValue="name" optionKey="id" noSelection="['': '']" class="form-control select-border"/>
+                                    <g:textField name="endDate" onkeydown="return false" id="endDateFilter" class="form-control bottom-border" autocomplete="off"/>
                                 </div>
                             </div>
 
@@ -178,18 +188,18 @@
                                     <g:select name="status" id="statusFilter" from="${['ACTIVE', 'INACTIVE']}" valueMessagePrefix="PromotionStatus" noSelection="['': '']" class="form-control select-border"/>
                                 </div>
                             </div>
+
                             <div class="form-group row">
-                                <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.loyaltyRetailerConfig.isLoyaltyEnabled').toBoolean()}">
-                                    <label for="loyalty" class="col-2 col-form-label-sm text-right">Loyalty only</label>
-                                    <div class="col-4">
-                                        <g:checkBox name="loyalty" id="loyaltyFilter" class="form-check-input loy-checkbox promo-loyalty"/>
-                                    </div>
-                                </g:if>
+                                <label for="loyalty" class="col-2 col-form-label-sm text-right">Active only</label>
+                                <div class="col-4">
+                                    <g:checkBox name="enable" id="loyaltyFilter" class="form-check-input loy-checkbox promo-loyalty"/>
+                                </div>
                                 <div class="col-4 offset-2 text-right">
                                     <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked()">Search</button>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
