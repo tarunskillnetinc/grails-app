@@ -195,6 +195,7 @@ function expandAndSelectAllChildCategories(parentCategoryId) {
                     var childId = $(this).val();
                     $(this).prop('checked', true); // Select the child checkbox
                     selectedCategories.add(String(childId));
+                    unselectedCategories.delete(String(childId));
                     expandAndSelectAllChildCategories(childId); // Recursive call for child categories
                 });
             }
@@ -207,6 +208,7 @@ function expandAndSelectAllChildCategories(parentCategoryId) {
             var childId = $(this).val();
             $(this).prop('checked', true); // Select the child checkbox
             selectedCategories.add(String(childId));
+            unselectedCategories.delete(String(childId));
             expandAndSelectAllChildCategories(childId); // Recursive call for child categories
         });
     }
