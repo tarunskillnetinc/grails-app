@@ -31,6 +31,14 @@
         let categorySearchUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxSearchCategories')}";
         let categoryFilterUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxFilterValidCategories')}";
 
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector("form[name='partner-category-form']").addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault(); // Prevent form submission
+                }
+            });
+        });
+
         function handleCancelAddPartnerCategory(url) {
             confirmAndSubmit("Are you sure you want to cancel ?", function() {
                 cancelAddPartnerCategory(url);

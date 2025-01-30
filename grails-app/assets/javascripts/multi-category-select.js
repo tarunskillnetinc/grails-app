@@ -27,12 +27,13 @@ function searchCategories(e, level, triggerOnCategoryChange, searchTerm, selecte
     searchInProgress = true;
 
     currentTimeout = setTimeout(function() {
-        var currentselectedIds = getCurrentSelectedCategoryIds(selectedCategoryIds, selectedCategories, unselectedCategories)
+        var currentSelectedIds = getCurrentSelectedCategoryIds(selectedCategoryIds, selectedCategories, unselectedCategories)
+
         var params = {};
         params["level"] = level;
         params["triggerOnCategoryChange"] = triggerOnCategoryChange;
         params["searchTerm"] = searchTerm;
-        params["selectedCategoryId"] = currentselectedIds;
+        params["selectedCategoryId"] = currentSelectedIds;
         params["specialId"] = specialId;
 
         $.ajax({
@@ -41,7 +42,7 @@ function searchCategories(e, level, triggerOnCategoryChange, searchTerm, selecte
             data: params,
             success: function(resp) {
                 $("#category-container-results").html(resp);
-                setCheckboxClickAction('#categoryContainer-' + categoryId + ' input[name="category.id[]"]');
+                setCheckboxClickAction('#category-container-results input[name="category.id[]"]');
                 searchInProgress = false;
             }
         });
@@ -100,19 +101,13 @@ function expandCollapseCategory(categoryId, level, selectedCategoryId, triggerOn
     if (expanded === "true") {
         plusMinusButton.text("+");
         plusMinusButton.attr("aria-expanded", "false");
-
-        // Store the current state of checkboxes before collapsing
-        // checkboxStates[categoryId] = getCheckboxStates(categoryId);
-
         $("#categoryContainer-" + categoryId).html("");
-
-      //  $('#category-' + categoryId).prop('checked', false);
     } else {
-        var currentselectedIds = getCurrentSelectedCategoryIds(selectedCategoryIds, selectedCategories, unselectedCategories)
+        var currentSelectedIds = getCurrentSelectedCategoryIds(selectedCategoryId, selectedCategories, unselectedCategories)
         var params = {};
         params["categoryId"] = categoryId;
         params["level"] = level;
-        params["selectedCategoryId"] = currentselectedIds;
+        params["selectedCategoryId"] = currentSelectedIds;
         params["triggerOnCategoryChange"] = triggerOnCategoryChange;
 
         $.ajax({
@@ -120,7 +115,6 @@ function expandCollapseCategory(categoryId, level, selectedCategoryId, triggerOn
             method: "GET",
             data: params,
             success: function (resp) {
-                console.log(resp)
                 plusMinusButton.text("-");
                 plusMinusButton.attr("aria-expanded", "true");
                 $("#categoryContainer-" + categoryId).html(resp);
@@ -138,8 +132,8 @@ function setCheckboxClickAction(selector) {
 
         if (isChecked) {
 
-            selectedCategories.add(categoryId);
-            unselectedCategories.delete(categoryId);
+            selectedCategories.add(String(categoryId));
+            unselectedCategories.delete(String(categoryId));
 
 
             //Ensure all parents are selected
@@ -153,8 +147,8 @@ function setCheckboxClickAction(selector) {
             expandAndSelectAllChildCategories(categoryId);
         } else {
 
-            unselectedCategories.add(categoryId);
-            selectedCategories.delete(categoryId);
+            unselectedCategories.add(String(categoryId));
+            selectedCategories.delete(String(categoryId));
 
 
             //Uncheck children and check if parent needs to be deselected
@@ -199,7 +193,8 @@ function expandAndSelectAllChildCategories(parentCategoryId) {
                 $("#categoryContainer-" + parentCategoryId + ' input[name="category.id[]"]').each(function () {
                     var childId = $(this).val();
                     $(this).prop('checked', true); // Select the child checkbox
-                    selectedCategories.add(childId);
+                    selectedCategories.add(String(childId));
+                    unselectedCategories.delete(String(childId));
                     expandAndSelectAllChildCategories(childId); // Recursive call for child categories
                 });
             }
@@ -211,7 +206,8 @@ function expandAndSelectAllChildCategories(parentCategoryId) {
         $("#categoryContainer-" + parentCategoryId + ' input[name="category.id[]"]').each(function () {
             var childId = $(this).val();
             $(this).prop('checked', true); // Select the child checkbox
-            selectedCategories.add(childId);
+            selectedCategories.add(String(childId));
+            unselectedCategories.delete(String(childId));
             expandAndSelectAllChildCategories(childId); // Recursive call for child categories
         });
     }
@@ -232,8 +228,8 @@ function uncheckAllChildCategories(categoryId) {
         var checkbox = $(this);
         var childId = checkbox.val();
         checkbox.prop('checked', false); // Uncheck the current child
-        unselectedCategories.add(childId);
-        selectedCategories.delete(childId);
+        unselectedCategories.add(String(childId));
+        selectedCategories.delete(String(childId));
         uncheckAllChildCategories(childId); // Recursively uncheck its children
     });
 
@@ -259,12 +255,12 @@ function updateParentCheckboxState(parentCategoryId) {
     // Update the parent checkbox state based on the state of its children
     if (allUnchecked) {
         parentCheckbox.prop('checked', false); // Uncheck the parent if all children are unchecked
-        unselectedCategories.add(parentCategoryId);
-        selectedCategories.delete(parentCategoryId);
+        unselectedCategories.add(String(parentCategoryId));
+        selectedCategories.delete(String(parentCategoryId));
     } else {
         parentCheckbox.prop('checked', true); // Ensure parent is checked if any child is checked
-        selectedCategories.add(parentCategoryId);
-        unselectedCategories.delete(parentCategoryId);
+        selectedCategories.add(String(parentCategoryId));
+        unselectedCategories.delete(String(parentCategoryId));
     }
 }
 
@@ -276,8 +272,8 @@ function selectParentCategories(categoryId) {
         var parentCheckbox = $('#category-' + parentId); // Get the parent checkbox
         parentCheckbox.prop('checked', true); // Check the parent checkbox
 
-        selectedCategories.add(parentId);
-        unselectedCategories.delete(parentId);
+        selectedCategories.add(String(parentId));
+        unselectedCategories.delete(String(parentId));
 
 
         // Recursively select the parent's parent
