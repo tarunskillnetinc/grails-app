@@ -104,8 +104,7 @@ function searchCategories(e, level, triggerOnCategoryChange, searchTerm, selecte
             success: function(resp) {
                 $("#category-container-results").html(resp);
 
-                setRadioClickAction('#' +
-                    ' input[name="category.id"]');
+                setRadioClickAction('#category-container-results input[name="category.id"]');
 
                 searchInProgress = false;
             }
