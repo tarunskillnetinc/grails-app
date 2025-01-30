@@ -118,11 +118,16 @@
                 </div>
             </div>
 
+
+
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                <div class="col-2 font-weight-bold">ProductGroup ID</div>
-                <div class="col-6 font-weight-bold">Description</div>
+                <div class="col-1 font-weight-bold">Product Group ID</div>
+                <div class="col-2 font-weight-bold">Description</div>
+                <div class="col-2 font-weight-bold">Start Date</div>
+                <div class="col-2 font-weight-bold">End Date</div>
+                <div class="col-2 font-weight-bold">Restriction Type</div>
                 <div class="col-2 font-weight-bold">Product Count</div>
-                <div class="col-2 font-weight-bold">Maximum Sell Quantity</div>
+                <div class="col-1 font-weight-bold">Status</div>
             </div>
 
             <div id="search-results" class="align-content-center">
