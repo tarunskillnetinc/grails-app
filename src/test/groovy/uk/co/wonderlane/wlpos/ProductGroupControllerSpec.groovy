@@ -228,7 +228,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         skus[0] = 100
         skus[1] = 200
         saveProductGroupCommand.setSku(skus)
-        saveProductGroupCommand.setDescription("Test Command")
+        saveProductGroupCommand.setName("Test Command")
         controller.save(saveProductGroupCommand)
 
         then: 'save action response is correct'
@@ -250,7 +250,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         SaveProductGroupCommand saveProductGroupCommand = new SaveProductGroupCommand()
         Long[] skus = new Long[0]
         saveProductGroupCommand.setSku(skus)
-        saveProductGroupCommand.setDescription("Test Command")
+        saveProductGroupCommand.setName("Test Command")
         controller.save(saveProductGroupCommand)
 
         then: 'save action response is correct'
@@ -282,7 +282,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         Long[] skus = new Long[1]
         skus[0] = 100
         saveProductGroupCommand.setSku(skus)
-        saveProductGroupCommand.setDescription("Test Command")
+        saveProductGroupCommand.setName("Test Command")
         controller.save(saveProductGroupCommand)
 
         then: 'save action response is correct'

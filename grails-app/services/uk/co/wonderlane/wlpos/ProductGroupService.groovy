@@ -7,7 +7,7 @@ class ProductGroupService {
 
     def springSecurityService
 
-    def getProductGroups(String searchTerm = null, String searchBy = "everything", int offset = 0, int max = 50, String sort = "description", String order = "ASC") {
+    def getProductGroups(String searchTerm = null, String searchBy = "everything", int offset = 0, int max = 50, String sort = "name", String order = "ASC") {
         return ProductGroup.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             eq ("hidden", false)
@@ -17,13 +17,13 @@ class ProductGroupService {
                     if (searchTerm.isNumber()) {
                         or {
                             sqlRestriction "cast( id AS char( 256 )) like '%${searchTerm}%'";
-                            like("description", "%$searchTerm%")
+                            like("name", "%$searchTerm%")
                         }
                     } else {
-                        like("description", "%$searchTerm%")
+                        like("name", "%$searchTerm%")
                     }
-                } else if (searchBy == "description") {
-                    like("description", "%$searchTerm%")
+                } else if (searchBy == "name") {
+                    like("name", "%$searchTerm%")
                 } else if (searchBy == "productGroupId") {
                     sqlRestriction "cast( id AS char( 256 )) like '%${searchTerm}%'"
                 }

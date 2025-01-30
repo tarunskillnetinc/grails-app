@@ -108,7 +108,7 @@ class PromotionController {
         promotionGroup.type = PromotionGroupType.valueOf(promotionGroupType.toUpperCase())
         promotionGroup.sku = id
 
-        render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: productVariant?.product?.description, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
+        render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: productVariant?.product?.name, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
     }
 
     def ajaxGetProductGroup(int id, String promotionType, String promotionGroupType, int groupId) {
@@ -120,7 +120,7 @@ class PromotionController {
         promotionGroup.type = PromotionGroupType.valueOf(promotionGroupType.toUpperCase())
         promotionGroup.productGroupId = id
 
-        render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: tag.description, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
+        render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: tag.name, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
     }
 
     def ajaxGetCategory(int id, String promotionType, String promotionGroupType, int groupId) {
@@ -397,8 +397,8 @@ class PromotionController {
     }
 
     def productGroupSearch() {
-        def productGroups = ProductGroup.findAllByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false, [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
-        def totalResults = ProductGroup.countByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false)
+        def productGroups = ProductGroup.findAllByRetailerIdAndNameLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false, [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
+        def totalResults = ProductGroup.countByRetailerIdAndNameLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false)
 
         render(template: "/promotion/productGroupSearchResults", model: [productGroups: productGroups, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
     }

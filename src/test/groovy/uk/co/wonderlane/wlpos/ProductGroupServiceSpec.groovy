@@ -24,7 +24,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         productGroup.setProductGroupProducts(productGroupProducts)
         productGroup.setRetailerId(9)
         productGroup.setHidden(false)
-        productGroup.setDescription("test prefixsearchkeywordsuffix other text")
+        productGroup.setName("test prefixsearchkeywordsuffix other text")
         productGroupProduct.setProductGroupId(productGroup)
         productGroup.save()
 
@@ -55,7 +55,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         productGroup.setProductGroupProducts(productGroupProducts)
         productGroup.setRetailerId(100)
         productGroup.setHidden(false)
-        productGroup.setDescription("test prefixsearchkeywordsuffix other text")
+        productGroup.setName("test prefixsearchkeywordsuffix other text")
         productGroupProduct.setProductGroupId(productGroup)
         productGroup.save()
 
@@ -83,7 +83,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         service.springSecurityService = getFakeSpringSecurityService()
 
         ProductGroup productGroup = new ProductGroup(retailerId: 9)
-        productGroup.setDescription("test description")
+        productGroup.setName("test description")
 
         productGroup.setId(100)
 
@@ -101,7 +101,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         service.springSecurityService = getFakeSpringSecurityService()
 
         ProductGroup productGroup = new ProductGroup(retailerId: 9)
-        productGroup.setDescription("test description")
+        productGroup.setName("test description")
         productGroup.setId(100)
 
         mockDomain(ProductGroup, [productGroup])
@@ -119,7 +119,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         given:
         ProductGroup testTag = new ProductGroup(retailerId: 9)
         testTag.setId(100)
-        testTag.setDescription("test description")
+        testTag.setName("test description")
 
         when: 'saveProductGroup action is executed'
         ProductGroup serviceResponse = service.saveProductGroup(testTag)
@@ -135,7 +135,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         given:
         ProductGroup productGroup = new ProductGroup(retailerId: 9)
         productGroup.setId(100)
-        productGroup.setDescription("test description")
+        productGroup.setName("test description")
         ProductGroupProduct productGroupProduct = new ProductGroupProduct()
         productGroupProduct.setId(100)
         productGroupProduct.setProductGroupId(productGroup)

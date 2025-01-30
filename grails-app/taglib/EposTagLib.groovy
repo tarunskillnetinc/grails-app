@@ -497,7 +497,7 @@ class EposTagLib {
         if (attrs.promotionGroup.sku) {
             def productVariant = productService.getProductVariant(attrs.promotionGroup.sku)
 
-            out << productVariant?.product?.description
+            out << productVariant?.product?.name
         } else if (attrs.promotionGroup.categoryId) {
             def category = categoryService.getCategory(attrs.promotionGroup.categoryId)
 
@@ -505,7 +505,7 @@ class EposTagLib {
         } else if (attrs.promotionGroup.productGroupId) {
             def productGroup = productGroupService.getProductGroup(attrs.promotionGroup.productGroupId)
 
-            out << productGroup?.description
+            out << productGroup?.name
         }
     }
 

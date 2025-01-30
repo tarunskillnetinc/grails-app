@@ -26,13 +26,13 @@
                             <g:if test="${params.action == 'edit'}">
                                 <li id="breadcrumb-3" class="breadcrumb-item"><g:link controller="productGroup"
                                                                                       action="show"
-                                                                                      id="${productGroup.id}">${productGroup.description}</g:link></li>
+                                                                                      id="${productGroup.id}">${productGroup.name}</g:link></li>
                                 <li id="breadcrumb-4" class="breadcrumb-item active"
-                                    aria-current="page">${productGroup?.description ? "Edit Product Group" : "Add Product Group"}</li>
+                                    aria-current="page">${productGroup?.name ? "Edit Product Group" : "Add Product Group"}</li>
                             </g:if>
                             <g:else>
                                 <li id="breadcrumb-3" class="breadcrumb-item active"
-                                    aria-current="page">${productGroup?.description ? "Edit Product Group" : "Add Product Group"}</li>
+                                    aria-current="page">${productGroup?.name ? "Edit Product Group" : "Add Product Group"}</li>
                             </g:else>
                         </ol>
                     </div>
@@ -71,7 +71,7 @@
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="description" class="col-4 col-form-label text-right pr-4">Description</label>
                     <g:textField name="description" class="col-8 form-control bottom-border"
-                                 value="${productGroup?.description}" maxlength="50"/>
+                                 value="${productGroup?.name}" maxlength="50"/>
                 </div>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">

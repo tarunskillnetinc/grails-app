@@ -80,7 +80,7 @@ class PromotionServiceSpec extends Specification implements ServiceUnitTest<Prom
         category.setId(100)
         category.save(flush: true, failOnError: true)
 
-        ProductGroup productGroup = new ProductGroup(description: "Test")
+        ProductGroup productGroup = new ProductGroup(name: "Test")
         productGroup.setId(150)
         ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 250, productGroupId: productGroup)
         productGroupProduct.save(flush: true, failOnError: true)

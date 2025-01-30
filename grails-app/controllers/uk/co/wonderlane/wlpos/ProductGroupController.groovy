@@ -32,7 +32,7 @@ class ProductGroupController {
         productGroup?.productGroupProducts?.each { productGroupProduct ->
             Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
             productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
-            productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
+            productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.name
         }
 
         [productGroup: productGroup]
@@ -65,7 +65,7 @@ class ProductGroupController {
         productGroup.productGroupProducts.each { productGroupProduct ->
             Integer productVariantId = productVariants?.find { it.sku == productGroupProduct.sku }?.id
             productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
-            productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.description
+            productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.name
         }
 
         render(view: "add", model: [productGroup: productGroup])
@@ -107,7 +107,7 @@ class ProductGroupController {
         }
 
         productGroup.retailerId = springSecurityService.principal.retailerId
-        productGroup.description = cmd.description
+        productGroup.name = cmd.name
         productGroup.maxSellQuantity = cmd.maxSellQuantity
 
         def skusInProductGroup = productGroup.productGroupProducts?.collect { it.sku }
@@ -150,7 +150,7 @@ class ProductGroupController {
                 productGroup.productGroupProducts.each { productGroupProduct ->
                     Integer variantId = productVariants.find { it.sku == productGroupProduct.sku }?.id
                     productGroupProduct.productVariantId = variantId ? variantId : 0
-                    productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.description
+                    productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.name
                 }
             }
 
@@ -179,12 +179,12 @@ class ProductGroupController {
 class SaveProductGroupCommand {
 
     int id
-    String description
+    String name
     Integer maxSellQuantity
     Long[] sku
 
     static constraints = {
-        description nullable: false, blank: false, maxSize: 100
+        name nullable: false, blank: false, maxSize: 100
         maxSellQuantity nullable: true, min: 1, max: 999
         sku nullable: false
     }

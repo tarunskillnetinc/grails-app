@@ -16,7 +16,7 @@
                             <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link
                                     controller="productGroup" action="index">Product Group Management</g:link></li>
                             <li id="breadcrumb-3" class="breadcrumb-item active"
-                                aria-current="page">${productGroup?.description ?: "View Product Group"}</li>
+                                aria-current="page">${productGroup?.name ?: "View Product Group"}</li>
                         </ol>
                     </div>
                 </div>
@@ -48,7 +48,7 @@
             <div class="form-group row col-12 col-lg-6 mt-4">
                 <label for="description" class="col-4 col-form-label text-right pr-4">Description</label>
                 <g:textField name="description" class="col-8 form-control bottom-border"
-                             value="${productGroup?.description}" disabled="disabled"/>
+                             value="${productGroup?.name}" disabled="disabled"/>
             </div>
 
             <div class="form-group row col-12 col-lg-6 mt-4">

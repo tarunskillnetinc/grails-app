@@ -242,7 +242,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         product.variants.add(new ProductVariant(product: product, effectiveDate: DateTime.now()))
         product.save(flush: true, failOnError: true)
 
-        ProductGroup testProductGroup = new ProductGroup(description: "Test")
+        ProductGroup testProductGroup = new ProductGroup(name: "Test")
         testProductGroup.setId(150)
 
         ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100, productGroupId: testProductGroup)
@@ -297,7 +297,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         product.variants.add(new ProductVariant(product: product, effectiveDate: DateTime.now()))
         product.save(flush: true, failOnError: true)
 
-        ProductGroup testProductGroup = new ProductGroup(description: "Test")
+        ProductGroup testProductGroup = new ProductGroup(name: "Test")
         testProductGroup.setId(150)
 
         ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100, productGroupId: testProductGroup)
@@ -513,7 +513,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
 
         controller.flash.promotion = testPromotion
 
-        ProductGroup testTag = new ProductGroup(description: "Test")
+        ProductGroup testTag = new ProductGroup(name: "Test")
         testTag.setId(150)
 
         ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100, productGroupId: testTag)
@@ -564,7 +564,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
 
         controller.flash.promotion = testPromotion
 
-        ProductGroup testProductGroup = new ProductGroup(description: "Test")
+        ProductGroup testProductGroup = new ProductGroup(name: "Test")
         testProductGroup.setId(150)
 
         ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100, productGroupId: testProductGroup)
@@ -1223,7 +1223,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         controller.springSecurityService = getFakeSpringSecurityService()
         params.searchTerm = "Test"
 
-        ProductGroup testTag = new ProductGroup(description: "prefixTestsuffix", hidden: false)
+        ProductGroup testTag = new ProductGroup(name: "prefixTestsuffix", hidden: false)
         testTag.setId(150)
         testTag.save(flush: true, failOnError: true)
 
@@ -1270,7 +1270,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
             searchPromotions(_, _, _, _, _, _, _, _, _, _, _) >> result
         }
 
-        ProductGroup testTag = new ProductGroup(description: "prefixTestsuffix", hidden: false)
+        ProductGroup testTag = new ProductGroup(name: "prefixTestsuffix", hidden: false)
         testTag.setId(150)
         testTag.save(flush: true, failOnError: true)
 
@@ -1325,7 +1325,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
             searchPromotions(_, _, _, _, _, _, _, _, _, _, _) >> result
         }
 
-        ProductGroup testTag = new ProductGroup(description: "prefixTestsuffix", hidden: false)
+        ProductGroup testTag = new ProductGroup(name: "prefixTestsuffix", hidden: false)
         testTag.setId(150)
         testTag.save(flush: true, failOnError: true)
 
@@ -1405,14 +1405,14 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
 
         testPromotion.save(flush: true, failOnError: true)
 
-        ProductGroup testProductGroup1 = new ProductGroup(description: "Test 1")
+        ProductGroup testProductGroup1 = new ProductGroup(name: "Test 1")
         testProductGroup1.setId(150)
         ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100, productGroupId: testProductGroup1)
         productGroupProduct.save(flush: true, failOnError: true)
         testProductGroup1.productGroupProducts.add(productGroupProduct)
         testProductGroup1.save(flush: true, failOnError: true)
 
-        ProductGroup testProductGroup2 = new ProductGroup(description: "Test 2")
+        ProductGroup testProductGroup2 = new ProductGroup(name: "Test 2")
         testProductGroup2.setId(250)
 
         ProductGroupProduct productGroupProduct2 = new ProductGroupProduct(sku: 150, productGroupId: testProductGroup2)
