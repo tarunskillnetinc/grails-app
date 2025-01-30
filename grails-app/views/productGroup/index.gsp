@@ -40,6 +40,9 @@
                 var URL = "${createLink(controller: 'productGroup', action: 'ajaxGetProductGroups')}";
                 var searchTerm = $('#productGroupSearchTerm').val();
                 var searchBy = $('#productGroupSearchBy').val();
+                var startDate = $('#startDate').val();
+                var endDate = $('#endDate').val();
+                var status = $('#status').val();
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -99,8 +102,8 @@
             </g:if>
 
             <div class="row mt-4">
-                <div class="col-6">
-                    <div class="card bg-light border-wl">
+                <div class="col-7">
+                    <div class="card bg-light border-wl" >
                         <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                             <div class="row">
                                 <div class="col-10">Filters</div>
@@ -148,13 +151,13 @@
                             </div>
 
                             <div class="form-group row">
-                                <label for="loyalty" class="col-2 col-form-label-sm text-right">Active only</label>
+                                <label for="active" class="col-2 col-form-label-sm text-right">Active only</label>
                                 <div class="col-4">
-                                    <g:checkBox name="enable" id="loyaltyFilter" class="form-check-input loy-checkbox promo-loyalty"/>
+                                    <g:checkBox name="active" id="activeFilter" class="form-check-input loy-checkbox promo-status"/>
                                 </div>
                                 <div class="col-6  text-right">
                                     <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
-                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked()">Search</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>
                                 </div>
                             </div>
 

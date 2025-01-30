@@ -14,33 +14,28 @@ class ProductGroupController {
 
     def index() {
         def productGroups = productGroupService.getProductGroups()
-
         [productGroups: productGroups]
     }
 
     def show(int id) {
         def productGroup = productGroupService.getProductGroup(id)
-
         if (!productGroup) {
             flash.error = "Product Group not found."
             redirect(action: "index")
             return
         }
-
         def products = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
-
         productGroup?.productGroupProducts?.each { productGroupProduct ->
             Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
             productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
             productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.name
         }
-
         [productGroup: productGroup]
     }
 
     def ajaxGetProductGroups(String searchTerm, String searchBy) {
-        def productGroups = productGroupService.getProductGroups(searchTerm, searchBy, params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
-
+        def productGroups = productGroupService.
+                getProductGroups(searchTerm, searchBy, params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
         render(template: "productGroupSearchResults", model: [productGroups: productGroups,
                                                      searchTerm   : searchTerm,
                                                      max          : params.max ?: 50,
