@@ -1,5 +1,9 @@
 package uk.co.wonderlane.wlpos
 
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import org.springframework.validation.FieldError
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
@@ -33,16 +37,29 @@ class ProductGroupController {
         [productGroup: productGroup]
     }
 
-    def ajaxGetProductGroups(String searchTerm, String searchBy) {
-        def productGroups = productGroupService.
-                getProductGroups(searchTerm, searchBy, params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
-        render(template: "productGroupSearchResults", model: [productGroups: productGroups,
-                                                     searchTerm   : searchTerm,
-                                                     max          : params.max ?: 50,
-                                                     offset       : params.offset])
-    }
-
-    def add() {
+    def ajaxGetProductGroups() {
+        try {
+            DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+            String searchTerm = params.searchTerm
+            String searchBy = params.searchBy
+            DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
+            DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
+            Boolean status = params.status != null ? params.status.toString().equalsIgnoreCase("ACTIVE") : null
+            def productGroups = productGroupService.getProductGroups(
+                    searchTerm,
+                    searchBy,
+                    startDate,
+                    endDate,
+                    status,
+                    params.offset ? Integer.parseInt(params.offset) : 0,
+                    params.max ? Integer.parseInt(params.max) : 50)
+            render(template: "productGroupSearchResults", model: [productGroups: productGroups,
+                                                                  searchTerm   : searchTerm,
+                                                                  max          : params.max ?: 50,
+                                                                  offset       : params.offset])
+        } catch (Exception ex) {
+            log.error("Error searching product group, Exception " + ex.getMessage(), ex)
+        }
 
     }
 

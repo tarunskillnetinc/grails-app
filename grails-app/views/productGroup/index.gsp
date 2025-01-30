@@ -36,13 +36,19 @@
                 });
             });
 
-            function search() {
-                var URL = "${createLink(controller: 'productGroup', action: 'ajaxGetProductGroups')}";
-                var searchTerm = $('#productGroupSearchTerm').val();
-                var searchBy = $('#productGroupSearchBy').val();
-                var startDate = $('#startDate').val();
-                var endDate = $('#endDate').val();
-                var status = $('#status').val();
+            function getProductGroups() {
+                $('#results-container').html("");
+                $("#loading-indicator").show();
+
+                var filterParams = {};
+
+                $("#filtersForm input").each(function() {
+                    filterParams[$(this).attr("name")] = $(this).val();
+                }).get();
+
+                $("#filtersForm select").each(function() {
+                    filterParams[$(this).attr("name")] = $(this).find(":selected").val();
+                }).get();
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -51,13 +57,14 @@
                     "</div>");
 
                 $.ajax({
-                    url: URL,
-                    data: { searchTerm: searchTerm, searchBy: searchBy },
+                    url: "${createLink(controller: 'productGroup', action: 'ajaxGetProductGroups')}",
+                    data: filterParams,
                     success: function(resp) {
                         $('#search-results').html(resp);
                     }
-                })
+                });
             }
+
 
             function resetForm() {
                 document.getElementById('productGroupSearchTerm').value = null;
@@ -116,51 +123,48 @@
                         </div>
 
                         <div class="card-body collapse show" id="filterCollapse">
-                            <div class="form-group row">
-                                <label for="productGroupSearchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
-                                <div class="col-10 input-group">
-                                    <g:textField id="productGroupSearchTerm" name="productGroupSearchTerm" maxlength="100" value="${session.PROMOTION_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
+                            <g:form name="filtersForm" id="filtersForm" >
+                                <div class="form-group row">
+                                    <label for="productGroupSearchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
+                                    <div class="col-10 input-group">
+                                        <g:textField id="productGroupSearchTerm" name="productGroupSearchTerm" maxlength="100" value="${session.PROMOTION_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
 
-                                    <div class="input-group-append">
-                                        <g:select id="productGroupSearchBy" name="productGroupSearchBy"
-                                                  from="${['everything', 'description', 'tagId']}" value="everything"
-                                                  value="everything"
-                                                  valueMessagePrefix="ProductGroupSearchBy"
-                                                  class="form-control select-border" style="z-index: 0;" />
+                                        <div class="input-group-append">
+                                            <g:select id="productGroupSearchBy" name="productGroupSearchBy"
+                                                      from="${['everything', 'description', 'tagId']}" value="everything"
+                                                      value="everything"
+                                                      valueMessagePrefix="ProductGroupSearchBy"
+                                                      class="form-control select-border" style="z-index: 0;" />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group row">
-                                <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
-                                <div class="col-4">
-                                    <g:textField name="startDate" onkeydown="return false" id="startDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                <div class="form-group row">
+                                    <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
+                                    <div class="col-4">
+                                        <g:textField name="startDate" onkeydown="return false" id="startDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                    </div>
+
+                                    <label for="endDate" class="col-2 col-form-label-sm text-right">End Since</label>
+                                    <div class="col-4">
+                                        <g:textField name="endDate" onkeydown="return false" id="endDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                    </div>
                                 </div>
 
-                                <label for="endDate" class="col-2 col-form-label-sm text-right">End Since</label>
-                                <div class="col-4">
-                                    <g:textField name="endDate" onkeydown="return false" id="endDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                <div class="form-group row">
+                                    <label for="status" class="col-2 col-form-label-sm text-right">Status</label>
+                                    <div class="col-4">
+                                        <g:select name="status" id="statusFilter" from="${['ACTIVE', 'INACTIVE']}" valueMessagePrefix="PromotionStatus" noSelection="['': '']" class="form-control select-border"/>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group row">
-                                <label for="status" class="col-2 col-form-label-sm text-right">Status</label>
-                                <div class="col-4">
-                                    <g:select name="status" id="statusFilter" from="${['ACTIVE', 'INACTIVE']}" valueMessagePrefix="PromotionStatus" noSelection="['': '']" class="form-control select-border"/>
+                                <div class="form-group row">
+                                    <div class="col-6  text-right">
+                                        <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                                        <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getProductGroups()">Search</button>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="active" class="col-2 col-form-label-sm text-right">Active only</label>
-                                <div class="col-4">
-                                    <g:checkBox name="active" id="activeFilter" class="form-check-input loy-checkbox promo-status"/>
-                                </div>
-                                <div class="col-6  text-right">
-                                    <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
-                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>
-                                </div>
-                            </div>
-
+                            </g:form>
                         </div>
                     </div>
                 </div>
