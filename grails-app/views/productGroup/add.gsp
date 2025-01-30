@@ -12,22 +12,73 @@
     <asset:javascript src="validators/input-validator.js" />
     <asset:javascript src="bootstrap-timepicker.min.js"/>
 
+    <style>
+    .bootstrap-timepicker-widget {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        padding: 5px;
+    }
+
+    .bootstrap-timepicker-widget table td a {
+        background-color: #413333 !important;
+    }
+
+    .bootstrap-timepicker-widget table td a:hover {
+        background-color: #e9ecef;
+        border-radius: 0.25rem;
+    }
+
+    .bootstrap-timepicker-widget.dropdown-menu {
+        z-index: 9999 !important;
+        position: absolute !important;
+    }
+
+    .bootstrap-timepicker-widget table td a span {
+        color: #007bff; /* Change this to your desired color */
+    }
+
+    /* Optionally, you can style the up and down arrows differently */
+    .bootstrap-timepicker-widget table td.up a span {
+        color: #28a745; /* Green color for up arrow */
+    }
+
+    .bootstrap-timepicker-widget table td.down a span {
+        color: #dc3545; /* Red color for down arrow */
+    }
+
+    /* Hover effect */
+    .bootstrap-timepicker-widget table td a:hover span {
+        color: #0056b3; /* Darker shade for hover effect */
+    }
+    </style>
     <script>
         $(function() {
 
             intListener("maxSellQuantity", 10, 999);
 
-
             $('#startTime, #endTime').timepicker({
                 showMeridian: false,
                 defaultTime: false,
-                minuteStep: 1,
-                disableFocus: true,
+                minuteStep: 5,
                 showInputs: false,
+                disableFocus: true,
                 icons: {
-                    up: 'glyphicon glyphicon-chevron-up',
-                    down: 'glyphicon glyphicon-chevron-down'
-                }
+                    up: '&#9650;', // Unicode up arrow
+                    down: '&#9660;' // Unicode down arrow
+                },
+                template: 'dropdown'
+            });
+
+            // Show widget when clicking on the input or the icon
+            $('#startTimeContainer, #endTimeContainer').on('click', function(e) {
+                e.preventDefault();
+                $(this).children().first().timepicker('showWidget');
+            });
+
+            // Prevent default keyboard events on the input
+            $('#startTime, #endTime').on('keydown', function(e) {
+                e.preventDefault();
             });
 
             $("#startDate").datepicker({
@@ -198,8 +249,8 @@
                 <!-- Start Time -->
                 <div class="form-group row mt-4">
                     <label for="startTime" class="col-4 col-form-label text-right pr-4">Start Time</label>
-                    <div class="input-group col-8 bootstrap-timepicker timepicker">
-                        <input id="startTime" name="startTime" type="text" class="form-control input-small" value="${productGroup?.startTime}" readonly/>
+                    <div id="startTimeContainer" class="input-group col-8 bootstrap-timepicker timepicker">
+                        <input id="startTime" name="startTime" type="text" class="form-control input-small" value="${productGroup?.startTime}"/>
                         <span class="input-group-addon">
                             <i class="glyphicon glyphicon-time"></i>
                         </span>
@@ -209,8 +260,8 @@
                 <!-- End Time -->
                 <div class="form-group row mt-4">
                     <label for="endTime" class="col-4 col-form-label text-right pr-4">End Time</label>
-                    <div class="input-group col-8 bootstrap-timepicker timepicker">
-                        <input id="endTime" name="endTime" type="text" class="form-control input-small" value="${productGroup?.endTime}" readonly/>
+                    <div id="endTimeContainer" class="input-group col-8 bootstrap-timepicker timepicker">
+                        <input id="endTime" name="endTime" type="text" class="form-control input-small" value="${productGroup?.endTime}"/>
                         <span class="input-group-addon">
                             <i class="glyphicon glyphicon-time"></i>
                         </span>
