@@ -18,7 +18,7 @@
          onclick="document.location.href = '${createLink(action:'show', id: productGroup.id)}';">
         <div id="productGroup-${i + 1}-id" class="col-2">${productGroup.id}</div>
 
-        <div id="productGroup-${i + 1}-description" class="col-6">${productGroup.description}</div>
+        <div id="productGroup-${i + 1}-description" class="col-6">${productGroup.name}</div>
 
         <div id="productGroup-${i + 1}-prod-count" class="col-2">${productGroup.productGroupProducts?.size()}</div>
 
