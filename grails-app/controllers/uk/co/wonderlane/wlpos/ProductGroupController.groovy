@@ -14,7 +14,6 @@ class ProductGroupController {
     def productService
     def springSecurityService
     def rabbitService
-    def gsonProvider
 
     def index() {
         def productGroups = productGroupService.getProductGroups()
@@ -26,15 +25,15 @@ class ProductGroupController {
         if (!productGroup) {
             flash.error = "Product Group not found."
             redirect(action: "index")
-            return
+        } else {
+            def products = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
+            productGroup?.productGroupProducts?.each { productGroupProduct ->
+                Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
+                productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
+                productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.name
+            }
+            [productGroup: productGroup]
         }
-        def products = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
-        productGroup?.productGroupProducts?.each { productGroupProduct ->
-            Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
-            productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
-            productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.name
-        }
-        [productGroup: productGroup]
     }
 
     def ajaxGetProductGroups() {
@@ -45,6 +44,15 @@ class ProductGroupController {
             DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
             DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
             Boolean status = params.status != null ? params.status.toString().equalsIgnoreCase("ACTIVE") : null
+            String sortColumn = params.sortColumn ?: "id"
+            String sortOrder = params.sortOrder ?: "asc"
+
+            session.SEARCH_TERM = searchTerm
+            session.SEARCH_BY = searchBy
+            session.START_DATE = startDate
+            session.END_DATE = endDate
+            session.STATUS = status
+
             def productGroups = productGroupService.getProductGroups(
                     searchTerm,
                     searchBy,
@@ -52,11 +60,20 @@ class ProductGroupController {
                     endDate,
                     status,
                     params.offset ? Integer.parseInt(params.offset) : 0,
-                    params.max ? Integer.parseInt(params.max) : 50)
+                    params.max ? Integer.parseInt(params.max) : 50,
+                    sortColumn,
+                    sortOrder)
+
             render(template: "productGroupSearchResults", model: [productGroups: productGroups,
-                                                                  searchTerm   : searchTerm,
+                                                                  searchTerm   : params.searchTerm,
+                                                                  searchBy     : params.searchBy,
+                                                                  startDate    : params.startDate,
+                                                                  endDate      : params.endDate,
+                                                                  status       : params.status,
                                                                   max          : params.max ?: 50,
-                                                                  offset       : params.offset])
+                                                                  offset       : params.offset,
+                                                                  sortColumn   : sortColumn,
+                                                                  sortOrder    : sortOrder,])
         } catch (Exception ex) {
             log.error("Error searching product group, Exception " + ex.getMessage(), ex)
         }

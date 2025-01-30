@@ -36,7 +36,7 @@
                 });
             });
 
-            function getProductGroups() {
+            function getProductGroups(sortParams) {
                 $('#results-container').html("");
                 $("#loading-indicator").show();
 
@@ -49,6 +49,8 @@
                 $("#filtersForm select").each(function() {
                     filterParams[$(this).attr("name")] = $(this).find(":selected").val();
                 }).get();
+
+                Object.assign(filterParams, sortParams);
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -65,12 +67,15 @@
                 });
             }
 
-
             function resetForm() {
-                document.getElementById('productGroupSearchTerm').value = null;
-                document.getElementById('productGroupSearchBy').value = 'everything';
-                search();
+                $("#productGroupSearchTerm").val("");
+                $("#productGroupSearchBy").val("everything");
+                $("#startDateFilter").val("");
+                $("#endDateFilter").val("");
+                $("#statusFilter").val("");
+                getProductGroups();
             }
+
         </script>
     </head>
 
@@ -127,12 +132,12 @@
                                 <div class="form-group row">
                                     <label for="productGroupSearchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
                                     <div class="col-10 input-group">
-                                        <g:textField id="productGroupSearchTerm" name="productGroupSearchTerm" maxlength="100" value="${session.PROMOTION_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
+                                        <g:textField id="productGroupSearchTerm" name="productGroupSearchTerm" maxlength="100" value="${session.SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
 
                                         <div class="input-group-append">
                                             <g:select id="productGroupSearchBy" name="productGroupSearchBy"
                                                       from="${['everything', 'description', 'tagId']}" value="everything"
-                                                      value="everything"
+                                                      value="${session.SEARCH_BY ? session.SEARCH_BY : 'everything'}"
                                                       valueMessagePrefix="ProductGroupSearchBy"
                                                       class="form-control select-border" style="z-index: 0;" />
                                         </div>
@@ -142,19 +147,24 @@
                                 <div class="form-group row">
                                     <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                     <div class="col-4">
-                                        <g:textField name="startDate" onkeydown="return false" id="startDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                        <g:textField name="startDate" onkeydown="return false" id="startDateFilter" class="form-control bottom-border" value="${session.START_DATE}" autocomplete="off"/>
                                     </div>
 
                                     <label for="endDate" class="col-2 col-form-label-sm text-right">End Since</label>
                                     <div class="col-4">
-                                        <g:textField name="endDate" onkeydown="return false" id="endDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                        <g:textField name="endDate" onkeydown="return false" id="endDateFilter" class="form-control bottom-border" value="${session.END_DATE}" autocomplete="off"/>
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="status" class="col-2 col-form-label-sm text-right">Status</label>
                                     <div class="col-4">
-                                        <g:select name="status" id="statusFilter" from="${['ACTIVE', 'INACTIVE']}" valueMessagePrefix="PromotionStatus" noSelection="['': '']" class="form-control select-border"/>
+                                        <g:select name="status"
+                                                  id="statusFilter"
+                                                  from="${['ACTIVE', 'INACTIVE']}"
+                                                  value="${session.STATUS}"
+                                                  valueMessagePrefix="PromotionStatus" noSelection="['': '']"
+                                                  class="form-control select-border"/>
                                     </div>
                                 </div>
 
@@ -170,17 +180,6 @@
                 </div>
             </div>
 
-
-
-            <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                <div class="col-1 font-weight-bold">Product Group ID</div>
-                <div class="col-2 font-weight-bold">Description</div>
-                <div class="col-2 font-weight-bold">Start Date</div>
-                <div class="col-2 font-weight-bold">End Date</div>
-                <div class="col-2 font-weight-bold">Restriction Type</div>
-                <div class="col-2 font-weight-bold">Product Count</div>
-                <div class="col-1 font-weight-bold">Status</div>
-            </div>
 
             <div id="search-results" class="align-content-center">
                 <g:render template="productGroupSearchResults" model="[productGroups: productGroups]"/>

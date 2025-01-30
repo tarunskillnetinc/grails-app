@@ -9,7 +9,7 @@ class ProductGroupService {
     def springSecurityService
 
     def getProductGroups(String searchTerm = null, String searchBy = "everything", DateTime startDate = null, DateTime endDate = null, Boolean status = null ,  int offset = 0, int max = 50,
-                         String sort = "name", String order = "ASC") {
+                         String sort = "name", String order = "asc") {
         return ProductGroup.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             eq ("hidden", false)

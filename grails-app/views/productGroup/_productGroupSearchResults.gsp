@@ -8,6 +8,51 @@
     });
 </script>
 
+<div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+    <div class="col-1 font-weight-bold">
+        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'productGroupId',
+            sortOrder: ${sortColumn == 'id' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
+            Product Group ID
+        </a>
+    </div>
+    <div class="col-2 font-weight-bold">
+        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'description',
+            sortOrder: ${sortColumn == 'name' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
+            Description
+        </a>
+    </div>
+    <div class="col-2 font-weight-bold">
+        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'startDate',
+            sortOrder: ${sortColumn == 'startDate' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
+            Start Date
+        </a>
+    </div>
+    <div class="col-2 font-weight-bold">
+        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'endDate',
+            sortOrder: ${sortColumn == 'endDate' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
+            End Date
+        </a>
+    </div>
+    <div class="col-2 font-weight-bold">
+        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'restrictionType',
+            sortOrder: ${sortColumn == 'timeRestriction' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
+            Restriction Type
+        </a>
+    </div>
+    <div class="col-2 font-weight-bold">
+        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'productCount',
+            sortOrder: ${sortColumn == 'timeRestriction' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
+            Product Count
+        </a>
+    </div>
+    <div class="col-1 font-weight-bold">
+        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'status',
+            sortOrder: ${sortColumn == 'active' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
+            Status
+        </a>
+    </div>
+</div>
+
 <g:if test="${!productGroups || productGroups?.size() == 0}">
     <div id="noResultsRow" class="col pt-2 pb-2 my-auto text-center wl-striped0">No results found.</div>
 </g:if>
@@ -39,6 +84,10 @@
 </g:each>
 
 <div class="my-3 text-right">
-    <util:remotePaginate action="ajaxGetProductGroups" total="${productGroups?.totalCount ?: 0}" update="search-results"
-                         offset="${offset ?: 0}" max="${max ?: 50}" params="['searchTerm': searchTerm]"/>
+    <util:remotePaginate action="ajaxGetProductGroups"
+                         total="${productGroups?.totalCount ?: 0}"
+                         update="search-results"
+                         offset="${offset ?: 0}" max="${max ?: 50}"
+                         params="['searchTerm': searchTerm, 'searchBy': searchTerm, 'startDate': startDate,
+                                  'endDate': endDate, 'status': status]"/>
 </div>
