@@ -5,7 +5,7 @@ import org.joda.time.LocalDate
 class ProductGroup {
 
     int id
-    Byte retailerId
+    int retailerId
     String name
     boolean hidden
     LocalDate startDate
