@@ -1,109 +1,303 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
-    <head>
-        <meta name="layout" content="main" />
+<head>
+    <meta name="layout" content="main" />
 
-        <title>Product Group Management</title>
-        <asset:javascript src="co-utils.js"/>
-        <asset:javascript src="validators/input-validator.js" />
+    <title>Product Group Management</title>
+    <asset:stylesheet src="bootstrap-datepicker3.min.css"/>
+    <asset:stylesheet src="bootstrap-timepicker.min.css"/>
 
-        <script>
-            $(function() {
-                intListener("maxSellQuantity", 10, 999);
+    <asset:javascript src="bootstrap-datepicker.min.js"/>
+    <asset:javascript src="co-utils.js"/>
+    <asset:javascript src="validators/input-validator.js" />
+    <asset:javascript src="bootstrap-timepicker.min.js"/>
+
+    <style>
+    .bootstrap-timepicker-widget {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        padding: 5px;
+    }
+
+    .bootstrap-timepicker-widget table td a {
+        background-color: #413333 !important;
+    }
+
+    .bootstrap-timepicker-widget table td a:hover {
+        background-color: #e9ecef;
+        border-radius: 0.25rem;
+    }
+
+    .bootstrap-timepicker-widget.dropdown-menu {
+        z-index: 9999 !important;
+        position: absolute !important;
+    }
+
+    .bootstrap-timepicker-widget table td a span {
+        color: #007bff; /* Change this to your desired color */
+    }
+
+    /* Optionally, you can style the up and down arrows differently */
+    .bootstrap-timepicker-widget table td.up a span {
+        color: #28a745; /* Green color for up arrow */
+    }
+
+    .bootstrap-timepicker-widget table td.down a span {
+        color: #dc3545; /* Red color for down arrow */
+    }
+
+    /* Hover effect */
+    .bootstrap-timepicker-widget table td a:hover span {
+        color: #0056b3; /* Darker shade for hover effect */
+    }
+    </style>
+    <script>
+        $(function() {
+
+            intListener("maxSellQuantity", 10, 999);
+
+            $('#startTime, #endTime').timepicker({
+                showMeridian: false,
+                defaultTime: false,
+                minuteStep: 5,
+                showInputs: false,
+                disableFocus: true,
+                icons: {
+                    up: '&#9650;', // Unicode up arrow
+                    down: '&#9660;' // Unicode down arrow
+                },
+                template: 'dropdown'
             });
-        </script>
-    </head>
 
-    <body>
-        <section id="breadcrumb-container" class="container-fluid">
-            <nav aria-label="breadcrumb">
-                <div class="row mt-4">
-                    <div class="col">
-                        <ol class="breadcrumb">
-                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="productGroup"
-                                                                                  action="index">Product Group Management</g:link></li>
-                            <g:if test="${params.action == 'edit'}">
-                                <li id="breadcrumb-3" class="breadcrumb-item"><g:link controller="productGroup"
-                                                                                      action="show"
-                                                                                      id="${productGroup.id}">${productGroup.name}</g:link></li>
-                                <li id="breadcrumb-4" class="breadcrumb-item active"
-                                    aria-current="page">${productGroup?.name ? "Edit Product Group" : "Add Product Group"}</li>
-                            </g:if>
-                            <g:else>
-                                <li id="breadcrumb-3" class="breadcrumb-item active"
-                                    aria-current="page">${productGroup?.name ? "Edit Product Group" : "Add Product Group"}</li>
-                            </g:else>
-                        </ol>
-                    </div>
-                </div>
-            </nav>
-        </section>
+            // Show widget when clicking on the input or the icon
+            $('#startTimeContainer, #endTimeContainer').on('click', function(e) {
+                e.preventDefault();
+                $(this).children().first().timepicker('showWidget');
+            });
 
-        <section id="central-count-search" class="container-fluid">
-            <div class="row header-wl mt-3">
-                <div class="col-8 offset-2">
-                    <h2 id="page-title" class="mx-auto">Product Group Management</h2>
-                </div>
+            // Prevent default keyboard events on the input
+            $('#startTime, #endTime').on('keydown', function(e) {
+                e.preventDefault();
+            });
 
-                <div class="col-2 text-right">
-                    <g:link elementId="cancel-btn" action="${params.action == 'edit' ? 'show' : 'index'}"
-                            id="${productGroup?.id}" role="button" class="btn btn-danger">Cancel</g:link>
+            $("#startDate").datepicker({
+                format: "DD dd MM yyyy",
+                weekStart: 1,
+                todayHighlight: true,
+                autoclose: true,
+                todayBtn: "linked",
+                orientation: "bottom auto"
+            }).on('changeDate', function(event) {
+                let options = [{year: 'numeric'}, {month: '2-digit'}, {day: '2-digit'}];
+                let formatted = formatDate(event.date, options, '-');
 
-                    <button id="save-btn" class="btn btn-success" name="save"
-                            onclick="$('#productGroup-form').submit();">Save</button>
-                </div>
+                $("#startDate").val(formatted);
+            });
+
+            $("#endDate").datepicker({
+                format: "DD dd MM yyyy",
+                weekStart: 1,
+                todayHighlight: true,
+                autoclose: true,
+                todayBtn: "linked",
+                orientation: "bottom auto"
+            }).on('changeDate', function(event) {
+                let options = [{year: 'numeric'}, {month: '2-digit'}, {day: '2-digit'}];
+                let formatted = formatDate(event.date, options, '-');
+
+                $("#endDate").val(formatted);
+            });
+
+        });
+
+        function formatDate(date, options, separator) {
+            function format(option) {
+                let formatter = new Intl.DateTimeFormat('en', option);
+                return formatter.format(date);
+            }
+
+            return options.map(format).join(separator);
+        }
+    </script>
+</head>
+
+<body>
+<section id="breadcrumb-container" class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <div class="row mt-4">
+            <div class="col">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                    <li class="breadcrumb-item"><g:link controller="productGroup"
+                                                        action="index">Product Group Management</g:link></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        ${productGroup?.name ? "Edit Product Group" : "Add Product Group"}
+                    </li>
+                </ol>
             </div>
+        </div>
+    </nav>
+</section>
 
-            <g:if test="${flash.message}">
-                <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
-            </g:if>
+<section id="central-count-search" class="container">
+    <div class="row header-wl mt-3">
+        <div class="col-8 offset-2">
+            <h2 id="page-title" class="mx-auto">Product Group Management</h2>
+        </div>
 
-            <g:hasErrors bean="${productGroup}">
-                <div id="tag-management-errors-list" class="alert alert-danger alert-wl mx-0" role="alert">
-                    <g:renderErrors bean="${productGroup}" as="list"/>
-                </div>
-            </g:hasErrors>
+        <div class="col-2 text-right">
+            <g:link elementId="cancel-btn" action="${params.action == 'edit' ? 'show' : 'index'}"
+                    id="${productGroup?.id}" role="button" class="btn btn-danger">Cancel</g:link>
 
-            <g:form name="productGroup-form" action="save" novalidate="novalidate" class="mt-4">
-                <g:hiddenField name="id" value="${productGroup?.id ?: 0}"/>
+            <button id="save-btn" class="btn btn-success" name="save"
+                    onclick="$('#productGroup-form').submit();">Save</button>
+        </div>
+    </div>
 
-                <div class="form-group row col-12 col-lg-6 mt-4">
-                    <label for="description" class="col-4 col-form-label text-right pr-4">Description</label>
-                    <g:textField name="description" class="col-8 form-control bottom-border"
+    <g:if test="${flash.message}">
+        <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+    </g:if>
+
+    <g:hasErrors bean="${productGroup}">
+        <div id="tag-management-errors-list" class="alert alert-danger alert-wl mx-0" role="alert">
+            <g:renderErrors bean="${productGroup}" as="list"/>
+        </div>
+    </g:hasErrors>
+
+    <g:form name="productGroup-form" action="save" novalidate="novalidate" class="mt-4">
+        <g:hiddenField name="id" value="${productGroup?.id ?: 0}"/>
+
+        <!-- Centered Form Layout -->
+        <div class="row justify-content-center">
+            <!-- First Column (Left) -->
+            <div class="col-12 col-md-6">
+                <!-- Name -->
+                <div class="form-group row mt-4">
+                    <label for="name" class="col-4 col-form-label text-right pr-4">Name</label>
+                    <g:textField name="name" class="col-8 form-control"
                                  value="${productGroup?.name}" maxlength="50"/>
                 </div>
 
-                <div class="form-group row col-12 col-lg-6 mt-4">
+                <!-- Status -->
+                <div class="form-group row mt-4">
+                    <label for="status" class="col-4 col-form-label text-right pr-4">Status</label>
+                    <g:select name="status" from="${['Active', 'Inactive']}"
+                              value="${productGroup?.status}" class="col-8 form-control"/>
+                </div>
+
+                <!-- Start Date -->
+                <div class="form-group row mt-4">
+                    <label for="startDate" class="col-4 col-form-label text-right pr-4">Start Date</label>
+                    <g:textField name="startDate" type="text" class="col-6 form-control" required="true"
+                                 autoComplete="off"
+                                 value="${productGroup?.startDate?.toString("EEEE dd MMMM yyyy") ?: new Date().format("EEEE dd MMMM yyyy")}" />
+                </div>
+
+                <!-- End Date -->
+                <div class="form-group row mt-4">
+                    <label for="endDate" class="col-4 col-form-label text-right pr-4">End Date</label>
+            <g:textField name="endDate" type="text" class="col-6 form-control" required="true"
+                         autoComplete="off"
+                         value="${productGroup?.endDate?.toString("EEEE dd MMMM yyyy") ?: new Date().format("EEEE dd MMMM yyyy")}" />
+                </div>
+
+                <!-- Never Expires Checkbox -->
+                <div class="form-group row mt-4">
+                    <label class="col-4 col-form-label text-right pr-4">Never Expires</label>
+                    <div class="col-8">
+                        <g:checkBox name="neverExpires" value="${productGroup?.neverExpires}"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Second Column (Right) -->
+            <div class="col-12 col-md-6">
+
+                <!-- Maximum Sell Quantity -->
+                <div class="form-group row mt-4">
                     <label for="maxSellQuantity" class="col-4 col-form-label text-right pr-4">Maximum Sell Quantity</label>
                     <g:field name="maxSellQuantity" type="number" min="0" max="999"
-                             value="${productGroup?.maxSellQuantity}" class="col-2 form-control bottom-border"
+                             value="${productGroup?.maxSellQuantity}" class="col-8 form-control"
                              onkeypress="return preventNegativeInteger(event);" onpaste="return false;"/>
                 </div>
 
-                <div class="header-wl mt-5">
-                    <h3 class="mx-auto">Products</h3>
+                <!-- Category Selection -->
+                <div class="form-group row mt-4">
+                    <label for="category" class="col-4 col-form-label text-right pr-4">Category</label>
+                    <g:select name="category" from="${categories}" value="${productGroup?.category}"
+                              class="col-8 form-control"/>
                 </div>
+            </div>
+        </div>
 
-                <div class="row mt-4 mx-0">
-                    <div class="col-2 offset-8 text-right px-0">
-                        <!-- Button trigger modal -->
-                        <a id="add-product-btn" href="#" class="btn btn-wl" data-toggle="modal" data-target="#productSearchModal">
-                            Add Product
-                        </a>
+        <!-- Group Restriction Section -->
+        <div class="header-wl mt-2">
+            <h3 class="mx-auto section-title">Group Restriction</h3>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-6">
+                <!-- Day Restrictions -->
+                <div class="form-group row mt-4">
+                    <label class="col-4 col-form-label text-right pr-4">Day Restrictions</label>
+                    <g:select name="dayRestrictions" from="${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}"
+                              value="${productGroup?.dayRestrictions}" class="col-8 form-control"
+                              multiple="true" />
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <!-- Start Time -->
+                <div class="form-group row mt-4">
+                    <label for="startTime" class="col-4 col-form-label text-right pr-4">Start Time</label>
+                    <div id="startTimeContainer" class="input-group col-8 bootstrap-timepicker timepicker">
+                        <input id="startTime" name="startTime" type="text" class="form-control input-small" value="${productGroup?.startTime}"/>
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-time"></i>
+                        </span>
                     </div>
                 </div>
 
-                <div class="row col-8 offset-2 mt-4 table-wl bottom-border">
-                    <div class="col-2 font-weight-bold">Item Code</div>
-                    <div class="col-3 font-weight-bold">SKU</div>
-                    <div class="col font-weight-bold">Description</div>
-                    <div class="col-1 font-weight-bold">&nbsp;</div>
+                <!-- End Time -->
+                <div class="form-group row mt-4">
+                    <label for="endTime" class="col-4 col-form-label text-right pr-4">End Time</label>
+                    <div id="endTimeContainer" class="input-group col-8 bootstrap-timepicker timepicker">
+                        <input id="endTime" name="endTime" type="text" class="form-control input-small" value="${productGroup?.endTime}"/>
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-time"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="header-wl mt-5">
+            <h3 class="mx-auto">Products</h3>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-end mb-3">
+                    <a id="add-product-btn" href="#" class="btn btn-wl mr-2" data-toggle="modal" data-target="#productSearchModal">
+                        Add Product
+                    </a>
+                    <button id="importProductList" class="btn btn-wl">Import Product List</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="row font-weight-bold mb-2">
+                    <div class="col-2">Item Code</div>
+                    <div class="col-3">SKU</div>
+                    <div class="col-6">Name</div>
+                    <div class="col-1">&nbsp;</div>
                 </div>
 
                 <div id="productList" class="align-content-center mb-5">
                     <g:if test="${!productGroup?.productGroupProducts || productGroup?.productGroupProducts?.size() == 0}">
-                        <div id="noResultsRow" class="col-8 offset-2 pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
+                        <div id="noResultsRow" class="col-12 pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
                     </g:if>
 
                     <g:each in="${productGroup?.productGroupProducts?.sort { it.sku }}" var="productGroupProduct"
@@ -112,16 +306,18 @@
                                   model="[productGroupProduct: productGroupProduct, i: i]"/>
                     </g:each>
                 </div>
-            </g:form>
-        </section>
-
-        <!-- Product search modal -->
+            </div>
+        </div>
         <g:render template="/product/productSearch" />
+    </g:form>
+</section>
 
-        <asset:javascript src="productgroup.js"/>
+<asset:javascript src="productgroup.js"/>
 
-        <script type='text/javascript'>
-        var addProductUrl = "${createLink(controller: 'productGroup', action: 'ajaxAddProduct')}";
-        </script>
-    </body>
+
+<script type='text/javascript'>
+    var addProductUrl = "${createLink(controller: 'productGroup', action: 'ajaxAddProduct')}";
+</script>
+
+</body>
 </html>
