@@ -17,11 +17,24 @@
          title="Click to view." onclick="document.location.href = '${createLink(action:'show', id: productGroup.id)}';">
         <div id="productGroup-${i + 1}-id" class="col-1">${productGroup.id}</div>
         <div id="productGroup-${i + 1}-description" class="col-2">${productGroup.name}</div>
-        <div id="productGroup-${i + 1}-description" class="col-2">${productGroup.startDate}</div>
-        <div id="productGroup-${i + 1}-description" class="col-2">${productGroup.endDate}</div>
+        <div id="productGroup-${i + 1}-description" class="col-2">
+            <g:if test="${productGroup?.startDate}">
+                <g:formatDate format="dd/MM/yyyy" date="${productGroup?.startDate?.toDate()}"/>
+            </g:if>
+            <g:else>&nbsp;</g:else>
+        </div>
+        <div id="productGroup-${i + 1}-description" class="col-2">
+            <g:if test="${productGroup?.endDate}">
+                <g:formatDate format="dd/MM/yyyy" date="${productGroup?.endDate?.toDate()}"/>
+            </g:if>
+            <g:else>&nbsp;</g:else>
+        </div>
         <div id="productGroup-${i + 1}-description" class="col-2">${productGroup.name}</div>
         <div id="productGroup-${i + 1}-prod-count" class="col-2">${productGroup.productGroupProducts?.size()}</div>
-        <div id="productGroup-${i + 1}-max-sell-quantity" class="col-1">${productGroup.active}</div>
+        <div id="productGroup-${i + 1}-max-sell-quantity" class="col-1">
+            <g:if test="${productGroup?.active}">Active</g:if>
+            <g:else>Inactive</g:else>
+        </div>
     </div>
 </g:each>
 
