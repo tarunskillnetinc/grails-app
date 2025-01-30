@@ -554,6 +554,23 @@ class EposTagLib {
         out << output.toString()
     }
 
+    def renderSafeInfo = { attrs ->
+        def safe = attrs.safe
+        if (safe) {
+            out << '<div class="d-flex flex-column align-items-center">'
+
+            if (safe.primary) {
+                out << '<div>Primary Safe</div>'
+            }
+            if (safe.type == uk.co.wonderlane.wlpos.enums.SafeType.SMART) {
+                out << '<div>Smart Safe</div>'
+            }
+
+            out << "<div>${safe.description}</div>"
+            out << '</div>'
+        }
+    }
+
     private String renderWithChildren(Category category, List<Integer> selectedCategories, Set<String> renderedPaths, Map<Integer, Category> categoryMap) {
         StringBuilder output = new StringBuilder()
 
