@@ -112,7 +112,7 @@ class PromotionController {
     }
 
     def ajaxGetProductGroup(int id, String promotionType, String promotionGroupType, int groupId) {
-        def tag = productGroupService.getProductGroup(id)
+        def productGroup = productGroupService.getProductGroup(id)
 
         def (showQuantityField, showValueField) = getQuantityAndValueFieldVisibility(PromotionType.valueOf(promotionType))
 
@@ -120,7 +120,7 @@ class PromotionController {
         promotionGroup.type = PromotionGroupType.valueOf(promotionGroupType.toUpperCase())
         promotionGroup.productGroupId = id
 
-        render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: tag.name, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
+        render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: productGroup.description, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
     }
 
     def ajaxGetCategory(int id, String promotionType, String promotionGroupType, int groupId) {
