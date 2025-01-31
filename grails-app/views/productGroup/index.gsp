@@ -81,6 +81,15 @@
                 getProductGroups();
             }
 
+            function restrictInput(event) {
+                // Allow Backspace, Delete, Tab, Escape, and Arrow keys
+                const allowedKeys = [8, 9, 27, 37, 39, 46];
+                if (allowedKeys.includes(event.keyCode) || event.ctrlKey || event.metaKey) {
+                    return true; // Allow these keys
+                }
+                return false; // Block all other key inputs
+            }
+
         </script>
     </head>
 
@@ -153,12 +162,12 @@
                                 <div class="form-group row">
                                     <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                     <div class="col-4">
-                                        <g:textField name="startDate" onkeydown="return false" id="startDateFilter" class="form-control bottom-border" value="${session.START_DATE}" autocomplete="off"/>
+                                        <g:textField name="startDate" onkeydown="return restrictInput(event)" id="startDateFilter" class="form-control bottom-border" value="${session.START_DATE}" autocomplete="off"/>
                                     </div>
 
                                     <label for="endDate" class="col-2 col-form-label-sm text-right">End Since</label>
                                     <div class="col-4">
-                                        <g:textField name="endDate" onkeydown="return false" id="endDateFilter" class="form-control bottom-border" value="${session.END_DATE}" autocomplete="off"/>
+                                        <g:textField name="endDate" onkeydown="return restrictInput(event)" id="endDateFilter" class="form-control bottom-border" value="${session.END_DATE}" autocomplete="off"/>
                                     </div>
                                 </div>
 
