@@ -91,5 +91,6 @@
                          params="['productGroupSearchTerm': productGroupSearchTerm,
                                   'productGroupSearchBy': productGroupSearchBy,
                                   'startDate': startDate,
-                                  'endDate': endDate, 'status': status]"/>
+                                  'endDate': endDate,
+                                  'status': status]"/>
 </div>

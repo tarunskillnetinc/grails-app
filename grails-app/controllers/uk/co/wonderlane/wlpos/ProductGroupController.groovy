@@ -65,17 +65,18 @@ class ProductGroupController {
                     sortOrder)
 
             render(template: "productGroupSearchResults", model: [productGroups: productGroups,
-                                                                  productGroupSearchTerm   : searchTerm,
-                                                                  productGroupSearchBy : searchBy ,
-                                                                  startDate    : endDate,
-                                                                  endDate      : startDate,
-                                                                  status       : status,
+                                                                  productGroupSearchTerm   : searchTerm == null ? "" : searchTerm,
+                                                                  productGroupSearchBy : searchBy == null ? "" : searchBy,
+                                                                  startDate    : startDate == null ? "" : startDate,
+                                                                  endDate      : endDate == null ? "" : endDate,
+                                                                  status       : status == null ? "" : status,
                                                                   max          : params.max ?: 50,
                                                                   offset       : params.offset ? Integer.parseInt(params.offset) : 0,
                                                                   sortColumn   : sortColumn,
                                                                   sortOrder    : sortOrder,])
         } catch (Exception ex) {
             log.error("Error searching product group, Exception " + ex.getMessage(), ex)
+            response.status = 400
         }
 
     }
