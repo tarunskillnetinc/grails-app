@@ -1,5 +1,9 @@
 package uk.co.wonderlane.wlpos
 
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import org.springframework.validation.FieldError
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
@@ -10,44 +14,70 @@ class ProductGroupController {
     def productService
     def springSecurityService
     def rabbitService
-    def gsonProvider
 
     def index() {
         def productGroups = productGroupService.getProductGroups()
-
         [productGroups: productGroups]
     }
 
     def show(int id) {
         def productGroup = productGroupService.getProductGroup(id)
-
         if (!productGroup) {
             flash.error = "Product Group not found."
             redirect(action: "index")
-            return
+        } else {
+            def products = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
+            productGroup?.productGroupProducts?.each { productGroupProduct ->
+                Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
+                productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
+                productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.name
+            }
+            [productGroup: productGroup]
         }
-
-        def products = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
-
-        productGroup?.productGroupProducts?.each { productGroupProduct ->
-            Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
-            productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
-            productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.name
-        }
-
-        [productGroup: productGroup]
     }
 
-    def ajaxGetProductGroups(String searchTerm, String searchBy) {
-        def productGroups = productGroupService.getProductGroups(searchTerm, searchBy, params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
+    def ajaxGetProductGroups() {
+        try {
+            DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+            String searchTerm = params.productGroupSearchTerm
+            String searchBy = params.productGroupSearchBy
+            DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
+            DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
+            String status = params.status ? params.status : null
+            String sortColumn = params.sortColumn ?: "id"
+            String sortOrder = params.sortOrder ?: "asc"
 
-        render(template: "productGroupSearchResults", model: [productGroups: productGroups,
-                                                     searchTerm   : searchTerm,
-                                                     max          : params.max ?: 50,
-                                                     offset       : params.offset])
-    }
+            session.SEARCH_TERM = searchTerm
+            session.SEARCH_BY = searchBy
+            session.START_DATE = startDate
+            session.END_DATE = endDate
+            session.STATUS = status
 
-    def add() {
+            def productGroups = productGroupService.getProductGroups(
+                    searchTerm,
+                    searchBy,
+                    startDate,
+                    endDate,
+                    status,
+                    params.offset ? Integer.parseInt(params.offset) : 0,
+                    params.max ? Integer.parseInt(params.max) : 50,
+                    sortColumn,
+                    sortOrder)
+
+            render(template: "productGroupSearchResults", model: [productGroups: productGroups,
+                                                                  productGroupSearchTerm   : searchTerm == null ? "" : searchTerm,
+                                                                  productGroupSearchBy : searchBy == null ? "" : searchBy,
+                                                                  startDate    : startDate == null ? "" : startDate,
+                                                                  endDate      : endDate == null ? "" : endDate,
+                                                                  status       : status == null ? "" : status,
+                                                                  max          : params.max ?: 50,
+                                                                  offset       : params.offset ? Integer.parseInt(params.offset) : 0,
+                                                                  sortColumn   : sortColumn,
+                                                                  sortOrder    : sortOrder,])
+        } catch (Exception ex) {
+            log.error("Error searching product group, Exception " + ex.getMessage(), ex)
+            response.status = 400
+        }
 
     }
 

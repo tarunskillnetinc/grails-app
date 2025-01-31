@@ -278,6 +278,12 @@ beans = {
         gsonProvider = ref('gsonProvider')
     }
 
+    partnerCategoryManagementService(PartnerCategoryManagementService) {
+        springSecurityService = ref('springSecurityService')
+        categoryService = ref('categoryService')
+        sessionFactory = ref('sessionFactory')
+    }
+
 
     gsonProvider(GsonProvider)
 

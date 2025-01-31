@@ -7,6 +7,8 @@ import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.*
 
+import java.awt.Image
+
 class ButtonController {
 
     def springSecurityService
@@ -37,7 +39,7 @@ class ButtonController {
          availableSubPages: buttonService.getOtherButtonGrids(),
          availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
          productSku: productVariant?.sku,
-         productDescription: productVariant?.product?.name,
+         productDescription: productVariant?.product?.description,
          storeId: getStoreId(),
          displayExactOption: button.tenderType != null && button.tenderType == TenderType.CASH,
          displayManualOption: button.tenderType != null]
@@ -250,7 +252,7 @@ class ButtonController {
                         availableSubPages: buttonService.getOtherButtonGrids(),
                         availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
                         productSku: productVariant?.sku,
-                        productDescription: productVariant?.product?.name,
+                        productDescription: productVariant?.product?.description,
                         storeId: getStoreId(),
                         displayExactOption: button?.tenderType != null && button?.tenderType == TenderType.CASH,
                         displayManualOption: button?.tenderType != null
@@ -283,7 +285,7 @@ class ButtonController {
                 availableSubPages: buttonService.getOtherButtonGrids(),
                 availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
                 productSku: productVariant?.sku,
-                productDescription: productVariant?.product?.name,
+                productDescription: productVariant?.product?.description,
                 storeId: getStoreId(),
                 form: form,
                 previousImage: uploadedImage,
