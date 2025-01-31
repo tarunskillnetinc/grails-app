@@ -88,6 +88,8 @@
                          total="${productGroups?.totalCount ?: 0}"
                          update="search-results"
                          offset="${offset ?: 0}" max="${max ?: 50}"
-                         params="['productGroupSearchTerm': productGroupSearchTerm, 'productGroupSearchBy': productGroupSearchBy, 'startDate': startDate,
+                         params="['productGroupSearchTerm': productGroupSearchTerm,
+                                  'productGroupSearchBy': productGroupSearchBy,
+                                  'startDate': startDate,
                                   'endDate': endDate, 'status': status]"/>
 </div>

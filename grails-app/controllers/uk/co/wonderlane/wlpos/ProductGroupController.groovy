@@ -65,13 +65,13 @@ class ProductGroupController {
                     sortOrder)
 
             render(template: "productGroupSearchResults", model: [productGroups: productGroups,
-                                                                  productGroupSearchTerm   : params.productGroupSearchTerm,
-                                                                  productGroupSearchBy  : params.productGroupSearchBy,
-                                                                  startDate    : params.startDate,
-                                                                  endDate      : params.endDate,
-                                                                  status       : params.status,
+                                                                  productGroupSearchTerm   : searchTerm,
+                                                                  productGroupSearchBy : searchBy ,
+                                                                  startDate    : endDate,
+                                                                  endDate      : startDate,
+                                                                  status       : status,
                                                                   max          : params.max ?: 50,
-                                                                  offset       : params.offset,
+                                                                  offset       : params.offset ? Integer.parseInt(params.offset) : 0,
                                                                   sortColumn   : sortColumn,
                                                                   sortOrder    : sortOrder,])
         } catch (Exception ex) {
