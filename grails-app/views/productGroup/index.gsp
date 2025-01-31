@@ -151,7 +151,7 @@
 
                                         <div class="input-group-append">
                                             <g:select id="productGroupSearchBy" name="productGroupSearchBy"
-                                                      from="${['everything', 'description', 'productGroupId']}" value="everything"
+                                                      from="${['everything', 'name', 'productGroupId']}" value="everything"
                                                       value="${session.SEARCH_BY ? session.SEARCH_BY : 'everything'}"
                                                       valueMessagePrefix="ProductGroupSearchBy"
                                                       class="form-control select-border" style="z-index: 0;" />
@@ -165,7 +165,7 @@
                                         <g:textField name="startDate" onkeydown="return restrictInput(event)" id="startDateFilter" class="form-control bottom-border" value="${session.START_DATE}" autocomplete="off"/>
                                     </div>
 
-                                    <label for="endDate" class="col-2 col-form-label-sm text-right">End Since</label>
+                                    <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
                                     <div class="col-4">
                                         <g:textField name="endDate" onkeydown="return restrictInput(event)" id="endDateFilter" class="form-control bottom-border" value="${session.END_DATE}" autocomplete="off"/>
                                     </div>

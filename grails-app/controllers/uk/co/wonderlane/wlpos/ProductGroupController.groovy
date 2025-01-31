@@ -39,8 +39,8 @@ class ProductGroupController {
     def ajaxGetProductGroups() {
         try {
             DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
-            String searchTerm = params.searchTerm
-            String searchBy = params.searchBy
+            String searchTerm = params.productGroupSearchTerm
+            String searchBy = params.productGroupSearchBy
             DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
             DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
             String status = params.status ? params.status : null
@@ -65,8 +65,8 @@ class ProductGroupController {
                     sortOrder)
 
             render(template: "productGroupSearchResults", model: [productGroups: productGroups,
-                                                                  searchTerm   : params.searchTerm,
-                                                                  searchBy     : params.searchBy,
+                                                                  productGroupSearchTerm   : params.productGroupSearchTerm,
+                                                                  productGroupSearchBy  : params.productGroupSearchBy,
                                                                   startDate    : params.startDate,
                                                                   endDate      : params.endDate,
                                                                   status       : params.status,
