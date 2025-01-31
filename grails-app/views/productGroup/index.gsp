@@ -181,9 +181,6 @@
                                                   valueMessagePrefix="PromotionStatus" noSelection="['': '']"
                                                   class="form-control select-border"/>
                                     </div>
-                                </div>
-
-                                <div class="form-group row">
                                     <div class="col-6  text-right">
                                         <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                         <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getProductGroups()">Search</button>
