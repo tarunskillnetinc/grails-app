@@ -21,9 +21,9 @@
                 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
                     <div class="col-2 font-weight-bold">Item Code</div>
                     <div class="col-4 font-weight-bold">Description</div>
+                    <div class="col-2 font-weight-bold">SKU</div>
                     <div class="col-2 font-weight-bold">Category</div>
-                    <div class="col-2 font-weight-bold">Cost Price</div>
-                    <div class="col-2 font-weight-bold">Retail Price</div>
+                    <div class="col-2 font-weight-bold">Actions</div>
                 </div>
 
                 <div id="productSearchResults" class="align-content-center">

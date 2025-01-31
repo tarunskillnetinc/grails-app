@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
-    <meta name="layout" content="main" />
+    <meta name="layout" content="main"/>
 
     <title>Product Group Management</title>
     <asset:stylesheet src="bootstrap-datepicker3.min.css"/>
@@ -9,24 +9,41 @@
 
     <asset:javascript src="bootstrap-datepicker.min.js"/>
     <asset:javascript src="co-utils.js"/>
-    <asset:javascript src="validators/input-validator.js" />
+    <asset:javascript src="validators/input-validator.js"/>
     <asset:javascript src="bootstrap-timepicker.min.js"/>
 
     <style>
     .bootstrap-timepicker-widget {
-        background-color: #f8f9fa;
+        background-color: #ffffff;
         border: 1px solid #ced4da;
         border-radius: 0.25rem;
         padding: 5px;
     }
 
     .bootstrap-timepicker-widget table td a {
-        background-color: #413333 !important;
+        color: #6c757d !important;
+        background-color: #f8f9fa !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 0.25rem;
+        padding: 5px;
     }
 
     .bootstrap-timepicker-widget table td a:hover {
-        background-color: #e9ecef;
-        border-radius: 0.25rem;
+        background-color: #e9ecef !important;
+        color: #495057 !important;
+    }
+
+    .bootstrap-timepicker-widget table td input {
+        width: 30px;
+        margin: 0;
+        text-align: center;
+        border: 1px solid #ced4da;
+        background-color: #ffffff;
+        color: #495057;
+    }
+
+    .bootstrap-timepicker-widget table td.separator {
+        color: #6c757d;
     }
 
     .bootstrap-timepicker-widget.dropdown-menu {
@@ -34,50 +51,92 @@
         position: absolute !important;
     }
 
-    .bootstrap-timepicker-widget table td a span {
-        color: #007bff; /* Change this to your desired color */
+    .bootstrap-timepicker-widget table td.up a span,
+    .bootstrap-timepicker-widget table td.down a span {
+        color: #343a40 !important; /* Even darker color for the arrow icons */
     }
 
     /* Optionally, you can style the up and down arrows differently */
-    .bootstrap-timepicker-widget table td.up a span {
-        color: #28a745; /* Green color for up arrow */
+    .bootstrap-timepicker-widget table td.up a {
+        border-bottom: none !important;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
     }
 
-    .bootstrap-timepicker-widget table td.down a span {
-        color: #dc3545; /* Red color for down arrow */
+    .bootstrap-timepicker-widget table td.down a {
+        border-top: none !important;
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
     }
 
     /* Hover effect */
     .bootstrap-timepicker-widget table td a:hover span {
-        color: #0056b3; /* Darker shade for hover effect */
+        color: #212529 !important; /* Darkest color on hover for maximum contrast */
+
+    }
+
+    .big-checkbox {
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+    }
+
+    .big-checkbox + label {
+        vertical-align: middle;
+        margin-left: 5px;
+    }
+
+    .form-container {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        padding: 40px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .checkbox-group {
+        max-height: 150px;
+        overflow-y: auto;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        padding: 5px;
+    }
+
+    .form-check {
+        padding-left: 1.5rem;
+    }
+
+    .form-check-input {
+        margin-top: 0.3rem;
+        margin-left: -1.5rem;
     }
     </style>
     <script>
-        $(function() {
+        $(function () {
 
             intListener("maxSellQuantity", 10, 999);
 
             $('#startTime, #endTime').timepicker({
                 showMeridian: false,
                 defaultTime: false,
-                minuteStep: 5,
+                minuteStep: 1,
                 showInputs: false,
                 disableFocus: true,
                 icons: {
-                    up: '&#9650;', // Unicode up arrow
-                    down: '&#9660;' // Unicode down arrow
+                    up: 'glyphicon glyphicon-chevron-up',
+                    down: 'glyphicon glyphicon-chevron-down'
                 },
                 template: 'dropdown'
             });
 
             // Show widget when clicking on the input or the icon
-            $('#startTimeContainer, #endTimeContainer').on('click', function(e) {
+            $('#startTimeContainer, #endTimeContainer').on('click', function (e) {
                 e.preventDefault();
                 $(this).children().first().timepicker('showWidget');
             });
 
             // Prevent default keyboard events on the input
-            $('#startTime, #endTime').on('keydown', function(e) {
+            $('#startTime, #endTime').on('keydown', function (e) {
                 e.preventDefault();
             });
 
@@ -88,7 +147,7 @@
                 autoclose: true,
                 todayBtn: "linked",
                 orientation: "bottom auto"
-            }).on('changeDate', function(event) {
+            }).on('changeDate', function (event) {
                 let options = [{year: 'numeric'}, {month: '2-digit'}, {day: '2-digit'}];
                 let formatted = formatDate(event.date, options, '-');
 
@@ -102,7 +161,7 @@
                 autoclose: true,
                 todayBtn: "linked",
                 orientation: "bottom auto"
-            }).on('changeDate', function(event) {
+            }).on('changeDate', function (event) {
                 let options = [{year: 'numeric'}, {month: '2-digit'}, {day: '2-digit'}];
                 let formatted = formatDate(event.date, options, '-');
 
@@ -164,152 +223,169 @@
             <g:renderErrors bean="${productGroup}" as="list"/>
         </div>
     </g:hasErrors>
+    <div class="form-container mt-4">
+        <g:form name="productGroup-form" action="save" novalidate="novalidate" class="mt-4">
+            <g:hiddenField name="id" value="${productGroup?.id ?: 0}"/>
 
-    <g:form name="productGroup-form" action="save" novalidate="novalidate" class="mt-4">
-        <g:hiddenField name="id" value="${productGroup?.id ?: 0}"/>
+            <!-- Centered Form Layout -->
+            <div class="row justify-content-center">
+                <!-- First Column (Left) -->
+                <div class="col-12 col-md-6">
+                    <!-- Name -->
+                    <div class="form-group row mt-4">
+                        <label for="name" class="col-6 col-form-label text-right pr-4">Name</label>
+                        <g:textField name="name" class="col-6 form-control"
+                                     value="${productGroup?.name}" maxlength="50"/>
+                    </div>
 
-        <!-- Centered Form Layout -->
-        <div class="row justify-content-center">
-            <!-- First Column (Left) -->
-            <div class="col-12 col-md-6">
-                <!-- Name -->
-                <div class="form-group row mt-4">
-                    <label for="name" class="col-4 col-form-label text-right pr-4">Name</label>
-                    <g:textField name="name" class="col-8 form-control"
-                                 value="${productGroup?.name}" maxlength="50"/>
+                    <!-- Start Date -->
+                    <div class="form-group row mt-4">
+                        <label for="startDate" class="col-6 col-form-label text-right pr-4">Start Date</label>
+                        <g:textField name="startDate" type="text" class="col-6 form-control" required="true"
+                                     autoComplete="off"
+                                     value="${productGroup?.startDate?.toString("EEEE dd MMMM yyyy") ?: new Date().format("EEEE dd MMMM yyyy")}"/>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="form-group row mt-4">
+                        <label for="status" class="col-6 col-form-label text-right pr-4">Status</label>
+                        <g:select name="status" from="${['Active', 'Inactive']}"
+                                  value="${productGroup?.status}" class="col-6 form-control"/>
+                    </div>
+
+                    <!-- Never Expires Checkbox -->
+                    <div class="form-group row mt-4">
+                        <label for="neverExpires" class="col-6 col-form-label text-right pr-4">Never Expires</label>
+
+                        <div class="col-6 d-flex align-items-center">
+                            <g:checkBox name="neverExpires" value="${productGroup?.neverExpires}" class="big-checkbox"/>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Status -->
-                <div class="form-group row mt-4">
-                    <label for="status" class="col-4 col-form-label text-right pr-4">Status</label>
-                    <g:select name="status" from="${['Active', 'Inactive']}"
-                              value="${productGroup?.status}" class="col-8 form-control"/>
-                </div>
+                <!-- Second Column (Right) -->
+                <div class="col-12 col-md-6">
 
-                <!-- Start Date -->
-                <div class="form-group row mt-4">
-                    <label for="startDate" class="col-4 col-form-label text-right pr-4">Start Date</label>
-                    <g:textField name="startDate" type="text" class="col-6 form-control" required="true"
-                                 autoComplete="off"
-                                 value="${productGroup?.startDate?.toString("EEEE dd MMMM yyyy") ?: new Date().format("EEEE dd MMMM yyyy")}" />
-                </div>
+                    <!-- Category Selection -->
+                    <div class="form-group row mt-4">
+                        <label for="category" class="col-6 col-form-label text-right pr-4">Category</label>
+                        <g:select name="category" from="${categories}" value="${productGroup?.category}"
+                                  class="col-6 form-control"/>
+                    </div>
 
-                <!-- End Date -->
-                <div class="form-group row mt-4">
-                    <label for="endDate" class="col-4 col-form-label text-right pr-4">End Date</label>
-            <g:textField name="endDate" type="text" class="col-6 form-control" required="true"
-                         autoComplete="off"
-                         value="${productGroup?.endDate?.toString("EEEE dd MMMM yyyy") ?: new Date().format("EEEE dd MMMM yyyy")}" />
-                </div>
+                    <!-- End Date -->
+                    <div class="form-group row mt-4">
+                        <label for="endDate" class="col-6 col-form-label text-right pr-4">End Date</label>
+                        <g:textField name="endDate" type="text" class="col-6 form-control" required="true"
+                                     autoComplete="off"
+                                     value="${productGroup?.endDate?.toString("EEEE dd MMMM yyyy") ?: new Date().format("EEEE dd MMMM yyyy")}"/>
+                    </div>
 
-                <!-- Never Expires Checkbox -->
-                <div class="form-group row mt-4">
-                    <label class="col-4 col-form-label text-right pr-4">Never Expires</label>
-                    <div class="col-8">
-                        <g:checkBox name="neverExpires" value="${productGroup?.neverExpires}"/>
+                    <!-- Maximum Sell Quantity -->
+                    <div class="form-group row mt-4">
+                        <label for="maxSellQuantity"
+                               class="col-6 col-form-label text-right pr-4">Maximum Sell Quantity</label>
+                        <g:field name="maxSellQuantity" type="number" min="0" max="999"
+                                 value="${productGroup?.maxSellQuantity}" class="col-6 form-control"
+                                 onkeypress="return preventNegativeInteger(event);" onpaste="return false;"/>
                     </div>
                 </div>
             </div>
 
-            <!-- Second Column (Right) -->
-            <div class="col-12 col-md-6">
-
-                <!-- Maximum Sell Quantity -->
-                <div class="form-group row mt-4">
-                    <label for="maxSellQuantity" class="col-4 col-form-label text-right pr-4">Maximum Sell Quantity</label>
-                    <g:field name="maxSellQuantity" type="number" min="0" max="999"
-                             value="${productGroup?.maxSellQuantity}" class="col-8 form-control"
-                             onkeypress="return preventNegativeInteger(event);" onpaste="return false;"/>
-                </div>
-
-                <!-- Category Selection -->
-                <div class="form-group row mt-4">
-                    <label for="category" class="col-4 col-form-label text-right pr-4">Category</label>
-                    <g:select name="category" from="${categories}" value="${productGroup?.category}"
-                              class="col-8 form-control"/>
-                </div>
+            <!-- Group Restriction Section -->
+            <div class="header-wl mt-2">
+                <h3 class="mx-auto section-title">Group Restriction</h3>
             </div>
-        </div>
 
-        <!-- Group Restriction Section -->
-        <div class="header-wl mt-2">
-            <h3 class="mx-auto section-title">Group Restriction</h3>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-6">
-                <!-- Day Restrictions -->
-                <div class="form-group row mt-4">
-                    <label class="col-4 col-form-label text-right pr-4">Day Restrictions</label>
-                    <g:select name="dayRestrictions" from="${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}"
-                              value="${productGroup?.dayRestrictions}" class="col-8 form-control"
-                              multiple="true" />
-                </div>
-            </div>
-            <div class="col-12 col-md-6">
-                <!-- Start Time -->
-                <div class="form-group row mt-4">
-                    <label for="startTime" class="col-4 col-form-label text-right pr-4">Start Time</label>
-                    <div id="startTimeContainer" class="input-group col-8 bootstrap-timepicker timepicker">
-                        <input id="startTime" name="startTime" type="text" class="form-control input-small" value="${productGroup?.startTime}"/>
-                        <span class="input-group-addon">
-                            <i class="glyphicon glyphicon-time"></i>
-                        </span>
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-6">
+                    <!-- Day Restrictions -->
+                    <div class="form-group row mt-4">
+                        <label class="col-6 col-form-label text-right pr-4">Day Restrictions</label>
+                        <div class="col-6 px-0">
+                            <div class="checkbox-group">
+                                <g:each in="${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}" var="day">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="${day}" name="dayRestrictions" value="${day}"
+                                            ${productGroup?.dayRestrictions?.contains(day) ? 'checked' : ''}>
+                                        <label class="form-check-label" for="${day}">${day}</label>
+                                    </div>
+                                </g:each>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- End Time -->
-                <div class="form-group row mt-4">
-                    <label for="endTime" class="col-4 col-form-label text-right pr-4">End Time</label>
-                    <div id="endTimeContainer" class="input-group col-8 bootstrap-timepicker timepicker">
-                        <input id="endTime" name="endTime" type="text" class="form-control input-small" value="${productGroup?.endTime}"/>
-                        <span class="input-group-addon">
-                            <i class="glyphicon glyphicon-time"></i>
-                        </span>
+                <div class="col-12 col-md-6">
+                    <!-- Start Time -->
+                    <div class="form-group row mt-4">
+                        <label for="startTime" class="col-6 col-form-label text-right pr-4">Start Time</label>
+
+                        <div class="col-6 px-0">
+                            <div id="startTimeContainer" class="input-group bootstrap-timepicker timepicker">
+                                <input id="startTime" name="startTime" type="text" class="form-control"
+                                       value="${productGroup?.startTime}"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- End Time -->
+                    <div class="form-group row mt-4">
+                        <label for="endTime" class="col-6 col-form-label text-right pr-4">End Time</label>
+
+                        <div class="col-6 px-0">
+                            <div id="endTimeContainer" class="input-group bootstrap-timepicker timepicker">
+                                <input id="endTime" name="endTime" type="text" class="form-control"
+                                       value="${productGroup?.endTime}"/>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Products Table -->
-        <div class="header-wl mt-5">
-            <h3 class="mx-auto">Products</h3>
-        </div>
+            <!-- Products Table -->
+            <div class="header-wl mt-5">
+                <h3 class="mx-auto">Products</h3>
+            </div>
 
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-end mb-3">
-                    <a id="add-product-btn" href="#" class="btn btn-wl mr-2" data-toggle="modal" data-target="#productSearchModal">
-                        Add Product
-                    </a>
-                    <button id="importProductList" class="btn btn-wl">Import Product List</button>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-end mb-3">
+                        <a id="add-product-btn" href="#" class="btn btn-wl mr-2" data-toggle="modal"
+                           data-target="#productSearchModal">
+                            Add Product
+                        </a>
+                        <button id="importProductList" class="btn btn-wl">Import Product List</button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-12">
-                <div class="row font-weight-bold mb-2">
-                    <div class="col-2">Item Code</div>
-                    <div class="col-3">SKU</div>
-                    <div class="col-6">Name</div>
-                    <div class="col-1">&nbsp;</div>
-                </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="row font-weight-bold mb-2">
+                        <div class="col-3">Item Code</div>
+                        <div class="col-3">SKU</div>
+                        <div class="col-4">Description</div>
+                        <div class="col-2">&nbsp;</div>
+                    </div>
 
-                <div id="productList" class="align-content-center mb-5">
-                    <g:if test="${!productGroup?.productGroupProducts || productGroup?.productGroupProducts?.size() == 0}">
-                        <div id="noResultsRow" class="col-12 pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
-                    </g:if>
+                    <div id="productList" class="row align-content-center mb-5">
+                        <g:if test="${!productGroup?.productGroupProducts || productGroup?.productGroupProducts?.size() == 0}">
+                            <div id="noResultsRow"
+                                 class="col-12 pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
+                        </g:if>
 
-                    <g:each in="${productGroup?.productGroupProducts?.sort { it.sku }}" var="productGroupProduct"
-                            status="i">
-                        <g:render template="productGroupProductRow"
-                                  model="[productGroupProduct: productGroupProduct, i: i]"/>
-                    </g:each>
+                        <g:each in="${productGroup?.productGroupProducts?.sort { it.sku }}" var="productGroupProduct"
+                                status="i">
+                            <g:render template="productGroupProductRow"
+                                      model="[productGroupProduct: productGroupProduct, i: i]"/>
+                        </g:each>
+                    </div>
                 </div>
             </div>
-        </div>
-        <g:render template="/product/productSearch" />
-    </g:form>
+            <g:render template="/product/productSearch"/>
+        </g:form>
+    </div>
 </section>
 
 <asset:javascript src="productgroup.js"/>
