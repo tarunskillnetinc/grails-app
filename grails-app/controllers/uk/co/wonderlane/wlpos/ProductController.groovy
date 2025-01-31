@@ -1412,6 +1412,10 @@ class ProductController extends BaseController {
 
         builder.compare("category", product.category?.description, editedProduct.category?.description)
 
+        builder.compare("saleMessage", (product?.saleMessages?.isEmpty() ? '' : product?.saleMessages?.max { it.id }?.text), editedProduct?.saleMessage)
+        builder.compare("refundMessage", (product?.refundMessages?.isEmpty() ? '' : product?.refundMessages?.max { it.id }?.text), editedProduct?.refundMessage)
+        builder.compare("scoSaleMessage", (product?.scoMessages?.isEmpty() ? '' : product?.scoMessages?.max { it.id }?.text), editedProduct?.scoSaleMessage)
+
         // Restrictions
         builder.compare("minOpenPrice", product.restrictions.minOpenPrice == null ? product.restrictions.getDefaultMinOpenPrice() : product.restrictions.minOpenPrice, editedProduct.restrictions.minOpenPrice)
         builder.compare("maxOpenPrice", product.restrictions.maxOpenPrice == null ? product.restrictions.getDefaultMaxOpenPrice() : product.restrictions.maxOpenPrice, editedProduct.restrictions.maxOpenPrice)
