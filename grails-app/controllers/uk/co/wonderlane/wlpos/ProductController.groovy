@@ -21,6 +21,7 @@ import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.PriceMarkedType
 import uk.co.wonderlane.wlpos.enums.ProductAttributeType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
+import uk.co.wonderlane.wlpos.enums.ProductMessageType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
@@ -28,11 +29,13 @@ import uk.co.wonderlane.wlpos.supplier.Supplier
 class ProductController extends BaseController {
 
     def springSecurityService
+    def messageService
     def restrictionsService
     def supplierService
     def storeService
     def tagService
     def productHistoryService
+    def productMessageService
 
     /**
      * Landing page of the controller action - displays the product search screen.
@@ -450,6 +453,60 @@ class ProductController extends BaseController {
 
         render "OK"
     }
+    
+    def updateOrCreateMessage(UpdateMessageCommand command) {
+        def product = command.product
+        def messageText = command.messageText
+        def messageId = command.messageId
+        def messageType = command.messageType
+        
+        def message = messageId ? Message.get(messageId) : null
+
+        if (message) {
+            if (message.text != (messageText ?: '')) {
+                message.text = messageText ?: ''
+                messageService.saveMessage(message)
+            }
+        } else {
+            if (messageText != null) {
+                message = new Message(
+                    retailerId: springSecurityService.principal.retailerId,
+                    text: messageText,
+                    retailerMessageCode: "",
+                    displayOncePerItem: true
+                )
+                
+                messageService.saveMessage(message)
+    
+                // Create a new ProductMessage to link the message to the product
+                def productMessage = new ProductMessage(product: product, message: message, type: messageType)
+                productMessageService.saveProductMessage(productMessage)
+            }
+        }
+    }
+    
+    def updateProductMessages(Product product, ProductCommand editedProduct) {
+        updateOrCreateMessage(new UpdateMessageCommand(
+            product: product,
+            messageText: editedProduct.saleMessage,
+            messageId: editedProduct.saleMessageId,
+            messageType: ProductMessageType.SALE
+        ))
+
+        updateOrCreateMessage(new UpdateMessageCommand(
+            product: product,
+            messageText: editedProduct.refundMessage,
+            messageId: editedProduct.refundMessageId,
+            messageType: ProductMessageType.REFUND
+        ))
+
+        updateOrCreateMessage(new UpdateMessageCommand(
+            product: product,
+            messageText: editedProduct.scoSaleMessage,
+            messageId: editedProduct.scoSaleMessageId,
+            messageType: ProductMessageType.SCO
+        ))
+    }
 
     private Product saveProduct(ProductCommand editedProduct, def paramsMap, boolean isRequest) {
         editedProduct.variants?.removeIf({ it == null })
@@ -660,6 +717,8 @@ class ProductController extends BaseController {
         }
 
         if (!product.hasErrors()) {
+            updateProductMessages(product, editedProduct)
+            
             if (productService.isSingleStageSel() || !changeAffectsSel) {
                 List<RangeProduct> unrangedRangeProducts = []
                 def currentRangeProducts = RangeProduct.findAllByProductId(product.id)
@@ -1352,6 +1411,10 @@ class ProductController extends BaseController {
         builder.compare("productImgUrl", product.productImgUrl, editedProduct.productImgUrl)
 
         builder.compare("category", product.category?.description, editedProduct.category?.description)
+
+        builder.compare("saleMessage", (product?.saleMessages?.isEmpty() ? '' : product?.saleMessages?.max { it.id }?.text), editedProduct?.saleMessage)
+        builder.compare("refundMessage", (product?.refundMessages?.isEmpty() ? '' : product?.refundMessages?.max { it.id }?.text), editedProduct?.refundMessage)
+        builder.compare("scoSaleMessage", (product?.scoMessages?.isEmpty() ? '' : product?.scoMessages?.max { it.id }?.text), editedProduct?.scoSaleMessage)
 
         // Restrictions
         builder.compare("minOpenPrice", product.restrictions.minOpenPrice == null ? product.restrictions.getDefaultMinOpenPrice() : product.restrictions.minOpenPrice, editedProduct.restrictions.minOpenPrice)
@@ -2184,6 +2247,12 @@ class ProductCommand {
     VatCode vatCode
     BigDecimal vatPercentageOverride
     RestrictionsCommand restrictions
+    String saleMessage
+    Integer saleMessageId
+    String refundMessage
+    Integer refundMessageId
+    String scoSaleMessage
+    Integer scoSaleMessageId
     String discreetMessage
     ProductStatus status
     String retailerProductId
@@ -2468,4 +2537,11 @@ class CSVUploadProduct {
 
         return productCommand
     }
+}
+
+class UpdateMessageCommand {
+    Product product
+    String messageText
+    Integer messageId
+    ProductMessageType messageType
 }
