@@ -95,7 +95,7 @@
     }
 
     .checkbox-group {
-        max-height: 150px;
+        max-height: 15rem;
         overflow-y: auto;
         border: 1px solid #ced4da;
         border-radius: 0.25rem;
@@ -116,7 +116,7 @@
 
             intListener("maxSellQuantity", 10, 999);
 
-            $('#startTime, #endTime').timepicker({
+            $('#restrictionStartTime, #restrictionEndTime').timepicker({
                 showMeridian: false,
                 defaultTime: false,
                 minuteStep: 1,
@@ -136,7 +136,7 @@
             });
 
             // Prevent default keyboard events on the input
-            $('#startTime, #endTime').on('keydown', function (e) {
+            $('#restrictionStartTime, #restrictionEndTime').on('keydown', function (e) {
                 e.preventDefault();
             });
 
@@ -250,7 +250,7 @@
                     <div class="form-group row mt-4">
                         <label for="status" class="col-6 col-form-label text-right pr-4">Status</label>
                         <g:select name="status" from="${['Active', 'Inactive']}"
-                                  value="${productGroup?.status}" class="col-6 form-control"/>
+                                  value="${productGroup?.active?'Active':'Inactive'}" class="col-6 form-control"/>
                     </div>
 
                     <!-- Never Expires Checkbox -->
@@ -269,7 +269,11 @@
                     <!-- Category Selection -->
                     <div class="form-group row mt-4">
                         <label for="category" class="col-6 col-form-label text-right pr-4">Category</label>
-                        <g:select name="category" from="${categories}" value="${productGroup?.category}"
+                        <g:select name="categoryId"
+                                  from="${categories}"
+                                  optionKey="id"
+                                  optionValue="description"
+                                  value="${productGroup?.categoryId}"
                                   class="col-6 form-control"/>
                     </div>
 
@@ -304,10 +308,10 @@
                         <label class="col-6 col-form-label text-right pr-4">Day Restrictions</label>
                         <div class="col-6 px-0">
                             <div class="checkbox-group">
-                                <g:each in="${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}" var="day">
+                                <g:each in="${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}" var="day" status="i">
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="${day}" name="dayRestrictions" value="${day}"
-                                            ${productGroup?.dayRestrictions?.contains(day) ? 'checked' : ''}>
+                                        <input type="checkbox" class="form-check-input" id="${day}" name="days" value="${i}"
+                                            ${productGroup?.days ? productGroup?.days[i] ? 'checked' : '':''}>
                                         <label class="form-check-label" for="${day}">${day}</label>
                                     </div>
                                 </g:each>
@@ -319,24 +323,24 @@
                 <div class="col-12 col-md-6">
                     <!-- Start Time -->
                     <div class="form-group row mt-4">
-                        <label for="startTime" class="col-6 col-form-label text-right pr-4">Start Time</label>
+                        <label for="restrictionStartTime" class="col-6 col-form-label text-right pr-4">Start Time</label>
 
                         <div class="col-6 px-0">
                             <div id="startTimeContainer" class="input-group bootstrap-timepicker timepicker">
-                                <input id="startTime" name="startTime" type="text" class="form-control"
-                                       value="${productGroup?.startTime}"/>
+                                <input id="restrictionStartTime" name="restrictionStartTime" type="text" class="form-control"
+                                       value="${productGroup?.restrictionStartTime}"/>
                             </div>
                         </div>
                     </div>
 
                     <!-- End Time -->
                     <div class="form-group row mt-4">
-                        <label for="endTime" class="col-6 col-form-label text-right pr-4">End Time</label>
+                        <label for="restrictionEndTime" class="col-6 col-form-label text-right pr-4">End Time</label>
 
                         <div class="col-6 px-0">
                             <div id="endTimeContainer" class="input-group bootstrap-timepicker timepicker">
-                                <input id="endTime" name="endTime" type="text" class="form-control"
-                                       value="${productGroup?.endTime}"/>
+                                <input id="restrictionEndTime" name="restrictionEndTime" type="text" class="form-control"
+                                       value="${productGroup?.restrictionEndTime}"/>
                             </div>
                         </div>
                     </div>
@@ -355,7 +359,7 @@
                            data-target="#productSearchModal">
                             Add Product
                         </a>
-                        <button id="importProductList" class="btn btn-wl">Import Product List</button>
+                        <button id="addCategoryBtn" class="btn btn-wl">Add Category</button>
                     </div>
                 </div>
             </div>
@@ -383,10 +387,11 @@
                     </div>
                 </div>
             </div>
-            <g:render template="/product/productSearch"/>
         </g:form>
     </div>
 </section>
+
+<g:render template="/product/productSearch"/>
 
 <asset:javascript src="productgroup.js"/>
 

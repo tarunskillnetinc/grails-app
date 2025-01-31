@@ -14,6 +14,7 @@ class ProductGroupController {
     def productService
     def springSecurityService
     def rabbitService
+    def categoryService
 
     def index() {
         def productGroups = productGroupService.getProductGroups()
@@ -101,6 +102,12 @@ class ProductGroupController {
         render(view: "add", model: [productGroup: productGroup])
     }
 
+
+    def add() {
+        def categories = categoryService.getTopLevelCategories()
+        [categories:categories]
+    }
+
     def ajaxAddProduct(int productVariantId, long sku, String productDescription) {
         def productGroupProduct = new ProductGroupProduct()
         productGroupProduct.sku = sku
@@ -184,7 +191,7 @@ class ProductGroupController {
                 }
             }
 
-            render(view: "add", model: [productGroup: productGroup])
+            render(view: "add", model: [productGroup: cmd])
         }
     }
 
@@ -212,10 +219,24 @@ class SaveProductGroupCommand {
     String name
     Integer maxSellQuantity
     Long[] sku
+    boolean active
+    int[] days
+    String restrictionStartTime
+    String restrictionEndTime
+    String startDate
+    String endDate
+    String categoryId
+    boolean neverExpires
 
     static constraints = {
         name nullable: false, blank: false, maxSize: 100
         maxSellQuantity nullable: true, min: 1, max: 999
         sku nullable: false
+        days nullable: false
+        restrictionStartTime nullable: false
+        restrictionEndTime nullable: true
+        startDate nullable: false
+        endDate nullable: true
+        categoryId nullable: false
     }
 }

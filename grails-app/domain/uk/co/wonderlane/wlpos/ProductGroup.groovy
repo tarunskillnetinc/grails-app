@@ -12,7 +12,6 @@ class ProductGroup {
     DateTime endDate
     String timeRestriction
     Integer maxSellQuantity
-    Integer maxSellQty
     boolean active
 
     static hasMany = [productGroupProducts: ProductGroupProduct]
@@ -28,7 +27,6 @@ class ProductGroup {
         endDate column: "endDate"
         timeRestriction column: "timeRestriction", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         maxSellQuantity column: "maxSellQuantity"
-        maxSellQty column: "maxSellQty"
         active column: "active"
         productGroupProducts cascade: "all,delete-orphan"
     }
@@ -40,7 +38,6 @@ class ProductGroup {
         endDate nullable: true
         timeRestriction nullable: true
         maxSellQuantity nullable: true, min: 1
-        maxSellQty nullable: true, min: 1
         active nullable: false
     }
 
@@ -54,7 +51,6 @@ class ProductGroup {
         productGroup.setEndDate(endDate?.toDate())
         productGroup.setTimeRestriction(timeRestriction)
         productGroup.setMaxSellQuantity(maxSellQuantity)
-        productGroup.setMaxSellQty(maxSellQty)
         productGroup.setActive(active)
 
         productGroupProducts?.each {
