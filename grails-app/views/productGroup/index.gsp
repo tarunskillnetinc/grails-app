@@ -63,6 +63,11 @@
                     data: filterParams,
                     success: function(resp) {
                         $('#search-results').html(resp);
+                    },
+                    error: function () {
+                        $("#messages-container").html(
+                            '<div class="alert alert-danger" role="alert">Failed to load page. Please try again later.</div>'
+                        );
                     }
                 });
             }
@@ -105,13 +110,14 @@
                 </div>
             </div>
 
-            <g:if test="${flash.message}">
-                <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
-            </g:if>
-
-            <g:if test="${flash.error}">
-                <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
-            </g:if>
+            <div id="messages-container">
+                <g:if test="${flash.message}">
+                    <div id="alerts-success-container-message" class="alert alert-success" role="alert">${flash.message}</div>
+                </g:if>
+                <g:if test="${flash.error}">
+                    <div id="alerts-success-container-message" class="alert alert-danger" role="alert">${flash.error}</div>
+                </g:if>
+            </div>
 
             <div class="row mt-4">
                 <div class="col-7">
@@ -136,7 +142,7 @@
 
                                         <div class="input-group-append">
                                             <g:select id="productGroupSearchBy" name="productGroupSearchBy"
-                                                      from="${['everything', 'description', 'tagId']}" value="everything"
+                                                      from="${['everything', 'description', 'productGroupId']}" value="everything"
                                                       value="${session.SEARCH_BY ? session.SEARCH_BY : 'everything'}"
                                                       valueMessagePrefix="ProductGroupSearchBy"
                                                       class="form-control select-border" style="z-index: 0;" />

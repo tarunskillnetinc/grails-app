@@ -43,7 +43,7 @@ class ProductGroupController {
             String searchBy = params.searchBy
             DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
             DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
-            Boolean status = params.status != null ? params.status.toString().equalsIgnoreCase("ACTIVE") : null
+            String status = params.status ? params.status : null
             String sortColumn = params.sortColumn ?: "id"
             String sortOrder = params.sortOrder ?: "asc"
 

@@ -10,15 +10,15 @@
 
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <div class="col-1 font-weight-bold">
-        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'productGroupId',
+        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'id',
             sortOrder: ${sortColumn == 'id' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
             Product Group ID
         </a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'description',
+        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'name',
             sortOrder: ${sortColumn == 'name' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
-            Description
+            Name
         </a>
     </div>
     <div class="col-2 font-weight-bold">
@@ -34,19 +34,19 @@
         </a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'restrictionType',
+        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'timeRestriction',
             sortOrder: ${sortColumn == 'timeRestriction' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
             Restriction Type
         </a>
     </div>
     <div class="col-2 font-weight-bold">
         <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'productCount',
-            sortOrder: ${sortColumn == 'timeRestriction' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
+            sortOrder: ${sortColumn == 'productCount' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
             Product Count
         </a>
     </div>
     <div class="col-1 font-weight-bold">
-        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'status',
+        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'active',
             sortOrder: ${sortColumn == 'active' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
             Status
         </a>

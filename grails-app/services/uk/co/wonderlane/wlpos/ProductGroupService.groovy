@@ -8,9 +8,9 @@ class ProductGroupService {
 
     def springSecurityService
 
-    def getProductGroups(String searchTerm = null, String searchBy = "everything", DateTime startDate = null, DateTime endDate = null, Boolean status = null ,  int offset = 0, int max = 50,
+    def getProductGroups(String searchTerm = null, String searchBy = "everything", DateTime startDate = null, DateTime endDate = null, String status = null ,  int offset = 0, int max = 50,
                          String sort = "name", String order = "asc") {
-        return ProductGroup.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
+        def productGroups =  ProductGroup.createCriteria().list([offset: offset, max: max]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             eq ("hidden", false)
 
@@ -34,14 +34,31 @@ class ProductGroupService {
             if (startDate) {
                 gte("startDate", startDate) // startDate >= given startDate
             }
+
             if (endDate) {
-                le("endDate", endDate) // endDate <= given endDate
+                lte("endDate", endDate) // endDate <= given endDate
             }
 
             if (status != null) {  // Status Filtering
-                eq("active", status) // Filters active/inactive records
+                Boolean activeStatus = status != null ? status.toString().equalsIgnoreCase("ACTIVE") : null
+                eq("active", activeStatus) // Filters active/inactive records
             }
         }
+
+        // **Sorting in Memory** (if sorting by product count is required)
+        if (sort == "productCount") {
+            productGroups = productGroups?.sort { it?.productGroupProducts?.size() }
+            if (order == "desc") {
+                productGroups = productGroups?.reverse()
+            }
+        } else {
+            productGroups.sort { it."${sort}" }
+            if (order == "desc") {
+                productGroups = productGroups?.reverse()
+            }
+        }
+
+        return productGroups
 
     }
 
