@@ -309,13 +309,13 @@ class CashReportingController {
             }
 
             reportLines.add([
-                    id          : audit.id,
-                    timestamp: audit.timestamp,
-                    name        : audit.usersRealName,
-                    username: audit.userName,
+                    id             : audit.id,
+                    timestamp      : audit.timestamp,
+                    name           : audit.usersRealName,
+                    username       : audit.userName,
                     transactionType: audit.action,
-                    rowspan     : Math.max(tenderValues.size(), 1),
-                    tenderValues: tenderValues.toSorted { value -> value.type }
+                    rowspan        : Math.max(tenderValues.size(), 1),
+                    tenderValues   : tenderValues.toSorted { value -> value.type }
             ])
         }
 
@@ -325,7 +325,7 @@ class CashReportingController {
     private getShiftAuditReportLines(int shiftId) {
         def reportLines = []
         def auditRecords = cashReportingService.getShiftAuditRecords(shiftId)
-        auditRecords?.forEach {audit ->
+        auditRecords?.forEach { audit ->
             def tenderValues = []
             def showReconciled = [
                     ShiftAction.RECONCILE.toString(), ShiftAction.RECOUNT.toString(), ShiftAction.FINALISE.toString()
@@ -354,9 +354,12 @@ class CashReportingController {
             }
 
             reportLines.add([
-                    id          : audit.id, timestamp: audit.timestamp,
-                    name        : audit.usersRealName, username: audit.username,
-                    action      : audit.action, source: audit.backoffice ? "Back Office" : "Till",
+                    id          : audit.id,
+                    timestamp   : audit.timestamp,
+                    name        : audit.usersRealName,
+                    username    : audit.username,
+                    action      : audit.action,
+                    source      : audit.backoffice ? "Back Office" : "Till",
                     rowspan     : Math.max(tenderValues.size(), 1),
                     tenderValues: tenderValues.toSorted { value -> value.type }
             ])
