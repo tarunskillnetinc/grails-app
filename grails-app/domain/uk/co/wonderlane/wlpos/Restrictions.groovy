@@ -18,6 +18,8 @@ class Restrictions {
     Boolean quantityChangeForced
     Boolean receiptPrintForced
     Boolean allowsLoyaltyPointsCollection
+    Boolean alwaysOpenCashDrawer
+    Boolean excludedFromPromotion
 
     static mapping = {
         table "restrictions"
@@ -38,6 +40,8 @@ class Restrictions {
         quantityChangeForced column: "quantityChangeForced"
         receiptPrintForced column: "receiptPrintForced"
         allowsLoyaltyPointsCollection column: "allowsLoyaltyPointsCollection"
+        alwaysOpenCashDrawer column: "alwaysOpenCashDrawer"
+        excludedFromPromotion column: "excludedFromPromotion"
     }
 
     static constraints = {
@@ -66,6 +70,8 @@ class Restrictions {
         quantityChangeForced nullable: true
         receiptPrintForced nullable: true
         allowsLoyaltyPointsCollection nullable: true
+        alwaysOpenCashDrawer nullable: true
+        excludedFromPromotion nullable: true
     }
 
     public uk.co.wonderlane.wlpos.entities.Restrictions getRestrictions() {
@@ -87,6 +93,8 @@ class Restrictions {
         restrictions.setQuantityChangeForced(quantityChangeForced)
         restrictions.setReceiptPrintForced(receiptPrintForced)
         restrictions.setAllowsLoyaltyPointsCollection(allowsLoyaltyPointsCollection)
+        restrictions.setAlwaysOpenCashDrawer(alwaysOpenCashDrawer)
+        restrictions.setExcludedFromPromotion(excludedFromPromotion)
         return restrictions
     }
 

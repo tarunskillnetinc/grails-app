@@ -26,7 +26,13 @@ class Message {
         displayOncePerItem column: "displayOncePerItem"
     }
 
-    public uk.co.wonderlane.wlpos.entities.Message getMessage() {
+    static constraints = {
+        retailerMessageCode nullable: true
+        startDate nullable: true
+        endDate nullable: true
+    }
+
+    uk.co.wonderlane.wlpos.entities.Message getMessage() {
         uk.co.wonderlane.wlpos.entities.Message message = new uk.co.wonderlane.wlpos.entities.Message()
 
         message.setId(id)

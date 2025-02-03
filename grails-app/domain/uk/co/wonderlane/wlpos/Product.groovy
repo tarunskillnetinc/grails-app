@@ -4,6 +4,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.springframework.context.i18n.LocaleContextHolder
 import uk.co.wonderlane.wlpos.enums.ProductStatus
+import uk.co.wonderlane.wlpos.enums.ProductMessageType
 
 import java.math.RoundingMode
 
@@ -33,9 +34,8 @@ class Product {
     String retailerProductId
     Long preferredSku
 
-    Collection<Message> saleMessages = new ArrayList<>()
-    Collection<Message> refundMessages = new ArrayList<>()
     Collection<ProductVariant> variants = new ArrayList<>()
+    Collection<ProductAttributeValues> productAttributeValues = new ArrayList<>()
 
     BigDecimal retailPrice
     BigDecimal costPrice
@@ -44,7 +44,7 @@ class Product {
     SelType selType
     String productImgUrl
 
-    static hasMany = [ saleMessages: Message, refundMessages: Message, variants: ProductVariant ]
+    static hasMany = [ productMessages: ProductMessage, variants: ProductVariant, productAttributeValues: ProductAttributeValues ]
     static belongsTo = [selType: SelType]
 
     static transients = ['retailPrice', 'costPrice']
@@ -76,13 +76,13 @@ class Product {
         status column: "`status`", sqlType: "enum", enumType: "string"
         retailerProductId column: "retailerProductId"
         variants cascade: "save-update,delete"
+        productAttributeValues cascade: "save-update,delete"
         selDescription column: "selDescription"
         selType column: "selType"
         productImgUrl column: "productImgUrl"
         preferredSku column: "preferredSku"
 
-        saleMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
-        refundMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
+        productMessages: 'product'
     }
 
     static constraints = {
@@ -263,12 +263,15 @@ class Product {
                 product.getVariants().add(it.getProductVariant(priceBand))
             }
         }
-        saleMessages.each {
+        getSaleMessages().each {
             product.getSaleMessages().add(it.getMessage())
         }
-        refundMessages.each {
+        getRefundMessages().each {
             product.getRefundMessages().add(it.getMessage())
         }
+        getScoMessages().each {
+            product.getScoMessages().add(it.getMessage())
+       }
         product.setRetailerItemId(retailerProductId)
         product.setLocal(false)
 
@@ -280,5 +283,17 @@ class Product {
         product.setProductImgUrl(productImgUrl)
 
         return product
+    }
+
+    def getSaleMessages() {
+        return ProductMessage.findAllByProductAndType(this, ProductMessageType.SALE)*.message
+    }
+    
+    def getRefundMessages() {
+        return ProductMessage.findAllByProductAndType(this, ProductMessageType.REFUND)*.message
+    }
+    
+    def getScoMessages() {
+        return ProductMessage.findAllByProductAndType(this, ProductMessageType.SCO)*.message
     }
 }

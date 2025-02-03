@@ -24,8 +24,20 @@ class ReasonCodeService {
         return ReasonCode.findAllByRetailerIdAndTypeAndDeleted(retailerId, type, false)
     }
 
+    List<ReasonCode> findReasonCodesByCodes(int retailerId, List<String> code) {
+        return ReasonCode.findAllByRetailerIdAndCodeInList(retailerId, code)
+    }
+
     ReasonCode findByCode(int retailerId, String code, boolean additionalFunctionality, int id) {
         return ReasonCode.findByRetailerIdAndCodeAndAdditionalFunctionalityAndIdNotEqual(retailerId, code, additionalFunctionality, id)
+    }
+
+    ReasonCode findByTypeAndCode(int retailerId, ReasonCodeType type, String code) {
+        return ReasonCode.findByRetailerIdAndTypeAndCode(retailerId, type, code)
+    }
+
+    List<ReasonCode> findReasonCodesByIds(List<Integer> id) {
+        return ReasonCode.findAllByIdInList(id)
     }
 
     boolean isLastOfType(int retailerId, ReasonCodeType type) {
