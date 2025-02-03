@@ -278,8 +278,6 @@ class PromotionController {
         SyncMessage syncMessage = new SyncMessage(SyncMessageType.PROMOTION, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
         syncMessage.setInsert(true)
 
-        // TODO This doesn't appear to take into account the actual stores selected from the list yet?
-
         uk.co.wonderlane.wlpos.entities.Promotion tillPromo = promotion.getPromotion()
 
         List<uk.co.wonderlane.wlpos.entities.PromotionGroup> tagGroups = new ArrayList<>();
@@ -326,10 +324,12 @@ class PromotionController {
 
         syncMessage.setPromotion(tillPromo)
 
+        // Only Send sync message to selected stores
         if(promotion.stores != null){
             promotion.stores?.each { store ->
 
                 syncMessage.setStoreId(store.id)
+                syncMessage.setStoreNumber(store.config.storeNumber)
 
                 rabbitService.sendMessage(syncMessage);
             }
