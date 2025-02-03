@@ -44,7 +44,7 @@ class Product {
     SelType selType
     String productImgUrl
 
-    static hasMany = [ productMessages: ProductMessage, variants: ProductVariant, productAttributeValues: ProductAttributeValues ]
+    static hasMany = [ variants: ProductVariant, productAttributeValues: ProductAttributeValues ]
     static belongsTo = [selType: SelType]
 
     static transients = ['retailPrice', 'costPrice']
@@ -81,8 +81,6 @@ class Product {
         selType column: "selType"
         productImgUrl column: "productImgUrl"
         preferredSku column: "preferredSku"
-
-        productMessages: 'product'
     }
 
     static constraints = {
@@ -286,14 +284,32 @@ class Product {
     }
 
     def getSaleMessages() {
-        return ProductMessage.findAllByProductAndType(this, ProductMessageType.SALE)*.message
+        def saleMessages = []
+        
+        if (id != 0) {
+            saleMessages = ProductMessage.findAllByProductAndType(this, ProductMessageType.SALE)*.message
+        }
+
+        return saleMessages
     }
     
     def getRefundMessages() {
-        return ProductMessage.findAllByProductAndType(this, ProductMessageType.REFUND)*.message
+        def refundMessages = []
+        
+        if (id != 0) {
+            refundMessages = ProductMessage.findAllByProductAndType(this, ProductMessageType.REFUND)*.message
+        }
+
+        return refundMessages
     }
     
     def getScoMessages() {
-        return ProductMessage.findAllByProductAndType(this, ProductMessageType.SCO)*.message
+        def scoMessages = []
+        
+        if (id != 0) {
+            scoMessages = ProductMessage.findAllByProductAndType(this, ProductMessageType.SCO)*.message
+        }
+
+        return scoMessages
     }
 }

@@ -463,8 +463,11 @@ class ProductController extends BaseController {
         def message = messageId ? Message.get(messageId) : null
 
         if (message) {
-            if (message.text != (messageText ?: '')) {
-                message.text = messageText ?: ''
+            if (messageText == null) {
+                productMessageService.deleteProductMessage(product, message)
+                messageService.deleteMessage(message.id)
+            } else if (message.text != messageText) {
+                message.text = messageText
                 messageService.saveMessage(message)
             }
         } else {

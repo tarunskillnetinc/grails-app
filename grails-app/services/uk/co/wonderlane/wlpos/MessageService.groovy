@@ -8,4 +8,9 @@ class MessageService {
         message.save(flush: true)
         return message.id
     }
+
+    def deleteMessage(int id) {
+        def message = Message.findById(id)
+        message.delete()
+    }
 }
