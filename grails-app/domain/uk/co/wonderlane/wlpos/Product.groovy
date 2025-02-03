@@ -18,7 +18,6 @@ class Product {
     String description
     String receiptDescription
     Category category
-    String unitSize
     boolean weightedItem
     boolean openPrice
     boolean zeroPrice
@@ -32,6 +31,8 @@ class Product {
     ProductStatus status
     String retailerProductId
     Long preferredSku
+    boolean ownLabel
+    String extras
 
     Collection<Message> saleMessages = new ArrayList<>()
     Collection<Message> refundMessages = new ArrayList<>()
@@ -63,7 +64,6 @@ class Product {
         description column: "`description`"
         receiptDescription column: "receiptDescription"
         category column: "categoryId"
-        unitSize column: "unitSize"
         pricePerKg column: "pricePerKg"
         snappyProduct column: "snappyProduct"
         deliItem column: "deliItem"
@@ -82,6 +82,8 @@ class Product {
         selType column: "selType"
         productImgUrl column: "productImgUrl"
         preferredSku column: "preferredSku"
+        ownLabel column: "ownLabel"
+        extras column: "extras", sqlType: "json"
 
         saleMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
         refundMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
@@ -94,7 +96,6 @@ class Product {
         description size: 1..100, blank: false, nullable: false
         receiptDescription size: 1..50, blank: false, nullable: false
         discreetMessage size: 0..50, blank: true, nullable: true
-        unitSize size: 1..50, blank: false, nullable:false
         vatPercentageOverride min:0 as BigDecimal, max: 100 as BigDecimal, blank: true, nullable: true, scale: 2
         vatCode nullable: false
         status nullable: false
@@ -122,6 +123,8 @@ class Product {
         selType nullable: true
         productImgUrl nullable: true, blank: true, url: true
         preferredSku nullable: true
+        ownLabel nullable: false
+        extras nullable: true
     }
 
     List<RangeProduct> getRanges() {
@@ -250,7 +253,7 @@ class Product {
         product.setDescription(description)
         product.setReceiptDescription(receiptDescription)
         product.setCategory(category.getCategory())
-        product.setUnitSize(unitSize)
+        product.setUnitSize(variants?.get(0)?.getSelUnitSize())
         product.setWeightedItem(weightedItem)
         product.setPricePerKg(pricePerKg)
         product.setOpenPrice(openPrice)
