@@ -257,6 +257,18 @@
                     params["effectiveDate"] = $(selector + "effectiveDate").val();
                     params["preferredSku"] = $(selector + "preferredSku").val();
 
+                    params["description"] = $(selector + "description").val();
+                    params["receiptDescription"] = $(selector + "receiptDescription").val();
+                    params["priceMarked"] = $(selector + "priceMarked").val();
+
+                    params["unitSize"] = $(selector + "unitSize").val();
+                    params["unitOfMeasure.id"] = $(selector + "unitOfMeasure").val();
+                    params["itemsInUnit"] = $(selector + "itemsInUnit").val();
+
+                    params["heightCm"] = $(selector + "heightCm").val();
+                    params["widthCm"] = $(selector + "widthCm").val();
+                    params["depthCm"] = $(selector + "depthCm").val();
+
                     var barcodeContainers = $($(selector + "barcodesContainer > div"));
                     barcodeContainers.each(function(loopIndex) {
                         var barcodeIndex = parseInt($(this).attr("id").substring(16));
@@ -323,7 +335,22 @@
                     return;
                 }
 
-                var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: isPreferredSku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
+                var description = $("#addVariantDescription").val();
+                var receiptDescription = $("#addVariantReceiptDescription").val();
+                var priceMarked = $("#addVariantPriceMarked").prop("checked");
+
+                var unitSize = $("#addVariantUnitSize").val();
+                var unitOfMeasure = $("#addVariantUnitOfMeasure").val();
+                var itemsInUnit = $("#addVariantItemsInUnit").val();
+
+                var height = $("#addVariantHeightCm").val();
+                var width = $("#addVariantWidthCm").val();
+                var depth = $("#addVariantDepthCm").val();
+
+                var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: isPreferredSku, retailPrice: retailPrice, costPrice: costPrice,
+                    shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId,
+                    description: description, receiptDescription: receiptDescription, priceMarked: priceMarked, unitSize: unitSize, "unitOfMeasure.id": unitOfMeasure, itemsInUnit: itemsInUnit,
+                    heightCm: height, widthCm: width, depthCm: depth, effectiveDate: effectiveDate };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 var barcodes = []; // To store the barcode values for validation
@@ -355,22 +382,27 @@
                 packContainers.each(function(loopIndex) {
                     var packIndex = $(this).attr("id").substring(13);
                     var packSelector = "#variants\\[" +index +"\\]\\.packs\\[" +packIndex +"\\]";
+                    var packParam = "packs[" +loopIndex +"].";
 
-                    params["packs[" +loopIndex +"].index"] = loopIndex;
-                    params["packs[" +loopIndex +"].id"] = $(packSelector +"\\.id").val();
-                    params["packs[" +loopIndex +"].supplier.id"] = $(packSelector +"\\.supplier\\.id").val();
-                    params["packs[" +loopIndex +"].supplier.name"] = $(packSelector +"\\.supplier\\.name").val();
-                    params["packs[" +loopIndex +"].quantity"] = $(packSelector +"\\.quantity").val();
-                    params["packs[" +loopIndex +"].price"] = $(packSelector +"\\.price").val();
-                    params["packs[" +loopIndex +"].orderCode"] = $(packSelector +"\\.orderCode").val();
-                    params["packs[" +loopIndex +"].barcode"] = $(packSelector +"\\.barcode").val();
-                    params["packs[" +loopIndex +"].recommendedRetailPrice"] = $(packSelector +"\\.recommendedRetailPrice").val();
-                    params["packs[" +loopIndex +"].effectiveDate"] = $(packSelector +"\\.effectiveDate").val();
-                    params["packs[" +loopIndex +"].effectiveEndDate"] = $(packSelector +"\\.effectiveEndDate").val();
-                    params["packs[" +loopIndex +"].status"] = $(packSelector +"\\.status").val();
-                    params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
-                    params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
-                    params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCase").val();
+                    params[packParam + "index"] = loopIndex;
+                    params[packParam + "id"] = $(packSelector +"\\.id").val();
+                    params[packParam + "supplier.id"] = $(packSelector +"\\.supplier\\.id").val();
+                    params[packParam + "supplier.name"] = $(packSelector +"\\.supplier\\.name").val();
+                    params[packParam + "quantity"] = $(packSelector +"\\.quantity").val();
+                    params[packParam + "price"] = $(packSelector +"\\.price").val();
+                    params[packParam + "orderCode"] = $(packSelector +"\\.orderCode").val();
+                    params[packParam + "barcode"] = $(packSelector +"\\.barcode").val();
+                    params[packParam + "recommendedRetailPrice"] = $(packSelector +"\\.recommendedRetailPrice").val();
+                    params[packParam + "effectiveDate"] = $(packSelector +"\\.effectiveDate").val();
+                    params[packParam + "effectiveEndDate"] = $(packSelector +"\\.effectiveEndDate").val();
+                    params[packParam + "status"] = $(packSelector +"\\.status").val();
+                    params[packParam + "maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
+                    params[packParam + "allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
+                    params[packParam + "primaryCase"] = $(packSelector +"\\.primaryCase").val();
+                    params[packParam + "lengthCm" ] = $(packSelector +"\\.lengthCm").val();
+                    params[packParam + "heightCm" ] = $(packSelector +"\\.heightCm").val();
+                    params[packParam + "widthCm" ] = $(packSelector +"\\.widthCm").val();
+                    params[packParam + "weightKg" ] = $(packSelector +"\\.weightKg").val();
 
                     const isPriceMarked = $(packSelector + "\\.priceMarked").val();
                     params["packs[" +loopIndex +"].priceMarked"] = isPriceMarked;
@@ -642,6 +674,11 @@
                     params["packs[" +loopIndex +"].minAlcoholUnitPrice"] = $(packSelector +"\\.minAlcoholUnitPrice").val();
                     params["packs[" +loopIndex +"].weightedAverageCost"] = $(packSelector +"\\.weightedAverageCost").val();
 
+                    params["packs[" +loopIndex +"].lengthCm"] = $(packSelector + "\\.lengthCm").val();
+                    params["packs[" +loopIndex +"].heightCm"] = $(packSelector + "\\.heightCm").val();
+                    params["packs[" +loopIndex +"].widthCm"] = $(packSelector + "\\.widthCm").val();
+                    params["packs[" +loopIndex +"].weightKg"] = $(packSelector + "\\.weightKg").val();
+
                     var barcodeContainers = $(packSelector +"\\.barcodesContainer > div");
                     barcodeContainers.each(function(BarcodeLoopIndex) {
                         var barcodeIndex = parseInt($(this).attr("id").substring(16));
@@ -811,7 +848,6 @@
                     params["packs[" +loopIndex +"].quantity"] = $(packSelector +"\\.quantity").val();
                     params["packs[" +loopIndex +"].price"] = $(packSelector +"\\.price").val();
                     params["packs[" +loopIndex +"].orderCode"] = $(packSelector +"\\.orderCode").val();
-                    // params["packs[" +loopIndex +"].barcode"] = $(packSelector +"\\.barcode").val();
                     params["packs[" +loopIndex +"].recommendedRetailPrice"] = $(packSelector +"\\.recommendedRetailPrice").val();
                     params["packs[" +loopIndex +"].effectiveDate"] = $(packSelector +"\\.effectiveDate").val();
                     params["packs[" +loopIndex +"].effectiveEndDate"] = $(packSelector +"\\.effectiveEndDate").val();
@@ -820,6 +856,10 @@
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
                     params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCaseValue").prop("checked");
                     params["packs[" +loopIndex +"].productVariantId"] = $(packSelector +"\\.productVariantId").val();
+                    params["packs[" +loopIndex +"].lengthCm"] = $(packSelector + "\\.lengthCm").val();
+                    params["packs[" +loopIndex +"].heightCm"] = $(packSelector + "\\.heightCm").val();
+                    params["packs[" +loopIndex +"].widthCm"] = $(packSelector + "\\.widthCm").val();
+                    params["packs[" +loopIndex +"].weightKg"] = $(packSelector + "\\.weightKg").val();
                     params["packs[" +loopIndex +"].isWeighted"] = isWeighted;
 
                     const isPriceMarked = $(packSelector + "\\.priceMarked").prop("checked");
@@ -870,7 +910,6 @@
                 const weightedBox = $("#weightedItem");
                 return weightedBox && weightedBox.prop("checked");
             }
-
 
             // The "Ok" button was clicked on the locations modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
             function saveLocations(variantIndex, locationsType) {
@@ -1193,7 +1232,7 @@
         <section id="addVariant-modal" class="container-fluid">
             <!-- Add variant modal. -->
             <div class="modal fade" id="addVariantModal" tabindex="-1" role="dialog" aria-labelledby="addVariantModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-dialog modal-xl" role="document">
                     <div id="addVariantContent" class="modal-content">
 
                     </div>

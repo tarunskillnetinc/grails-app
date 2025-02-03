@@ -549,8 +549,6 @@ class ProductController extends BaseController {
             product.description = editedProduct.description
             product.receiptDescription = editedProduct.receiptDescription
             product.category = editedProduct.category
-            changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, product.unitSize, editedProduct.unitSize)
-            product.unitSize = editedProduct.unitSize
             product.weightedItem = editedProduct.weightedItem
             product.openPrice = editedProduct.openPrice
             product.zeroPrice = editedProduct.zeroPrice
@@ -566,6 +564,7 @@ class ProductController extends BaseController {
             product.selType = editedProduct.selType
             product.selDescription = editedProduct.selDescription ?: editedProduct.receiptDescription?.take(16)
             product.productImgUrl = editedProduct.productImgUrl
+            product.ownLabel = editedProduct.ownLabel
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
@@ -807,14 +806,26 @@ class ProductController extends BaseController {
                     existingVariant.retailPrice = editedVariant.retailPrice
                     changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.costPrice, editedVariant.costPrice)
                     existingVariant.costPrice = editedVariant.costPrice
-                    existingVariant.size = editedVariant.size
-                    existingVariant.colour = editedVariant.colour
                     existingVariant.minimumStockLevel = editedVariant.minimumStockLevel
                     existingVariant.effectiveDate = effectiveDate
                     existingVariant.shelfLifeDays = editedVariant.shelfLifeDays
                     existingVariant.shelfCapacity = editedVariant.shelfCapacity
                     existingVariant.minimumDisplayQuantity = editedVariant.minimumDisplayQuantity
                     existingVariant.defaultSupplierId = editedVariant.defaultSupplierId
+                    changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.description, editedVariant.description)
+                    existingVariant.description = editedVariant.description
+                    existingVariant.receiptDescription = editedVariant.receiptDescription
+                    existingVariant.priceMarked = editedVariant.priceMarked
+                    changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.unitSize, editedVariant.unitSize)
+                    changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.unitOfMeasure, editedVariant.unitOfMeasure)
+                    changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.itemsInUnit, editedVariant.itemsInUnit)
+                    existingVariant.unitSize = editedVariant.unitSize
+                    existingVariant.unitOfMeasure = editedVariant.unitOfMeasure
+                    existingVariant.itemsInUnit = editedVariant.itemsInUnit
+                    existingVariant.heightCm = editedVariant.heightCm
+                    existingVariant.widthCm = editedVariant.widthCm
+                    existingVariant.depthCm = editedVariant.depthCm
+
                     if (existingVariant.getShelfCapacity() != null
                             && !(existingVariant.getShelfCapacity() >= 1 && existingVariant.getShelfCapacity() <= 999)) {
                         product.errors.reject('productVariant.shelfCapacity.size.error', 'Shelf Capacity must be between 1 to 999.')
@@ -840,14 +851,21 @@ class ProductController extends BaseController {
                 newVariant.sku = editedVariant.sku
                 newVariant.retailPrice = editedVariant.retailPrice
                 newVariant.costPrice = editedVariant.costPrice
-                newVariant.size = editedVariant.size
-                newVariant.colour = editedVariant.colour
                 newVariant.minimumStockLevel = editedVariant.minimumStockLevel
                 newVariant.effectiveDate = effectiveDate
                 newVariant.shelfLifeDays = editedVariant.shelfLifeDays
                 newVariant.shelfCapacity = editedVariant.shelfCapacity
                 newVariant.minimumDisplayQuantity = editedVariant.minimumDisplayQuantity
                 newVariant.defaultSupplierId = editedVariant.defaultSupplierId
+                newVariant.description = editedVariant.description
+                newVariant.receiptDescription = editedVariant.receiptDescription
+                newVariant.priceMarked = editedVariant.priceMarked
+                newVariant.unitSize = editedVariant.unitSize
+                newVariant.unitOfMeasure = editedVariant.unitOfMeasure
+                newVariant.itemsInUnit = editedVariant.itemsInUnit
+                newVariant.heightCm = editedVariant.heightCm
+                newVariant.widthCm = editedVariant.widthCm
+                newVariant.depthCm = editedVariant.depthCm
 
                 editedVariant.packs?.each { editedPack ->
                     Pack newPack = new Pack()
@@ -1335,7 +1353,6 @@ class ProductController extends BaseController {
         builder.compare("itemCode", product.itemCode, editedProduct.itemCode)
         builder.compare("description", product.description, editedProduct.description)
         builder.compare("receiptDescription", product.receiptDescription, editedProduct.receiptDescription)
-        builder.compare("unitSize", product.unitSize, editedProduct.unitSize)
         builder.compare("weightedItem", product.weightedItem, editedProduct.weightedItem)
         builder.compare("pricePerKg", (!product.weightedItem && product.pricePerKg) ? false : product.pricePerKg, editedProduct.pricePerKg)
         builder.compare("snappyProduct", product.snappyProduct, editedProduct.snappyProduct)
@@ -1350,6 +1367,7 @@ class ProductController extends BaseController {
         builder.compare("selDescription", product.selDescription, editedProduct.selDescription)
         builder.compare("selType", product.selType?.name, editedProduct.selType?.name)
         builder.compare("productImgUrl", product.productImgUrl, editedProduct.productImgUrl)
+        builder.compare("ownLabel", product.ownLabel, editedProduct.ownLabel)
 
         builder.compare("category", product.category?.description, editedProduct.category?.description)
 
@@ -1409,8 +1427,6 @@ class ProductController extends BaseController {
         if (oldVariant.costPrice != null && variant.costPrice != null) {
             builder.compare(id, "costPrice", oldVariant.costPrice ?: BigDecimal.ZERO, variant.costPrice ?: BigDecimal.ZERO)
         }
-        builder.compare(id, "size", oldVariant.size, variant.size)
-        builder.compare(id, "colour", oldVariant.colour, variant.colour)
         builder.compare(id, "minimumStockLevel", oldVariant.minimumStockLevel, variant.minimumStockLevel)
         builder.compare(id, "shelfLifeDays", oldVariant.shelfLifeDays, variant.shelfLifeDays)
         if ((oldVariant.shelfCapacity == null && variant.shelfCapacity != null) || (oldVariant.shelfCapacity != null && variant.shelfCapacity != null)) {
@@ -1420,6 +1436,15 @@ class ProductController extends BaseController {
             builder.compare(id, "minimumDisplayQuantity", oldVariant.minimumDisplayQuantity, variant.minimumDisplayQuantity, ProductHistoryType.LOCATION_EDIT)
         }
         builder.compare(id, "defaultSupplierId", oldVariant.defaultSupplierId, variant.defaultSupplierId)
+        builder.compare(id, "description", oldVariant.description, variant.description)
+        builder.compare(id, "receiptDescription", oldVariant.receiptDescription, variant.receiptDescription)
+        builder.compare(id, "priceMarked", oldVariant.priceMarked, variant.priceMarked)
+        builder.compare(id, "unitSize", oldVariant.unitSize, variant.unitSize)
+        builder.compare(id, "unitOfMeasure", oldVariant.unitOfMeasure.name, variant.unitOfMeasure.name)
+        builder.compare(id, "itemsInUnit", oldVariant.itemsInUnit, variant.itemsInUnit)
+        builder.compare(id, "heightCm", oldVariant.heightCm, variant.heightCm)
+        builder.compare(id, "widthCm", oldVariant.widthCm, variant.widthCm)
+        builder.compare(id, "depthCm", oldVariant.depthCm, variant.depthCm)
 
         //---------------------------- Update history for barcode fields --------------------------------//
 
@@ -1634,7 +1659,8 @@ class ProductController extends BaseController {
     }
 
     def ajaxAddVariant(AddVariantCommand cmd, boolean isNewVariant) {
-        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant])
+        def unitsOfMeasure = UnitOfMeasure.findAllByRetailerId(springSecurityService.principal.retailerId)
+        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant, unitsOfMeasure: unitsOfMeasure])
     }
 
     def ajaxAddBarcode(int index, String selector) {
@@ -1847,7 +1873,6 @@ class ProductController extends BaseController {
         to.description = from.description
         to.receiptDescription = from.receiptDescription
         to.category = from.category
-        to.unitSize = from.unitSize
         to.weightedItem = from.weightedItem
         to.openPrice = from.openPrice
         to.zeroPrice = from.zeroPrice
@@ -1858,6 +1883,7 @@ class ProductController extends BaseController {
         to.vatPercentageOverride = from.vatPercentageOverride
         to.discreetMessage = from.discreetMessage
         to.status = from.status
+        to.ownLabel = from.ownLabel
         to.retailerProductId = from.retailerProductId
 
     }
@@ -1887,6 +1913,15 @@ class ProductController extends BaseController {
             productVariant.shelfLifeDays = variant.shelfLifeDays
             productVariant.shelfCapacity = variant.shelfCapacity
             productVariant.minimumDisplayQuantity = variant.minimumDisplayQuantity
+            productVariant.description = variant.description
+            productVariant.receiptDescription = variant.receiptDescription
+            productVariant.priceMarked = variant.priceMarked
+            productVariant.unitSize = variant.unitSize
+            productVariant.unitOfMeasure = UnitOfMeasure.findById(variant.unitOfMeasure)
+            productVariant.itemsInUnit = variant.itemsInUnit
+            productVariant.heightCm = variant.heightCm
+            productVariant.widthCm = variant.widthCm
+            productVariant.depthCm = variant.depthCm
             productVariant.setProduct(to)
 
             List<Barcode> barcodes = new ArrayList<>()
@@ -2011,6 +2046,15 @@ class AddVariantCommand {
     int operationMode
     Integer shelfCapacity
     Integer minimumDisplayQuantity
+    String description
+    String receiptDescription
+    BigDecimal unitSize
+    UnitOfMeasure unitOfMeasure
+    Integer itemsInUnit
+    BigDecimal heightCm
+    BigDecimal widthCm
+    BigDecimal depthCm
+    boolean priceMarked
     boolean preferredSku
 
     BigDecimal getCurrentPrice() {
@@ -2059,6 +2103,10 @@ class AddPackCommand implements Validateable {
     List<AddBarcodeCommand> barcodez
     BigDecimal minAlcoholUnitPrice
     BigDecimal weightedAverageCost
+    BigDecimal lengthCm
+    BigDecimal heightCm
+    BigDecimal widthCm
+    BigDecimal weightKg
     boolean priceMarked = false
     PriceMarkedType priceMarkedType
     BigDecimal priceMarkedValue
@@ -2170,7 +2218,6 @@ class ProductCommand {
     String receiptDescription
     Category category
     boolean dumpCode
-    String unitSize
     boolean weightedItem
     boolean openPrice
     boolean zeroPrice
@@ -2187,6 +2234,7 @@ class ProductCommand {
     String selDescription
     SelType selType
     String productImgUrl
+    boolean ownLabel
 
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
@@ -2231,8 +2279,6 @@ class ProductVariantCommand {
     long sku
     BigDecimal retailPrice
     BigDecimal costPrice
-    String size
-    String colour
     Integer shelfLifeDays
     Integer shelfCapacity
     Integer minimumDisplayQuantity
@@ -2246,6 +2292,16 @@ class ProductVariantCommand {
     int updatedUserId
     boolean delete
     boolean preferredSku
+    String description
+    String receiptDescription
+    boolean priceMarked
+    BigDecimal unitSize
+    UnitOfMeasure unitOfMeasure
+    Integer itemsInUnit
+    BigDecimal heightCm
+    BigDecimal widthCm
+    BigDecimal depthCm
+    String extras
 
     Collection<PackCommand> packs = new ArrayList<>()
     Collection<BarcodeCommand> barcodez = new ArrayList<>()
@@ -2269,6 +2325,10 @@ class PackCommand {
     boolean priceMarked = false
     PriceMarkedType priceMarkedType
     BigDecimal priceMarkedValue
+    BigDecimal lengthCm
+    BigDecimal widthCm
+    BigDecimal heightCm
+    BigDecimal weightKg
 
     static constraints = {
         importFrom Pack
@@ -2342,9 +2402,6 @@ class CSVUploadProduct {
 
     @CsvBindByName(column = 'default_sku')
     Integer defaultSKU
-
-    @CsvBindByName(column = 'unit_size')
-    String unitSize
 
     @CsvBindByName(column = 'price_bands')
     String priceBands
