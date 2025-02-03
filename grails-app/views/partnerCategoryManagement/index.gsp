@@ -16,6 +16,7 @@
 
         function getPartnerCategories() {
             $('#results-container').html("");
+            $('#messages-container').html("");
             $("#loading-indicator").show();
 
             var filterParams = {};
@@ -65,7 +66,8 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Partner Category Management</li>
+                        <li id="breadcrumb-2" class="breadcrumb-item active"
+                            aria-current="page">Partner Category Management</li>
                     </ol>
                 </div>
             </div>
