@@ -16,6 +16,7 @@
 
         function getPartnerCategories() {
             $('#results-container').html("");
+            $('#messages-container').html("");
             $("#loading-indicator").show();
 
             var filterParams = {};
