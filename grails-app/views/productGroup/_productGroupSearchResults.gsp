@@ -16,9 +16,9 @@
         </a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'name',
-            sortOrder: ${sortColumn == 'name' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
-            Name
+        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'description',
+            sortOrder: ${sortColumn == 'description' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
+            description
         </a>
     </div>
     <div class="col-2 font-weight-bold">
@@ -61,7 +61,7 @@
     <div id="productGroup-${i + 1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable pointer"
          title="Click to view." onclick="document.location.href = '${createLink(action:'show', id: productGroup?.id)}';">
         <div id="productGroup-${i + 1}-id" class="col-1">${productGroup?.id}</div>
-        <div id="productGroup-${i + 1}-description" class="col-2">${productGroup?.name}</div>
+        <div id="productGroup-${i + 1}-description" class="col-2">${productGroup?.description}</div>
         <div id="productGroup-${i + 1}-description" class="col-2">
             <g:if test="${productGroup?.startDate}">
                 <g:formatDate format="dd/MM/yyyy" date="${productGroup?.startDate?.toDate()}"/>

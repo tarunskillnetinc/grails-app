@@ -191,7 +191,7 @@
                     <li class="breadcrumb-item"><g:link controller="productGroup"
                                                         action="index">Product Group Management</g:link></li>
                     <li class="breadcrumb-item active" aria-current="page">
-                        ${productGroup?.name ? "Edit Product Group" : "Add Product Group"}
+                        ${productGroup?.description ? "Edit Product Group" : "Add Product Group"}
                     </li>
                 </ol>
             </div>
@@ -233,9 +233,9 @@
                 <div class="col-12 col-md-6">
                     <!-- Name -->
                     <div class="form-group row mt-4">
-                        <label for="name" class="col-6 col-form-label text-right pr-4">Name</label>
-                        <g:textField name="name" class="col-6 form-control"
-                                     value="${productGroup?.name}" maxlength="50"/>
+                        <label for="description" class="col-6 col-form-label text-right pr-4">Description</label>
+                        <g:textField name="description" class="col-6 form-control"
+                                     value="${productGroup?.description}" maxlength="50"/>
                     </div>
 
                     <!-- Start Date -->
@@ -243,7 +243,7 @@
                         <label for="startDate" class="col-6 col-form-label text-right pr-4">Start Date</label>
                         <g:textField name="startDate" type="text" class="col-6 form-control" required="true"
                                      autoComplete="off"
-                                     value="${productGroup?.startDate?.toString("EEEE dd MMMM yyyy") ?: new Date().format("EEEE dd MMMM yyyy")}"/>
+                                     value="${productGroup?.startDate ?: new Date().format("EEEE dd MMMM yyyy")}"/>
                     </div>
 
                     <!-- Status -->
@@ -282,7 +282,7 @@
                         <label for="endDate" class="col-6 col-form-label text-right pr-4">End Date</label>
                         <g:textField name="endDate" type="text" class="col-6 form-control" required="true"
                                      autoComplete="off"
-                                     value="${productGroup?.endDate?.toString("EEEE dd MMMM yyyy") ?: new Date().format("EEEE dd MMMM yyyy")}"/>
+                                     value="${productGroup?.endDate ?: new Date().format("EEEE dd MMMM yyyy")}"/>
                     </div>
 
                     <!-- Maximum Sell Quantity -->

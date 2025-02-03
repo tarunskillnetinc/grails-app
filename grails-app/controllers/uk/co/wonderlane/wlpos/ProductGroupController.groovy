@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.springframework.validation.FieldError
@@ -31,7 +32,7 @@ class ProductGroupController {
             productGroup?.productGroupProducts?.each { productGroupProduct ->
                 Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
                 productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
-                productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.name
+                productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
             }
             [productGroup: productGroup]
         }
@@ -144,8 +145,16 @@ class ProductGroupController {
         }
 
         productGroup.retailerId = springSecurityService.principal.retailerId
-        productGroup.name = cmd.name
+        productGroup.description = cmd.description
         productGroup.maxSellQuantity = cmd.maxSellQuantity
+
+        if (cmd.startDate != null) {
+            productGroup.startDate = parseDate(cmd.startDate)
+        }
+
+        if (cmd.endDate != null) {
+            productGroup.endDate = parseDate(cmd.endDate)
+        }
 
         def skusInProductGroup = productGroup.productGroupProducts?.collect { it.sku }
 
@@ -187,7 +196,7 @@ class ProductGroupController {
                 productGroup.productGroupProducts.each { productGroupProduct ->
                     Integer variantId = productVariants.find { it.sku == productGroupProduct.sku }?.id
                     productGroupProduct.productVariantId = variantId ? variantId : 0
-                    productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.name
+                    productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.description
                 }
             }
 
@@ -211,12 +220,25 @@ class ProductGroupController {
             e.printStackTrace()
         }
     }
+
+    DateTime parseDate(String dateString) {
+        if (dateString) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormat.forPattern("EEEE dd MMMM yyyy")
+                return formatter.parseDateTime(dateString)
+            } catch (Exception e) {
+                println("Error parsing date: ${e.message}")
+                return null
+            }
+        }
+        return null
+    }
 }
 
 class SaveProductGroupCommand {
 
     int id
-    String name
+    String description
     Integer maxSellQuantity
     Long[] sku
     boolean active
@@ -229,7 +251,7 @@ class SaveProductGroupCommand {
     boolean neverExpires
 
     static constraints = {
-        name nullable: false, blank: false, maxSize: 100
+        description nullable: false, blank: false, maxSize: 100
         maxSellQuantity nullable: true, min: 1, max: 999
         sku nullable: false
         days nullable: false

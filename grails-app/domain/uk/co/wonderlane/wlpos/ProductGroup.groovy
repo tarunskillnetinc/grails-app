@@ -6,13 +6,15 @@ class ProductGroup {
 
     int id
     int retailerId
-    String name
+    String description
     boolean hidden
     DateTime startDate
     DateTime endDate
     String timeRestriction
     Integer maxSellQuantity
     boolean active
+
+    Category category
 
     static hasMany = [productGroupProducts: ProductGroupProduct]
 
@@ -21,7 +23,7 @@ class ProductGroup {
         version false
 
         retailerId column: "retailerId", sqlType: "tinyint unsigned"
-        name column: "name"
+        description column: "description"
         hidden column: "hidden"
         startDate column: "startDate"
         endDate column: "endDate"
@@ -32,7 +34,7 @@ class ProductGroup {
     }
 
     static constraints = {
-        name nullable: false
+        description nullable: false
         hidden nullable: false
         startDate nullable: false
         endDate nullable: true
@@ -45,10 +47,10 @@ class ProductGroup {
         uk.co.wonderlane.wlpos.entities.ProductGroup productGroup = new uk.co.wonderlane.wlpos.entities.ProductGroup()
         productGroup.setId(id)
         productGroup.setRetailerId(retailerId)
-        productGroup.setName(name)
+        productGroup.setDescription(description)
         productGroup.setHidden(hidden)
-        productGroup.setStartDate(startDate?.toDate())
-        productGroup.setEndDate(endDate?.toDate())
+        productGroup.setStartDate(startDate)
+        productGroup.setEndDate(endDate)
         productGroup.setTimeRestriction(timeRestriction)
         productGroup.setMaxSellQuantity(maxSellQuantity)
         productGroup.setActive(active)

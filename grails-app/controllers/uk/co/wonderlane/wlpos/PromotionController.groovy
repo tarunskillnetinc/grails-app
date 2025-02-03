@@ -397,8 +397,8 @@ class PromotionController {
     }
 
     def productGroupSearch() {
-        def productGroups = ProductGroup.findAllByRetailerIdAndNameLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false, [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
-        def totalResults = ProductGroup.countByRetailerIdAndNameLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false)
+        def productGroups = ProductGroup.findAllByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false, [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
+        def totalResults = ProductGroup.countByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false)
 
         render(template: "/promotion/productGroupSearchResults", model: [productGroups: productGroups, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
     }

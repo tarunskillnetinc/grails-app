@@ -506,7 +506,7 @@ class EposTagLib {
         } else if (attrs.promotionGroup.productGroupId) {
             def productGroup = productGroupService.getProductGroup(attrs.promotionGroup.productGroupId)
 
-            out << productGroup?.name
+            out << productGroup?.description
         }
     }
 
