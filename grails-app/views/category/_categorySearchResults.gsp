@@ -10,16 +10,16 @@
 
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-        <div class="col-6 font-weight-bold">Description</div>
+        <div class="col-4 font-weight-bold">Description</div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailerCategoryCode" }?.enabled}">
-        <div class="col-2 font-weight-bold">Retailer Category Code</div>
+        <div class="col-2 font-weight-bold">Category Code</div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "buyerId" }?.enabled}">
-        <div class="col-2 font-weight-bold">Buyer ID Required</div>
+        <div class="col-2 font-weight-bold">Customer ID Required</div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "buyerAge" }?.enabled}">
-        <div class="col-2 font-weight-bold">Buyer Age</div>
+        <div class="col-2 font-weight-bold">Customer Age Restriction</div>
     </g:if>
 </div>
 
