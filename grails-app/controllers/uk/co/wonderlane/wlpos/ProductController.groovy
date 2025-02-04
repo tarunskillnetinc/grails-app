@@ -2127,7 +2127,6 @@ class AddPackCommand implements Validateable {
     Integer productVariantId
     List<AddBarcodeCommand> barcodez
     BigDecimal minAlcoholUnitPrice
-    BigDecimal weightedAverageCost
     boolean priceMarked = false
     PriceMarkedType priceMarkedType
     BigDecimal priceMarkedValue

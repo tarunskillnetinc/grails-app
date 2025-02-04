@@ -640,7 +640,6 @@
                     params["packs[" +loopIndex +"].priceMarked"] = $(packSelector +"\\.priceMarked").val();
                     params["packs[" +loopIndex +"].priceMarkedType"] = $(packSelector +"\\.priceMarkedType").val();
                     params["packs[" +loopIndex +"].minAlcoholUnitPrice"] = $(packSelector +"\\.minAlcoholUnitPrice").val();
-                    params["packs[" +loopIndex +"].weightedAverageCost"] = $(packSelector +"\\.weightedAverageCost").val();
 
                     var barcodeContainers = $(packSelector +"\\.barcodesContainer > div");
                     barcodeContainers.each(function(BarcodeLoopIndex) {
