@@ -11,13 +11,13 @@
                     </g:if>
                     ${category.description}</div>
             </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailerCategoryCode" }?.enabled}">
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "categoryCode" }?.enabled}">
                 <div id="category-result-${i+1}-category-code" class="col-2 text-truncate">${category?.retailerCategoryCode ?: ""}</div>
             </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "buyerId" }?.enabled}">
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "customerIdRequired" }?.enabled}">
                 <div id="category-result-${i+1}-customer-id-required" class="col-2">${category?.restrictions?.buyerIdRequired ? "Yes" : "No"}</div>
             </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "buyerAge" }?.enabled}">
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "customerAgeRestriction" }?.enabled}">
                 <div id="category-result-${i+1}-customer-age-restriction" class="col-2">${category?.restrictions?.buyerAgeRestriction ?: ""}</div>
             </g:if>
 

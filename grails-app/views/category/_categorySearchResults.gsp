@@ -12,13 +12,13 @@
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
         <div class="col-4 font-weight-bold">Description</div>
     </g:if>
-    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailerCategoryCode" }?.enabled}">
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "categoryCode" }?.enabled}">
         <div class="col-2 font-weight-bold">Category Code</div>
     </g:if>
-    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "buyerId" }?.enabled}">
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "customerIdRequired" }?.enabled}">
         <div class="col-2 font-weight-bold">Customer ID Required</div>
     </g:if>
-    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "buyerAge" }?.enabled}">
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "customerAgeRestriction" }?.enabled}">
         <div class="col-2 font-weight-bold">Customer Age Restriction</div>
     </g:if>
 </div>

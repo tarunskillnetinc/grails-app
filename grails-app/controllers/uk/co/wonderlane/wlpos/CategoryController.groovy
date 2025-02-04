@@ -19,6 +19,8 @@ class CategoryController extends BaseController {
             flash.error = "You do not have access to this page."
             redirect(uri: "/")
         }
+
+        [userColumns: categoryService.getColumns()]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])

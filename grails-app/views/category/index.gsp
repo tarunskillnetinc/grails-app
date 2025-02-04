@@ -164,15 +164,15 @@
                                 <label class="form-check-label" for="columnsDescription">Description</label>
                             </div>
                             <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsCategoryCode" class="form-check-input" value="retailerCategoryCode" checked="${!userColumns || userColumns?.columns?.find { it.column == 'retailerCategoryCode' }?.enabled}" />
+                                <g:checkBox name="columns" id="columnsCategoryCode" class="form-check-input" value="categoryCode" checked="${!userColumns || userColumns?.columns?.find { it.column == 'categoryCode' }?.enabled}" />
                                 <label class="form-check-label" for="columnsCategoryCode">Category Code</label>
                             </div>
                             <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsCustomerIdRequired" class="form-check-input" value="buyerId" checked="${!userColumns || userColumns?.columns?.find { it.column == 'buyerId' }?.enabled}" />
+                                <g:checkBox name="columns" id="columnsCustomerIdRequired" class="form-check-input" value="customerIdRequired" checked="${!userColumns || userColumns?.columns?.find { it.column == 'customerIdRequired' }?.enabled}" />
                                 <label class="form-check-label" for="columnsCustomerIdRequired">Customer ID Required</label>
                             </div>
                             <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsCustomerAgeRestrction" class="form-check-input" value="buyerAge" checked="${!userColumns || userColumns?.columns?.find { it.column == 'buyerAge' }?.enabled}" />
+                                <g:checkBox name="columns" id="columnsCustomerAgeRestrction" class="form-check-input" value="customerAgeRestriction" checked="${!userColumns || userColumns?.columns?.find { it.column == 'customerAgeRestriction' }?.enabled}" />
                                 <label class="form-check-label" for="columnsCustomerAgeRestrction">Customer Age Restriction</label>
                             </div>
                             <button id="columns-submit-button" type="button" class="btn btn-wl" onclick="saveColumns();">Apply</button>
