@@ -4,6 +4,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.springframework.context.i18n.LocaleContextHolder
 import uk.co.wonderlane.wlpos.enums.ProductStatus
+import uk.co.wonderlane.wlpos.enums.ProductMessageType
 
 import java.math.RoundingMode
 
@@ -33,8 +34,6 @@ class Product {
     String retailerProductId
     Long preferredSku
 
-    Collection<Message> saleMessages = new ArrayList<>()
-    Collection<Message> refundMessages = new ArrayList<>()
     Collection<ProductVariant> variants = new ArrayList<>()
     Collection<ProductAttributeValues> productAttributeValues = new ArrayList<>()
 
@@ -45,7 +44,7 @@ class Product {
     SelType selType
     String productImgUrl
 
-    static hasMany = [ saleMessages: Message, refundMessages: Message, variants: ProductVariant, productAttributeValues: ProductAttributeValues ]
+    static hasMany = [ variants: ProductVariant, productAttributeValues: ProductAttributeValues ]
     static belongsTo = [selType: SelType]
 
     static transients = ['retailPrice', 'costPrice']
@@ -82,9 +81,6 @@ class Product {
         selType column: "selType"
         productImgUrl column: "productImgUrl"
         preferredSku column: "preferredSku"
-
-        saleMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
-        refundMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
     }
 
     static constraints = {
@@ -265,12 +261,15 @@ class Product {
                 product.getVariants().add(it.getProductVariant(priceBand))
             }
         }
-        saleMessages.each {
+        getSaleMessages().each {
             product.getSaleMessages().add(it.getMessage())
         }
-        refundMessages.each {
+        getRefundMessages().each {
             product.getRefundMessages().add(it.getMessage())
         }
+        getScoMessages().each {
+            product.getScoMessages().add(it.getMessage())
+       }
         product.setRetailerItemId(retailerProductId)
         product.setLocal(false)
 
@@ -282,5 +281,35 @@ class Product {
         product.setProductImgUrl(productImgUrl)
 
         return product
+    }
+
+    def getSaleMessages() {
+        def saleMessages = []
+        
+        if (id != 0) {
+            saleMessages = ProductMessage.findAllByProductAndType(this, ProductMessageType.SALE)*.message
+        }
+
+        return saleMessages
+    }
+    
+    def getRefundMessages() {
+        def refundMessages = []
+        
+        if (id != 0) {
+            refundMessages = ProductMessage.findAllByProductAndType(this, ProductMessageType.REFUND)*.message
+        }
+
+        return refundMessages
+    }
+    
+    def getScoMessages() {
+        def scoMessages = []
+        
+        if (id != 0) {
+            scoMessages = ProductMessage.findAllByProductAndType(this, ProductMessageType.SCO)*.message
+        }
+
+        return scoMessages
     }
 }
