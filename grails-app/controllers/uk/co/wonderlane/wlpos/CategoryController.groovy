@@ -14,7 +14,14 @@ class CategoryController extends BaseController {
     def rabbitService
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def index() { }
+    def index() {
+        if (springSecurityService.principal.storeId) {
+            flash.error = "You do not have access to this page."
+            redirect(uri: "/")
+        }
+
+        [userColumns: categoryService.getColumns()]
+    }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveColumns() {
@@ -26,11 +33,13 @@ class CategoryController extends BaseController {
         int offset = params.offset ? Integer.parseInt(params.offset) : 0
         int max = params.max ? Integer.parseInt(params.max) : 50
         String searchTerm = params.searchTerm
+        String categoryCode = params.categoryCode
 
         session.CATEGORY_SEARCH_TERM = searchTerm
+        session.CATEGORY_CODE = categoryCode
         session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
 
-        def searchResults = baseSearchCategories(searchTerm)
+        def searchResults = baseSearchForCategories(searchTerm, categoryCode)
         def topLevelCats = searchResults.getaValue().drop(offset).take(max)
         def matchingCats = searchResults.getbValue()
 
