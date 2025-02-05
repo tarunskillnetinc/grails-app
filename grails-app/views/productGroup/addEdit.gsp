@@ -314,7 +314,7 @@
                                 <g:each in="${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}" var="day" status="i">
                                     <div class="form-check">
                                         <input type="checkbox" class="form-check-input" id="${day}" name="days" value="${i}"
-                                            ${productGroup?.days ? productGroup?.days[i] ? 'checked' : '':''}>
+                                            ${productGroup?.days?.contains(i) ? 'checked' : ''}>
                                         <label class="form-check-label" for="${day}">${day}</label>
                                     </div>
                                 </g:each>

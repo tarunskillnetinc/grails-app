@@ -1,6 +1,8 @@
 package uk.co.wonderlane.wlpos
 
+import grails.converters.JSON
 import groovy.json.JsonBuilder
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -97,38 +99,41 @@ class ProductGroupController {
                 redirect(action: "index")
             } else {
                 def products = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
-                ProductGroupView productGroupView = new ProductGroupView()
+                ProductGroupCommand productGroupCommand = new ProductGroupCommand()
                 productGroup?.productGroupProducts?.each { productGroupProduct ->
                     Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
                     productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
                     productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
-                    productGroupView.productGroupProducts.add(productGroupProduct)
+                    productGroupCommand.productGroupProducts.add(productGroupProduct)
                 }
 
-                productGroupView.id = id
-                productGroupView.description = productGroup.description
-                productGroupView.maxSellQuantity = productGroup.maxSellQuantity
-                productGroupView.startDate = productGroup.startDate
-                productGroupView.endDate = productGroup.endDate
-                productGroupView.active = productGroup.active
-                productGroupView.categoryId = productGroup.categoryId
-                productGroupView.neverExpires = productGroup.endDate == null
+                productGroupCommand.id = id
+                productGroupCommand.description = productGroup.description
+                productGroupCommand.maxSellQuantity = productGroup.maxSellQuantity
+                productGroupCommand.startDate = productGroup.startDate
+                productGroupCommand.endDate = productGroup.endDate
+                productGroupCommand.active = productGroup.active
+                productGroupCommand.categoryId = productGroup.categoryId
+                productGroupCommand.neverExpires = productGroup.endDate == null
 
                 //Extract days and restrictionStartTime,restrictionEndTime
                 if (productGroup.timeRestriction != null) {
                     def jsonSlurper = new JsonSlurper()
                     def timeRestrictionJson = jsonSlurper.parseText(productGroup.timeRestriction)
                     def timeRestrictionDays = timeRestrictionJson.timeRestrictionDays
-                    productGroupView.days = []
+                    List<Integer> daysList = new ArrayList<>()
                     timeRestrictionDays.eachWithIndex { boolean value, int index ->
                         if (value) {
-                            productGroupView.days << index
+                            daysList.add(index)
                         }
                     }
-                    productGroupView.restrictionStartTime = timeRestrictionJson.startSellingTimeRestriction
-                    productGroupView.restrictionEndTime = timeRestrictionJson.stopSellingTimeRestriction
+                    productGroupCommand.days = daysList.toArray(new int[0])
+                    productGroupCommand.restrictionStartTime =
+                            insertCharacter(timeRestrictionJson.startSellingTimeRestriction as String, (char)':', 2)
+                    productGroupCommand.restrictionEndTime =
+                            insertCharacter(timeRestrictionJson.stopSellingTimeRestriction as String, (char)':', 2)
                 }
-                [productGroup: productGroupView, edit : true]
+                [productGroup: productGroupCommand, edit : true]
             }
         } else {
             def categories = categoryService.getTopLevelCategories()
@@ -178,11 +183,10 @@ class ProductGroupController {
         if (cmd.days != null && cmd.days.size() > 0) {
             def jsonMap = [
                     timeRestrictionDays: (0..6).collect { day -> cmd.days.contains(day) },
-                    startSellingTimeRestriction: cmd.restrictionStartTime ?: "",
-                    stopSellingTimeRestriction: cmd.restrictionEndTime ?: ""
+                    startSellingTimeRestriction: cmd.restrictionStartTime.replace(":","") ?: "",
+                    stopSellingTimeRestriction: cmd.restrictionEndTime.replace(":","") ?: ""
             ]
-            def builder = new JsonBuilder(jsonMap)
-            productGroup.timeRestriction = builder.toString()
+            productGroup.timeRestriction = (jsonMap as JSON).toString()
         }
         DateTimeFormatter formatter = DateTimeFormat.forPattern("EEEE dd MMMM yyyy")
         productGroup.startDate =  formatter.parseDateTime(cmd.startDate)
@@ -191,7 +195,10 @@ class ProductGroupController {
         } else if (cmd.endDate != null){
             productGroup.endDate =  formatter.parseDateTime(cmd.endDate)
         }
-        productGroup.category = categoryService.getCategory(cmd.categoryId)
+
+        if (cmd.categoryId != null) {
+            productGroup.category = categoryService.getCategory(cmd.categoryId)
+        }
 
         def skusInProductGroup = productGroup.productGroupProducts?.collect { it.sku }
 
@@ -220,13 +227,6 @@ class ProductGroupController {
 
             redirect(action: "addEdit", id: productGroup.id)
         } else {
-            cmd.errors.allErrors.each { FieldError error ->
-                final String field = error.field?.replace('profile.', '')
-                final String code = "productGroup.$field.$error.code"
-
-                productGroup.errors.rejectValue((field == "sku" ? "productGroupProducts" : field), code)
-            }
-
             if (productGroup.productGroupProducts && productGroup.productGroupProducts?.size() > 0) {
                 def productVariants = productService.getProductVariants(productGroup.productGroupProducts?.collect { it.sku })
 
@@ -234,6 +234,7 @@ class ProductGroupController {
                     Integer variantId = productVariants.find { it.sku == productGroupProduct.sku }?.id
                     productGroupProduct.productVariantId = variantId ? variantId : 0
                     productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.description
+                    cmd.productGroupProducts.add(productGroupProduct)
                 }
             }
 
@@ -270,6 +271,12 @@ class ProductGroupController {
         }
         return null
     }
+
+    private static def insertCharacter(String original, char charToInsert, int index) {
+        def chars = original.toCharArray() as List
+        chars.add(index, charToInsert)
+        return chars.join()
+    }
 }
 
 class ProductGroupCommand {
@@ -286,6 +293,7 @@ class ProductGroupCommand {
     String endDate
     String categoryId
     boolean neverExpires
+    Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
 
     static constraints = {
         description nullable: false, blank: false, maxSize: 100
@@ -296,10 +304,6 @@ class ProductGroupCommand {
         restrictionEndTime nullable: true
         startDate nullable: false
         endDate nullable: true
-        categoryId nullable: false
+        categoryId nullable: true
     }
-}
-
-class ProductGroupView extends ProductGroupCommand {
-    Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
 }
