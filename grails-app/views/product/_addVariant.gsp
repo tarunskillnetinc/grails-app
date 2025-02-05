@@ -8,6 +8,7 @@
     <g:form name="addVariantForm">
         <g:hiddenField name="addVariantId" value="${variant?.id ?: ''}" />
         <g:hiddenField name="addVariantStoreId" value="${variant?.storeId}" />
+        <g:hiddenField name="addVariantWeightedAverageCostPrice" value="${variant?.weightedAverageCostPrice}" />
         <g:hiddenField name="addEffectiveDate" value="${variant?.effectiveDate}" />
 
         <div class="row form-group mb-4">
@@ -41,6 +42,18 @@
                 </div>
 
                 <g:textField name="addVariantCostPrice" value="${variant?.costPrice}" class="form-control mask-money" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
+            <label for="weightedAverageCostPrice" class="col-3 offset-1 col-form-label text-right"
+                   data-toggle="tooltip" title="Weighted Average Cost Price">WAC</label>
+            <div class="input-group col-4">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">&pound;</span>
+                </div>
+                <g:textField name="weightedAverageCostPrice" readonly="true" disabled="true" class="form-control"
+                             value="${wacValue != BigDecimal.ZERO ? String.format("%,.2f", wacValue) : '-'}" />
             </div>
         </div>
 
