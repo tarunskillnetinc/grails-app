@@ -16,7 +16,7 @@
     <div style="flex-grow: 1;">
         <div class="row ml-0 mr-0 pt-2 pb-2 table-wl bottom-border">
             <div class="col-2 font-weight-bold text-center">Partner</div>
-            <div class="col-2 font-weight-bold text-center">Partner Category</div>
+            <div class="col-2 font-weight-bold text-left">Partner Category</div>
             <div class="col-6 font-weight-bold text-left">Category & Subcategory List</div>
             <div class="col-2 font-weight-bold text-center">Action</div>
         </div>
@@ -36,7 +36,7 @@
             <div style="flex-grow: 1;">
                 <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" >
                     <div class="col-2 text-center">${ecomCategory?.ecomSupplier?.name}</div>
-                    <div class="col-2 text-center">${ecomCategory?.description}</div>
+                    <div class="col-2 text-left" style="white-space: normal; overflow-wrap: break-word;">${ecomCategory?.description}</div>
                     <div class="col-6 text-left">
                         <g:if test="${ecomCategory?.ecomSupplierCategoryMappings}">
                             <g:renderCategoryHierarchy
