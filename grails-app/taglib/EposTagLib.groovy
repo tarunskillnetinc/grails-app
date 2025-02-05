@@ -498,7 +498,7 @@ class EposTagLib {
         if (attrs.promotionGroup.sku) {
             def productVariant = productService.getProductVariant(attrs.promotionGroup.sku)
 
-            out << productVariant?.product?.name
+            out << productVariant?.product?.description
         } else if (attrs.promotionGroup.categoryId) {
             def category = categoryService.getCategory(attrs.promotionGroup.categoryId)
 

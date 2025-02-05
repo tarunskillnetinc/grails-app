@@ -955,7 +955,7 @@ class ReportingController {
         def packLines = order?.totalPackLines
 
         if (sortParams.sortColumn == "description") {
-            packLines?.sort { it.productListItem?.productVariant?.product?.name }
+            packLines?.sort { it.productListItem?.productVariant?.product?.description }
         } else if (sortParams.sortColumn == "packQuantity") {
             packLines?.sort { it.pack?.quantity }
         } else if (sortParams.sortColumn == "orderedQuantity") {
@@ -1146,7 +1146,7 @@ class ReportingController {
                     items = items.sort { it.productVariant.sku }
                     break
                 case "description":
-                    items = items.sort { it.productVariant.product.name }
+                    items = items.sort { it.productVariant.product.description }
                     break
                 case "itemQuantity":
                     items = items.sort { it.quantity }
@@ -1489,7 +1489,7 @@ class ReportingController {
                     items = items.sort { it.productVariant.sku }
                     break
                 case "description":
-                    items = items.sort { it.productVariant.product.name }
+                    items = items.sort { it.productVariant.product.description }
                     break
                 case "itemQuantity":
                     items = items.sort { it.quantity }

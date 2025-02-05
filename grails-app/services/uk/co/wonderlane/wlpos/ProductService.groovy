@@ -1039,7 +1039,7 @@ class ProductService extends MySqlDal {
         def criteria = Product.createCriteria()
 
         return criteria.list {
-            'in'("preferredSku", skus)
+            'in'("itemCode", skus)
             eq("retailerId", springSecurityService.principal.retailerId)
         }
     }
