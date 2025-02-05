@@ -188,7 +188,7 @@ class ProductGroupController {
         productGroup.startDate =  formatter.parseDateTime(cmd.startDate)
         if (cmd.neverExpires) {
             productGroup.endDate = null
-        } else if (cmd.endDate !- null){
+        } else if (cmd.endDate != null){
             productGroup.endDate =  formatter.parseDateTime(cmd.endDate)
         }
         productGroup.categoryId = cmd.categoryId

@@ -5,12 +5,12 @@
 
     <title>Product Group Management</title>
     <asset:stylesheet src="bootstrap-datepicker3.min.css"/>
-%{--    <asset:stylesheet src="bootstrap-timepicker.min.css"/>--}%
+    <asset:stylesheet src="bootstrap-timepicker.min.css"/>
 
     <asset:javascript src="bootstrap-datepicker.min.js"/>
     <asset:javascript src="co-utils.js"/>
     <asset:javascript src="validators/input-validator.js"/>
-%{--    <asset:javascript src="bootstrap-timepicker.min.js"/>--}%
+    <asset:javascript src="bootstrap-timepicker.min.js"/>
 
     <style>
     .bootstrap-timepicker-widget {
