@@ -931,7 +931,7 @@ class ProductService extends MySqlDal {
         def existingProductAttributeIds = productAttributeValuesList*.productAttributeId.toSet()
         def missingProductAttributes = productAttributeList.findAll {
             !existingProductAttributeIds.contains(it.id)
-        }?.sort { it.id }
+        }
 
         missingProductAttributes.each { productAttribute ->
             ProductAttributeValues dummyEntry = new ProductAttributeValues(
@@ -942,7 +942,7 @@ class ProductService extends MySqlDal {
             )
             returnedAttributeValuesList << dummyEntry
         }
-        return returnedAttributeValuesList
+        return returnedAttributeValuesList?.sort { it?.productAttributeId }
     }
 
     ArrayList<ProductAttributeValues> getUpdatedProductAttributeValues(Product product, ProductCommand editedProduct, ProductHistoryBuilder builder, effectiveDate) {
