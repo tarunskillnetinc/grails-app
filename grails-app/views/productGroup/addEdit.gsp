@@ -385,7 +385,7 @@
                         <g:each in="${productGroup?.productGroupProducts?.sort { it.sku }}" var="productGroupProduct"
                                 status="i">
                             <g:render template="productGroupProductRow"
-                                      model="[productGroupProduct: productGroupProduct, i: i]"/>
+                                      model="[productGroupProduct: productGroupProduct, i: i, edit:edit]"/>
                         </g:each>
                     </div>
                 </div>

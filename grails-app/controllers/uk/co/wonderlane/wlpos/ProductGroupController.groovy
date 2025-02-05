@@ -102,7 +102,7 @@ class ProductGroupController {
                     Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
                     productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
                     productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
-                    productGroupView.productGroupProduct.add(productGroupProduct)
+                    productGroupView.productGroupProducts.add(productGroupProduct)
                 }
 
                 productGroupView.id = id
@@ -122,7 +122,7 @@ class ProductGroupController {
                     productGroupView.days = []
                     timeRestrictionDays.eachWithIndex { boolean value, int index ->
                         if (value) {
-                            productGroupCommand.days << index
+                            productGroupView.days << index
                         }
                     }
                     productGroupView.restrictionStartTime = timeRestrictionJson.startSellingTimeRestriction
@@ -191,7 +191,7 @@ class ProductGroupController {
         } else if (cmd.endDate != null){
             productGroup.endDate =  formatter.parseDateTime(cmd.endDate)
         }
-        productGroup.categoryId = cmd.categoryId
+        productGroup.category = categoryService.getCategory(cmd.categoryId)
 
         def skusInProductGroup = productGroup.productGroupProducts?.collect { it.sku }
 
@@ -301,5 +301,5 @@ class ProductGroupCommand {
 }
 
 class ProductGroupView extends ProductGroupCommand {
-    Set<ProductGroupProduct> productGroupProduct = new HashSet<>()
+    Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
 }

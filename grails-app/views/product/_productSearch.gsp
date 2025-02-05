@@ -27,7 +27,7 @@
                 </div>
 
                 <div id="productSearchResults" class="align-content-center">
-                    <g:render template="/product/addProductSearchResults" model="${[ products: products ]}" />
+                    <g:render template="/product/addProductSearchResults" model="${[ products: products]}" />
                 </div>
 
                 <div class="row mt-3">

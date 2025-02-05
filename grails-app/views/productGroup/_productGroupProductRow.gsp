@@ -9,6 +9,6 @@
 
     <div id="tag-product-${pos}-description" class="col-4">${productGroupProduct.productDescription}</div>
 
-    <div class="col-2 my-auto"><a id="tag-product-${pos}-remove-btn" href="#" class="btn btn-sm btn-danger"
+    <div class="col-2 my-auto"><a id="tag-product-${pos}-remove-btn" href="#" class="btn btn-sm btn-danger" role="button"
                                   onClick="removeProduct(${productGroupProduct.productVariantId});">Remove</a></div>
 </div>
