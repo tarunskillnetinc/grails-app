@@ -16,17 +16,6 @@
 
 
     function addNumericMaskLogic() {
-        $('.numeric-mask').maskMoney({
-            allowZero: true,
-            allowEmpty: true,
-            prefix: '',
-            allowNegative: false,
-            decimal: '.',
-            thousands: '',
-            affixesStay: true,
-            precision: 2,
-        });
-
         $('.numeric-mask').on('keydown', function (e) {
             // Allow navigation keys, backspace, delete, tab, enter, and arrow keys
             if ($.inArray(e.key, ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End']) !== -1) {
@@ -46,13 +35,13 @@
             }
 
             // If empty, allow the user to input a new value
-            if (!currentValue && e.key.match(/[0-9]/)) {
+            if (!currentValue && e.key.match(/[0-9.]/)) {
                 return;
             }
 
-            currentValue = currentValue.replace(/,/g, '').replace(/[^0-9]/g, '') + e.key;
+            currentValue = currentValue.replace(/,/g, '').replace(/[^0-9.]/g, '') + e.key;
 
-            const newValue = parseFloat(currentValue) / 100; // Handle two decimal places
+            const newValue = parseFloat(currentValue)
             let maxValue = parseFloat(this.max);
             if (isNaN(maxValue)) {
                 maxValue = 999999.99; // Default max value
