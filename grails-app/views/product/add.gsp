@@ -250,6 +250,7 @@
                     params["sku"] = $(selector + "sku").val();
                     params["retailPrice"] = $(selector + "retailPrice").val();
                     params["costPrice"] = $(selector + "costPrice").val();
+                    params["weightedAverageCostPrice"] = $(selector + "weightedAverageCostPrice").val();
                     params["shelfLifeDays"] = $(selector + "shelfLifeDays").val();
                     params["shelfCapacity"] = $(selector + "shelfCapacity").val();
                     params["minimumDisplayQuantity"] = $(selector + "minimumDisplayQuantity").val();
@@ -312,6 +313,7 @@
 
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
+                var weightedAverageCostPrice = $("#addVariantWeightedAverageCostPrice").val();
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
                 var shelfCapacity = $("#addVariantShelfCapacity").val();
                 var minimumDisplayQuantity = $("#addVariantMinimumDisplayQuantity").val();
@@ -323,7 +325,7 @@
                     return;
                 }
 
-                var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: isPreferredSku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
+                var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: isPreferredSku, retailPrice: retailPrice, costPrice: costPrice, weightedAverageCostPrice: weightedAverageCostPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 var barcodes = []; // To store the barcode values for validation
