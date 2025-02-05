@@ -116,6 +116,8 @@
 
             intListener("maxSellQuantity", 10, 999);
 
+            modeEditInputDisable();
+
             $('#restrictionStartTime, #restrictionEndTime').timepicker({
                 showMeridian: false,
                 defaultTime: false,
@@ -170,6 +172,18 @@
 
         });
 
+    <g:if test="${!edit}">
+    function modeEditInputDisable() {
+        if (${edit}) {
+                $('input').prop('disabled', true);
+                $('select').prop('disabled', true);
+                $('button').hide();
+                $('input[type="button"]').hide();
+                $('input[type="submit"]').hide();
+                $('a[role="button"]').hide();
+            }
+        }
+        </g:if>
         function formatDate(date, options, separator) {
             function format(option) {
                 let formatter = new Intl.DateTimeFormat('en', option);
@@ -181,7 +195,7 @@
     </script>
 </head>
 
-<body>
+    <body>
 <section id="breadcrumb-container" class="container-fluid">
     <nav aria-label="breadcrumb">
         <div class="row mt-4">
@@ -246,13 +260,6 @@
                                      value="${productGroup?.startDate ?: new Date().format("EEEE dd MMMM yyyy")}"/>
                     </div>
 
-                    <!-- Status -->
-                    <div class="form-group row mt-4">
-                        <label for="status" class="col-6 col-form-label text-right pr-4">Status</label>
-                        <g:select name="status" from="${['Active', 'Inactive']}"
-                                  value="${productGroup?.active?'Active':'Inactive'}" class="col-6 form-control"/>
-                    </div>
-
                     <!-- Never Expires Checkbox -->
                     <div class="form-group row mt-4">
                         <label for="neverExpires" class="col-6 col-form-label text-right pr-4">Never Expires</label>
@@ -266,34 +273,31 @@
                 <!-- Second Column (Right) -->
                 <div class="col-12 col-md-6">
 
-                    <!-- Category Selection -->
-                    <div class="form-group row mt-4">
-                        <label for="category" class="col-6 col-form-label text-right pr-4">Category</label>
-                        <g:select name="categoryId"
-                                  from="${categories}"
-                                  optionKey="id"
-                                  optionValue="description"
-                                  value="${productGroup?.categoryId}"
-                                  class="col-6 form-control"/>
-                    </div>
-
-                    <!-- End Date -->
-                    <div class="form-group row mt-4">
-                        <label for="endDate" class="col-6 col-form-label text-right pr-4">End Date</label>
-                        <g:textField name="endDate" type="text" class="col-6 form-control" required="true"
-                                     autoComplete="off"
-                                     value="${productGroup?.endDate ?: new Date().format("EEEE dd MMMM yyyy")}"/>
-                    </div>
-
-                    <!-- Maximum Sell Quantity -->
-                    <div class="form-group row mt-4">
-                        <label for="maxSellQuantity"
-                               class="col-6 col-form-label text-right pr-4">Maximum Sell Quantity</label>
-                        <g:field name="maxSellQuantity" type="number" min="0" max="999"
-                                 value="${productGroup?.maxSellQuantity}" class="col-6 form-control"
-                                 onkeypress="return preventNegativeInteger(event);" onpaste="return false;"/>
-                    </div>
+                <!-- Maximum Sell Quantity -->
+                <div class="form-group row mt-4">
+                    <label for="maxSellQuantity"
+                           class="col-6 col-form-label text-right pr-4">Maximum Sell Quantity</label>
+                    <g:field name="maxSellQuantity" type="number" min="0" max="999"
+                             value="${productGroup?.maxSellQuantity}" class="col-6 form-control"
+                             onkeypress="return preventNegativeInteger(event);" onpaste="return false;"/>
                 </div>
+
+                <!-- End Date -->
+                <div class="form-group row mt-4">
+                    <label for="endDate" class="col-6 col-form-label text-right pr-4">End Date</label>
+                    <g:textField name="endDate" type="text" class="col-6 form-control" required="true"
+                                 autoComplete="off"
+                                 value="${productGroup?.endDate ?: new Date().format("EEEE dd MMMM yyyy")}"/>
+                </div>
+
+
+                <!-- Status -->
+                <div class="form-group row mt-4">
+                    <label for="status" class="col-6 col-form-label text-right pr-4">Status</label>
+                    <g:select name="status" from="${['Active', 'Inactive']}"
+                              value="${productGroup ? (productGroup?.active?'Active':'Inactive') : 'Active'}" class="col-6 form-control"/>
+                </div>
+            </div>
             </div>
 
             <!-- Group Restriction Section -->
@@ -355,7 +359,7 @@
             <div class="row mt-4">
                 <div class="col-12">
                     <div class="d-flex justify-content-end mb-3">
-                        <a id="add-product-btn" href="#" class="btn btn-wl mr-2" data-toggle="modal"
+                        <a id="add-product-btn" href="#" role="button" class="btn btn-wl mr-2" data-toggle="modal"
                            data-target="#productSearchModal">
                             Add Product
                         </a>

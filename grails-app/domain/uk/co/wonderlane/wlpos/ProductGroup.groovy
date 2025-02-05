@@ -27,6 +27,7 @@ class ProductGroup {
         hidden column: "hidden"
         startDate column: "startDate"
         endDate column: "endDate"
+        category column: "categoryId", type:"join", cascade: "none"
         timeRestriction column: "timeRestriction", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         maxSellQuantity column: "maxSellQuantity"
         active column: "active"
@@ -41,6 +42,7 @@ class ProductGroup {
         timeRestriction nullable: true
         maxSellQuantity nullable: true, min: 1
         active nullable: false
+        category nullable: true
     }
 
     public uk.co.wonderlane.wlpos.entities.ProductGroup getProductGroup() {

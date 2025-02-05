@@ -1,8 +1,9 @@
 package uk.co.wonderlane.wlpos
 
+import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.springframework.validation.FieldError
@@ -20,22 +21,6 @@ class ProductGroupController {
     def index() {
         def productGroups = productGroupService.getProductGroups()
         [productGroups: productGroups]
-    }
-
-    def show(int id) {
-        def productGroup = productGroupService.getProductGroup(id)
-        if (!productGroup) {
-            flash.error = "Product Group not found."
-            redirect(action: "index")
-        } else {
-            def products = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
-            productGroup?.productGroupProducts?.each { productGroupProduct ->
-                Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
-                productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
-                productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
-            }
-            [productGroup: productGroup]
-        }
     }
 
     def ajaxGetProductGroups() {
@@ -100,13 +85,55 @@ class ProductGroupController {
             productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.name
         }
 
-        render(view: "add", model: [productGroup: productGroup])
+        render(view: "addEdit", model: [productGroup: productGroup])
     }
 
 
-    def add() {
-        def categories = categoryService.getTopLevelCategories()
-        [categories:categories]
+    def addEdit(Integer id) {
+        if (id != null) {
+            def productGroup = productGroupService.getProductGroup(id)
+            if (!productGroup) {
+                flash.error = "Product Group not found."
+                redirect(action: "index")
+            } else {
+                def products = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
+                ProductGroupView productGroupView = new ProductGroupView()
+                productGroup?.productGroupProducts?.each { productGroupProduct ->
+                    Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
+                    productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
+                    productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
+                    productGroupView.productGroupProduct.add(productGroupProduct)
+                }
+
+                productGroupView.id = id
+                productGroupView.description = productGroup.description
+                productGroupView.maxSellQuantity = productGroup.maxSellQuantity
+                productGroupView.startDate = productGroup.startDate
+                productGroupView.endDate = productGroup.endDate
+                productGroupView.active = productGroup.active
+                productGroupView.categoryId = productGroup.categoryId
+                productGroupView.neverExpires = productGroup.endDate == null
+
+                //Extract days and restrictionStartTime,restrictionEndTime
+                if (productGroup.timeRestriction != null) {
+                    def jsonSlurper = new JsonSlurper()
+                    def timeRestrictionJson = jsonSlurper.parseText(productGroup.timeRestriction)
+                    def timeRestrictionDays = timeRestrictionJson.timeRestrictionDays
+                    productGroupView.days = []
+                    timeRestrictionDays.eachWithIndex { boolean value, int index ->
+                        if (value) {
+                            productGroupCommand.days << index
+                        }
+                    }
+                    productGroupView.restrictionStartTime = timeRestrictionJson.startSellingTimeRestriction
+                    productGroupView.restrictionEndTime = timeRestrictionJson.stopSellingTimeRestriction
+                }
+                [productGroup: productGroupView, edit : true]
+            }
+        } else {
+            def categories = categoryService.getTopLevelCategories()
+            [edit: false]
+        }
     }
 
     def ajaxAddProduct(int productVariantId, long sku, String productDescription) {
@@ -118,7 +145,7 @@ class ProductGroupController {
         render(template: "productGroupProductRow", model: [productGroupProduct: productGroupProduct])
     }
 
-    def save(SaveProductGroupCommand cmd) {
+    def save(ProductGroupCommand cmd) {
         def productGroup
         def productGroupProductsToRemove
 
@@ -147,14 +174,24 @@ class ProductGroupController {
         productGroup.retailerId = springSecurityService.principal.retailerId
         productGroup.description = cmd.description
         productGroup.maxSellQuantity = cmd.maxSellQuantity
-
-        if (cmd.startDate != null) {
-            productGroup.startDate = parseDate(cmd.startDate)
+        productGroup.active = cmd.active
+        if (cmd.days != null && cmd.days.size() > 0) {
+            def jsonMap = [
+                    timeRestrictionDays: (0..6).collect { day -> cmd.days.contains(day) },
+                    startSellingTimeRestriction: cmd.restrictionStartTime ?: "",
+                    stopSellingTimeRestriction: cmd.restrictionEndTime ?: ""
+            ]
+            def builder = new JsonBuilder(jsonMap)
+            productGroup.timeRestriction = builder.toString()
         }
-
-        if (cmd.endDate != null) {
-            productGroup.endDate = parseDate(cmd.endDate)
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("EEEE dd MMMM yyyy")
+        productGroup.startDate =  formatter.parseDateTime(cmd.startDate)
+        if (cmd.neverExpires) {
+            productGroup.endDate = null
+        } else if (cmd.endDate !- null){
+            productGroup.endDate =  formatter.parseDateTime(cmd.endDate)
         }
+        productGroup.categoryId = cmd.categoryId
 
         def skusInProductGroup = productGroup.productGroupProducts?.collect { it.sku }
 
@@ -181,7 +218,7 @@ class ProductGroupController {
 
             flash.message = "Product Group saved successfully."
 
-            redirect(action: "show", id: productGroup.id)
+            redirect(action: "addEdit", id: productGroup.id)
         } else {
             cmd.errors.allErrors.each { FieldError error ->
                 final String field = error.field?.replace('profile.', '')
@@ -200,7 +237,7 @@ class ProductGroupController {
                 }
             }
 
-            render(view: "add", model: [productGroup: cmd])
+            render(view: "addEdit", model: [productGroup: cmd])
         }
     }
 
@@ -235,7 +272,7 @@ class ProductGroupController {
     }
 }
 
-class SaveProductGroupCommand {
+class ProductGroupCommand {
 
     int id
     String description
@@ -261,4 +298,8 @@ class SaveProductGroupCommand {
         endDate nullable: true
         categoryId nullable: false
     }
+}
+
+class ProductGroupView extends ProductGroupCommand {
+    Set<ProductGroupProduct> productGroupProduct = new HashSet<>()
 }
