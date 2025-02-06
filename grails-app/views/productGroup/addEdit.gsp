@@ -124,12 +124,17 @@
                 minuteStep: 1,
                 showInputs: false,
                 disableFocus: true,
+                showSeconds: false,
                 icons: {
                     up: 'glyphicon glyphicon-chevron-up',
                     down: 'glyphicon glyphicon-chevron-down'
                 },
                 template: 'dropdown'
-            });
+            }).on('changeTime.timepicker', function(e) {
+                var hours = e.time.hours.toString().padStart(2, '0');
+                var minutes = e.time.minutes.toString().padStart(2, '0');
+                $(this).val(hours + ':' + minutes);
+            });;
 
             // Show widget when clicking on the input or the icon
             $('#startTimeContainer, #endTimeContainer').on('click', function (e) {
