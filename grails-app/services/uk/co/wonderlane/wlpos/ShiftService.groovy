@@ -27,7 +27,7 @@ class ShiftService extends MySqlPoolDal {
     def userService
     def cashManagementService
     def locationService
-    def reportingService
+    def cashReportingService
     def safeService
     def safeManagementService
     def financialWeekService
@@ -83,15 +83,15 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    private List<TenderTotal> getTenderTotalList(Shift shift)
-    {
+    private List<TenderTotal> getTenderTotalList(Shift shift) {
         List<TenderTotal> tenderTotalList = new ArrayList<>()
 
         for (ReconciliationTotal reconciliationTotal : shift.getReconciliationTotals()) {
             if (reconciliationTotal.value != BigDecimal.ZERO) {
-                TenderTotal tenderTotal = new TenderTotal(reconciliationTotal.getTenderType())
+                TenderTotal tenderTotal = new TenderTotal(reconciliationTotal.tenderTypeId, reconciliationTotal.tenderTypeName, reconciliationTotal.cashTender)
                 tenderTotal.setValue(reconciliationTotal.getValue())
                 tenderTotal.setQuantity(1)
+
                 tenderTotalList.add(tenderTotal)
             }
         }
@@ -99,7 +99,7 @@ class ShiftService extends MySqlPoolDal {
         return tenderTotalList;
     }
 
-    void processShiftDataSave(SaveShiftCommand saveShiftCommand, Shift shift){
+    void processShiftDataSave(SaveShiftCommand saveShiftCommand, Shift shift) {
         try {
             User loggedInUser = loadLoggedInUser()
 
@@ -117,6 +117,7 @@ class ShiftService extends MySqlPoolDal {
                 tenderTotalList = getTenderTotalList(shift)
                 safe = safeService.getSafeById(saveShiftCommand.safeId)
             }
+
             addAudit(shift, auditShiftAction, false, loggedInUser, null, safe, tenderTotalList) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error processing shift summary for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -134,6 +135,8 @@ class ShiftService extends MySqlPoolDal {
         }
 
         safeManagementService.addTenderToSafe(safeId, addedTenderAmounts)
+
+        SafeSession safeSession = safeManagementService.addTenderToSafe(safeId, addedTenderAmounts)
 
         List<TenderTotal> tenderTotalList = getTenderTotalList(shift)
         User loggedInUser = loadLoggedInUser()
@@ -484,18 +487,17 @@ class ShiftService extends MySqlPoolDal {
 
             def cashTender = tenderTypeService.getApplicableTenderTypes()?.find { it.cashTender }
 
-            // TODO CDMERGE Check what this is doing and how we do it.
-            List<TenderTotal> tenderTotalList = new ArrayList<>();
-            //TenderTotal cashLiftTenderTotal = new TenderTotal(TenderType.CASH)
-            //cashLiftTenderTotal.setQuantity(1);
-            //cashLiftTenderTotal.setValue(oldShift.autoFloatOut)
-            //tenderTotalList.add(cashLiftTenderTotal);
+            TenderTotal cashLiftTenderTotal = new TenderTotal(cashTender?.id, cashTender?.name, cashTender?.cashTender)
+            cashLiftTenderTotal.setQuantity(1)
+            cashLiftTenderTotal.setValue(oldShift.autoFloatOut)
 
-            addAudit(oldShift, ShiftAction.CASH_LIFT, true, loggedInUser, null, primarySafe, tenderTotalList)// Add audit for cash lift from old shift action in rolling float action
-            addAudit(newShift, ShiftAction.ADD_FLOAT, true, loggedInUser, null, primarySafe, tenderTotalList)// Add audit for add float to new shift action in rolling float action
+            def tenderTotalList = [cashLiftTenderTotal]
 
-            shiftCashTenderMovementUpdate(oldShift, primarySafe.id, false, cashTender?.id, cashTender?.name, oldShift.autoFloatOut)// Add tender movement for cash moving into safe
-            shiftCashTenderMovementUpdate(newShift, primarySafe.id, true, cashTender?.id, cashTender?.name, newShift.autoFloatIn)// Add tender movement for cash moving out safe
+            addAudit(oldShift, ShiftAction.CASH_LIFT, true, loggedInUser, null, primarySafe, tenderTotalList)  // Add audit for cash lift from old shift action in rolling float action
+            addAudit(newShift, ShiftAction.ADD_FLOAT, true, loggedInUser, null, primarySafe, tenderTotalList)  // Add audit for add float to new shift action in rolling float action
+
+            shiftCashTenderMovementUpdate(oldShift, primarySafe.id, false, cashTender?.id, cashTender?.name, oldShift.autoFloatOut) // Add tender movement for cash moving into safe
+            shiftCashTenderMovementUpdate(newShift, primarySafe.id, true, cashTender?.id, cashTender?.name, newShift.autoFloatIn)   // Add tender movement for cash moving out safe
 
             return true
         }
@@ -856,7 +858,7 @@ class ShiftService extends MySqlPoolDal {
     private void createNewTenderMovement(Location fromLocation, Location toLocation, TenderMovementType tenderMovementType, Integer tenderTypeId, String tenderTypeName, BigDecimal updateAmount) {
         if (updateAmount.compareTo(BigDecimal.ZERO) != 0) {
             try {
-                TenderMovement tenderMovement = reportingService.createNewTenderMovement(
+                TenderMovement tenderMovement = cashReportingService.createNewTenderMovement(
                         tenderMovementType,
                         tenderTypeId,
                         tenderTypeName,
@@ -869,14 +871,15 @@ class ShiftService extends MySqlPoolDal {
                         null,  // comments
                         updateAmount
                 )
-                reportingService.saveTenderMovement(tenderMovement)
+
+                cashReportingService.saveTenderMovement(tenderMovement)
             } catch (Exception ex) {
-                log.error("Error saving tender movement for tender type: ${tenderType} error: ${ex.getMessage()}", ex)
+                log.error("Error saving tender movement for tender type: ${tenderTypeId} error: ${ex.getMessage()}", ex)
             }
         }
     }
 
-    private void updateAutoShiftDataFields(Shift shift, User user, boolean isFinal){
+    private void updateAutoShiftDataFields(Shift shift, User user, boolean isFinal) {
         try {
             if (isFinal) {
                 shift.setShiftStatus(ShiftStatus.FINALISED)
@@ -886,12 +889,14 @@ class ShiftService extends MySqlPoolDal {
                 shift.setReconciledByUserId(user.getId())
                 shift.setReconciledByUsersName(user.getUsername())
                 for (TenderTotal tenderTotal : shift.getTenderTotals()){
-                    ReconciliationTotal newReconciliationTotal = new ReconciliationTotal(tenderTotal.getTenderType())
+                    ReconciliationTotal newReconciliationTotal = new ReconciliationTotal(tenderTotal.tenderTypeId, tenderTotal.tenderTypeName, tenderTotal.cashTender)
                     newReconciliationTotal.setValue(tenderTotal.getValue())
                     newReconciliationTotal.setVariance(BigDecimal.ZERO)
+
                     shift.getReconciliationTotals().add(newReconciliationTotal)
                 }
             }
+
             saveShift(shift)
         } catch (Exception ex) {
             log.error(String.format("Error updating direct shift data update for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)

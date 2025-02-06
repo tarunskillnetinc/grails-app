@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane</title>
+    <title>Trust Retail - Tender Movements Report</title>
 
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
@@ -11,8 +11,8 @@
 
     <script type='text/javascript'>
         var reportType = "${reportType}";
-        var getDataUrl = "${createLink(controller: 'reporting', action: 'ajaxTenderMovements')}";
-        var saveReportColumnsUrl = "${createLink(controller: 'reporting', action: 'ajaxSaveReportColumns')}";
+        var getDataUrl = "${createLink(controller: 'cashReporting', action: 'ajaxGetTenderMovementsReport')}";
+        var saveReportColumnsUrl = "${createLink(controller: 'cashReporting', action: 'ajaxSaveReportColumns')}";
 
         $(document).ready(function () {
             filterReport();

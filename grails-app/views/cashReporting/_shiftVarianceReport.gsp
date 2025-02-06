@@ -50,9 +50,7 @@
                         <table class="table" style="margin-bottom: 0px">
                             <g:each in="${shift.reconciliationTotals}" var="total" status="j">
                                 <tr>
-                                    <td style="padding-bottom: 4px;padding-top: 4px; ${j == 0 ? 'border-top: none !important;' : ''}">
-                                        <g:message code="TenderType.${total?.tenderType}" />
-                                    </td>
+                                    <td style="padding-bottom: 4px;padding-top: 4px; ${j == 0 ? 'border-top: none !important;' : ''}">${total?.tenderTypeName}</td>
                                 </tr>
                             </g:each>
                         </table>
@@ -63,7 +61,7 @@
                                 <tr>
                                     <td style="padding-bottom: 4px;padding-top: 4px; ${total?.variance < BigDecimal.ZERO ? 'color: red;' : ''} ${j == 0 ? 'border-top: none !important;' : ''}">
                                         <g:if test="${total?.variance < BigDecimal.ZERO}">-</g:if>
-                                        £${String.format("%.2f", total?.variance.abs())}
+                                        <g:formatNumber number="${total?.variance?.abs()}" type="currency" />
                                     </td>
                                 </tr>
                             </g:each>

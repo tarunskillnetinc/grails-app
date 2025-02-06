@@ -152,6 +152,10 @@ class EposTagLib {
                 out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All PayPoint Sales</li>"""
 
                 break
+            case ReportType.CHARITY_DONATIONS:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All Charity Donations</li>"""
+
+                break
             case ReportType.ORDERS:
                 out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All Orders</li>"""
 

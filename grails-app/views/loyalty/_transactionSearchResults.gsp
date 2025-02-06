@@ -40,7 +40,7 @@
             <div id="transaction-result-${i+1}-transactionId" class="col-2 text-truncate">${transaction.id}</div>
             <div id="transaction-result-${i+1}-storeId" class="col-1 text-truncate">${transaction.storeId}</div>
             <div id="transaction-result-${i+1}-storeName" class="col text-truncate">${transaction.store.name}</div>
-            <div id="transaction-result-${i+1}-transactionTotal" class="col-2 text-truncate mask-money">£${String.format("%.2f", transaction.transactionTotal)}</div>
+            <div id="transaction-result-${i+1}-transactionTotal" class="col-2 text-truncate mask-money"><g:formatNumber number="${transaction?.transactionTotal}" type="currency" /></div>
             <div id="transaction-result-${i+1}-transactionTimestamp" class="col-3 text-truncate">${transaction.transactionTimestamp.toString("hh:mm:ss dd/MM/yyyy")}</div>
         </div>
     </g:each>

@@ -10,7 +10,7 @@
             </div>
 
             <div id="cashUpContainer" class="mt-3 mr-4">
-                <g:render template="cashUpByTotals" model="[values: [ cashTotal: (shift.reconciliationTotals.find { it.cashTender }?.value ?: BigDecimal.ZERO), totals: shift.reconciliationTotals.find { !it.cashTender }], tenderTypes: tenderTypes]" />
+                <g:render template="cashUpByTotals" model="[values: [ cashTotal: (shift.reconciliationTotals.find { it.cashTender }?.value ?: BigDecimal.ZERO), totals: shift.reconciliationTotals.findAll { !it.cashTender }], tenderTypes: tenderTypes]" />
             </div>
         </g:if>
         <g:else>

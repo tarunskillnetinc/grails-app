@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>Safe Activity Report</title>
+    <title>Trust Retail - Safe Activity Report</title>
 
     <asset:stylesheet src="bootstrap-datepicker3.min.css"/>
     <asset:javascript src="bootstrap-datepicker.min.js"/>
@@ -69,9 +69,7 @@
             if (!storeNumber) {
                 safeSelection.appendChild(new Option('-', ''));
             } else {
-                updateSelectionOptions(safeSelection, getSafesForStoreUrl,
-                    { storeNumber: storeNumber }
-                );
+                updateSelectionOptions(safeSelection, getSafesForStoreUrl, { storeNumber: storeNumber });
             }
         }
 
@@ -90,9 +88,7 @@
             if (!safeId) {
                 safeSessionSelection.appendChild(new Option('-', ''));
             } else {
-                updateSelectionOptions(safeSessionSelection, getSafeSessionsForSafeUrl,
-                    {storeNumber: storeNumber, safeId: safeId, startDate: startDate, endDate: endDate}
-                );
+                updateSelectionOptions(safeSessionSelection, getSafeSessionsForSafeUrl, {storeNumber: storeNumber, safeId: safeId, startDate: startDate, endDate: endDate});
             }
         }
 
@@ -101,6 +97,7 @@
             storeNumber = $("#storeIdSelect").val();
             safeId = $("#safeIdSelect").val();
             sessionNumber = $("#safeSessionSelect").val();
+
             renderCashReportResult(getReportUrl, {storeNumber: storeNumber, safeId: safeId, sessionNumber: sessionNumber});
         }
 

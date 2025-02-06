@@ -9,7 +9,7 @@ class TillAssignmentService {
     def springSecurityService
 
     def getTills() {
-        return TillConfiguration.findAllByRetailerId(springSecurityService.principal.retailerId)
+        return TillConfiguration.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "tillId", order: "asc"])
     }
 
     def getTill(int id) {
@@ -17,35 +17,35 @@ class TillAssignmentService {
     }
 
     def getTillsByAllFilters(int storeIdValue, int tillIdValue, String serialNumberValue) {
-        return TillConfiguration.findAllByRetailerIdAndStoreIdAndTillIdAndSerialNumberLike(springSecurityService.principal.retailerId, storeIdValue, tillIdValue, "%"+serialNumberValue+"%")
+        return TillConfiguration.findAllByRetailerIdAndStoreIdAndTillIdAndSerialNumberLike(springSecurityService.principal.retailerId, storeIdValue, tillIdValue, "%"+serialNumberValue+"%", [sort: "tillId", order: "asc"])
     }
 
     def getTillsByStoreIdAndSerialNumber(int storeIdValue, String serialNumberValue) {
-        return TillConfiguration.findAllByRetailerIdAndStoreIdAndSerialNumberLike(springSecurityService.principal.retailerId, storeIdValue, "%"+serialNumberValue+"%")
+        return TillConfiguration.findAllByRetailerIdAndStoreIdAndSerialNumberLike(springSecurityService.principal.retailerId, storeIdValue, "%"+serialNumberValue+"%", [sort: "tillId", order: "asc"])
     }
 
     def getTillsByTillIdAndSerialNumber(int tillIdValue, String serialNumberValue) {
-        return TillConfiguration.findAllByRetailerIdAndTillIdAndSerialNumberLike(springSecurityService.principal.retailerId, tillIdValue, "%"+serialNumberValue+"%")
+        return TillConfiguration.findAllByRetailerIdAndTillIdAndSerialNumberLike(springSecurityService.principal.retailerId, tillIdValue, "%"+serialNumberValue+"%", [sort: "tillId", order: "asc"])
     }
 
     def getTillsByStoreId(int storeIdValue) {
-        return TillConfiguration.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, storeIdValue)
+        return TillConfiguration.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, storeIdValue, [sort: "tillId", order: "asc"])
     }
 
     def getTillsByStoreIdAndTillId(int storeIdValue, int tillIdValue) {
-        return TillConfiguration.findAllByRetailerIdAndStoreIdAndTillId(springSecurityService.principal.retailerId, storeIdValue, tillIdValue)
+        return TillConfiguration.findAllByRetailerIdAndStoreIdAndTillId(springSecurityService.principal.retailerId, storeIdValue, tillIdValue, [sort: "tillId", order: "asc"])
     }
 
     def getTillsByTillId(int tillIdValue) {
-        return TillConfiguration.findAllByRetailerIdAndTillId(springSecurityService.principal.retailerId, tillIdValue)
+        return TillConfiguration.findAllByRetailerIdAndTillId(springSecurityService.principal.retailerId, tillIdValue, [sort: "tillId", order: "asc"])
     }
 
     def getTillsBySerialNumber(String serialNumber) {
-        return TillConfiguration.findAllByRetailerIdAndSerialNumberLike(springSecurityService.principal.retailerId, "%" + serialNumber + "%")
+        return TillConfiguration.findAllByRetailerIdAndSerialNumberLike(springSecurityService.principal.retailerId, "%" + serialNumber + "%", [sort: "tillId", order: "asc"])
     }
 
     def getTillBySerialNumber(String serialNumber) {
-        return TillConfiguration.findByRetailerIdAndSerialNumberLike(springSecurityService.principal.retailerId, "%" + serialNumber + "%")
+        return TillConfiguration.findByRetailerIdAndSerialNumberLike(springSecurityService.principal.retailerId, "%" + serialNumber + "%", [sort: "tillId", order: "asc"])
     }
 
     def getUnassignedTillStock() {

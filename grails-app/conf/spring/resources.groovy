@@ -96,7 +96,7 @@ beans = {
         userService = ref('userService')
         cashManagementService = ref('cashManagementService')
         locationService = ref('locationService')
-        reportingService = ref('reportingService')
+        cashReportingService = ref('cashReportingService')
         safeService = ref('safeService')
         safeManagementService = ref("safeManagementService")
         commonService = ref("commonService")
@@ -262,7 +262,7 @@ beans = {
     tenderMovementService(TenderMovementService) {
         springSecurityService = ref('springSecurityService')
         storeService = ref('storeService')
-        reportingService = ref('reportingService')
+        cashReportingService = ref('cashReportingService')
         locationService = ref('locationService')
         safeManagementService = ref('safeManagementService')
         shiftService = ref('shiftService')
