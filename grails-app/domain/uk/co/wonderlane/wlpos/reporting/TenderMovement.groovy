@@ -3,7 +3,6 @@ package uk.co.wonderlane.wlpos.reporting
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.Store
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
-import uk.co.wonderlane.wlpos.enums.TenderType
 
 class TenderMovement {
 
@@ -13,7 +12,8 @@ class TenderMovement {
     TenderMovementType type
     String reason
     String reasonOther
-    TenderType tenderType
+    Integer tenderTypeId
+    String tenderTypeName
     Location fromLocation
     Location toLocation
     BigDecimal amount
@@ -42,7 +42,8 @@ class TenderMovement {
         type column: "type"
         reason column: "reason"
         reasonOther column: "reasonOther"
-        tenderType column: "tenderType"
+        tenderTypeId column: "tenderTypeId"
+        tenderTypeName column: "tenderTypeName"
         fromLocation column: "fromLocation", cascade: "evict"
         toLocation column: "toLocation", cascade: "evict"
         amount column: "amount"
@@ -65,7 +66,8 @@ class TenderMovement {
         type nullable: false, blank: false, maxSize: 45
         reason nullable: true, maxSize: 50
         reasonOther nullable: true, maxSize: 200
-        tenderType nullable: false, blank: false, maxSize: 45
+        tenderTypeId nullable: false
+        tenderTypeName nullable: false, blank: false, maxSize: 24
         fromLocation nullable: true
         toLocation nullable: true
         amount nullable: false
