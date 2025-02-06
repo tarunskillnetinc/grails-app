@@ -4,7 +4,7 @@
         offset: ${offset},
         sortColumn: 'name',
         sortOrder: ${sortColumn == 'name' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-    });">Tender</a></div>
+    });">Name</a></div>
     <div class="col-2 font-weight-bold"><a id="tender-type-receiptDescription" href="#" onclick="getTenderTypes({
         max: ${max},
         offset: ${offset},
