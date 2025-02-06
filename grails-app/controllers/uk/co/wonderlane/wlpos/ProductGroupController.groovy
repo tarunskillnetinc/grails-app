@@ -183,8 +183,8 @@ class ProductGroupController {
         if (cmd.days != null && cmd.days.size() > 0) {
             def jsonMap = [
                     timeRestrictionDays: (0..6).collect { day -> cmd.days.contains(day) },
-                    startSellingTimeRestriction: cmd.restrictionStartTime.replace(":","") ?: "",
-                    stopSellingTimeRestriction: cmd.restrictionEndTime.replace(":","") ?: ""
+                    startSellingTimeRestriction: cmd.restrictionStartTime?.replace(":", "") ?: "",
+                    stopSellingTimeRestriction : cmd.restrictionEndTime?.replace(":", "") ?: ""
             ]
             productGroup.timeRestriction = (jsonMap as JSON).toString()
         }

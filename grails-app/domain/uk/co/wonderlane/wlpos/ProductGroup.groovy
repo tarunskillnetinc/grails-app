@@ -18,7 +18,7 @@ class ProductGroup {
     Integer maxSellQuantity
     boolean active
 
-    Category category
+    //Category category
 
     static hasMany = [productGroupProducts: ProductGroupProduct]
 
@@ -31,7 +31,7 @@ class ProductGroup {
         hidden column: "hidden"
         startDate column: "startDate"
         endDate column: "endDate"
-        category column: "categoryId", type:"join", cascade: "none"
+        //category column: "categoryId", type:"join", cascade: "none"
         timeRestriction column: "timeRestriction", sqlType: "json"
         maxSellQuantity column: "maxSellQuantity"
         active column: "active"
@@ -46,7 +46,7 @@ class ProductGroup {
         timeRestriction nullable: true
         maxSellQuantity nullable: true, min: 1
         active nullable: false
-        category nullable: true
+        //category nullable: true
     }
 
     def beforeUpdate() {
