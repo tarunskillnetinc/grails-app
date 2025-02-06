@@ -251,9 +251,9 @@
                 <div class="col-12 col-md-6">
                     <!-- Name -->
                     <div class="form-group row mt-4">
-                        <label for="description" class="col-6 col-form-label text-right pr-4">Description</label>
+                <label for="description" class="col-6 col-form-label text-right pr-4">Product Group Name</label>
                         <g:textField name="description" class="col-6 form-control"
-                                     value="${productGroup?.description}" maxlength="50"/>
+                                     value="${productGroup?.description}" maxlength="60"/>
                     </div>
 
                     <!-- Start Date -->
