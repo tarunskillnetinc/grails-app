@@ -113,7 +113,7 @@
                 $("#promotionOfferGroupsContainer").html("");
                 $("#promotionRequiredGroupsContainer").html("");
 
-                // Ensure all add Tag or Category buttons are re-enabled.
+                // Ensure all add ProductGroup or Category buttons are re-enabled.
                 enableOrDisablePromotionGroupButtons("offer");
                 enableOrDisablePromotionGroupButtons("required");
 
@@ -149,9 +149,9 @@
                 addPromotionGroup(sku, url);
             }
 
-            // Add the selected tag to the relevant promotion group section.
-            function addPromotionGroupTag(id) {
-                var url = "${createLink(controller: 'promotion', action: 'ajaxGetTag')}";
+            // Add the selected productGroup to the relevant promotion group section.
+            function addPromotionGroupProductGroup(id) {
+                var url = "${createLink(controller: 'promotion', action: 'ajaxGetProductGroup')}";
 
                 addPromotionGroup(id, url);
             }
@@ -190,7 +190,7 @@
                 });
             }
 
-            // Enable or disable the Add Tag/Category buttons depending on the promo type and how many groups are already selected.
+            // Enable or disable the Add ProductGroup/Category buttons depending on the promo type and how many groups are already selected.
             function enableOrDisablePromotionGroupButtons(promotionGroupType) {
                 var promoType = $("#type").val();
 
@@ -220,34 +220,34 @@
             }
 
             function enableOrDisablePromotionGroupButtonsForBogof(promotionGroupType) {
-                // Single product, category or tag allowed at a time.
+                // Single product, category or productGroup allowed at a time.
                 setPromotionGroupButtonEnabledness(promotionGroupType, false, false, false);
             }
 
             function enableOrDisablePromotionGroupButtonsForFixedAmount(promotionGroupType) {
-                // Single product, category or tag allowed at a time.
+                // Single product, category or productGroup allowed at a time.
                 setPromotionGroupButtonEnabledness(promotionGroupType, false, false, false);
             }
 
             function enableOrDisablePromotionGroupButtonsForPercentage(promotionGroupType) {
-                // Single product, category or tag allowed at a time.
+                // Single product, category or productGroup allowed at a time.
                 setPromotionGroupButtonEnabledness(promotionGroupType, false, false, false);
             }
 
             function enableOrDisablePromotionGroupButtonsForXForY(promotionGroupType) {
-                // Single product, category or tag allowed at a time.
+                // Single product, category or productGroup allowed at a time.
                 setPromotionGroupButtonEnabledness(promotionGroupType, false, false, false);
             }
 
             function enableOrDisablePromotionGroupButtonsForFixedPrice(promotionGroupType) {
-                // Multiple of either a product, tag or category allowed.
+                // Multiple of either a product, productGroup or category allowed.
 
                 // Find out which group type we've used so far and only enable that button.
                 if ($("#" +promotionGroupType +"Groups\\[0\\]\\.sku").val() > 0) {
                     setPromotionGroupButtonEnabledness(promotionGroupType, true, false, false);
                 } else if ($("#" +promotionGroupType +"Groups\\[0\\]\\.categoryId").val() > 0) {
                     setPromotionGroupButtonEnabledness(promotionGroupType, false, true, false);
-                } else if ($("#" +promotionGroupType +"Groups\\[0\\]\\.tagId").val() > 0) {
+                } else if ($("#" + promotionGroupType + "Groups\\[0\\]\\.productGroupId").val() > 0) {
                     setPromotionGroupButtonEnabledness(promotionGroupType, false, false, true);
                 } else {
                     // Shouldn't be hitting this.
@@ -258,7 +258,7 @@
             function setPromotionGroupButtonEnabledness(promotionGroupType, productButtonEnabled, categoryButtonEnabled, tagButtonEnabled) {
                 $("#" +promotionGroupType +"AddProductButton").attr("disabled", !productButtonEnabled);
                 $("#" +promotionGroupType +"AddCategoryButton").attr("disabled", !categoryButtonEnabled);
-                $("#" +promotionGroupType +"AddTagButton").attr("disabled", !tagButtonEnabled);
+                $("#" + promotionGroupType + "AddProductGroupButton").attr("disabled", !tagButtonEnabled);
             }
 
             function deletePromotionGroup(promotionGroupName, promotionGroupType) {
@@ -286,7 +286,7 @@
                     $("#" +promotionGroupType +"Groups\\[" +currentIndex +"\\]\\.type").attr("id", promotionGroupType +"Groups[" +index +"].type").attr("name", promotionGroupType +"Groups[" +index +"].type");
                     $("#" +promotionGroupType +"Groups\\[" +currentIndex +"\\]\\.sku").attr("id", promotionGroupType +"Groups[" +index +"].sku").attr("name", promotionGroupType +"Groups[" +index +"].sku");
                     $("#" +promotionGroupType +"Groups\\[" +currentIndex +"\\]\\.categoryId").attr("id", promotionGroupType +"Groups[" +index +"].categoryId").attr("name", promotionGroupType +"Groups[" +index +"].categoryId");
-                    $("#" +promotionGroupType +"Groups\\[" +currentIndex +"\\]\\.tagId").attr("id", promotionGroupType +"Groups[" +index +"].tagId").attr("name", promotionGroupType +"Groups[" +index +"].tagId");
+                    $("#" + promotionGroupType + "Groups\\[" + currentIndex + "\\]\\.productGroupId").attr("id", promotionGroupType + "Groups[" + index + "].productGroupId").attr("name", promotionGroupType + "Groups[" + index + "].productGroupId");
                     $("#" +promotionGroupType +"Groups\\[" +currentIndex +"\\]\\.requiredValue").attr("id", promotionGroupType +"Groups[" +index +"].requiredValue").attr("name", promotionGroupType +"Groups[" +index +"].requiredValue");
                     $("#" +promotionGroupType +"Groups\\[" +currentIndex +"\\]\\.requiredQuantity").attr("id", promotionGroupType +"Groups[" +index +"].requiredQuantity").attr("name", promotionGroupType +"Groups[" +index +"].requiredQuantity");
 
@@ -481,7 +481,7 @@
 
         <g:render template="productSearch" />
         <g:render template="categorySearch" />
-        <g:render template="tagSearch" />
+        <g:render template="productGroupSearch"/>
         <g:render template="addStoresModal"/>
     </body>
 </html>

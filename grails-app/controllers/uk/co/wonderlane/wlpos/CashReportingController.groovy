@@ -667,9 +667,12 @@ class CashReportingController {
             }
 
             reportLines.add([
-                    id          : audit.id, timestamp: audit.timestamp,
-                    name        : audit.usersRealName, username: audit.username,
-                    action      : audit.action, source: audit.backoffice ? "Back Office" : "Till",
+                    id          : audit.id,
+                    timestamp   : audit.timestamp,
+                    name        : audit.usersRealName,
+                    username    : audit.username,
+                    action      : audit.action,
+                    source      : audit.backoffice ? "Back Office" : "Till",
                     rowspan     : Math.max(tenderValues.size(), 1),
                     tenderValues: tenderValues.toSorted { value -> value.tenderTypeName }
             ])

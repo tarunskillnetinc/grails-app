@@ -69,6 +69,24 @@ abstract class BaseController {
         return new Pair<List<Category>, List<Integer>>(topLevelCategories, productCategoryList)
     }
 
+    protected Pair<List<Category>, List<Integer>> baseSearchForCategories(String searchTerm, String categoryCode) {
+        def topLevelCategories = []
+        def productCategoryList = []
+        boolean isSearch = searchTerm?.length() > 0 || categoryCode?.length() > 0
+
+        // If no search term is provided then we should reset this back to default (i.e. just the top level departments).
+        if (isSearch) {
+            def categories = categoryService.searchForCategories(searchTerm, categoryCode)
+            productCategoryList.addAll(categories?.collect { it.id })
+            categories?.each {
+                addCategoriesHierarchy(topLevelCategories, productCategoryList, it)
+            }
+        } else {
+            topLevelCategories = categoryService.getTopLevelCategories()
+        }
+        return new Pair<List<Category>, List<Integer>>(topLevelCategories, productCategoryList)
+    }
+
     protected void addCategoriesHierarchy(List topCategories, List productCategoryList, Category category) {
         if (category.parentCategory) {
             if (category.parentCategory.id == category.id) {

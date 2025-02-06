@@ -3,12 +3,12 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.Transactional
 
 @Transactional
-class TagService {
+class ProductGroupService {
 
     def springSecurityService
 
-    def getTags(String searchTerm = null, String searchBy = "everything", int offset = 0, int max = 50, String sort = "description", String order = "ASC") {
-        return Tag.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
+    def getProductGroups(String searchTerm = null, String searchBy = "everything", int offset = 0, int max = 50, String sort = "description", String order = "ASC") {
+        return ProductGroup.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             eq ("hidden", false)
 
@@ -24,26 +24,26 @@ class TagService {
                     }
                 } else if (searchBy == "description") {
                     like("description", "%$searchTerm%")
-                } else if (searchBy == "tagId") {
+                } else if (searchBy == "productGroupId") {
                     sqlRestriction "cast( id AS char( 256 )) like '%${searchTerm}%'"
                 }
             }
         }
     }
 
-    def getTag(int id) {
-        return Tag.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
+    def getProductGroup(int id) {
+        return ProductGroup.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
     }
 
-    def saveTag(Tag tag) {
-        tag.save()
+    def saveProductGroup(ProductGroup productGroup) {
+        productGroup.save()
     }
 
-    def deleteTagProduct(TagProduct tagProduct) {
-        tagProduct.delete()
+    def deleteProductGroupProduct(ProductGroupProduct productGroupProduct) {
+        productGroupProduct.delete()
     }
 
-    def deleteTagProduct(int tagId, long sku) {
-        TagProduct.executeUpdate("delete TagProduct tp where tp.tag.id = :tagId and tp.sku = :sku", [tagId: tagId, sku: sku])
+    def deleteProductGroupProduct(int productGroupId, long sku) {
+        ProductGroupProduct.executeUpdate("delete ProductGroupProduct pgp where pgp.productgroup.id = :productgroupId and pgp.sku = :sku", [productgroupId: productGroupId, sku: sku])
     }
 }

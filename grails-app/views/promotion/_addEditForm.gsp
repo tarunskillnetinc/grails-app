@@ -137,7 +137,10 @@
                         <div class="col-12 text-right">
                             <button id="requiredAddProductButton" type="button" class="btn btn-wl mr-1" data-toggle="modal" data-target="#promotionProductSearchModal" onclick="selectedPromotionGroupType = 'required';">+ Product</button>
                             <button id="requiredAddCategoryButton" type="button" class="btn btn-wl mr-1" data-toggle="modal" data-target="#promotionCategorySearchModal" onclick="selectedPromotionGroupType = 'required';">+ Category</button>
-                            <button id="requiredAddTagButton" type="button" class="btn btn-wl mr-1" data-toggle="modal" data-target="#promotionTagSearchModal" onclick="selectedPromotionGroupType = 'required';">+ Tag</button>
+                            <button id="requiredAddProductGroupButton" type="button" class="btn btn-wl mr-1"
+                                    data-toggle="modal"
+                                    data-target="#promotionProductGroupSearchModal"
+                                    onclick="selectedPromotionGroupType = 'required';">+ Product Group</button>
                         </div>
                     </div>
                 </div>
@@ -169,7 +172,10 @@
                         <div class="col-12 text-right">
                             <button id="offerAddProductButton" type="button" class="btn btn-wl mr-1" data-toggle="modal" data-target="#promotionProductSearchModal" onclick="selectedPromotionGroupType = 'offer';">+ Product</button>
                             <button id="offerAddCategoryButton" type="button" class="btn btn-wl mr-1" data-toggle="modal" data-target="#promotionCategorySearchModal" onclick="selectedPromotionGroupType = 'offer';">+ Category</button>
-                            <button id="offerAddTagButton" type="button" class="btn btn-wl mr-1" data-toggle="modal" data-target="#promotionTagSearchModal" onclick="selectedPromotionGroupType = 'offer';">+ Tag</button>
+                            <button id="offerAddProductGroupButton" type="button" class="btn btn-wl mr-1"
+                                    data-toggle="modal"
+                                    data-target="#promotionProductGroupSearchModal"
+                                    onclick="selectedPromotionGroupType = 'offer';">+ Product Group</button>
                         </div>
                     </div>
                 </div>

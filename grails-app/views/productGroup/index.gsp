@@ -3,11 +3,11 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>Tag Management</title>
+        <title>Product Group Management</title>
 
         <script type="text/javascript">
             $(document).ready(function () {
-                $('#tagSearchTerm').on('keyup', function(event) {
+                $('#productGroupSearchTerm').on('keyup', function (event) {
                     if (event.key === 'Enter') {
                         search();
                     }
@@ -15,9 +15,9 @@
             });
 
             function search() {
-                var URL = "${createLink(controller: 'tag', action: 'ajaxGetTags')}";
-                var searchTerm = $('#tagSearchTerm').val();
-                var searchBy = $('#tagSearchBy').val();
+                var URL = "${createLink(controller: 'productGroup', action: 'ajaxGetProductGroups')}";
+                var searchTerm = $('#productGroupSearchTerm').val();
+                var searchBy = $('#productGroupSearchBy').val();
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -35,8 +35,8 @@
             }
 
             function resetForm() {
-                document.getElementById('tagSearchTerm').value = null;
-                document.getElementById('tagSearchBy').value = 'everything';
+                document.getElementById('productGroupSearchTerm').value = null;
+                document.getElementById('productGroupSearchBy').value = 'everything';
                 search();
             }
         </script>
@@ -63,7 +63,8 @@
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link elementId="add-new-tag-btn" controller="tag" action="add" class="btn btn-wl">Add New Tag</g:link>
+                    <g:link elementId="add-new-productGroup-btn" controller="productGroup" action="add"
+                            class="btn btn-wl">Add New Product Group</g:link>
                 </div>
             </div>
 
@@ -91,11 +92,17 @@
 
                         <div class="card-body collapse" id="filterCollapse">
                             <div class="form-group row">
-                                <label for="tagSearchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
+                                <label for="productGroupSearchTerm"
+                                       class="col-2 col-form-label-sm text-right">Search Term</label>
                                 <div class="col-10 input-group">
-                                    <g:textField id="tagSearchTerm" name="tagSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
+                                    <g:textField id="productGroupSearchTerm" name="productGroupSearchTerm"
+                                                 maxlength="100" class="form-control" placeholder="Enter a search term."
+                                                 aria-describedby="select-addon2"/>
                                     <div class="input-group-append">
-                                        <g:select id="tagSearchBy" name="tagSearchBy" from="${['everything', 'description', 'tagId']}" value="everything" valueMessagePrefix="TagSearchBy" class="form-control select-border" style="z-index: 0;" />
+                                        <g:select id="productGroupSearchBy" name="productGroupSearchBy"
+                                                  from="${['everything', 'description', 'tagId']}" value="everything"
+                                                  valueMessagePrefix="ProductGroupSearchBy"
+                                                  class="form-control select-border" style="z-index: 0;"/>
                                     </div>
                                 </div>
                             </div>
@@ -112,14 +119,14 @@
             </div>
 
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                <div class="col-2 font-weight-bold">Tag ID</div>
+                <div class="col-2 font-weight-bold">ProductGroup ID</div>
                 <div class="col-6 font-weight-bold">Description</div>
                 <div class="col-2 font-weight-bold">Product Count</div>
                 <div class="col-2 font-weight-bold">Maximum Sell Quantity</div>
             </div>
 
             <div id="search-results" class="align-content-center">
-                <g:render template="tagSearchResults" model="[tags: tags]" />
+                <g:render template="productGroupSearchResults" model="[productGroups: productGroups]"/>
             </div>
         </section>
     </body>
