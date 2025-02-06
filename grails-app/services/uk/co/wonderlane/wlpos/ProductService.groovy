@@ -904,6 +904,16 @@ class ProductService extends MySqlDal {
         return results.sort { it.id }
     }
 
+    def processedValueForNullEmpty(String value, ProductAttributeType productAttributeType) {
+        if (value == null) {
+            value = "";
+        } else if (productAttributeType == ProductAttributeType.BOOLEAN && value == "false") {
+            value = "";
+        }
+
+        return value;
+    }
+
     List<ProductAttributeValues> getProductInformation(Product product) {
         List<ProductAttributeValues> returnedAttributeValuesList = new ArrayList<>()
         List<ProductAttributeValues> productAttributeValuesList = new ArrayList<>()
@@ -984,21 +994,32 @@ class ProductService extends MySqlDal {
                         //If updated attribute already on `productattributevalues` table
                         //If so then check updated value is change to current value
                         //If it does then update current value to new value
-                        if (existingAttr?.value != editedAttr?.value) {
+                        def existingAttrProcessedDefaultValue = processedValueForNullEmpty(existingAttr?.value, productAttributes?.type)
+                        def editedAttrProcessedValue = processedValueForNullEmpty(editedAttr?.value, productAttributes?.type)
+
+                        if (existingAttrProcessedDefaultValue != editedAttrProcessedValue) {
                             builder.compare(editedAttr?.attributeName, existingAttr?.value, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
                             existingAttr?.value = editedAttr?.value
                         }
-                    } else if (productAttributes?.defaultValue != editedAttr?.value) {
-                        def newAttr = new ProductAttributeValues(
-                                retailerId: editedAttr?.retailerId,
-                                productAttributeId: editedAttr?.productAttributeId,
-                                value: editedAttr?.value,
-                                id: editedAttr?.productAttributeId,
-                                attributeName: editedAttr?.attributeName,
-                                attributeType: editedAttr?.attributeType
-                        )
-                        builder.compare(editedAttr?.attributeName, productAttributes?.defaultValue, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
-                        updatedOrNewAttributes << newAttr
+                    } else {
+                        def productAttrProcessedDefaultValue = processedValueForNullEmpty(productAttributes?.defaultValue, productAttributes?.type)
+                        def editedAttrProcessedValue = processedValueForNullEmpty(editedAttr?.value, productAttributes?.type)
+
+                        if (productAttrProcessedDefaultValue != editedAttrProcessedValue) {
+                            // ignore matching attributes and close attributes values like ""/null.
+                            def newAttr = new ProductAttributeValues(
+                                    retailerId: editedAttr?.retailerId,
+                                    productAttributeId: editedAttr?.productAttributeId,
+                                    value: editedAttr?.value,
+                                    id: editedAttr?.productAttributeId,
+                                    attributeName: editedAttr?.attributeName,
+                                    attributeType: editedAttr?.attributeType
+                            )
+
+                            // During the initial product creation, don't record the changes to product attributes.
+                            builder.compare(editedAttr?.attributeName, productAttributes?.defaultValue, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
+                            updatedOrNewAttributes << newAttr
+                        }
                     }
                 }
             }
