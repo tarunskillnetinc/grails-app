@@ -902,6 +902,9 @@ class ProductController extends BaseController {
                 newVariant.sku = editedVariant.sku
                 newVariant.retailPrice = editedVariant.retailPrice
                 newVariant.costPrice = editedVariant.costPrice
+                if (newVariant.storeId && editedVariant.costPrice != BigDecimal.ZERO) {
+                    newVariant.weightedAverageCostPrice = editedVariant.costPrice
+                }
                 newVariant.size = editedVariant.size
                 newVariant.colour = editedVariant.colour
                 newVariant.minimumStockLevel = editedVariant.minimumStockLevel
@@ -1701,7 +1704,13 @@ class ProductController extends BaseController {
     }
 
     def ajaxAddVariant(AddVariantCommand cmd, boolean isNewVariant) {
-        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant])
+        def wacValue = BigDecimal.ZERO
+        if (cmd.storeId) {
+            wacValue = cmd.weightedAverageCostPrice?:BigDecimal.ZERO
+        }
+        // todo - calculate retailer wide wacValue
+
+        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, wacValue: wacValue, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant])
     }
 
     def ajaxAddBarcode(int index, String selector) {
@@ -2070,6 +2079,7 @@ class AddVariantCommand {
     Long sku
     BigDecimal retailPrice
     BigDecimal costPrice
+    BigDecimal weightedAverageCostPrice
     Integer shelfLifeDays
     DateTime effectiveDate
     List<AddBarcodeCommand> barcodez

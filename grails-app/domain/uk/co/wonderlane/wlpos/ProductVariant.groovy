@@ -22,6 +22,7 @@ class ProductVariant implements Serializable {
     long sku
     BigDecimal retailPrice
     BigDecimal costPrice
+    BigDecimal weightedAverageCostPrice
     String size
     String colour
     int minimumStockLevel
@@ -61,6 +62,7 @@ class ProductVariant implements Serializable {
         sku column: "sku"
         retailPrice column: "price"
         costPrice column: "costPrice"
+        weightedAverageCostPrice column: "weightedAverageCostPrice"
         size column:"size"
         colour column:"colour"
         shelfLifeDays column: "shelfLifeDays"
@@ -84,6 +86,7 @@ class ProductVariant implements Serializable {
         defaultSupplierId nullable: true
         retailPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
+        weightedAverageCostPrice nullable: true
         size size: 0..45, blank: true, nullable: true
         colour size: 0..45, blank: true, nullable: true
         shelfLifeDays nullable: true

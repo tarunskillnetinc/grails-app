@@ -11,6 +11,11 @@ class PartnerCategoryManagementController extends BaseController{
     def index() {
         int retailerId = springSecurityService.principal.retailerId
         List<EcomSupplier> ecomSuppliers = EcomSupplier.findAllByRetailerIdAndDeleted(retailerId, false)
+
+        session.PARTNER = null
+        // Remove any session variables used for filtering so that the page is clean when loaded from the menu.
+        session.PARTNER_CATEGORY = null
+
         [ecomSuppliers: ecomSuppliers]
     }
 
