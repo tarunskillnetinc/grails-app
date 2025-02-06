@@ -301,7 +301,7 @@ class ProductVariant implements Serializable {
     }
 
     String getSelUnitSize() {
-        if (unitSize = null) {
+        if (unitSize == null) {
             return null
         }
 

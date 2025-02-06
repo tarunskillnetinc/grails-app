@@ -1292,6 +1292,10 @@ class ProductController extends BaseController {
                 || newPack.priceMarked != existingPack.priceMarked
                 || newPack.priceMarkedType != existingPack.priceMarkedType
                 || newPack.priceMarkedValue != existingPack.priceMarkedValue
+                || newPack.lengthCm != existingPack.lengthCm
+                || newPack.widthCm != existingPack.widthCm
+                || newPack.heightCm != existingPack.heightCm
+                || newPack.weightKg != existingPack.weightKg
     }
 
     def locationChanged(def newLocation, def existingLocation) {
@@ -1324,6 +1328,10 @@ class ProductController extends BaseController {
             packToBeUpdated.priceMarkedType = editedPack.priceMarkedType
             packToBeUpdated.priceMarkedValue = editedPack.priceMarkedValue
         }
+        packToBeUpdated.lengthCm = editedPack.lengthCm
+        packToBeUpdated.widthCm = editedPack.widthCm
+        packToBeUpdated.heightCm = editedPack.heightCm
+        packToBeUpdated.weightKg = editedPack.weightKg
 
         if (packToBeUpdated.hasProperty('updateDatetime')) {
             packToBeUpdated.updateDatetime = now
@@ -1440,7 +1448,7 @@ class ProductController extends BaseController {
         builder.compare(id, "receiptDescription", oldVariant.receiptDescription, variant.receiptDescription)
         builder.compare(id, "priceMarked", oldVariant.priceMarked, variant.priceMarked)
         builder.compare(id, "unitSize", oldVariant.unitSize, variant.unitSize)
-        builder.compare(id, "unitOfMeasure", oldVariant.unitOfMeasure.name, variant.unitOfMeasure.name)
+        builder.compare(id, "unitOfMeasure", oldVariant.unitOfMeasure?.name, variant.unitOfMeasure?.name)
         builder.compare(id, "itemsInUnit", oldVariant.itemsInUnit, variant.itemsInUnit)
         builder.compare(id, "heightCm", oldVariant.heightCm, variant.heightCm)
         builder.compare(id, "widthCm", oldVariant.widthCm, variant.widthCm)
@@ -1514,6 +1522,10 @@ class ProductController extends BaseController {
         builder.compare("packPriceMarked", oldPack.priceMarked, pack.priceMarked)
         builder.compare("packPriceMarkedType", oldPack.priceMarkedType, pack.priceMarkedType)
         builder.compare("packPriceMarkedValue", oldPack.priceMarkedValue, pack.priceMarkedValue)
+        builder.compare("packLengthCm", oldPack.lengthCm, pack.lengthCm)
+        builder.compare("packWidthCm", oldPack.widthCm, pack.widthCm)
+        builder.compare("packHeightCm", oldPack.heightCm, pack.heightCm)
+        builder.compare("packWeightKg", oldPack.weightKg, pack.weightKg)
     }
 
     void compareLocationFields(ProductHistoryBuilder builder, Location oldLocation, def location, ProductHistoryType productHistoryType) {
