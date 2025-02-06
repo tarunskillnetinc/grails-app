@@ -89,7 +89,7 @@ class TenderTypeController {
 
         tenderTypeService.saveTenderType(tenderType)
 
-//        sendSyncMessage(tenderType)
+        sendSyncMessage(tenderType)
 
         render(status: 200, text: "Successfully ${deleted ? 'deleted' : 'reinstated'} ${tenderType.name}.")
     }
