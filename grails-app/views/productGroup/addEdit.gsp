@@ -220,7 +220,8 @@
 <section id="central-count-search" class="container">
     <div class="row header-wl mt-3">
         <div class="col-8 offset-2">
-            <h2 id="page-title" class="mx-auto">Product Group Management</h2>
+            <h2 id="page-title"
+                class="mx-auto">${productGroup?.description ? "Edit Product Group" : "Add Product Group"}</h2>
         </div>
 
         <div class="col-2 text-right">
@@ -276,14 +277,12 @@
 
                 <!-- Second Column (Right) -->
                 <div class="col-12 col-md-6">
-
-                <!-- Maximum Sell Quantity -->
+                <!-- Status -->
                 <div class="form-group row mt-4">
-                    <label for="maxSellQuantity"
-                           class="col-6 col-form-label text-right pr-4">Maximum Sell Quantity</label>
-                    <g:field name="maxSellQuantity" type="number" min="0" max="999"
-                             value="${productGroup?.maxSellQuantity}" class="col-6 form-control"
-                             onkeypress="return preventNegativeInteger(event);" onpaste="return false;"/>
+                    <label for="status" class="col-6 col-form-label text-right pr-4">Status</label>
+                    <g:select name="status" from="${['Active', 'Inactive']}"
+                              value="${productGroup ? (productGroup?.active ? 'Active' : 'Inactive') : 'Active'}"
+                              class="col-6 form-control"/>
                 </div>
 
                 <!-- End Date -->
@@ -294,13 +293,6 @@
                                  value="${productGroup?.endDate ?: new Date().format("EEEE dd MMMM yyyy")}"/>
                 </div>
 
-
-                <!-- Status -->
-                <div class="form-group row mt-4">
-                    <label for="status" class="col-6 col-form-label text-right pr-4">Status</label>
-                    <g:select name="status" from="${['Active', 'Inactive']}"
-                              value="${productGroup ? (productGroup?.active?'Active':'Inactive') : 'Active'}" class="col-6 form-control"/>
-                </div>
             </div>
             </div>
 
@@ -311,6 +303,25 @@
 
             <div class="row justify-content-center">
                 <div class="col-12 col-md-6">
+                    <!-- Maximum Sell Quantity -->
+                    <div class="form-group row mt-4">
+                        <label for="maxSellQuantity"
+                               class="col-6 col-form-label text-right pr-4">Maximum Sell Quantity</label>
+                        <g:field name="maxSellQuantity" type="number" min="0" max="999"
+                                 value="${productGroup?.maxSellQuantity}" class="col-6 form-control"
+                                 onkeypress="return preventNegativeInteger(event);" onpaste="return false;"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group Restriction Section -->
+            <div class="header-wl mt-2">
+                <h3 class="mx-auto section-title">Day/Time Restriction</h3>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-6">
+
                     <!-- Day Restrictions -->
                     <div class="form-group row mt-4">
                         <label class="col-6 col-form-label text-right pr-4">Day Restrictions</label>
@@ -365,9 +376,9 @@
                     <div class="d-flex justify-content-end mb-3">
                         <a id="add-product-btn" href="#" role="button" class="btn btn-wl mr-2" data-toggle="modal"
                            data-target="#productSearchModal">
-                            Add Product
+                            Add Products
                         </a>
-                        <button id="addCategoryBtn" class="btn btn-wl">Add Category</button>
+                        <button id="addCategoriesBtn" class="btn btn-wl">Add Categories</button>
                     </div>
                 </div>
             </div>
