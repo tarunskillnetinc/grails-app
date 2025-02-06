@@ -22,7 +22,7 @@
             // If greater than max number set to max
             if (parseFloat(element.value) > 1) {
                 element.value = 1
-            } else if (element.value.substring(element.value.indexOf("."), element.value.length).length > 3) {
+            } else if (element.value.substring(element.value.indexOf("."), element.value.length).length > decimalPlaces) {
                 // Truncate to number of decimal places and return
                 element.value = element.value.substring(0, (decimalPlaces + 2))
             } else if (element.value < 0.001) {
