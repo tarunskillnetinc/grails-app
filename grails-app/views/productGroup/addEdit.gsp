@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main"/>
 
-    <title>Product Group Management</title>
+    <title>${productGroup?.description ? "Edit Product Group" : "Add Product Group"}</title>
     <asset:stylesheet src="bootstrap-datepicker3.min.css"/>
     <asset:stylesheet src="bootstrap-timepicker.min.css"/>
 

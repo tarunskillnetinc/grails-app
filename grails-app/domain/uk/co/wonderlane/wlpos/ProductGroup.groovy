@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import grails.converters.JSON
 import groovy.json.JsonSlurper
 import org.joda.time.DateTime
+import org.joda.time.ReadableInstant
 
 import javax.persistence.Column
 
@@ -93,5 +94,21 @@ class ProductGroup {
         }
 
         return productGroup
+    }
+
+    public String getRestrictionType() {
+        // This converts the various restrictions like product count, end date into human readables.
+        def restrictions = []
+        if (timeRestriction != null) {
+            restrictions << "Time Restrictions Sell"
+        }
+        if (endDate != null || startDate.isAfter(DateTime.parse("2000-01-01"))) {
+            restrictions << "Date Restrictions Sell"
+        }
+        if (maxSellQuantity != null) {
+            restrictions << "Max Sell Quantity"
+        }
+
+        return restrictions.join(", ")
     }
 }
