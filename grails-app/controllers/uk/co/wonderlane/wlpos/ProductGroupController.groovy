@@ -63,7 +63,7 @@ class ProductGroupController {
                                                                   startDate    : startDate == null ? "" : startDate,
                                                                   endDate      : endDate == null ? "" : endDate,
                                                                   status       : status == null ? "" : status,
-                                                                  max: params.max ? Integer.parseInt(params.offset) : 50,
+                                                                  max: params.max ?: 50,
                                                                   offset       : params.offset ? Integer.parseInt(params.offset) : 0,
                                                                   sortColumn   : sortColumn,
                                                                   sortOrder: sortOrder])
