@@ -84,6 +84,30 @@ class ProductService extends MySqlDal {
         }
     }
 
+    List<uk.co.wonderlane.wlpos.entities.ProductVariant> getAllProductVariantsForSku(long sku) throws SQLException {
+        Connection conn
+        CallableStatement cstmt
+        try {
+            conn = getConnection()
+            cstmt = conn.prepareCall("{ call getAllProductVariantsForSku(?, ?) }")
+            cstmt.setInt(1, springSecurityService.principal.retailerId)
+            cstmt.setLong(2, sku)
+            ResultSet rs = cstmt.executeQuery()
+            List<uk.co.wonderlane.wlpos.entities.ProductVariant> variants = new ArrayList<>()
+            while (rs.next()) {
+                variants.add(mapProductVariant(rs))
+            }
+            return variants
+        } catch (Exception ex) {
+            log.error("Exception thrown when retrieving product variant from DB, Exception " + ex.getMessage())
+            throw ex
+        } finally {
+            if (connection != null) {
+                connection.close()
+            }
+        }
+    }
+
     // TODO make this method only return the current effective date. Currently it will return any which exist (sorted so that the active one is first (unless the description has changed)).
     def getProductVariants(List<Long> skus) {
         def criteria = ProductVariant.createCriteria()
@@ -870,6 +894,11 @@ class ProductService extends MySqlDal {
             productVariant.setCostPrice(null)
         }
 
+        productVariant.setWeightedAverageCostPrice(resultSet.getBigDecimal("weightedAverageCostPrice"))
+        if (resultSet.wasNull()) {
+            productVariant.setWeightedAverageCostPrice(null)
+        }
+
         productVariant.setSize(resultSet.getString("size"))
         if (resultSet.wasNull()) {
             productVariant.setSize(null)
@@ -879,6 +908,7 @@ class ProductService extends MySqlDal {
         if (resultSet.wasNull()) {
             productVariant.setColour(null)
         }
+        productVariant.setQuantityInStock(QuantityHelper.quantityOrDefault(resultSet, "quantityInStock", BigDecimal.ZERO))
         productVariant.setQuantityOnOrder(QuantityHelper.quantityOrDefault(resultSet, "quantityOnOrder", BigDecimal.ZERO))
         productVariant.setMinimumStockLevel(resultSet.getInt("minimumStockLevel"))
         productVariant.setEffectiveDate(new DateTime(resultSet.getTimestamp("effectiveDate"), DateTimeZone.UTC))
