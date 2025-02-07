@@ -18,7 +18,7 @@
     <div class="col-2 font-weight-bold">
         <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'description',
             sortOrder: ${sortColumn == 'description' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
-            description
+            Description
         </a>
     </div>
     <div class="col-2 font-weight-bold">
@@ -85,7 +85,7 @@
 
 <div class="my-3 text-right">
     <util:remotePaginate action="ajaxGetProductGroups"
-                         total="${productGroups?.totalCount ?: 0}"
+                         total="${productGroups?.size() ?: 0}"
                          update="search-results"
                          offset="${offset ?: 0}" max="${max ?: 50}"
                          params="['productGroupSearchTerm': productGroupSearchTerm,
