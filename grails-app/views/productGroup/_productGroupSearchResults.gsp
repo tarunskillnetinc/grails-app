@@ -10,43 +10,50 @@
 
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <div class="col-1 font-weight-bold">
-        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'id',
+        <a id="productgroup-list-id" href="#" onclick="getProductGroups({
+            max: '${max}', offset: '${offset}', sortColumn: 'id',
             sortOrder: ${sortColumn == 'id' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
             Product Group ID
         </a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'description',
+        <a id="productgroup-list-description" href="#" onclick="getProductGroups({
+            max: '${max}', offset: '${offset}', sortColumn: 'description',
             sortOrder: ${sortColumn == 'description' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
             Description
         </a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'startDate',
+        <a id="productgroup-list-startdate" href="#" onclick="getProductGroups({
+            max: '${max}', offset: '${offset}', sortColumn: 'startDate',
             sortOrder: ${sortColumn == 'startDate' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
             Start Date
         </a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'endDate',
+        <a id="productgroup-list-enddate" href="#" onclick="getProductGroups({
+            max: '${max}', offset: '${offset}', sortColumn: 'endDate',
             sortOrder: ${sortColumn == 'endDate' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
             End Date
         </a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'timeRestriction',
+        <a id="productgroup-list-timerestriction" href="#" onclick="getProductGroups({
+            max: '${max}', offset: '${offset}', sortColumn: 'timeRestriction',
             sortOrder: ${sortColumn == 'timeRestriction' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
             Restriction Type
         </a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'productCount',
+        <a id="productgroup-list-productcount" href="#" onclick="getProductGroups({
+            max: '${max}', offset: '${offset}', sortColumn: 'productCount',
             sortOrder: ${sortColumn == 'productCount' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
             Product Count
         </a>
     </div>
     <div class="col-1 font-weight-bold">
-        <a href="#" onclick="getProductGroups({max: '${max}', offset: '${offset}', sortColumn: 'active',
+        <a id="productgroup-list-status" href="#" onclick="getProductGroups({
+            max: '${max}', offset: '${offset}', sortColumn: 'active',
             sortOrder: ${sortColumn == 'active' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
             Status
         </a>

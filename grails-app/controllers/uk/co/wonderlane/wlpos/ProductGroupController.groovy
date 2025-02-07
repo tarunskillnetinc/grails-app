@@ -113,7 +113,6 @@ class ProductGroupController {
                 productGroupCommand.startDate = productGroup.startDate
                 productGroupCommand.endDate = productGroup.endDate
                 productGroupCommand.active = productGroup.active
-                productGroupCommand.categoryId = productGroup.categoryId
                 productGroupCommand.neverExpires = productGroup.endDate == null
 
                 //Extract days and restrictionStartTime,restrictionEndTime
@@ -194,10 +193,6 @@ class ProductGroupController {
             productGroup.endDate = null
         } else if (cmd.endDate != null){
             productGroup.endDate =  formatter.parseDateTime(cmd.endDate)
-        }
-
-        if (cmd.categoryId != null) {
-            productGroup.category = categoryService.getCategory(cmd.categoryId)
         }
 
         def skusInProductGroup = productGroup.productGroupProducts?.collect { it.sku }
@@ -291,7 +286,6 @@ class ProductGroupCommand {
     String restrictionEndTime
     String startDate
     String endDate
-    String categoryId
     boolean neverExpires
     Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
 
@@ -304,6 +298,5 @@ class ProductGroupCommand {
         restrictionEndTime nullable: true
         startDate nullable: false
         endDate nullable: true
-        categoryId nullable: true
     }
 }

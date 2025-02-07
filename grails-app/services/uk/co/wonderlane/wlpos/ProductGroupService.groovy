@@ -12,7 +12,6 @@ class ProductGroupService {
                          String sort = "description", String order = "asc") {
         def productGroups =  ProductGroup.createCriteria().list([offset: offset, max: max]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
-            eq ("hidden", false)
 
             if (searchTerm) {
                 if (searchBy == "everything") {

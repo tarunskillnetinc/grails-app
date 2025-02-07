@@ -11,7 +11,6 @@ class ProductGroup {
     int id
     int retailerId
     String description
-    boolean hidden
     DateTime startDate
     DateTime endDate
     String timeRestriction
@@ -28,7 +27,6 @@ class ProductGroup {
 
         retailerId column: "retailerId", sqlType: "tinyint unsigned"
         description column: "description"
-        hidden column: "hidden"
         startDate column: "startDate"
         endDate column: "endDate"
         //category column: "categoryId", type:"join", cascade: "none"
@@ -40,7 +38,6 @@ class ProductGroup {
 
     static constraints = {
         description nullable: false
-        hidden nullable: false
         startDate nullable: false
         endDate nullable: true
         timeRestriction nullable: true
@@ -66,7 +63,6 @@ class ProductGroup {
         productGroup.setId(id)
         productGroup.setRetailerId(retailerId)
         productGroup.setDescription(description)
-        productGroup.setHidden(hidden)
         productGroup.setStartDate(startDate)
         productGroup.setEndDate(endDate)
         if (timeRestriction) {
