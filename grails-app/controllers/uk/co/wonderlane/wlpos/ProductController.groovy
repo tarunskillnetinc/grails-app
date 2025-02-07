@@ -633,7 +633,7 @@ class ProductController extends BaseController {
             product.selType = editedProduct.selType
             product.selDescription = editedProduct.selDescription ?: editedProduct.receiptDescription?.take(16)
             product.productImgUrl = editedProduct.productImgUrl
-            //product.allergenList = editedProduct.allergenList
+            product.allergenList = editedProduct.allergenList
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
@@ -2285,6 +2285,8 @@ class ProductCommand {
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
 
+    List<Integer> allergenList = new ArrayList<>()
+    
 //    Collection<ProductGroup> tags = new ArrayList<>()
 //    Collection<Message> saleMessages = new ArrayList<>()
 //    Collection<Message> refundMessages = new ArrayList<>()
@@ -2292,7 +2294,7 @@ class ProductCommand {
     Collection<ProductVariantCommand> variants = new ArrayList<>()
 
     Collection<ProductAttributeValuesCommand> productAttributeValues = new ArrayList<>()
-    List<Integer> allergenList
+
 }
 
 class RestrictionsCommand implements Validateable {
