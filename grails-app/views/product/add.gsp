@@ -1188,7 +1188,8 @@
                                                         snappyEnabled      : snappyEnabled,
                                                         locationsEnabled   : locationsEnabled,
                                                         locationsType      : locationsType,
-                                                        productAttributeValuesList : productAttributeValuesList]" />
+                                                        productAttributeValuesList : productAttributeValuesList,
+                                                        allergenList       : allergenList]" />
         </section>
 
         <section id="addVariant-modal" class="container-fluid">

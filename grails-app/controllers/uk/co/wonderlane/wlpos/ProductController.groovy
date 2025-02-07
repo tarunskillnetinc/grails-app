@@ -63,6 +63,8 @@ class ProductController extends BaseController {
 
         def product = productService.getProduct(id)
 
+        def allergenList = AllergenList.findAll();
+
         if (!product) {
             flash.message = "Product not found"
             redirect(action: "index")
@@ -108,7 +110,8 @@ class ProductController extends BaseController {
                                     locationsEnabled   : locationsEnabled,
                                     locationsType      : locationsType,
                                     loyaltyEnabled     : loyaltyEnabled,
-                                    productAttributeValuesList : productAttributeValuesList])
+                                    productAttributeValuesList : productAttributeValuesList,
+                                    allergenList       : allergenList])
     }
 
     private void setEffectiveDate() {

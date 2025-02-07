@@ -1,17 +1,20 @@
 package uk.co.wonderlane.wlpos
 
+import com.google.gson.reflect.TypeToken
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.springframework.context.i18n.LocaleContextHolder
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.ProductMessageType
 
+import java.lang.reflect.Type
 import java.math.RoundingMode
 
 class Product {
 
     def springSecurityService
     def messageSource
+    def gsonProvider
 
     int id
     int retailerId
@@ -43,6 +46,8 @@ class Product {
     String selDescription
     SelType selType
     String productImgUrl
+
+    String allergenlist
 
     static hasMany = [ variants: ProductVariant, productAttributeValues: ProductAttributeValues ]
     static belongsTo = [selType: SelType]
@@ -81,6 +86,7 @@ class Product {
         selType column: "selType"
         productImgUrl column: "productImgUrl"
         preferredSku column: "preferredSku"
+        allergenlist column: "allergenlist", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
     }
 
     static constraints = {
@@ -96,6 +102,7 @@ class Product {
         status nullable: false
         category nullable: false
         retailerProductId nullable: true
+        allergenlist nullable: true
         restrictions validator: {val, obj ->
             return val?.validate() ? true : ["error.Product.badRestrictions"]
         }
@@ -119,6 +126,20 @@ class Product {
         productImgUrl nullable: true, blank: true, url: true
         preferredSku nullable: true
     }
+
+    List<Integer> getAllergenList() {
+        if (allergenlist != null) {
+            Type listType = new TypeToken<List<Integer>>() {}.getType();
+            List<Integer> integerList = gsonProvider.gson.fromJson(allergenlist, listType);
+            return integerList;
+        }
+        return null
+    }
+
+/*    //This stops the app running?
+    void setAllergenList(List<Integer> allergenList) {
+        allergenlist = gsonProvider.gson.toJson(allergenList)
+    }*/
 
     List<RangeProduct> getRanges() {
         return RangeProduct.findAllByProductIdAndDeleted(id, false)
@@ -256,6 +277,7 @@ class Product {
         product.setRestrictions(restrictions.getRestrictions())
         product.setDiscreetMessage(discreetMessage)
         product.setStatus(status)
+        //product.setAllergenList(getAllergenList());
         variants.each {
             if (it.storeId == null || it.storeId == storeId) {
                 product.getVariants().add(it.getProductVariant(priceBand))
