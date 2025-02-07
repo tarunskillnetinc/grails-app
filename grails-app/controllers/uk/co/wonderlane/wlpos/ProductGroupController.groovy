@@ -25,16 +25,20 @@ class ProductGroupController {
         [productGroups: productGroups]
     }
 
+    def sanitizeParam(param) {
+        return (param == "null" || param == "") ? null : param
+    }
+
     def ajaxGetProductGroups() {
         try {
             DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
             String searchTerm = params.productGroupSearchTerm
             String searchBy = params.productGroupSearchBy
-            DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
-            DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
-            String status = params.status ? params.status : null
-            String sortColumn = params.sortColumn ?: "id"
-            String sortOrder = params.sortOrder ?: "asc"
+            DateTime startDate = sanitizeParam(params.startDate) ? DateTime.parse(params.startDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
+            DateTime endDate = sanitizeParam(params.endDate) ? DateTime.parse(params.endDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
+            String status = sanitizeParam(params.status)
+            String sortColumn = sanitizeParam(params.sortColumn) ?: "id"
+            String sortOrder = sanitizeParam(params.sortOrder) ?: "asc"
 
             session.SEARCH_TERM = searchTerm
             session.SEARCH_BY = searchBy
@@ -62,7 +66,7 @@ class ProductGroupController {
                                                                   max          : params.max ?: 50,
                                                                   offset       : params.offset ? Integer.parseInt(params.offset) : 0,
                                                                   sortColumn   : sortColumn,
-                                                                  sortOrder    : sortOrder,])
+                                                                  sortOrder: sortOrder])
         } catch (Exception ex) {
             log.error("Error searching product group, Exception " + ex.getMessage(), ex)
             response.status = 400

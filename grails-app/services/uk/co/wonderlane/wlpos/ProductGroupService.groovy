@@ -10,7 +10,7 @@ class ProductGroupService {
 
     def getProductGroups(String searchTerm = null, String searchBy = "everything", DateTime startDate = null, DateTime endDate = null, String status = null ,  int offset = 0, int max = 50,
                          String sort = "description", String order = "asc") {
-        def productGroups =  ProductGroup.createCriteria().list([offset: offset, max: max]) {
+        def productGroups = ProductGroup.createCriteria().list(max: max, offset: offset) {
             eq ("retailerId", springSecurityService.principal.retailerId)
 
             if (searchTerm) {
@@ -48,22 +48,21 @@ class ProductGroupService {
         if (sort == "productCount") {
             productGroups = productGroups?.sort { it?.productGroupProducts?.size() }
             if (order == "desc") {
-                productGroups = productGroups?.reverse()
+                productGroups?.reverse(true)
             }
         } else if (sort == "restrictiontype") {
             productGroups = productGroups?.sort { it?.restrictionType?.size() }
             if (order == "desc") {
-                productGroups = productGroups?.reverse()
+                productGroups?.reverse(true)
             }
         } else {
             productGroups.sort { it."${sort}" }
             if (order == "desc") {
-                productGroups = productGroups?.reverse()
+                productGroups?.reverse(true)
             }
         }
 
         return productGroups
-
     }
 
     def getProductGroup(int id) {
