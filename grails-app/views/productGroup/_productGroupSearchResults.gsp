@@ -99,9 +99,11 @@
                          total="${productGroups.totalCount ?: 0}"
                          update="search-results"
                          offset="${offset ?: 0}" max="${max ?: 50}"
-                         params="['productGroupSearchTerm': productGroupSearchTerm,
-                                  'productGroupSearchBy': productGroupSearchBy,
-                                  'startDate': startDate,
-                                  'endDate': endDate,
-                                  'status': status]"/>
+                         params="[productGroupSearchTerm: productGroupSearchTerm,
+                                  productGroupSearchBy  : productGroupSearchBy,
+                                  startDate             : startDate,
+                                  endDate               : endDate,
+                                  status                : status,
+                                  sortColumn            : sortColumn,
+                                  sortOrder             : sortOrder]"/>
 </div>
