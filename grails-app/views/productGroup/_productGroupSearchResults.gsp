@@ -96,7 +96,7 @@
 
 <div class="my-3 text-right">
     <util:remotePaginate action="ajaxGetProductGroups"
-                         total="${productGroups?.size() ?: 0}"
+                         total="${productGroups.totalCount ?: 0}"
                          update="search-results"
                          offset="${offset ?: 0}" max="${max ?: 50}"
                          params="['productGroupSearchTerm': productGroupSearchTerm,

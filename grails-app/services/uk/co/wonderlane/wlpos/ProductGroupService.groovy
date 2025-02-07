@@ -63,7 +63,6 @@ class ProductGroupService {
         }
 
         return productGroups
-
     }
 
     def getProductGroup(int id) {
