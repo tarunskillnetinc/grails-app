@@ -50,6 +50,11 @@ class ProductGroupService {
             if (order == "desc") {
                 productGroups = productGroups?.reverse()
             }
+        } else if (sort == "restrictiontype") {
+            productGroups = productGroups?.sort { it?.restrictionType?.size() }
+            if (order == "desc") {
+                productGroups = productGroups?.reverse()
+            }
         } else {
             productGroups.sort { it."${sort}" }
             if (order == "desc") {

@@ -38,9 +38,10 @@
         </a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a id="productgroup-list-timerestriction" href="#" onclick="getProductGroups({
-            max: '${max}', offset: '${offset}', sortColumn: 'timeRestriction',
-            sortOrder: ${sortColumn == 'timeRestriction' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">
+        <a id="productgroup-list-restrictiontype" href="#" onclick="getProductGroups({
+            max: '${max}', offset: '${offset}', sortColumn: 'restrictiontype',
+            sortOrder: ${sortColumn == 'restrictiontype' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
+        })">
             Restriction Type
         </a>
     </div>

@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import grails.converters.JSON
 import groovy.json.JsonSlurper
+import groovy.transform.Memoized
 import org.joda.time.DateTime
 import org.joda.time.ReadableInstant
 
@@ -18,8 +19,6 @@ class ProductGroup {
     Integer maxSellQuantity
     boolean active
 
-    //Category category
-
     static hasMany = [productGroupProducts: ProductGroupProduct]
 
     static mapping = {
@@ -30,7 +29,6 @@ class ProductGroup {
         description column: "description"
         startDate column: "startDate"
         endDate column: "endDate"
-        //category column: "categoryId", type:"join", cascade: "none"
         timeRestriction column: "timeRestriction", sqlType: "json"
         maxSellQuantity column: "maxSellQuantity"
         active column: "active"
@@ -44,7 +42,6 @@ class ProductGroup {
         timeRestriction nullable: true
         maxSellQuantity nullable: true, min: 1
         active nullable: false
-        //category nullable: true
     }
 
     def beforeUpdate() {
@@ -96,6 +93,7 @@ class ProductGroup {
         return productGroup
     }
 
+    @Memoized
     public String getRestrictionType() {
         // This converts the various restrictions like product count, end date into human readables.
         def restrictions = []
