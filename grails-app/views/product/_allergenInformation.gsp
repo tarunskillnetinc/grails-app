@@ -11,7 +11,6 @@
 		def entriesPerColumn = (int) ((AllergenDefinitions.size() + 1) / 2)
 
 		AllergenDefinitions.sort { a, b -> a.name <=> b.name }
-
 	%>
 
 	<div class="container">
@@ -29,9 +28,9 @@
 						</div>
 						<div class="col-6">
 							<div class="form-check d-flex align-items-center pl-0">
-								<g:checkBox id="AllergenCheckboxSelection-${index}"
-											name="${AllergenDefinitions[index].name}"
-											value="true"
+								<g:checkBox id="allergenSelection-${index}"
+											name="allergenList"
+											value="${AllergenDefinitions[index].id}"
 											checked="${isInArray(AllergenProductSelections,AllergenDefinitions[index].id)==true}"
 											class="col-lg-12 form-check-input wl-checkbox"
 											disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"
@@ -54,9 +53,9 @@
 						</div>
 						<div class="col-6">
 							<div class="form-check d-flex align-items-center pl-0">
-								<g:checkBox id="AllergenCheckboxSelection-${index}"
-											name="${AllergenDefinitions[index].name}"
-											value="true"
+								<g:checkBox id="allergenSelection-${index}"
+											name="allergenList"
+											value="${AllergenDefinitions[index].id}"
 											checked="${isInArray(AllergenProductSelections,AllergenDefinitions[index].id)==true}"
 											class="col-lg-12 form-check-input wl-checkbox"
 											disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"

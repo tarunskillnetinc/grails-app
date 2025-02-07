@@ -47,7 +47,7 @@ class Product {
     SelType selType
     String productImgUrl
 
-    String allergenlist
+    String allergenList
 
     static hasMany = [ variants: ProductVariant, productAttributeValues: ProductAttributeValues ]
     static belongsTo = [selType: SelType]
@@ -86,7 +86,7 @@ class Product {
         selType column: "selType"
         productImgUrl column: "productImgUrl"
         preferredSku column: "preferredSku"
-        allergenlist column: "allergenlist", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        allergenList column: "allergenList", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
     }
 
     static constraints = {
@@ -102,7 +102,7 @@ class Product {
         status nullable: false
         category nullable: false
         retailerProductId nullable: true
-        allergenlist nullable: true
+        allergenList nullable: true
         restrictions validator: {val, obj ->
             return val?.validate() ? true : ["error.Product.badRestrictions"]
         }
@@ -128,18 +128,23 @@ class Product {
     }
 
     List<Integer> getAllergenList() {
-        if (allergenlist != null) {
+        if (allergenList != null) {
             Type listType = new TypeToken<List<Integer>>() {}.getType();
-            List<Integer> integerList = gsonProvider.gson.fromJson(allergenlist, listType);
+            List<Integer> integerList = gsonProvider.gson.fromJson(allergenList, listType);
             return integerList;
         }
         return null
     }
 
-/*    //This stops the app running?
+    //This stops the app running?
     void setAllergenList(List<Integer> allergenList) {
-        allergenlist = gsonProvider.gson.toJson(allergenList)
-    }*/
+        try {
+            this.allergenList = gsonProvider.gson.toJson(allergenList)
+        } catch (Exception e)
+        {
+            int a = 1
+        }
+    }
 
     List<RangeProduct> getRanges() {
         return RangeProduct.findAllByProductIdAndDeleted(id, false)

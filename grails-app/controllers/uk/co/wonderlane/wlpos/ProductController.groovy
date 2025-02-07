@@ -146,6 +146,9 @@ class ProductController extends BaseController {
 
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+
+        def allergenList = AllergenList.findAll();
+
         List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(null)
 
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
@@ -160,7 +163,8 @@ class ProductController extends BaseController {
                                     locationsEnabled: locationsEnabled,
                                     locationsType   : springSecurityService.principal.retailer.config.locationsType.name(),
                                     loyaltyEnabled  : loyaltyEnabled,
-                                    productAttributeValuesList : productAttributeValuesList])
+                                    productAttributeValuesList : productAttributeValuesList,
+                                    allergenList    : allergenList])
     }
 
     def search() {
@@ -629,6 +633,7 @@ class ProductController extends BaseController {
             product.selType = editedProduct.selType
             product.selDescription = editedProduct.selDescription ?: editedProduct.receiptDescription?.take(16)
             product.productImgUrl = editedProduct.productImgUrl
+            //product.allergenList = editedProduct.allergenList
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
@@ -830,6 +835,7 @@ class ProductController extends BaseController {
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
             def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
             List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product ?: null)
+            def allergenList = AllergenList.findAll();
 
             render(view: "add", model: [product            : product,
                                         skuList            : skuList(product),
@@ -847,7 +853,8 @@ class ProductController extends BaseController {
                                         locationsType      : springSecurityService.principal.retailer.config.locationsType.name(),
                                         locationsEnabled   : locationsEnabled,
                                         loyaltyEnabled     : loyaltyEnabled,
-                                        productAttributeValuesList : productAttributeValuesList])
+                                        productAttributeValuesList : productAttributeValuesList,
+                                        allergenList       : allergenList])
         }
     }
 
@@ -1940,7 +1947,7 @@ class ProductController extends BaseController {
         to.discreetMessage = from.discreetMessage
         to.status = from.status
         to.retailerProductId = from.retailerProductId
-
+        to.allergenList = from.allergenList
     }
 
     private void copyProductVariants(ProductCommand from, Product to) {
@@ -2285,6 +2292,7 @@ class ProductCommand {
     Collection<ProductVariantCommand> variants = new ArrayList<>()
 
     Collection<ProductAttributeValuesCommand> productAttributeValues = new ArrayList<>()
+    List<Integer> allergenList
 }
 
 class RestrictionsCommand implements Validateable {
