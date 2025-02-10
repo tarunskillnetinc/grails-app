@@ -21,6 +21,12 @@ class ProductGroupController {
     def categoryService
 
     def index() {
+        session.SEARCH_TERM = null
+        session.SEARCH_BY = null
+        session.START_DATE = null
+        session.END_DATE = null
+        session.STATUS = null
+
         def productGroups = productGroupService.getProductGroups()
         [productGroups: productGroups]
     }
@@ -34,16 +40,17 @@ class ProductGroupController {
             DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
             String searchTerm = params.productGroupSearchTerm
             String searchBy = params.productGroupSearchBy
-            DateTime startDate = sanitizeParam(params.startDate) ? DateTime.parse(params.startDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
-            DateTime endDate = sanitizeParam(params.endDate) ? DateTime.parse(params.endDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
             String status = sanitizeParam(params.status)
             String sortColumn = sanitizeParam(params.sortColumn) ?: "id"
             String sortOrder = sanitizeParam(params.sortOrder) ?: "asc"
 
+            DateTime startDate = sanitizeParam(params.startDate) ? DateTime.parse(params.startDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
+            DateTime endDate = sanitizeParam(params.endDate) ? DateTime.parse(params.endDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
+
             session.SEARCH_TERM = searchTerm
             session.SEARCH_BY = searchBy
-            session.START_DATE = startDate
-            session.END_DATE = endDate
+            session.START_DATE = params.startDate
+            session.END_DATE = params.endDate
             session.STATUS = status
 
             def productGroups = productGroupService.getProductGroups(
