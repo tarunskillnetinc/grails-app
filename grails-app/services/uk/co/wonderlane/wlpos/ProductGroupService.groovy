@@ -9,7 +9,7 @@ class ProductGroupService {
     def springSecurityService
 
     def getProductGroups(String searchTerm = null, String searchBy = "everything", DateTime startDate = null, DateTime endDate = null, String status = null ,  int offset = 0, int max = 50,
-                         String sort = "description", String order = "asc") {
+                         String sort = "description", String sortOrder = "asc") {
 
         def productGroups = ProductGroupView.createCriteria().list(max: max, offset: offset) {
             eq ("retailerId", springSecurityService.principal.retailerId)
@@ -44,7 +44,11 @@ class ProductGroupService {
                 eq("active", activeStatus) // Filters active/inactive records
             }
 
-            //order(sort, order)
+            if (sort == "restrictionTypes") {
+                sort = "length(restrictionTypes)"
+            }
+
+            order(sort, sortOrder)
         }
         return productGroups
     }

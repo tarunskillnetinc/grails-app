@@ -39,8 +39,8 @@
     </div>
     <div class="col-2 font-weight-bold">
         <a id="productgroup-list-restrictiontype" href="#" onclick="getProductGroups({
-            max: '${max}', offset: '${offset}', sortColumn: 'restrictiontype',
-            sortOrder: ${sortColumn == 'restrictiontype' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
+            max: '${max}', offset: '${offset}', sortColumn: 'restrictionTypesNumber',
+            sortOrder: ${sortColumn == 'restrictionTypesNumber' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
         })">
             Restriction Type
         </a>
