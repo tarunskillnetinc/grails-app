@@ -13,7 +13,7 @@ class TenderMovement {
     TenderMovementType type
     String reason
     String reasonOther
-    TenderType tenderType
+    //TenderType tenderType
     Location fromLocation
     Location toLocation
     BigDecimal amount
@@ -42,7 +42,7 @@ class TenderMovement {
         type column: "type"
         reason column: "reason"
         reasonOther column: "reasonOther"
-        tenderType column: "tenderType"
+        //tenderType column: "tenderType"
         fromLocation column: "fromLocation", cascade: "evict"
         toLocation column: "toLocation", cascade: "evict"
         amount column: "amount"
@@ -65,7 +65,7 @@ class TenderMovement {
         type nullable: false, blank: false, maxSize: 45
         reason nullable: true, maxSize: 50
         reasonOther nullable: true, maxSize: 200
-        tenderType nullable: false, blank: false, maxSize: 45
+        //tenderType nullable: false, blank: false, maxSize: 45
         fromLocation nullable: true
         toLocation nullable: true
         amount nullable: false
