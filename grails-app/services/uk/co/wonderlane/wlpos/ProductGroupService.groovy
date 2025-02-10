@@ -42,24 +42,8 @@ class ProductGroupService {
                 Boolean activeStatus = status != null ? status.toString().equalsIgnoreCase("ACTIVE") : null
                 eq("active", activeStatus) // Filters active/inactive records
             }
-        }
 
-        // **Sorting in Memory** (if sorting by product count is required)
-        if (sort == "productCount") {
-            productGroups = productGroups?.sort { it?.productGroupProducts?.size() }
-            if (order == "desc") {
-                productGroups?.reverse(true)
-            }
-        } else if (sort == "restrictiontype") {
-            productGroups = productGroups?.sort { it?.restrictionType?.size() }
-            if (order == "desc") {
-                productGroups?.reverse(true)
-            }
-        } else {
-            productGroups.sort { it."${sort}" }
-            if (order == "desc") {
-                productGroups?.reverse(true)
-            }
+            order(sort, order)
         }
 
         return productGroups
