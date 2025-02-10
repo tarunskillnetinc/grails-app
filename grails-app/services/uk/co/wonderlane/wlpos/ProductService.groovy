@@ -84,6 +84,30 @@ class ProductService extends MySqlDal {
         }
     }
 
+    List<uk.co.wonderlane.wlpos.entities.ProductVariant> getAllProductVariantsForSku(long sku) throws SQLException {
+        Connection conn
+        CallableStatement cstmt
+        try {
+            conn = getConnection()
+            cstmt = conn.prepareCall("{ call getAllProductVariantsForSku(?, ?) }")
+            cstmt.setInt(1, springSecurityService.principal.retailerId)
+            cstmt.setLong(2, sku)
+            ResultSet rs = cstmt.executeQuery()
+            List<uk.co.wonderlane.wlpos.entities.ProductVariant> variants = new ArrayList<>()
+            while (rs.next()) {
+                variants.add(mapProductVariant(rs))
+            }
+            return variants
+        } catch (Exception ex) {
+            log.error("Exception thrown when retrieving product variant from DB, Exception " + ex.getMessage())
+            throw ex
+        } finally {
+            if (connection != null) {
+                connection.close()
+            }
+        }
+    }
+
     // TODO make this method only return the current effective date. Currently it will return any which exist (sorted so that the active one is first (unless the description has changed)).
     def getProductVariants(List<Long> skus) {
         def criteria = ProductVariant.createCriteria()
@@ -876,6 +900,11 @@ class ProductService extends MySqlDal {
             productVariant.setCostPrice(null)
         }
 
+        productVariant.setWeightedAverageCostPrice(resultSet.getBigDecimal("weightedAverageCostPrice"))
+        if (resultSet.wasNull()) {
+            productVariant.setWeightedAverageCostPrice(null)
+        }
+
         productVariant.setSize(resultSet.getString("size"))
         if (resultSet.wasNull()) {
             productVariant.setSize(null)
@@ -885,6 +914,7 @@ class ProductService extends MySqlDal {
         if (resultSet.wasNull()) {
             productVariant.setColour(null)
         }
+        productVariant.setQuantityInStock(QuantityHelper.quantityOrDefault(resultSet, "quantityInStock", BigDecimal.ZERO))
         productVariant.setQuantityOnOrder(QuantityHelper.quantityOrDefault(resultSet, "quantityOnOrder", BigDecimal.ZERO))
         productVariant.setMinimumStockLevel(resultSet.getInt("minimumStockLevel"))
         productVariant.setEffectiveDate(new DateTime(resultSet.getTimestamp("effectiveDate"), DateTimeZone.UTC))
@@ -908,6 +938,16 @@ class ProductService extends MySqlDal {
         }
 
         return results.sort { it.id }
+    }
+
+    def processedValueForNullEmpty(String value, ProductAttributeType productAttributeType) {
+        if (value == null) {
+            value = "";
+        } else if (productAttributeType == ProductAttributeType.BOOLEAN && value == "false") {
+            value = "";
+        }
+
+        return value;
     }
 
     List<ProductAttributeValues> getProductInformation(Product product) {
@@ -990,21 +1030,32 @@ class ProductService extends MySqlDal {
                         //If updated attribute already on `productattributevalues` table
                         //If so then check updated value is change to current value
                         //If it does then update current value to new value
-                        if (existingAttr?.value != editedAttr?.value) {
+                        def existingAttrProcessedDefaultValue = processedValueForNullEmpty(existingAttr?.value, productAttributes?.type)
+                        def editedAttrProcessedValue = processedValueForNullEmpty(editedAttr?.value, productAttributes?.type)
+
+                        if (existingAttrProcessedDefaultValue != editedAttrProcessedValue) {
                             builder.compare(editedAttr?.attributeName, existingAttr?.value, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
                             existingAttr?.value = editedAttr?.value
                         }
-                    } else if (productAttributes?.defaultValue != editedAttr?.value) {
-                        def newAttr = new ProductAttributeValues(
-                                retailerId: editedAttr?.retailerId,
-                                productAttributeId: editedAttr?.productAttributeId,
-                                value: editedAttr?.value,
-                                id: editedAttr?.productAttributeId,
-                                attributeName: editedAttr?.attributeName,
-                                attributeType: editedAttr?.attributeType
-                        )
-                        builder.compare(editedAttr?.attributeName, productAttributes?.defaultValue, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
-                        updatedOrNewAttributes << newAttr
+                    } else {
+                        def productAttrProcessedDefaultValue = processedValueForNullEmpty(productAttributes?.defaultValue, productAttributes?.type)
+                        def editedAttrProcessedValue = processedValueForNullEmpty(editedAttr?.value, productAttributes?.type)
+
+                        if (productAttrProcessedDefaultValue != editedAttrProcessedValue) {
+                            // ignore matching attributes and close attributes values like ""/null.
+                            def newAttr = new ProductAttributeValues(
+                                    retailerId: editedAttr?.retailerId,
+                                    productAttributeId: editedAttr?.productAttributeId,
+                                    value: editedAttr?.value,
+                                    id: editedAttr?.productAttributeId,
+                                    attributeName: editedAttr?.attributeName,
+                                    attributeType: editedAttr?.attributeType
+                            )
+
+                            // During the initial product creation, don't record the changes to product attributes.
+                            builder.compare(editedAttr?.attributeName, productAttributes?.defaultValue, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
+                            updatedOrNewAttributes << newAttr
+                        }
                     }
                 }
             }

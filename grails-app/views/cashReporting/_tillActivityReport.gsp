@@ -64,22 +64,18 @@
                 <g:else>
                     <g:each in="${line.tenderValues}" var="tender" status="j">
                         <g:if test="${j == 0}">
-                            <td id="reportData_${i + 1}_${j + 1}_type" class="border">
-                                <g:message code="TenderType.${tender.type}" />
-                            </td>
+                            <td id="reportData_${i + 1}_${j + 1}_type" class="border">${tender.tenderTypeName}</td>
                             <td id="reportData_${i + 1}_${j + 1}_value" class="border">
                                 <g:if test="${tender.value < BigDecimal.ZERO}">-</g:if>
-                                £${String.format("%.2f", tender.value.abs())}
+                                <g:formatNumber number="${tender?.value?.abs()}" type="currency" />
                             </td>
                         </g:if>
                         <g:else>
                             <tr>
-                                <td id="reportData_${i + 1}_${j + 1}_type" class="border">
-                                    <g:message code="TenderType.${tender.type}" />
-                                </td>
+                                <td id="reportData_${i + 1}_${j + 1}_type" class="border">${tender.tenderTypeName}</td>
                                 <td id="reportData_${i + 1}_${j + 1}_value" class="border">
                                     <g:if test="${tender.value < BigDecimal.ZERO}">-</g:if>
-                                    £${String.format("%.2f", tender.value.abs())}
+                                    <g:formatNumber number="${tender?.value?.abs()}" type="currency" />
                                 </td>
                             </tr>
                         </g:else>

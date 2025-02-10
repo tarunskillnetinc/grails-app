@@ -44,7 +44,7 @@
 
 <div id="payOut" class="centered-content">
     <div class="form-container">
-        <section id="segment-details" class="container-fluid">
+        <section id="segment-details" class="container-fluid px-0">
             <div id="messages-container"></div>
         </section>
 
@@ -64,23 +64,17 @@
                         <div class="form-group">
                             <label for="reasonCode" class="col-form-label">Reason Code</label>
                             <g:select name="reasonCode"
-                                      from="${varianceReasons}"
+                                      from="${reasonCodes}"
                                       optionKey="description"
                                       optionValue="description"
                                       class="form-control select-border"/>
                         </div>
-
                     </div>
+
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="tender" class="col-form-label">Tender</label>
-                            <g:select
-                                    name="tempTenderField"
-                                    from="${tenders}"
-                                    disabled="disabled"
-                                    optionValue="${{ it.toString().toLowerCase().capitalize() }}"
-                                    class="form-control select-border"/>
-                            <g:hiddenField name="tender" value="${tenders.get(0).toString()}"/>
+                            <label for="tenderTypeId" class="col-form-label">Tender</label>
+                            <g:select name="tenderTypeId" from="${tenders}" optionKey="id" optionValue="name" class="form-control select-border" />
                         </div>
                         <div class="form-group">
                             <label for="amount" class="col-form-label">Amount</label>
@@ -88,8 +82,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">&pound;</span>
                                 </div>
-                                <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="9999.99"
-                                             class="form-control mask-money"/>
+                                <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="9999.99" class="form-control mask-money" />
                             </div>
                         </div>
                     </div>

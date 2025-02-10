@@ -35,7 +35,7 @@ class EcomSupplierCategory implements Serializable{
                 return ['partnerCategory.ecom.partner.category.valid.retailer']
             }
         }
-        description size: 1..50 , nullable: false, validator: { val, obj ->
+        description size: 1..60 , nullable: false, validator: { val, obj ->
             if (!val || val.trim().isEmpty()) {
                 return ['partnerCategory.ecom.partner.category.not.nullable']
             }

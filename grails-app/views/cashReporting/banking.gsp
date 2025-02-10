@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main"/>
 
-    <title>Trust Retail</title>
+    <title>Trust Retail - Banking Report</title>
 
     <asset:stylesheet src="bootstrap-datepicker3.min.css"/>
     <asset:javascript src="bootstrap-datepicker.min.js"/>
@@ -11,7 +11,7 @@
 
     <script type="application/javascript">
         var reportType = "${reportType}";
-        var getDataUrl = "${createLink(controller: 'reporting', action: 'ajaxBankingReport')}";
+        var getDataUrl = "${createLink(controller: 'cashReporting', action: 'ajaxGetBankingReport')}";
 
         $(document).ready(function () {
             <g:if test="${stores.size() > 1}">
