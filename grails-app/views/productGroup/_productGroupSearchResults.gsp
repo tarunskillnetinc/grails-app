@@ -85,8 +85,9 @@
             <g:else>&nbsp;</g:else>
         </div>
 
-        <div id="productGroup-${i + 1}-restrictiontype" class="col-2">${productGroup?.getRestrictionType()}</div>
-        <div id="productGroup-${i + 1}-prod-count" class="col-2">${productGroup?.productGroupProducts?.size()}</div>
+        <div id="productGroup-${i + 1}-restrictiontype" class="col-2">${productGroup?.restrictionTypes}</div>
+
+        <div id="productGroup-${i + 1}-prod-count" class="col-2">${productGroup?.productCount}</div>
         <div id="productGroup-${i + 1}-max-sell-quantity" class="col-1">
             <g:if test="${productGroup?.active}">Active</g:if>
             <g:else>Inactive</g:else>

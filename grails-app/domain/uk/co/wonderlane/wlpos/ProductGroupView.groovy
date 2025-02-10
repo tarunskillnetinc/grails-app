@@ -1,15 +1,11 @@
 package uk.co.wonderlane.wlpos
 
-import grails.converters.JSON
+
 import groovy.json.JsonSlurper
-import groovy.transform.Memoized
 import org.joda.time.DateTime
-import org.joda.time.ReadableInstant
 
-import javax.persistence.Column
-
-class ProductGroup {
-
+class ProductGroupView {
+    // Fields from ProductGroup
     int id
     int retailerId
     String description
@@ -19,10 +15,12 @@ class ProductGroup {
     Integer maxSellQuantity
     boolean active
 
-    static hasMany = [productGroupProducts: ProductGroupProduct]
+    // Fields derived from the data.
+    String restrictionTypes
+    Long productCount
 
     static mapping = {
-        table "productgroup"
+        table "productgroupview"
         version false
 
         retailerId column: "retailerId", sqlType: "tinyint unsigned"
@@ -32,7 +30,8 @@ class ProductGroup {
         timeRestriction column: "timeRestriction", sqlType: "json"
         maxSellQuantity column: "maxSellQuantity"
         active column: "active"
-        productGroupProducts cascade: "all,delete-orphan"
+        restrictionTypes column: "restrictionTypes"
+        productCount column: "productCount"
     }
 
     static constraints = {
@@ -42,18 +41,6 @@ class ProductGroup {
         timeRestriction nullable: true
         maxSellQuantity nullable: true, min: 1
         active nullable: false
-    }
-
-    def beforeUpdate() {
-        if (timeRestriction && !(timeRestriction instanceof String)) {
-            timeRestriction = new JSON(timeRestriction).toString()
-        }
-    }
-
-    def beforeInsert() {
-        if (timeRestriction && !(timeRestriction instanceof String)) {
-            timeRestriction = new JSON(timeRestriction).toString()
-        }
     }
 
     public uk.co.wonderlane.wlpos.entities.ProductGroup getProductGroup() {
