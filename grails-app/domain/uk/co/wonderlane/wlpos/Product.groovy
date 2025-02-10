@@ -7,6 +7,7 @@ import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.ProductMessageType
 
 import java.math.RoundingMode
+import java.util.regex.Pattern
 
 class Product {
 
@@ -89,7 +90,11 @@ class Product {
         }
         description size: 1..100, blank: false, nullable: false
         receiptDescription size: 1..50, blank: false, nullable: false
-        discreetMessage size: 0..50, blank: true, nullable: true
+        discreetMessage size: 0..50, blank: true, nullable: true, validator: { val, obj ->
+            if (val != null && Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE).matcher(val).find()) {
+                return ['error.Product.badDiscreetMessage']
+            }
+        }
         unitSize size: 1..50, blank: false, nullable:false
         vatPercentageOverride min:0 as BigDecimal, max: 100 as BigDecimal, blank: true, nullable: true, scale: 2
         vatCode nullable: false
