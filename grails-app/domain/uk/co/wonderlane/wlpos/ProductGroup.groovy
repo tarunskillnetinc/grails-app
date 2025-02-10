@@ -36,12 +36,28 @@ class ProductGroup {
     }
 
     static constraints = {
-        description nullable: false
-        startDate nullable: false
+        description nullable: false, size: 1..60, validator: { val, obj ->
+            if (!val || val.trim().length() < 1 || val.trim().length() > 60) {
+                return ['producthistory.description.size']
+            }
+        }
+        startDate nullable: false, validator: { val, obj ->
+            if (val == null) {
+                return ['producthistory.startdate.empty']
+            }
+        }
         endDate nullable: true
         timeRestriction nullable: true
-        maxSellQuantity nullable: true, min: 1
-        active nullable: false
+        maxSellQuantity nullable: true, min: 1, validator: { val, obj ->
+            if (val != null || val < 0) {
+                return ['producthistory.maxSellQuantity.invalid']
+            }
+        }
+        active nullable: false, validator: { val, obj ->
+            if (val == null) {
+                return ['producthistory.active.null']
+            }
+        }
     }
 
     def beforeUpdate() {

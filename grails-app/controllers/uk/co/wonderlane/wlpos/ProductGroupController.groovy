@@ -4,6 +4,7 @@ import grails.converters.JSON
 import groovy.json.JsonBuilder
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import org.apache.commons.lang.StringUtils
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -161,6 +162,17 @@ class ProductGroupController {
     }
 
     def save(ProductGroupCommand cmd) {
+        def errorMessages = []
+
+        // need to do all the validation on the server side level.
+//        if( StringUtils.isEmpty(cmd.description) ) {
+//            errorMessages << "Description must be between 1 and 60 characters."
+//        }
+//        if (errorMessages != null && !errorMessages.isEmpty()) {
+//            flash.error = errorMessages
+//            redirect(action: "addEdit", model: [productGroup: cmd])
+//        }
+
         def productGroup
         def productGroupProductsToRemove
 
