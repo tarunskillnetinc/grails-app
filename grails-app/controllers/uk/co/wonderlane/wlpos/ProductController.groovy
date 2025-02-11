@@ -38,6 +38,7 @@ class ProductController extends BaseController {
     def productGroupService
     def productHistoryService
     def productMessageService
+    def gsonProvider
 
     /**
      * Landing page of the controller action - displays the product search screen.
@@ -635,7 +636,7 @@ class ProductController extends BaseController {
             product.selType = editedProduct.selType
             product.selDescription = editedProduct.selDescription ?: editedProduct.receiptDescription?.take(16)
             product.productImgUrl = editedProduct.productImgUrl
-            product.setAllergenListJson(editedProduct.allergenList)
+            product.allergenListJson = editedProduct.allergenList ? gsonProvider.gson.toJson(editedProduct.allergenList) : null
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
@@ -1324,8 +1325,13 @@ class ProductController extends BaseController {
 
         // Don't save histories unless the product is valid otherwise this triggers a product save due to it being dirty
         //  even when restrictions fail.
-        if (product.validate()) {
-            productService.saveProductHistories(builder.productHistories)
+        try {
+            if (product.validate()) {
+                productService.saveProductHistories(builder.productHistories)
+            }
+        } catch (Exception e) {
+            // Paul here?
+            throw e
         }
 
         deleteLocations.each { location ->
@@ -1456,7 +1462,7 @@ class ProductController extends BaseController {
         builder.compare("vatCode", product.vatCode?.description, editedProduct.vatCode?.description)
 
         // todo Paul - this probably need to be added and corrected but it didnt work for me
-        builder.compare("allergenList", true, false)
+       // builder.compare("allergenList", true, false)
 
         List<String> deletedBarcodes = new ArrayList<>()
         editedProduct.variants.stream().filter({ variant -> variant != null }).forEach({ variant ->
