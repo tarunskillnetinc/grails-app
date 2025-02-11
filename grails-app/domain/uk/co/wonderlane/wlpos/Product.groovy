@@ -104,7 +104,9 @@ class Product {
         retailerProductId nullable: true
         allergenListJson nullable: true , validator: { val, obj ->
             try {
-                new groovy.json.JsonSlurper().parseText(val)
+                if (val != null) {
+                    new groovy.json.JsonSlurper().parseText(val)
+                }
                 return true
             } catch (Exception e) {
                 return false
