@@ -102,6 +102,14 @@ class Product {
         status nullable: false
         category nullable: false
         retailerProductId nullable: true
+        allergenListJson nullable: true , validator: { val, obj ->
+            try {
+                new groovy.json.JsonSlurper().parseText(val)
+                return true
+            } catch (Exception e) {
+                return false
+            }
+        }
         restrictions validator: {val, obj ->
             return val?.validate() ? true : ["error.Product.badRestrictions"]
         }
