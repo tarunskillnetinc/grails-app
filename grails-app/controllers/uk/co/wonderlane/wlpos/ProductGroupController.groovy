@@ -1,8 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import grails.converters.JSON
-import groovy.json.JsonBuilder
-import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.apache.commons.lang.StringUtils
 import org.joda.time.DateTime
@@ -119,11 +117,12 @@ class ProductGroupController {
                     productGroupCommand.productGroupProducts.add(productGroupProduct)
                 }
 
+                def dateFormat = getDateFormat()
                 productGroupCommand.id = id
                 productGroupCommand.description = productGroup.description
                 productGroupCommand.maxSellQuantity = productGroup.maxSellQuantity
-                productGroupCommand.startDate = productGroup.startDate
-                productGroupCommand.endDate = productGroup.endDate
+                productGroupCommand.startDate = productGroup.startDate?.toString(dateFormat)
+                productGroupCommand.endDate = productGroup.endDate?.toString(dateFormat)
                 productGroupCommand.active = productGroup.active
                 productGroupCommand.neverExpires = productGroup.endDate == null
 
@@ -162,17 +161,6 @@ class ProductGroupController {
     }
 
     def save(ProductGroupCommand cmd) {
-        def errorMessages = []
-
-        // need to do all the validation on the server side level.
-//        if( StringUtils.isEmpty(cmd.description) ) {
-//            errorMessages << "Description must be between 1 and 60 characters."
-//        }
-//        if (errorMessages != null && !errorMessages.isEmpty()) {
-//            flash.error = errorMessages
-//            redirect(action: "addEdit", model: [productGroup: cmd])
-//        }
-
         def productGroup
         def productGroupProductsToRemove
 
@@ -210,12 +198,13 @@ class ProductGroupController {
             ]
             productGroup.timeRestriction = (jsonMap as JSON).toString()
         }
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("EEEE dd MMMM yyyy")
-        productGroup.startDate =  formatter.parseDateTime(cmd.startDate)
+
+        def dateFormatter = getDateFormat()
+        productGroup.startDate = dateFormatter.parseDateTime(cmd.startDate)
         if (cmd.neverExpires) {
             productGroup.endDate = null
         } else if (cmd.endDate != null){
-            productGroup.endDate =  formatter.parseDateTime(cmd.endDate)
+            productGroup.endDate = dateFormatter.parseDateTime(cmd.endDate)
         }
 
         def skusInProductGroup = productGroup.productGroupProducts?.collect { it.sku }
@@ -277,11 +266,10 @@ class ProductGroupController {
         }
     }
 
-    DateTime parseDate(String dateString) {
+    def parseDate(String dateString) {
         if (dateString) {
             try {
-                DateTimeFormatter formatter = DateTimeFormat.forPattern("EEEE dd MMMM yyyy")
-                return formatter.parseDateTime(dateString)
+                return getDateFormat().parseDateTime(dateString)
             } catch (Exception e) {
                 println("Error parsing date: ${e.message}")
                 return null
@@ -294,6 +282,10 @@ class ProductGroupController {
         def chars = original.toCharArray() as List
         chars.add(index, charToInsert)
         return chars.join()
+    }
+
+    def getDateFormat() {
+        return DateTimeFormat.forPattern("dd/MM/yyyy")
     }
 }
 

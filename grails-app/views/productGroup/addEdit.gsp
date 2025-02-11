@@ -113,10 +113,7 @@
     </style>
     <script>
         $(function () {
-
             intListener("maxSellQuantity", 10, 999);
-
-            modeEditInputDisable();
 
             $('#restrictionStartTime, #restrictionEndTime').timepicker({
                 showMeridian: false,
@@ -148,7 +145,7 @@
             });
 
             $("#startDate").datepicker({
-                format: "DD dd MM yyyy",
+                format: "dd/mm/yyyy",
                 weekStart: 1,
                 todayHighlight: true,
                 autoclose: true,
@@ -162,7 +159,7 @@
             });
 
             $("#endDate").datepicker({
-                format: "DD dd MM yyyy",
+                format: "dd/mm/yyyy",
                 weekStart: 1,
                 todayHighlight: true,
                 autoclose: true,
@@ -175,6 +172,11 @@
                 $("#endDate").val(formatted);
             });
 
+            $('#neverExpires').change(function () {
+                if ($(this).is(':checked')) {
+                    $('#endDate').val('');
+                }
+            });
         });
 
         function modeEditInputDisable() {
@@ -262,14 +264,15 @@
                         <label for="startDate" class="col-6 col-form-label text-right pr-4">Start Date</label>
                         <g:textField name="startDate" type="text" class="col-6 form-control" required="true"
                                      autoComplete="off"
-                                     value="${productGroup?.startDate ?: new Date().format("EEEE dd MMMM yyyy")}"/>
+                                     value="${productGroup?.startDate ?: new Date().format("dd/MM/yyyy")}"/>
                     </div>
 
                     <!-- Never Expires Checkbox -->
                     <div class="form-group row mt-4">
                         <label for="neverExpires" class="col-6 col-form-label text-right pr-4">Never Expires</label>
                         <div class="col-6 d-flex align-items-center">
-                            <g:checkBox name="neverExpires" value="${productGroup?.neverExpires}" class="big-checkbox"/>
+                            <g:checkBox id="neverExpires" name="neverExpires" value="${productGroup?.neverExpires}"
+                                        class="big-checkbox"/>
                         </div>
                     </div>
                 </div>
@@ -289,7 +292,7 @@
                     <label for="endDate" class="col-6 col-form-label text-right pr-4">End Date</label>
                     <g:textField name="endDate" type="text" class="col-6 form-control" required="true"
                                  autoComplete="off"
-                                 value="${productGroup?.endDate ?: new Date().format("EEEE dd MMMM yyyy")}"/>
+                                 value="${productGroup?.endDate}"/>
                 </div>
 
             </div>

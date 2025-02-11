@@ -2,11 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import grails.converters.JSON
 import groovy.json.JsonSlurper
-import groovy.transform.Memoized
 import org.joda.time.DateTime
-import org.joda.time.ReadableInstant
-
-import javax.persistence.Column
 
 class ProductGroup {
 
