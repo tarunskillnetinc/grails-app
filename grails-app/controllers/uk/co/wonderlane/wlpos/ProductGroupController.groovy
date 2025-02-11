@@ -243,7 +243,7 @@ class ProductGroupController {
 
             flash.message = "Product Group saved successfully."
 
-            redirect(action: "addEdit", id: productGroup.id)
+            redirect(action: "index", id: productGroup.id)
         } else {
             if (productGroup.productGroupProducts && productGroup.productGroupProducts?.size() > 0) {
                 def productVariants = productService.getProductVariants(productGroup.productGroupProducts?.collect { it.sku })
@@ -316,8 +316,8 @@ class ProductGroupCommand {
         description nullable: false, blank: false, maxSize: 100
         maxSellQuantity nullable: true, min: 1, max: 999
         sku nullable: false
-        days nullable: false
-        restrictionStartTime nullable: false
+        days nullable: true
+        restrictionStartTime nullable: true
         restrictionEndTime nullable: true
         startDate nullable: false
         endDate nullable: true
