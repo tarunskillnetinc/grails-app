@@ -635,7 +635,7 @@ class ProductController extends BaseController {
             product.selType = editedProduct.selType
             product.selDescription = editedProduct.selDescription ?: editedProduct.receiptDescription?.take(16)
             product.productImgUrl = editedProduct.productImgUrl
-            product.allergenList = editedProduct.allergenList
+            product.setAllergenListJson(editedProduct.allergenList)
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
@@ -1455,6 +1455,9 @@ class ProductController extends BaseController {
 
         builder.compare("vatCode", product.vatCode?.description, editedProduct.vatCode?.description)
 
+        // todo Paul - this probably need to be added and corrected but it didnt work for me
+        builder.compare("allergenList", true, false)
+
         List<String> deletedBarcodes = new ArrayList<>()
         editedProduct.variants.stream().filter({ variant -> variant != null }).forEach({ variant ->
             product.variants.stream().filter({ v -> v.id == variant.id }).findAny().ifPresentOrElse({ oldVariant ->
@@ -1952,7 +1955,7 @@ class ProductController extends BaseController {
         to.discreetMessage = from.discreetMessage
         to.status = from.status
         to.retailerProductId = from.retailerProductId
-        to.allergenList = from.allergenList
+        to.allergenListJson = from.getAllergenList()
     }
 
     private void copyProductVariants(ProductCommand from, Product to) {

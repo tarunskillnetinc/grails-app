@@ -47,7 +47,7 @@ class Product {
     SelType selType
     String productImgUrl
 
-    String allergenList
+    String allergenListJson
 
     static hasMany = [ variants: ProductVariant, productAttributeValues: ProductAttributeValues ]
     static belongsTo = [selType: SelType]
@@ -86,7 +86,7 @@ class Product {
         selType column: "selType"
         productImgUrl column: "productImgUrl"
         preferredSku column: "preferredSku"
-        allergenList column: "allergenList", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        allergenListJson column: "allergenList", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
     }
 
     static constraints = {
@@ -102,7 +102,7 @@ class Product {
         status nullable: false
         category nullable: false
         retailerProductId nullable: true
-        allergenList nullable: true
+        allergenListJson nullable: true
         restrictions validator: {val, obj ->
             return val?.validate() ? true : ["error.Product.badRestrictions"]
         }
@@ -128,21 +128,19 @@ class Product {
     }
 
     List<Integer> getAllergenList() {
-        if (allergenList != null) {
+        if (allergenListJson != null) {
             Type listType = new TypeToken<List<Integer>>() {}.getType();
-            List<Integer> integerList = gsonProvider.gson.fromJson(allergenList, listType);
-            return integerList;
+            List<Integer> integerList = gsonProvider.gson.fromJson(allergenListJson, listType);
+            return integerList
         }
-        return null
+        return new ArrayList<Integer>()
     }
 
-    //This stops the app running?
-    void setAllergenList(List<Integer> allergenList) {
-        try {
-            this.allergenList = gsonProvider.gson.toJson(allergenList)
-        } catch (Exception e)
-        {
-            int a = 1
+    void setAllergenListJson(List<Integer> allergenList) {
+        if (allergenList == null) {
+            this.allergenListJson = null
+        } else {
+            this.allergenListJson = gsonProvider.gson.toJson(allergenList)
         }
     }
 
@@ -282,7 +280,7 @@ class Product {
         product.setRestrictions(restrictions.getRestrictions())
         product.setDiscreetMessage(discreetMessage)
         product.setStatus(status)
-        //product.setAllergenList(getAllergenList());
+        product.setAllergenList(getAllergenList());
         variants.each {
             if (it.storeId == null || it.storeId == storeId) {
                 product.getVariants().add(it.getProductVariant(priceBand))
