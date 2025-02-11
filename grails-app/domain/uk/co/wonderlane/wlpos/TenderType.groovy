@@ -50,4 +50,24 @@ class TenderType {
         deleted nullable: false
         isProtected nullable: false
     }
+
+    public uk.co.wonderlane.wlpos.entities.TenderType getTenderType() {
+        uk.co.wonderlane.wlpos.entities.TenderType tenderType = new uk.co.wonderlane.wlpos.entities.TenderType()
+
+        tenderType.setId(id)
+        tenderType.setRetailerId(retailerId)
+        tenderType.setName(name)
+        tenderType.setReceiptDescription(receiptDescription)
+        tenderType.setAutoReconcile(autoReconcile)
+        tenderType.setEligibleForBanking(eligibleForBanking)
+        tenderType.setEligibleForFloat(eligibleForFloat)
+        tenderType.setEligibleForCashLift(eligibleForCashLift)
+        tenderType.setCashTender(cashTender)
+        tenderType.setCardPayment(cardPayment)
+        tenderType.setVoucherType(voucherType)
+        tenderType.setDeleted(deleted)
+        tenderType.setProtected(isProtected)
+
+        return tenderType
+    }
 }

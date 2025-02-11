@@ -138,6 +138,34 @@
             $('#addTenderTypeModal').modal('hide');
         }
 
+        function autoReconcileChanged(checkbox) {
+            if (checkbox.checked === true) {
+                $("#eligibleForBanking").prop("checked", false);
+                $("#eligibleForBanking").attr("disabled", true);
+                $("#eligibleForFloat").prop("checked", false);
+                $("#eligibleForFloat").attr("disabled", true);
+                $("#eligibleForCashLift").prop("checked", false);
+                $("#eligibleForCashLift").attr("disabled", true);
+            } else {
+                $("#eligibleForBanking").attr("disabled", false);
+                $("#eligibleForFloat").attr("disabled", false);
+                $("#eligibleForCashLift").attr("disabled", false);
+            }
+        }
+
+        function eligibleOptionChanged() {
+            var bankingChecked = $("#eligibleForBanking").prop("checked");
+            var floatChecked = $("#eligibleForFloat").prop("checked");
+            var cashLiftChecked = $("#eligibleForCashLift").prop("checked");
+
+            if (bankingChecked || floatChecked || cashLiftChecked) {
+                $("#autoReconcile").prop("checked", false);
+                $("#autoReconcile").attr("disabled", true);
+            } else {
+                $("#autoReconcile").attr("disabled", false);
+            }
+        }
+
         function cashTenderChanged(checkbox) {
             if (checkbox.checked === true) {
                 $("#cardPayment").prop("checked", false);

@@ -69,9 +69,9 @@ class TenderTypeController {
             tenderType.retailerId = springSecurityService.principal.retailerId
 
             tenderTypeService.saveTenderType(tenderType)
-        }
 
-        sendSyncMessage(tenderType, false)
+            sendSyncMessage(tenderType)
+        }
 
         render(status: 200, text: "${tenderTypeCommand.name} saved successfully.")
     }
@@ -98,7 +98,7 @@ class TenderTypeController {
         SyncMessage msg = new SyncMessage(SyncMessageType.TENDER_TYPE, springSecurityService.principal.retailerId, null, null, null)
         msg.setDelete(tenderType.deleted)
         msg.setInsert(!tenderType.deleted)
-        msg.setTenderType(tenderType)
+        msg.setTenderType(tenderType.getTenderType())
 
         rabbitService.sendMessage(msg)
     }
