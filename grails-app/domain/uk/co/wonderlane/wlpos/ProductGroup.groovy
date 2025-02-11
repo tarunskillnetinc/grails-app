@@ -45,7 +45,7 @@ class ProductGroup {
         endDate nullable: true
         timeRestriction nullable: true
         maxSellQuantity nullable: true, validator: { val, obj ->
-            if (val?:0 < 0) {
+            if (!val || val < 0) {
                 return ['producthistory.maxSellQuantity.invalid']
             }
         }
@@ -69,39 +69,44 @@ class ProductGroup {
     }
 
     public uk.co.wonderlane.wlpos.entities.ProductGroup getProductGroup() {
-        uk.co.wonderlane.wlpos.entities.ProductGroup productGroup = new uk.co.wonderlane.wlpos.entities.ProductGroup()
-        productGroup.setId(id)
-        productGroup.setRetailerId(retailerId)
-        productGroup.setDescription(description)
-        productGroup.setStartDate(startDate)
-        productGroup.setEndDate(endDate)
-        if (timeRestriction) {
-            def jsonSlurper = new JsonSlurper()
-            def timeRestrictionMap = jsonSlurper.parseText(timeRestriction)
+        try {
+            uk.co.wonderlane.wlpos.entities.ProductGroup productGroup = new uk.co.wonderlane.wlpos.entities.ProductGroup()
+            productGroup.setId(id)
+            productGroup.setRetailerId(retailerId)
+            productGroup.setDescription(description)
+            productGroup.setStartDate(startDate)
+            productGroup.setEndDate(endDate)
 
-            if (timeRestrictionMap.timeRestrictionDays instanceof List) {
-                boolean[] days = new boolean[7]
-                timeRestrictionMap.timeRestrictionDays.eachWithIndex { day, index ->
-                    days[index] = day
+            if (timeRestriction) {
+                def jsonSlurper = new JsonSlurper()
+                def timeRestrictionMap = jsonSlurper.parseText(timeRestriction)
+
+                if (timeRestrictionMap.timeRestrictionDays instanceof List) {
+                    boolean[] days = new boolean[7]
+                    timeRestrictionMap.timeRestrictionDays.eachWithIndex { day, index ->
+                        days[index] = day
+                    }
+                    productGroup.setTimeRestrictionDays(days)
                 }
-                productGroup.setTimeRestrictionDays(days)
+
+                if (timeRestrictionMap.startSellingTimeRestriction) {
+                    productGroup.setStartSellingTimeRestriction(timeRestrictionMap.startSellingTimeRestriction)
+                }
+
+                if (timeRestrictionMap.stopSellingTimeRestriction) {
+                    productGroup.setStopSellingTimeRestriction(timeRestrictionMap.stopSellingTimeRestriction)
+                }
+            }
+            productGroup.setMaxSellQuantity(maxSellQuantity)
+            productGroup.setActive(active)
+
+            productGroupProducts?.each {
+                productGroup.getProductGroupProducts().add(it.getProductGroupProduct())
             }
 
-            if (timeRestrictionMap.startSellingTimeRestriction) {
-                productGroup.setStartSellingTimeRestriction(timeRestrictionMap.startSellingTimeRestriction)
-            }
-
-            if (timeRestrictionMap.stopSellingTimeRestriction) {
-                productGroup.setStopSellingTimeRestriction(timeRestrictionMap.stopSellingTimeRestriction)
-            }
+            return productGroup
+        } catch (Exception ex) {
+            ex.printStackTrace()
         }
-        productGroup.setMaxSellQuantity(maxSellQuantity)
-        productGroup.setActive(active)
-
-        productGroupProducts?.each {
-            productGroup.getProductGroupProducts().add(it.getProductGroupProduct())
-        }
-
-        return productGroup
     }
 }
