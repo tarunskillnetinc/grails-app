@@ -310,6 +310,7 @@ class ButtonController {
             syncMessage.setInsert(true)
         } else {
             syncMessage.setInsert(false)
+            syncMessage.setDelete(true)
         }
 
         rabbitService.sendMessage(syncMessage)
