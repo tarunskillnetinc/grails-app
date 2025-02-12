@@ -110,7 +110,7 @@
     </div>
     <div class="form-group row col-5">
         <label for="restrictions.maximumMarkdownPercentage" class="col-5 col-form-label text-right pr-4">Maximum Markdown:</label>
-        <g:textField name="restrictions.maximumMarkdownPercentage" class="col-5 form-control" value="${category?.restrictions?.maximumMarkdownPercentage}" />
+        <g:textField name="restrictions.maximumMarkdownPercentage" class="col-5 form-control" value="${category?.restrictions?.maximumMarkdownPercentage}" readonly="${!category?.restrictions?.markdownAllowed}"  />
         <div class="input-group-postpend">
             <span class="input-group-text">%</span>
         </div>
@@ -136,7 +136,7 @@
     <div class="form-group row col-5 offset-lg-1 form-check">
         <div class="col-5 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.quantityChangeForced" class="col-form-label text-right wl-label">Force Quantity Change:</label>
-            <g:checkBox name="restrictions.quantityChangeForced" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.quantityChangeForced}" />
+            <g:checkBox name="restrictions.quantityChangeForced" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.quantityChangeForced}" disabled="${!category?.restrictions?.quantityChangeAllowed}" />
         </div>
     </div>
     <div class="form-group row col-5 form-check">
@@ -150,12 +150,12 @@
 <div class="row">
     <div class="form-group row col-5 offset-lg-1">
         <label for="restrictions.quantityChangeRestriction" class="col-5 col-form-label text-right pr-4">Quantity Change Restriction:</label>
-        <g:textField name="restrictions.quantityChangeRestriction" class="col-5 form-control" required="true" value="${category?.restrictions?.quantityChangeRestriction}" />
+        <g:textField name="restrictions.quantityChangeRestriction" class="col-5 form-control" required="true" value="${category?.restrictions?.quantityChangeRestriction}" readonly="${!category?.restrictions?.quantityChangeAllowed}" />
     </div>
     <div class="form-group row col-5 form-check">
         <div class="col-5 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.promptForMarkdown" class="col-form-label text-right wl-label">Prompt For Markdown:</label>
-            <g:checkBox name="restrictions.promptForMarkdown" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.promptForMarkdown}" />
+            <g:checkBox name="restrictions.promptForMarkdown" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.promptForMarkdown}" disabled="${!category?.restrictions?.markdownAllowed}" />
         </div>
     </div>
 </div>
@@ -189,7 +189,6 @@
     </div>
     <div class="form-group row col-5">
         <label for="restrictions.pricingClassification" class="col-5 col-form-label text-right pr-4">Pricing Classification:</label>
-        <%--<g:textField name="restrictions.pricingClassification" class="col-5 form-control" value="${category?.restrictions?.pricingClassificationId}" />--%>
         <g:select name="restrictions.pricingClassification" from="${pricingClassifications}" optionKey="id" optionValue="classification" value="${category?.restrictions?.pricingClassificationId}" valueMessagePrefix="pricingClassification" class="col-5 form-control select-border" />
     </div>
 </div>
