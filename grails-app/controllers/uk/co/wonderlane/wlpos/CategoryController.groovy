@@ -4,6 +4,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.enums.StockClassification
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 import java.math.RoundingMode
@@ -12,6 +13,7 @@ class CategoryController extends BaseController {
 
     def springSecurityService
     def rabbitService
+    def pricingClassificationService
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
@@ -72,21 +74,35 @@ class CategoryController extends BaseController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def add() {
+        if (springSecurityService.principal.storeId) {
+            flash.error = "You do not have access to this page."
+            redirect(uri: "/")
+            return
+        }
+        
         def blankCategory = new Category()
         blankCategory.setRestrictions(new Restrictions())
+        def pricingClassification = pricingClassificationService.getPricingClassificationsForRetailer()
 
         // default values for new category:
         blankCategory.varianceQuantity = 10
         blankCategory.varianceValue = new BigDecimal(100).setScale(2, RoundingMode.HALF_UP)
+        blankCategory.restrictions.saleAllowed = true
+        blankCategory.restrictions.buyerAgeRestriction = 0
+        blankCategory.restrictions.buyerChallengeAge = 0
+        blankCategory.restrictions.sellerAgeRestriction = 0
+        blankCategory.restrictions.allowPriceChange = true
         blankCategory.restrictions.refundAllowed = true
         blankCategory.restrictions.markdownAllowed = true
         blankCategory.restrictions.discountAllowed = true
-        blankCategory.restrictions.creditPaymentAllowed = true
+        blankCategory.restrictions.maximumMarkdownPercentage = new BigDecimal(90).setScale(2, RoundingMode.HALF_UP)
         blankCategory.restrictions.quantityChangeAllowed = true
+        blankCategory.restrictions.quantityChangeRestriction = 5
+        blankCategory.restrictions.promptedDaysFrom = 7
+        blankCategory.restrictions.stockClassification = StockClassification.STANDARD
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
-
-        render(view: "maintenance", model: [category: blankCategory, addCategory: true, topLevelCategories: categoryService.getTopLevelCategories(), loyaltyEnabled: loyaltyEnabled])
+        render(view: "maintenance", model: [category: blankCategory, addCategory: true, topLevelCategories: categoryService.getTopLevelCategories(), loyaltyEnabled: loyaltyEnabled, pricingClassifications: pricingClassification])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -94,6 +110,7 @@ class CategoryController extends BaseController {
         def addingCategory = false
         def category = null
         def categoryId = tryParseInt(params.get("id").toString())
+        def pricingClassification = pricingClassificationService.getPricingClassificationsForRetailer()
 
         if (categoryId.isPresent()) {
             category = categoryService.getCategory(categoryId.get())
@@ -107,6 +124,9 @@ class CategoryController extends BaseController {
         }
 
         bindData(category, params)
+
+        /* Backward logic means bind data will not have the correct value */
+        category.restrictions.saleAllowed = !params.boolean('restrictions.saleAllowed')
 
         //Check for a Parent Category being selected.
         def parentId = tryParseInt(params.get("category.id"))
@@ -129,7 +149,7 @@ class CategoryController extends BaseController {
         }
 
         if (category.hasErrors()) {
-            render(view: "maintenance", model: [category: category, addCategory: false, topLevelCategories: categoryService.getTopLevelCategories()])
+            render(view: "maintenance", model: [category: category, addCategory: false, topLevelCategories: categoryService.getTopLevelCategories(), pricingClassifications: pricingClassification])
             return
         }
 
@@ -138,14 +158,14 @@ class CategoryController extends BaseController {
             categoryService.saveRestriction(restriction)
 
             if (restriction.hasErrors()) {
-                render(view: "maintenance", model: [category: category, restrictions: restriction, addCategory: false, topLevelCategories: categoryService.getTopLevelCategories()])
+                render(view: "maintenance", model: [category: category, restrictions: restriction, addCategory: false, topLevelCategories: categoryService.getTopLevelCategories(), pricingClassifications: pricingClassification])
                 return
             }
         } else {
             categoryService.saveRestriction(category.restrictions)
 
             if (category.restrictions.hasErrors()) {
-                render(view: "maintenance", model: [category: category, restrictions: category.restrictions, addCategory: false, topLevelCategories: categoryService.getTopLevelCategories()])
+                render(view: "maintenance", model: [category: category, restrictions: category.restrictions, addCategory: false, topLevelCategories: categoryService.getTopLevelCategories(), pricingClassifications: pricingClassification])
                 return
             }
         }
@@ -156,7 +176,7 @@ class CategoryController extends BaseController {
             // Send the category to Rabbit to be inserted / updated in the tills
             sendMessageToRabbit(true, category)
 
-            flash.message = "Category saved successfully"
+            flash.message = "Category ${category.description} saved successfully"
             redirect("controller": "category", action:"index")
         } else {
             def categoryList = []
@@ -168,7 +188,7 @@ class CategoryController extends BaseController {
                 tempCategory = tempCategory.parentCategory
             }
 
-            render(view: "maintenance", model: [category: category, restrictions: category.restrictions, addCategory: false, categoryList: categoryList, topLevelCategories: categoryService.getTopLevelCategories()])
+            render(view: "maintenance", model: [category: category, restrictions: category.restrictions, addCategory: false, categoryList: categoryList, topLevelCategories: categoryService.getTopLevelCategories(), pricingClassifications: pricingClassification])
         }
     }
 
@@ -192,12 +212,21 @@ class CategoryController extends BaseController {
         // Send the category to Rabbit to be deleted from the tills
         sendMessageToRabbit(false, category)
         categoryService.deleteCategory(category)
+
+        flash.message = "Category ${category.description} deleted successfully"
         render("OK")
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def show(int id) {
+        if (springSecurityService.principal.storeId) {
+            flash.error = "You do not have access to this page."
+            redirect(uri: "/")
+            return
+        }
+        
         def category = categoryService.getCategory(id)
+        def pricingClassifications = pricingClassificationService.getPricingClassificationsForRetailer()
 
         if (!category) {
             flash.error = "Category not found"
@@ -220,7 +249,7 @@ class CategoryController extends BaseController {
 
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ?true : false
 
-        render(view: "maintenance", model: [category: category, addCategory: false, categoryList: categoryList, topLevelCategories: categoryService.getTopLevelCategories(), loyaltyEnabled: loyaltyEnabled])
+        render(view: "maintenance", model: [category: category, addCategory: false, categoryList: categoryList, topLevelCategories: categoryService.getTopLevelCategories(), loyaltyEnabled: loyaltyEnabled, pricingClassifications: pricingClassifications])
     }
 
     private boolean isValidParentCategory(int childId, Category parentCategory) {
@@ -236,6 +265,7 @@ class CategoryController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     private void sendMessageToRabbit(boolean insert, Category category) {
         List<uk.co.wonderlane.wlpos.entities.Category> categoryList = new ArrayList<>()
+        List<uk.co.wonderlane.wlpos.entities.PricingClassification> pricingClassificationList = new ArrayList<>()
         uk.co.wonderlane.wlpos.entities.Category syncMessageCategory = new uk.co.wonderlane.wlpos.entities.Category()
         syncMessageCategory.retailerId = category.retailerId
         syncMessageCategory.id = category.id
@@ -250,17 +280,12 @@ class CategoryController extends BaseController {
         }
 
         if (category.restrictions != null) {
-            syncMessageCategory.restrictions = new uk.co.wonderlane.wlpos.entities.Restrictions()
-            syncMessageCategory.restrictions.id = category.restrictions.id
-            syncMessageCategory.restrictions.buyerIdRequired = category.restrictions.buyerIdRequired
-            syncMessageCategory.restrictions.buyerIdForced = category.restrictions.buyerIdForced
-            syncMessageCategory.restrictions.sellerAgeRestriction = category.restrictions.sellerAgeRestriction
-            syncMessageCategory.restrictions.buyerAgeRestriction = category.restrictions.buyerAgeRestriction
+            syncMessageCategory.restrictions = category.restrictions.getRestrictions()
         }
         categoryList.add(syncMessageCategory)
 
         // Otherwise, delete the category and update Rabbit
-        SyncMessage syncMessage = new SyncMessage(SyncMessageType.CATEGORY, springSecurityService.principal.retailerId, 0,0, 0)
+        SyncMessage syncMessage = new SyncMessage(SyncMessageType.CATEGORY, springSecurityService.principal.retailerId, 0, 0, 0)
         if (insert) {
             syncMessage.setInsert(true)
         } else {
@@ -268,6 +293,22 @@ class CategoryController extends BaseController {
         }
         syncMessage.setCategories(categoryList)
         rabbitService.sendMessage(syncMessage)
+
+        if (category.restrictions.getPricingClassification() != null) {
+            def pricing = category.restrictions.getPricingClassification()
+            pricingClassificationList.add(pricing.getPricingClassification())
+            
+            SyncMessage pricingSyncMessage = new SyncMessage(SyncMessageType.PRICING_CLASSIFICATION, springSecurityService.principal.retailerId, 0, 0, 0)
+            
+            if (insert) {
+                pricingSyncMessage.setInsert(true)
+            } else {
+                pricingSyncMessage.setDelete(true)
+            }
+            
+            pricingSyncMessage.setPricingClassifications(pricingClassificationList)
+            rabbitService.sendMessage(pricingSyncMessage)
+        }
     }
 
     private static Optional<Integer> tryParseInt(String str) {

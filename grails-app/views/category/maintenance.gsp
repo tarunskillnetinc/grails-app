@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>Category Maintenance</title>
+    <title>Category Management</title>
 
     <asset:stylesheet href="radio.css" />
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
@@ -19,9 +19,13 @@
         $(document).ready(function () {
             $(".mask-money").maskMoney({ allowZero: true, allowEmpty: true });
             $(".mask-money").maskMoney('mask');
-            intListener("restrictions.buyerAgeRestriction", 3, 999, true)
-            intListener("restrictions.buyerChallengeAge", 3, 999, true)
-            intListener("restrictions.sellerAgeRestriction", 3, 999, true)
+
+            intListener("restrictions.buyerAgeRestriction", 2, 99, true)
+            intListener("restrictions.buyerChallengeAge", 2, 99, true)
+            intListener("restrictions.sellerAgeRestriction", 2, 99, true)
+            intListener("restrictions.maximumMarkdownPercentage", 3, 100, true)
+            intListener("restrictions.quantityChangeRestriction", 2, 99, true)
+            intListener("restrictions.promptedDaysFrom", 2, 99, true)
         });
 
         function onCategoryChanged(selectedCategoryId) {
@@ -81,14 +85,26 @@
             $("#restrictions\\.buyerIdRequired").change(function() {
                 $("#restrictions\\.buyerIdForced").prop("checked", false);
                 $("#restrictions\\.buyerIdForced").attr("disabled", !this.checked);
-                $("#restrictions\\.buyerAgeRestriction").val("");
                 $("#restrictions\\.buyerAgeRestriction").attr("readonly", !this.checked);
-                $("#restrictions\\.buyerChallengeAge").val("");
                 $("#restrictions\\.buyerChallengeAge").attr("readonly", !this.checked);
-                $("#restrictions\\.sellerAgeRestriction").val("");
                 $("#restrictions\\.sellerAgeRestriction").attr("readonly", !this.checked);
                 $("#restrictions\\.allowsLoyaltyPointsCollection").attr("disabled", ${!loyaltyEnabled});
             });
+
+            $("#restrictions\\.quantityChangeAllowed").change(function() {
+                $("#restrictions\\.quantityChangeForced").prop("checked", false);
+                $("#restrictions\\.quantityChangeForced").attr("disabled", !this.checked);
+
+                $("#restrictions\\.quantityChangeRestriction").attr("readonly", !this.checked);
+            });
+            
+            $("#restrictions\\.markdownAllowed").change(function() {
+                $("#restrictions\\.maximumMarkdownPercentage").attr("readonly", !this.checked);
+
+                $("#restrictions\\.promptForMarkdown").prop("checked", false);
+                $("#restrictions\\.promptForMarkdown").attr("disabled", !this.checked);
+            });
+
 
             $("#restrictions\\.allowsLoyaltyPointsCollection").attr("disabled", ${!loyaltyEnabled});
         }
@@ -102,7 +118,7 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link controller="category" action="index">Category Maintenance</g:link></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link controller="category" action="index">Category Management</g:link></li>
                         <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${category?.description ?: "Add Category"}</li>
                     </ol>
                 </div>
@@ -113,7 +129,7 @@
     <section id="maintenance-section" class="container-fluid">
         <div class="row header-wl mt-3">
             <div class="col-8 offset-2">
-                <h2 class="mx-auto my-auto">Category Maintenance</h2>
+                <h2 class="mx-auto my-auto">Category Management</h2>
             </div>
 
             <div class="col-2 text-right">
