@@ -4,7 +4,6 @@ import grails.validation.Validateable
 import org.springframework.web.multipart.MultipartFile
 import uk.co.wonderlane.wlpos.enums.ButtonType
 import uk.co.wonderlane.wlpos.enums.ProcessType
-import uk.co.wonderlane.wlpos.enums.TenderType
 
 class SaveButtonFormCommand implements Validateable {
 
@@ -19,6 +18,7 @@ class SaveButtonFormCommand implements Validateable {
     Long sku
     Integer subPageId
     ProcessType process
+    uk.co.wonderlane.wlpos.enums.TenderType legacyTenderType
     TenderType tenderType
 
     String bgColour
@@ -49,7 +49,14 @@ class SaveButtonFormCommand implements Validateable {
         sku nullable: true
         subPageId nullable: true
         process nullable: true
-        tenderType nullable: true
+        legacyTenderType nullable: true
+        tenderType nullable: true, validator: {val, obj ->
+            if (obj.type == ButtonType.TENDER && !val) {
+                return ['button.error.tenderType.nullable']
+            }
+
+            return true
+        }
         bgColour nullable: true
         textColour nullable: true
         imageDisplay nullable: true

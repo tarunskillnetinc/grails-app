@@ -25,6 +25,7 @@ import uk.co.wonderlane.wlpos.enums.ProductMessageType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.utils.WeightedAverageCostPriceUtil
 
 class ProductController extends BaseController {
 
@@ -33,6 +34,7 @@ class ProductController extends BaseController {
     def restrictionsService
     def supplierService
     def storeService
+    def productStockService
     def productGroupService
     def productHistoryService
     def productMessageService
@@ -1706,11 +1708,14 @@ class ProductController extends BaseController {
     def ajaxAddVariant(AddVariantCommand cmd, boolean isNewVariant) {
         def wacValue = BigDecimal.ZERO
         if (cmd.storeId) {
-            wacValue = cmd.weightedAverageCostPrice?:BigDecimal.ZERO
+            wacValue = cmd.weightedAverageCostPrice
+        } else if (springSecurityService.principal.storeId == null) {
+            wacValue = WeightedAverageCostPriceUtil.calculateRetailerWacForSku(
+                    productService.getAllProductVariantsForSku(cmd.sku)
+            )
         }
-        // todo - calculate retailer wide wacValue
 
-        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, wacValue: wacValue, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant])
+        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, wacValue: wacValue?:BigDecimal.ZERO, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant])
     }
 
     def ajaxAddBarcode(int index, String selector) {

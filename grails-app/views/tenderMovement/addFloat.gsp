@@ -56,7 +56,7 @@
         initializeMultiSelect();
     });
 
-    function processAddFloatActionButton(){
+    function processAddFloatActionButton() {
         // Remove any existing click handlers for #tender-lift-save
         $(document).off('click', '#add-float-save');
 
@@ -146,12 +146,7 @@
                         <div class="form-group">
                             <label for="safe" class="col-form-label">Safe</label>
                             <div class="flex-grow-1">
-                                <g:select name="safeId"
-                                          from="${safeLocations}"
-                                          optionKey="id"
-                                          optionValue="description"
-                                          value="${primarySafe?.id}"
-                                          class="form-control select-border"/>
+                                <g:select name="safeId" from="${safeLocations}" optionKey="id" optionValue="description" value="${primarySafe?.id}" class="form-control select-border"/>
                             </div>
                         </div>
 
@@ -179,10 +174,7 @@
                         <div class="form-group">
                             <label for="tenders" class="col-form-label">Tender</label>
                             <div class="flex-grow-1">
-                                <g:select name="tender"
-                                          from="${tenders}"
-                                          optionValue="${{ it.toString().toLowerCase().capitalize() }}"
-                                          class="form-control select-border"/>
+                                <g:select name="tenderTypeId" from="${tenders}" optionKey="id" optionValue="name" class="form-control select-border" />
                             </div>
                         </div>
 

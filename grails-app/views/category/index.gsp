@@ -34,6 +34,7 @@
 
         function resetForm() {
             document.getElementById('categorySearchTerm').value = null;
+            document.getElementById('categoryCode').value = null;
             searchButtonClicked()
         }
 
@@ -125,18 +126,18 @@
 
                     <div class="card-body collapse show" id="filterCollapse">
                         <div class="form-group row">
-                            <label for="categorySearchTerm" class="col-2 col-form-label-sm text-right">Description:</label>
-                            <div class="col-10 input-group">
-                                <g:textField id="categorySearchTerm" name="categorySearchTerm" maxlength="60" value="${session.CATEGORY_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
+                            <label for="categorySearchTerm" class="col-3 col-form-label-sm text-right">Description:</label>
+                            <div class="col-9 input-group">
+                                <g:textField id="categorySearchTerm" name="categorySearchTerm" maxlength="60" class="form-control" aria-describedby="select-addon2" />
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label for="categoryCode" class="col-2 col-form-label-sm text-right">Category Code:</label>
+                            <label for="categoryCode" class="col-3 col-form-label-sm text-right">Category Code:</label>
                             <div class="col-3 input-group">
-                                <g:textField id="categoryCode" name="categoryCode" maxlength="30" value="${session.CATEGORY_CODE}" class="form-control" aria-describedby="select-addon2" />
+                                <g:textField id="categoryCode" name="categoryCode" maxlength="30" class="form-control" aria-describedby="select-addon2" />
                             </div>
-                            <div class="col-7 text-right">
+                            <div class="col-6 text-right">
                                 <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                 <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked()">Search</button>
                             </div>
@@ -145,7 +146,7 @@
                 </div>
             </div>
 
-            <div class="col-2 offset-4">
+            <div class="col-3 offset-3">
                 <div class="card bg-light border-wl">
                     <div id="columns-collapse" class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse" aria-expanded="false" aria-controls="columnsCollapse">
                         <div class="row">

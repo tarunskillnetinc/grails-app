@@ -46,20 +46,18 @@
         <tbody>
             <g:each in="${values}" var="value" status="i">
                 <tr id="reportData_${i + 1}">
-                    <td id="reportData_${i + 1}_name" class="border">
-                        <g:message code="TenderType.${value.tenderType}" />
-                    </td>
+                    <td id="reportData_${i + 1}_name" class="border">${value.tenderTypeName}</td>
                     <td id="reportData_${i + 1}_expected" class="border">
                         <g:set var="expectedValue" value="${value.value - value.variance}" />
                         <g:if test="${expectedValue < BigDecimal.ZERO}">-</g:if>
-                        £${String.format("%.2f", expectedValue.abs())}
+                        <g:formatNumber number="${expectedValue?.abs()}" type="currency" />
                     </td>
                     <td id="reportData_${i + 1}_declared" class="border">
-                        £${String.format("%.2f", value.value)}
+                        <g:formatNumber number="${value?.value}" type="currency" />
                     </td>
                     <td id="reportData_${i + 1}_variance" class="border ${(value.variance < BigDecimal.ZERO) ? 'text-danger' : ''}">
                         <g:if test="${value.variance < BigDecimal.ZERO}">-</g:if>
-                        £${String.format("%.2f", value.variance.abs())}
+                        <g:formatNumber number="${value?.variance?.abs()}" type="currency" />
                     </td>
                 </tr>
             </g:each>

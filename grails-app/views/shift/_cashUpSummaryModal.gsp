@@ -2,7 +2,7 @@
     <h2>Cash Management</h2>
 </div>
 
-<div class="row mt-3 mb-2">
+<div id="modal-body" class="modal-body row mt-3 mb-2">
     <div class="col-12 pr-0">
 
         <g:set var="reconciliationTotals" value="${shift.pendingReconciliationTotals}" />
@@ -20,7 +20,7 @@
 
         <g:each in="${reconciliationTotals}" var="reconciliationTotal">
             <div class="row ml-0 mr-0 pt-2 pb-2">
-                <div class="col-2 my-auto text-right"><g:message code="TenderType.${reconciliationTotal.tenderType}" /></div>
+                <div class="col-2 my-auto text-right">${reconciliationTotal.tenderTypeName}</div>
                 <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${reconciliationTotal.value - reconciliationTotal.variance}" type="currency" /></div>
                 <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${reconciliationTotal.value}" type="currency" /></div>
                 <div class="col-3 my-auto text-right text-truncate">
@@ -38,33 +38,29 @@
             </div>
         </g:each>
 
-        <div class="row ml-0 mr-0 pt-2 pb-2">
+        <div class="row ml-0 mr-0 pt-2 pb-4">
             <div class="col-5 my-auto text-right">Total</div>
             <div class="col-3 my-auto text-right text-truncate" style="border-top: 1px solid black; border-bottom: 1px solid black;"><g:formatNumber number="${reconciliationTotals.sum { it.value }}" type="currency" /></div>
             <div class="col-3 my-auto text-right">&nbsp;</div>
         </div>
 
-        <div class="row ml-0 mr-0 pt-2 pb-2">
-            <div class="col-5 my-auto text-right">Debit / credit card</div>
-            <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${shift.tenderTotals.find { it.tenderType.name() == 'CARD' }?.value ?: 0}" type="currency" /></div>
-            <div class="col-3 my-auto text-right">&nbsp;</div>
-        </div>
+        <%
+            def autoReconcileTotal = BigDecimal.ZERO
+        %>
+        <g:each in="${tenderTypes?.findAll { it.autoReconcile }}" var="tenderType">
+            <%
+                autoReconcileTotal = autoReconcileTotal.add(shift.tenderTotals.find { it.tenderTypeId == tenderType.id }?.value ?: 0)
+            %>
+            <div class="row ml-0 mr-0 pt-2 pb-2">
+                <div class="col-5 my-auto text-right">${tenderType.name}</div>
+                <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${shift.tenderTotals.find { it.tenderTypeId == tenderType.id }?.value ?: 0}" type="currency" /></div>
+                <div class="col-3 my-auto text-right">&nbsp;</div>
+            </div>
+        </g:each>
 
         <div class="row ml-0 mr-0 pt-2 pb-2">
-            <div class="col-5 my-auto text-right">Coupons</div>
-            <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${BigDecimal.ZERO}" type="currency" /></div>
-            <div class="col-3 my-auto text-right">&nbsp;</div>
-        </div>
-
-        <div class="row ml-0 mr-0 pt-2 pb-2">
-            <div class="col-5 my-auto text-right">Other</div>
-            <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${BigDecimal.ZERO}" type="currency" /></div>
-            <div class="col-3 my-auto text-right">&nbsp;</div>
-        </div>
-
-        <div class="row ml-0 mr-0 pt-4 pb-2">
             <div class="col-5 my-auto font-weight-bold text-right">Shift Total</div>
-            <div class="col-3 my-auto text-right text-truncate" style="border-top: 1px solid black; border-bottom: 1px solid black;"><g:formatNumber number="${(reconciliationTotals.sum { it.value } ?: 0) + (shift.tenderTotals.find { it.tenderType.name() == 'CARD' }?.value ?: 0)}" type="currency" /></div>
+            <div class="col-3 my-auto text-right text-truncate" style="border-top: 1px solid black; border-bottom: 1px solid black;"><g:formatNumber number="${(reconciliationTotals.sum { it.value } ?: 0) + autoReconcileTotal}" type="currency" /></div>
             <div class="col-3 my-auto text-right">&nbsp;</div>
         </div>
 
@@ -119,7 +115,7 @@
     </div>
 </div>
 
-<div class="modal-footer">
+<div id="modal-footer" class="modal-footer">
     <button type="button" id="cancelShiftButton" class="btn btn-secondary" data-dismiss="modal" onclick="getShifts()">${shift.reconciledDate == null ? "Cancel" : "Close"}</button>
     <button type="button" id="saveShiftButton" class="btn btn-success" onclick="submitShift(${shift.id}, ${shift.reconciledDate != null}, false)" >Save</button>
 </div>

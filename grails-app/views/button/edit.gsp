@@ -103,6 +103,7 @@
             $("input[id*=descriptionInput]").on("change", function() {
                 $("input[id*=descriptionInput]").val(this.value);
                 $("#description").val($(this).val());
+                // $("[id*=example-text]").text($(this).val());
             });
 
             $("input[id*=quantityInput]").on("change", function() {
@@ -131,7 +132,7 @@
             });
 
             tenderTypeInput.on("change", function() {
-                $("#tenderType").val($(this).val());
+                $("#tenderType\\.id").val($(this).val());
 
                 exactInput.prop("checked", false);
                 manualInput.prop("checked", false);
@@ -139,32 +140,34 @@
                 $("#manual").val("false");
 
                 if (tenderTypeInput.val() === "") {
+                    // No tender type selected.
+
                     amountInput.val("");
                     $("#amount").val("");
                     amountInput.attr("disabled", true);
 
                     exactInputDiv.hide();
                     manualInputDiv.hide();
-                } else if (tenderTypeInput.val() === "CASH") {
-                    amountInput.val("0.00");
-                    $("#amount").val("0.00");
-                    amountInput.attr("disabled", false);
-
-                    exactInputDiv.show();
-                    manualInputDiv.show();
-
-                    $(".mask-money").maskMoney({ allowZero: true });
-                    $(".mask-money").maskMoney('mask');
                 } else {
+                    // Tender type selected.
+
                     amountInput.val("0.00");
                     $("#amount").val("0.00");
                     amountInput.attr("disabled", false);
 
-                    exactInputDiv.hide();
                     manualInputDiv.show();
 
                     $(".mask-money").maskMoney({ allowZero: true });
                     $(".mask-money").maskMoney('mask');
+
+                    var selected = tenderTypeInput.find(":selected");
+                    var cardPayment = selected[0].dataset.cardpayment;
+
+                    if (cardPayment === "true") {
+                        exactInputDiv.hide();
+                    } else {
+                        exactInputDiv.show();
+                    }
                 }
             });
 
@@ -323,7 +326,6 @@
                 $("input[id*=subPageIdInput]").val("");
                 $("input[id*=processInput]").val("");
                 $("input[id*=amountInput]").val("");
-                $("input[id*=tenderTypeInput]").val("");
 
                 if (newType === "BLANK") {
                     $("input[id*=descriptionInput]").val("Blank");
@@ -350,7 +352,6 @@
                 $("input[id*=subPageIdInput]").val("${button?.subPageId}");
                 $("input[id*=processInput]").val("${button?.process}");
                 $("input[id*=amountInput]").val("${button?.amount}");
-                $("input[id*=tenderTypeInput]").val("${button?.tenderType}");
 
                 type.val(newType);
             }
@@ -515,9 +516,15 @@
                             </div>
 
                             <div class="form-group row">
-                                <label for="tenderType" class="col-4 col-sm-2 offset-sm-2 col-form-label">Tender type:</label>
+                                <label for="tenderTypeId" class="col-4 col-sm-2 offset-sm-2 col-form-label">Tender type:</label>
                                 <div class="col-6 col-sm-2">
-                                    <g:select name="tenderTypeInput" from="${availableTenderTypes}" valueMessagePrefix="TenderType" value="${button.tenderType}" noSelection="['':'Please select']" class="form-control select-border" />
+                                    <select name="tenderTypeInput" class="form-control select-border" id="tenderTypeInput">
+                                        <option value>Please select</option>
+
+                                        <g:each in="${availableTenderTypes}" var="availableTenderType">
+                                            <option value="${availableTenderType.id}" data-cardPayment="${availableTenderType.cardPayment}" ${button?.tenderTypeId == availableTenderType.id ? 'selected="true"' : ''}>${availableTenderType.name}</option>
+                                        </g:each>
+                                    </select>
                                 </div>
                             </div>
 
@@ -549,7 +556,7 @@
                 </div>
             </g:if>
 
-        <!-- Action/process button. -->
+            <!-- Action/process button. -->
             <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
                 <div class="card-header pointer" id="actionButton" data-toggle="collapse" data-target="#collapseActionButton" aria-expanded="true" aria-controls="collapseActionButton" onclick="onTypeChange('PROCESS')">
                     <div class="row">
@@ -610,7 +617,7 @@
                             <div class="col-12 d-flex justify-content-center">
                                 <div class="button-example">
                                     <img src="" hidden class="justify-content-center button-image"/>
-                                    <p class="button-example-text"}>Blank</p>
+                                    <p class="button-example-text">Blank</p>
                                 </div>
                             </div>
                         </div>
@@ -621,16 +628,7 @@
         </div>
 
         <div class="col-12">
-            <g:uploadForm
-                    name="submission-form"
-                    action="save"
-                    params="[
-                            id: button?.id,
-                            buttonGridId: button?.buttonGrid?.id,
-                            row: button?.row,
-                            column: button?.column
-                    ]"
-            >
+            <g:uploadForm name="submission-form" action="save" params="[id: button?.id, buttonGridId: button?.buttonGrid?.id, row: button?.row, column: button?.column]">
                 <g:hiddenField id="btnId" name="id" value="${button?.id}" />
                 <g:hiddenField name="buttonGridId" value="${button?.buttonGrid?.id}" />
                 <g:hiddenField name="retailerId" value="${button?.buttonGrid?.retailerId}" />
@@ -644,7 +642,7 @@
                 <g:hiddenField name="subPageId" value="${button?.subPageId}"/>
                 <g:hiddenField name="process" value="${button?.process}" />
                 <g:hiddenField name="amount" value="${button?.amount}" />
-                <g:hiddenField name="tenderType" value="${button?.tenderType}" />
+                <g:hiddenField name="tenderType.id" value="${button?.tenderType?.id}" />
                 <g:hiddenField name="bgColour" value="${button?.bgColour}" />
                 <g:hiddenField name="textColour" value="${button?.textColour}" />
                 <g:hiddenField name="imageDisplay" value="${button?.imageDisplay}" />
