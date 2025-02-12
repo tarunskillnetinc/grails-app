@@ -36,7 +36,7 @@
         <div class="row form-group mb-4" id="auto-reconcile">
             <label for="autoReconcile" class="col-3 offset-1 col-form-label text-right">Auto Reconcile:</label>
             <div class="input-group col-8">
-                <g:checkBox name="autoReconcile" value="${tenderType?.autoReconcile}" class="form-check-input wl-checkbox mx-0" />
+                <g:checkBox name="autoReconcile" value="${tenderType?.autoReconcile}" class="form-check-input wl-checkbox mx-0" onclick="autoReconcileChanged(this);" disabled="${tenderType?.eligibleForBanking || tenderType?.eligibleForFloat || tenderType?.eligibleForCashLift}" />
                 <label class="col-form-label-sm wl-label-right">Tender will be automatically reconciled when cashing up.</label>
             </div>
         </div>
@@ -44,7 +44,7 @@
         <div class="row form-group mb-4" id="eligible-for-banking">
             <label for="eligibleForBanking" class="col-3 offset-1 col-form-label text-right">Eligible for Banking:</label>
             <div class="input-group col-8">
-                <g:checkBox name="eligibleForBanking" value="${tenderType?.eligibleForBanking}" class="form-check-input wl-checkbox mx-0" />
+                <g:checkBox name="eligibleForBanking" value="${tenderType?.eligibleForBanking}" class="form-check-input wl-checkbox mx-0" onclick="eligibleOptionChanged(this);" disabled="${tenderType?.autoReconcile}" />
                 <label class="col-form-label-sm wl-label-right">Tender can be lifted from the safe to the bank.</label>
             </div>
         </div>
@@ -52,7 +52,7 @@
         <div class="row form-group mb-4" id="eligible-for-float">
             <label for="eligibleForFloat" class="col-3 offset-1 col-form-label text-right">Eligible for Float:</label>
             <div class="input-group col-8">
-                <g:checkBox name="eligibleForFloat" value="${tenderType?.eligibleForFloat}" class="form-check-input wl-checkbox mx-0" />
+                <g:checkBox name="eligibleForFloat" value="${tenderType?.eligibleForFloat}" class="form-check-input wl-checkbox mx-0" onclick="eligibleOptionChanged(this);" disabled="${tenderType?.autoReconcile}" />
                 <label class="col-form-label-sm wl-label-right">Tender can be added to tills as a float.</label>
             </div>
         </div>
@@ -60,7 +60,7 @@
         <div class="row form-group mb-4" id="eligible-for-cash-lift">
             <label for="eligibleForCashLift" class="col-3 offset-1 col-form-label text-right">Eligible for Tender Lift:</label>
             <div class="input-group col-8">
-                <g:checkBox name="eligibleForCashLift" value="${tenderType?.eligibleForCashLift}" class="form-check-input wl-checkbox mx-0" />
+                <g:checkBox name="eligibleForCashLift" value="${tenderType?.eligibleForCashLift}" class="form-check-input wl-checkbox mx-0" onclick="eligibleOptionChanged(this);" disabled="${tenderType?.autoReconcile}" />
                 <label class="col-form-label-sm wl-label-right">Tender can be lifted from tills to the safe.</label>
             </div>
         </div>

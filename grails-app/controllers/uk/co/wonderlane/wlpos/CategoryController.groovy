@@ -18,6 +18,7 @@ class CategoryController extends BaseController {
         if (springSecurityService.principal.storeId) {
             flash.error = "You do not have access to this page."
             redirect(uri: "/")
+            return
         }
 
         [userColumns: categoryService.getColumns()]
@@ -35,8 +36,6 @@ class CategoryController extends BaseController {
         String searchTerm = params.searchTerm
         String categoryCode = params.categoryCode
 
-        session.CATEGORY_SEARCH_TERM = searchTerm
-        session.CATEGORY_CODE = categoryCode
         session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
 
         def searchResults = baseSearchForCategories(searchTerm, categoryCode)

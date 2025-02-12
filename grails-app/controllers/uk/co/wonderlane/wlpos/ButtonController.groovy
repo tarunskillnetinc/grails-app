@@ -109,7 +109,7 @@ class ButtonController {
 
         // Quick check to make sure you haven't configured any other cash buttons on this button grid using a different cash tender type.
         if (form.tenderType?.cashTender) {
-            def otherCashButton = buttonGrid?.buttons?.find { it.tenderType.cashTender && it.tenderType.id != form.tenderType?.id }
+            def otherCashButton = buttonGrid?.buttons?.find { it.tenderType?.cashTender && it.tenderType?.id != form.tenderType?.id }
             if (otherCashButton) {
                 form.errors.reject('button.error.otherCashButton.message', [otherCashButton.tenderType?.name] as Object[], null)
             }
