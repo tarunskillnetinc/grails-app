@@ -54,6 +54,12 @@ class ProductGroup {
                 return ['producthistory.active.null']
             }
         }
+// temporarily disabled - will be used.
+//        productGroupProducts nullable: false, validator: { val, obj ->
+//            if( val?.size()==0 ) {
+//                return ['producthistory.productgroupproducts.nullorempty']
+//            }
+//        }
     }
 
     def beforeUpdate() {
