@@ -79,7 +79,7 @@ abstract class BaseController {
             def categories = categoryService.searchForCategories(searchTerm, categoryCode)
             productCategoryList.addAll(categories?.collect { it.id })
             categories?.each {
-                addCategoriesHierarchy(topLevelCategories, productCategoryList, it)
+                addCategoriesHierarchy(topLevelCategories, productCategoryList, it, [])
             }
         } else {
             topLevelCategories = categoryService.getTopLevelCategories()
@@ -87,15 +87,26 @@ abstract class BaseController {
         return new Pair<List<Category>, List<Integer>>(topLevelCategories, productCategoryList)
     }
 
-    protected void addCategoriesHierarchy(List topCategories, List productCategoryList, Category category) {
+    protected void addCategoriesHierarchy(List topCategories, List productCategoryList, Category category, List<Integer> processedCategories) {
+        if (processedCategories.contains(category.id)) {
+            return
+        }
+
+        processedCategories.add(category.id)
+
         if (category.parentCategory) {
             if (category.parentCategory.id == category.id) {
                 return
             }
             productCategoryList.add(category.parentCategory.id)
-            addCategoriesHierarchy(topCategories, productCategoryList, category.parentCategory)
+            addCategoriesHierarchy(topCategories, productCategoryList, category.parentCategory, processedCategories)
         } else {
             topCategories.add(category)
+        }
+        
+        category.childCategories?.each { childCategory ->
+            productCategoryList.add(childCategory.id)
+            addCategoriesHierarchy(topCategories, productCategoryList, childCategory, processedCategories)
         }
     }
 }
