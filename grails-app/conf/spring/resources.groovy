@@ -44,6 +44,7 @@ beans = {
         sessionFactory = ref('sessionFactory')
         gsonProvider = ref("gsonProvider")
         rabbitService = ref('rabbitService')
+        pricingClassificationService = ref('pricingClassificationService')
     }
 
     productListService(ProductListService,
@@ -142,6 +143,10 @@ beans = {
     }
 
     groupService(GroupService) {
+        springSecurityService = ref('springSecurityService')
+    }
+
+    pricingClassificationService(PricingClassificationService) {
         springSecurityService = ref('springSecurityService')
     }
 
