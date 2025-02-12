@@ -640,7 +640,11 @@ class PromotionCommand implements Validateable {
         description nullable: false, size: 1..200
         receiptDescription nullable: false, size: 1..50
         startDate nullable: false
-        endDate nullable: true
+        endDate nullable: false, validator: { val, obj ->
+            if (val < obj.startDate) {
+                return 'promotionCommand.endDateBeforeStartDate'
+            }
+        }
         type nullable: false
         amount nullable: true, validator: {val, obj ->
             if (obj.type == PromotionType.FIXED_PRICE) {
