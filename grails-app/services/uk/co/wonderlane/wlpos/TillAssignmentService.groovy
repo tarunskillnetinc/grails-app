@@ -45,7 +45,7 @@ class TillAssignmentService {
     }
 
     def getTillBySerialNumber(String serialNumber) {
-        return TillConfiguration.findByRetailerIdAndSerialNumberLike(springSecurityService.principal.retailerId, "%" + serialNumber + "%")
+        return TillConfiguration.findByRetailerIdAndSerialNumber(springSecurityService.principal.retailerId, serialNumber)
     }
 
     def getUnassignedTillStock() {
