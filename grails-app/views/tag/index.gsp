@@ -49,7 +49,7 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Product Groups</li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Tag Maintenance</li>
                         </ol>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
         <section id="central-count-search" class="container-fluid">
             <div class="row header-wl mt-3">
                 <div class="col-8 offset-2">
-                    <h2 id="tag-page-title" class="mx-auto">Product Groups</h2>
+                    <h2 id="tag-page-title" class="mx-auto">Tag Maintenance</h2>
                 </div>
 
                 <div class="col-2 text-right">
