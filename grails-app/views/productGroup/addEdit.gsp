@@ -13,68 +13,30 @@
     <asset:javascript src="bootstrap-timepicker.min.js"/>
 
     <style>
-    .bootstrap-timepicker-widget {
-        background-color: #ffffff;
-        border: 1px solid #ced4da;
+.bootstrap-timepicker-widget table td a {
+    color: #6c757d !important;
+    background-color: #f8f9fa !important;
+    border: 1px solid #ced4da !important;
         border-radius: 0.25rem;
         padding: 5px;
     }
+
+.bootstrap-timepicker-widget table td a:hover {
+    background-color: #e9ecef !important;
+    color: #495057 !important;
+}
 
     .bootstrap-timepicker-widget table td a {
-        color: #6c757d !important;
-        background-color: #f8f9fa !important;
-        border: 1px solid #ced4da !important;
-        border-radius: 0.25rem;
-        padding: 5px;
+        padding: 0;
     }
 
-    .bootstrap-timepicker-widget table td a:hover {
-        background-color: #e9ecef !important;
-        color: #495057 !important;
+.bootstrap-timepicker-widget .svg-icon-up:before {
+    content: "+";
     }
 
-    .bootstrap-timepicker-widget table td input {
-        width: 30px;
-        margin: 0;
-        text-align: center;
-        border: 1px solid #ced4da;
-        background-color: #ffffff;
-        color: #495057;
-    }
-
-    .bootstrap-timepicker-widget table td.separator {
-        color: #6c757d;
-    }
-
-    .bootstrap-timepicker-widget.dropdown-menu {
-        z-index: 9999 !important;
-        position: absolute !important;
-    }
-
-    .bootstrap-timepicker-widget table td.up a span,
-    .bootstrap-timepicker-widget table td.down a span {
-        color: #343a40 !important; /* Even darker color for the arrow icons */
-    }
-
-    /* Optionally, you can style the up and down arrows differently */
-    .bootstrap-timepicker-widget table td.up a {
-        border-bottom: none !important;
-        border-bottom-left-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-    }
-
-    .bootstrap-timepicker-widget table td.down a {
-        border-top: none !important;
-        border-top-left-radius: 0 !important;
-        border-top-right-radius: 0 !important;
-    }
-
-    /* Hover effect */
-    .bootstrap-timepicker-widget table td a:hover span {
-        color: #212529 !important; /* Darkest color on hover for maximum contrast */
-
-    }
-
+.bootstrap-timepicker-widget .svg-icon-down:before {
+    content: "-";
+}
     .big-checkbox {
         width: 25px;
         height: 25px;
@@ -123,8 +85,8 @@
                 disableFocus: true,
                 showSeconds: false,
                 icons: {
-                    up: 'glyphicon glyphicon-chevron-up',
-                    down: 'glyphicon glyphicon-chevron-down'
+                    up: 'svg-icon-up',
+                    down: 'svg-icon-down'
                 },
                 template: 'dropdown'
             }).on('changeTime.timepicker', function(e) {
@@ -270,7 +232,8 @@
                     <!-- Never Expires Checkbox -->
                     <div class="form-group row mt-4">
                         <label for="neverExpires" class="col-6 col-form-label text-right pr-4">Never Expires</label>
-                        <div class="col-6 d-flex align-items-center">
+
+                <div class="col-6 d-flex align-items-center p-0">
                             <g:checkBox id="neverExpires" name="neverExpires" value="${productGroup?.neverExpires}"
                                         class="big-checkbox"/>
                         </div>
@@ -348,8 +311,14 @@
 
                         <div class="col-6 px-0">
                             <div id="startTimeContainer" class="input-group bootstrap-timepicker timepicker">
-                                <input id="restrictionStartTime" name="restrictionStartTime" type="text" class="form-control"
+                                <input id="restrictionStartTime" name="restrictionStartTime" type="text"
+                                       class="form-control input-small"
                                        value="${productGroup?.restrictionStartTime}"/>
+                                <span class="input-group-addon">
+                                    <svg class="icon-clock" width="16" height="16">
+                                        <use xlink:href="#icon-clock"></use>
+                                    </svg>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -360,8 +329,14 @@
 
                         <div class="col-6 px-0">
                             <div id="endTimeContainer" class="input-group bootstrap-timepicker timepicker">
-                                <input id="restrictionEndTime" name="restrictionEndTime" type="text" class="form-control"
+                                <input id="restrictionEndTime" name="restrictionEndTime" type="text"
+                                       class="form-control input-small"
                                        value="${productGroup?.restrictionEndTime}"/>
+                                <span class="input-group-addon">
+                                    <svg class="icon-clock" width="16" height="16">
+                                        <use xlink:href="#icon-clock"></use>
+                                    </svg>
+                                </span>
                             </div>
                         </div>
                     </div>
