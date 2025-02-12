@@ -37,6 +37,7 @@
 .bootstrap-timepicker-widget .svg-icon-down:before {
     content: "-";
 }
+
     .big-checkbox {
         width: 25px;
         height: 25px;
@@ -89,11 +90,12 @@
                     down: 'svg-icon-down'
                 },
                 template: 'dropdown'
-            }).on('changeTime.timepicker', function(e) {
+            }).on('changeTime.timepicker', function (e) {
                 var hours = e.time.hours.toString().padStart(2, '0');
                 var minutes = e.time.minutes.toString().padStart(2, '0');
                 $(this).val(hours + ':' + minutes);
-            });;
+            });
+            ;
 
             // Show widget when clicking on the input or the icon
             $('#startTimeContainer, #endTimeContainer').on('click', function (e) {
@@ -163,7 +165,7 @@
     </script>
 </head>
 
-    <body>
+<body>
 <section id="breadcrumb-container" class="container-fluid">
     <nav aria-label="breadcrumb">
         <div class="row mt-4">
@@ -290,11 +292,14 @@
                     <!-- Day Restrictions -->
                     <div class="form-group row mt-4">
                         <label class="col-6 col-form-label text-right pr-4">Day Restrictions</label>
+
                         <div class="col-6 px-0">
                             <div class="checkbox-group">
-                                <g:each in="${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}" var="day" status="i">
+                                <g:each in="${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}"
+                                        var="day" status="i">
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="${day}" name="days" value="${i}"
+                                        <input type="checkbox" class="form-check-input" id="${day}" name="days"
+                                               value="${i}"
                                             ${productGroup?.days?.contains(i) ? 'checked' : ''}>
                                         <label class="form-check-label" for="${day}">${day}</label>
                                     </div>
@@ -307,7 +312,8 @@
                 <div class="col-12 col-md-6">
                     <!-- Start Time -->
                     <div class="form-group row mt-4">
-                        <label for="restrictionStartTime" class="col-6 col-form-label text-right pr-4">Start Time</label>
+                    <label for="restrictionStartTime"
+                           class="col-6 col-form-label text-right pr-4">Start Time</label>
 
                         <div class="col-6 px-0">
                             <div id="startTimeContainer" class="input-group bootstrap-timepicker timepicker">
@@ -364,8 +370,11 @@
                 <div class="col-12">
                     <div class="row font-weight-bold mb-2">
                         <div class="col-3">Item Code</div>
+
                         <div class="col-3">SKU</div>
+
                         <div class="col-4">Description</div>
+
                         <div class="col-2">&nbsp;</div>
                     </div>
 
@@ -378,7 +387,7 @@
                         <g:each in="${productGroup?.productGroupProducts?.sort { it.sku }}" var="productGroupProduct"
                                 status="i">
                             <g:render template="productGroupProductRow"
-                                      model="[productGroupProduct: productGroupProduct, i: i, edit:edit]"/>
+                                      model="[productGroupProduct: productGroupProduct, i: i, edit: edit]"/>
                         </g:each>
                     </div>
                 </div>
