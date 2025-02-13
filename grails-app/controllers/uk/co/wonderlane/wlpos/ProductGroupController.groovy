@@ -7,6 +7,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import org.springframework.security.access.annotation.Secured
 import org.springframework.validation.FieldError
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
@@ -19,6 +20,7 @@ class ProductGroupController {
     def rabbitService
     def categoryService
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
         session.SEARCH_TERM = null
         session.SEARCH_BY = null
@@ -34,6 +36,7 @@ class ProductGroupController {
         return (param == "null" || param == "") ? null : param
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGetProductGroups() {
         try {
             DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
@@ -151,44 +154,70 @@ class ProductGroupController {
         }
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSearchCategories(String searchTerm, String searchBy) {
         def categories = categoryService.searchCategories(searchTerm, searchBy)
 
         render(template: "categorySearchResults", model: [categories: categories, searchTerm: searchTerm, searchBy: searchBy, max: params.max ?: 50, offset: params.offset, totalResults: categories.totalCount])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddProduct(int productVariantId, long sku, String productDescription) {
-        def productGroupProduct = new ProductGroupProduct()
-        productGroupProduct.sku = sku
-        productGroupProduct.productVariantId = productVariantId
-        productGroupProduct.productDescription = productDescription
+        def productGroupProductDisplayRow = new ProductGroupProductDisplayRow()
+        productGroupProductDisplayRow.sku = sku
+        productGroupProductDisplayRow.productVariantId = productVariantId
+        productGroupProductDisplayRow.productDescription = productDescription
 
-        render(template: "productGroupProductRow", model: [productGroupProduct: productGroupProduct])
+        ProductVariant pv = ProductVariant.findById(productVariantId)
+        def barcodes = []
+        pv.getBarcodes()?.each {
+            barcodes.add(it.barcode)
+        }
+
+        Product product = pv?.getProduct()
+
+        productGroupProductDisplayRow.barcodes = barcodes.join(",")
+        productGroupProductDisplayRow.itemCode = product.itemCode
+
+        productGroupProductDisplayRow.categoryDescription = product?.getCategory()?.description
+
+        render(template: "productGroupProductRow", model: [productGroupProduct: productGroupProductDisplayRow])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddProductsFromCategory(int id, int groupId) {// Normally I'ld do this by a join, but.
         def category = categoryService.getCategory(id)
 
         // Search for any products that use this category ID
         def products = Product.findAllByCategory(category)
 
-        def productGroupProducts = []
+        def productGroupProductsDisplayRows = []
         for (Product product in products) {
             def productVariants = product?.getCurrentVariants()
 
             for (ProductVariant pv in productVariants) {
-                def productGroupProduct = new ProductGroupProduct()
-                productGroupProduct.sku = pv.sku
-                productGroupProduct.productVariantId = pv.id
-                productGroupProduct.productDescription = product.description
+                def productGroupProductDisplayRow = new ProductGroupProductDisplayRow()
+                productGroupProductDisplayRow.sku = pv.sku
+                productGroupProductDisplayRow.productVariantId = pv.id
+                productGroupProductDisplayRow.productDescription = product.description
 
-                productGroupProducts.add(productGroupProduct)
+                def barcodes = []
+                pv.getBarcodes()?.each {
+                    barcodes.add(it.barcode)
+                }
+
+                productGroupProductDisplayRow.barcodes = barcodes.join(",")
+                productGroupProductDisplayRow.categoryDescription = category.description
+                productGroupProductDisplayRow.itemCode = product.itemCode
+
+                productGroupProductsDisplayRows.add(productGroupProductDisplayRow)
             }
         }
 
-        render(template: "productGroupProductRows", model: [productGroupProducts: productGroupProducts])
+        render(template: "productGroupProductRows", model: [productGroupProducts: productGroupProductsDisplayRows])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def save(ProductGroupCommand cmd) {
         def productGroup
         def productGroupProductsToRemove
@@ -313,7 +342,7 @@ class ProductGroupController {
         return chars.join()
     }
 
-    def getDateFormat() {
+    private def getDateFormat() {
         return DateTimeFormat.forPattern("dd/MM/yyyy")
     }
 }
@@ -343,4 +372,15 @@ class ProductGroupCommand {
         startDate nullable: false
         endDate nullable: true
     }
+}
+
+class ProductGroupProductDisplayRow {
+    long sku
+
+    int productVariantId
+    int productId
+    String productDescription
+    String itemCode
+    String barcodes
+    String categoryDescription
 }

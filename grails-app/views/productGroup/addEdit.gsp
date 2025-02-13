@@ -407,11 +407,11 @@
 
                         <div class="col-2">Barcode</div>
 
-                        <div class="col-2">Description</div>
+                        <div class="col-3">Description</div>
 
                         <div class="col-2">Category</div>
 
-                        <div class="col-2">&nbsp;</div>
+                        <div class="col-1"></div>
                     </div>
 
                     <div id="productList" class="row align-content-center mb-5">
