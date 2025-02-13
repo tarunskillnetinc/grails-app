@@ -1106,4 +1106,13 @@ class ProductService extends MySqlDal {
         return isValidationPassed
     }
 
+    def getProducts(List<Long> skus) {
+        def criteria = Product.createCriteria()
+
+        return criteria.list {
+            'in'("itemCode", skus)
+            eq("retailerId", springSecurityService.principal.retailerId)
+        }
+    }
+
 }

@@ -19,9 +19,11 @@
     <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to select." style="cursor: pointer;" onclick="productSelected(${product.variants?.sort { it.storeId }?.reverse()?.find { it.storeId == null || it.storeId == storeId }?.id}, '${product.variants?.sort { it.storeId }?.reverse()?.find { it.storeId == null || it.storeId == storeId }?.sku}', `${ groovy.json.StringEscapeUtils.escapeJavaScript(product.description)}`);" data-dismiss="modal">
         <div id="product-result-${i+1}-item-code" class="col-2 text-truncate">${product.itemCode}</div>
         <div id="product-result-${i+1}-description" class="col-4">${product.description}</div>
+        <div id="product-result-${i+1}-sku" class="col-2">${product.variants?.sort { it.storeId }?.reverse()?.find { it.storeId == null || it.storeId == storeId }?.sku}</div>
         <div id="product-result-${i+1}-category" class="col-2">${product.category?.description}</div>
-        <div id="product-result-${i+1}-cost-price" class="col-2">£${product.costPrice}</div>
-        <div id="product-result-${i+1}-retail-price" class="col-2">£${product.retailPrice}</div>
+        <div id="product-result-${i+1}-actions" class="col-2">
+            <button class="btn btn-sm btn-primary" onclick="addProduct(${product.id})">Add</button>
+        </div>
     </div>
 </g:each>
 
