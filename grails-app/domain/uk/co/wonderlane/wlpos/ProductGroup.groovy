@@ -13,6 +13,8 @@ class ProductGroup {
     DateTime endDate
     String timeRestriction
     Integer maxSellQuantity
+
+    boolean hidden
     boolean active
 
     static hasMany = [productGroupProducts: ProductGroupProduct]
@@ -27,6 +29,7 @@ class ProductGroup {
         endDate column: "endDate"
         timeRestriction column: "timeRestriction", sqlType: "json"
         maxSellQuantity column: "maxSellQuantity"
+        hidden column: "hidden"
         active column: "active"
         productGroupProducts cascade: "all,delete-orphan"
     }
