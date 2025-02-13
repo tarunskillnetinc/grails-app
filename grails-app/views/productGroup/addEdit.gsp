@@ -232,9 +232,9 @@
         <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
     </g:if>
 
-    <g:hasErrors bean="${productGroup}">
+    <g:hasErrors bean="${productGroupErrors}">
         <div id="tag-management-errors-list" class="alert alert-danger alert-wl mx-0" role="alert">
-            <g:renderErrors bean="${productGroup}" as="list"/>
+            <g:renderErrors bean="${productGroupErrors}" as="list"/>
         </div>
     </g:hasErrors>
     <div class="form-container mt-4">
@@ -421,10 +421,10 @@
                         </g:if>
 
                         <g:each in="${productGroup?.productGroupProductsDisplayRow?.sort { it.sku }}"
-                                var="productGroupProduct"
+                                var="productGroupProductsDisplayRow"
                                 status="i">
                             <g:render template="productGroupProductRow"
-                                      model="[productGroupProduct: productGroupProduct, i: i, edit: edit]"/>
+                                      model="[productGroupProduct: productGroupProductsDisplayRow, i: i, edit: edit]"/>
                         </g:each>
                     </div>
                 </div>

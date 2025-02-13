@@ -109,27 +109,10 @@ class ProductGroupController {
                 flash.error = "Product Group not found."
                 redirect(action: "index")
             } else {
-                def products = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
+                def productvariants = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
                 ProductGroupCommand productGroupCommand = new ProductGroupCommand()
                 productGroup?.productGroupProducts?.each { productGroupProduct ->
-                    Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
-                    def productGroupProductDisplayRow = new ProductGroupProductDisplayRow()
-                    productGroupProductDisplayRow.sku = productGroupProduct.sku
-                    productGroupProductDisplayRow.productVariantId = productGroupProduct.productVariantId
-                    productGroupProductDisplayRow.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
-
-                    ProductVariant pv = ProductVariant.findById(productVariantId)
-                    def barcodes = []
-                    pv.getBarcodes()?.each {
-                        barcodes.add(it.barcode)
-                    }
-
-                    Product product = pv?.getProduct()
-
-                    productGroupProductDisplayRow.barcodes = barcodes.join(",")
-                    productGroupProductDisplayRow.itemCode = product.itemCode
-
-                    productGroupProductDisplayRow.categoryDescription = product?.getCategory()?.description
+                    def productGroupProductDisplayRow = makeProductGroupProductDisplayRow(productGroupProduct, productvariants);
 
                     productGroupCommand.productGroupProductsDisplayRow.add(productGroupProductDisplayRow)
                 }
@@ -160,7 +143,8 @@ class ProductGroupController {
                     productGroupCommand.restrictionEndTime =
                             insertCharacter(timeRestrictionJson.stopSellingTimeRestriction as String, (char) ':', 2)
                 }
-                [productGroup: productGroupCommand, edit: true]
+
+                [edit: true, productGroup: productGroupCommand]
             }
         } else {
             def categories = categoryService.getTopLevelCategories()
@@ -313,17 +297,16 @@ class ProductGroupController {
             redirect(action: "index", id: productGroup.id)
         } else {
             if (productGroup.productGroupProducts && productGroup.productGroupProducts?.size() > 0) {
-                def productVariants = productService.getProductVariants(productGroup.productGroupProducts?.collect { it.sku })
+                def productsvariants = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
 
                 productGroup.productGroupProducts.each { productGroupProduct ->
-                    Integer variantId = productVariants.find { it.sku == productGroupProduct.sku }?.id
-                    productGroupProduct.productVariantId = variantId ? variantId : 0
-                    productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.description
-                    cmd.productGroupProductsDisplayRow.add(productGroupProduct)
+                    def productGroupProductDisplayRow = makeProductGroupProductDisplayRow(productGroupProduct, productsvariants)
+
+                    cmd.productGroupProductsDisplayRow.add(productGroupProductDisplayRow)
                 }
             }
 
-            render(view: "addEdit", model: [productGroup: cmd])
+            render(view: "addEdit", model: [productGroup: cmd, productGroupErrors: productGroup])
         }
     }
 
@@ -362,8 +345,32 @@ class ProductGroupController {
         return chars.join()
     }
 
-    private def getDateFormat() {
+    private static def getDateFormat() {
         return DateTimeFormat.forPattern("dd/MM/yyyy")
+    }
+
+    private static def makeProductGroupProductDisplayRow(ProductGroupProduct productGroupProduct, List<Long> products) {
+        Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
+
+        def productGroupProductDisplayRow = new ProductGroupProductDisplayRow()
+        productGroupProductDisplayRow.sku = productGroupProduct.sku
+        productGroupProductDisplayRow.productVariantId = productGroupProduct.productVariantId
+        productGroupProductDisplayRow.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
+
+        ProductVariant pv = ProductVariant.findById(productVariantId)
+        def barcodes = []
+        pv.getBarcodes()?.each {
+            barcodes.add(it.barcode)
+        }
+
+        Product product = pv?.getProduct()
+
+        productGroupProductDisplayRow.barcodes = barcodes.join(",")
+        productGroupProductDisplayRow.itemCode = product.itemCode
+
+        productGroupProductDisplayRow.categoryDescription = product?.getCategory()?.description
+
+        productGroupProductDisplayRow
     }
 }
 
