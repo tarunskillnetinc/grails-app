@@ -89,13 +89,13 @@ function acceptFloat(e) {
     e.preventDefault();
 }
 
-function validateFloatQuantity(input, min, max, fractionalDigits) {
+function validateFloatQuantity(input, min, max, precision) {
     const splits = input.value.split('.');
     if (splits.length > 2) {
         input.value = splits[0] + '.' + splits[1];
         return;
-    } else if (splits.length === 2 && splits[1].length > fractionalDigits) {
-        input.value = splits[0] + '.' + splits[1].substring(0, fractionalDigits);
+    } else if (splits.length === 2 && splits[1].length > precision) {
+        input.value = splits[0] + '.' + splits[1].substring(0, precision);
     }
 
     const val = parseFloat(input.value);
