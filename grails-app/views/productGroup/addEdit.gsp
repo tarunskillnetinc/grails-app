@@ -401,11 +401,15 @@
             <div class="row">
                 <div class="col-12">
                     <div class="row font-weight-bold mb-2">
-                        <div class="col-3">Item Code</div>
+                        <div class="col-2">Item Code</div>
 
-                        <div class="col-3">SKU</div>
+                        <div class="col-2">SKU</div>
 
-                        <div class="col-4">Description</div>
+                        <div class="col-2">Barcode</div>
+
+                        <div class="col-2">Description</div>
+
+                        <div class="col-2">Category</div>
 
                         <div class="col-2">&nbsp;</div>
                     </div>
@@ -413,7 +417,7 @@
                     <div id="productList" class="row align-content-center mb-5">
                         <g:if test="${!productGroup?.productGroupProducts || productGroup?.productGroupProducts?.size() == 0}">
                             <div id="noResultsRow"
-                                 class="col-12 pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
+                                 class="col-17 pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
                         </g:if>
 
                         <g:each in="${productGroup?.productGroupProducts?.sort { it.sku }}" var="productGroupProduct"
