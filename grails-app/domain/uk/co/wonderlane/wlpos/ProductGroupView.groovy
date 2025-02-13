@@ -15,6 +15,7 @@ class ProductGroupView {
     String timeRestriction
     Integer maxSellQuantity
     boolean active
+    boolean hidden
 
     // Fields derived from the data.
     String restrictionTypes
