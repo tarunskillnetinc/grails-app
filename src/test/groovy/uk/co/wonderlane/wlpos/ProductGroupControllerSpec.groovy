@@ -73,7 +73,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         then: 'show action response is correct'
         response.status == HttpStatus.OK.value()
         controllerResponse.productGroup != null
-        controllerResponse.productGroup.productGroupProducts[0] != null
+        controllerResponse.productGroup.productGroupProductsDisplayRow[0] != null
 
         where:
         ID | products

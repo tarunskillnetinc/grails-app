@@ -2,13 +2,11 @@ package uk.co.wonderlane.wlpos
 
 import grails.converters.JSON
 import groovy.json.JsonSlurper
-import org.apache.commons.lang.StringUtils
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.springframework.security.access.annotation.Secured
-import org.springframework.validation.FieldError
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
@@ -115,9 +113,25 @@ class ProductGroupController {
                 ProductGroupCommand productGroupCommand = new ProductGroupCommand()
                 productGroup?.productGroupProducts?.each { productGroupProduct ->
                     Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
-                    productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
-                    productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
-                    productGroupCommand.productGroupProducts.add(productGroupProduct)
+                    def productGroupProductDisplayRow = new ProductGroupProductDisplayRow()
+                    productGroupProductDisplayRow.sku = productGroupProduct.sku
+                    productGroupProductDisplayRow.productVariantId = productGroupProduct.productVariantId
+                    productGroupProductDisplayRow.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
+
+                    ProductVariant pv = ProductVariant.findById(productVariantId)
+                    def barcodes = []
+                    pv.getBarcodes()?.each {
+                        barcodes.add(it.barcode)
+                    }
+
+                    Product product = pv?.getProduct()
+
+                    productGroupProductDisplayRow.barcodes = barcodes.join(",")
+                    productGroupProductDisplayRow.itemCode = product.itemCode
+
+                    productGroupProductDisplayRow.categoryDescription = product?.getCategory()?.description
+
+                    productGroupCommand.productGroupProductsDisplayRow.add(productGroupProductDisplayRow)
                 }
 
                 def dateFormat = getDateFormat()
@@ -248,9 +262,15 @@ class ProductGroupController {
         productGroup.description = cmd.description
         productGroup.maxSellQuantity = cmd.maxSellQuantity
         productGroup.active = cmd.active
-        if (cmd.days != null && cmd.days.size() > 0) {
+        if (cmd.days != null && cmd.days.size() > 0) { // multiple days of the week have been selected as restricted.
             def jsonMap = [
                     timeRestrictionDays: (0..6).collect { day -> cmd.days.contains(day) },
+                    startSellingTimeRestriction: cmd.restrictionStartTime?.replace(":", "") ?: "",
+                    stopSellingTimeRestriction : cmd.restrictionEndTime?.replace(":", "") ?: ""
+            ]
+            productGroup.timeRestriction = (jsonMap as JSON).toString()
+        } else if (cmd.restrictionStartTime?.isEmpty() || cmd.restrictionEndTime?.isEmpty()) {
+            def jsonMap = [
                     startSellingTimeRestriction: cmd.restrictionStartTime?.replace(":", "") ?: "",
                     stopSellingTimeRestriction : cmd.restrictionEndTime?.replace(":", "") ?: ""
             ]
@@ -299,7 +319,7 @@ class ProductGroupController {
                     Integer variantId = productVariants.find { it.sku == productGroupProduct.sku }?.id
                     productGroupProduct.productVariantId = variantId ? variantId : 0
                     productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.description
-                    cmd.productGroupProducts.add(productGroupProduct)
+                    cmd.productGroupProductsDisplayRow.add(productGroupProduct)
                 }
             }
 
@@ -360,7 +380,7 @@ class ProductGroupCommand {
     String startDate
     String endDate
     boolean neverExpires
-    Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
+    Set<ProductGroupProductDisplayRow> productGroupProductsDisplayRow = new HashSet<>()
 
     static constraints = {
         description nullable: false, blank: false, maxSize: 100
