@@ -89,13 +89,13 @@ function acceptFloat(e) {
     e.preventDefault();
 }
 
-function validateFloatQuantity(input, min, max) {
+function validateFloatQuantity(input, min, max, fractionalDigits) {
     const splits = input.value.split('.');
     if (splits.length > 2) {
         input.value = splits[0] + '.' + splits[1];
         return;
-    } else if (splits.length === 2 && splits[1].length > 3) {
-        input.value = splits[0] + '.' + splits[1].substring(0, 3);
+    } else if (splits.length === 2 && splits[1].length > fractionalDigits) {
+        input.value = splits[0] + '.' + splits[1].substring(0, fractionalDigits);
     }
 
     const val = parseFloat(input.value);
@@ -120,7 +120,7 @@ function acceptQuantity(event, weighted) {
 
 function validateQuantity(input, min, max, weighted) {
     if (weighted) {
-        validateFloatQuantity(input, min, max);
+        validateFloatQuantity(input, min, max, 3);
         return;
     }
     validateIntQuantity(input, min, max);
