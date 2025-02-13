@@ -13,6 +13,7 @@ class ProductGroupService {
 
         def productGroups = ProductGroupView.createCriteria().list(max: max, offset: offset) {
             eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("hidden", false)
 
             if (searchTerm) {
                 if (searchBy == "everything") {
