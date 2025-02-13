@@ -32,6 +32,7 @@ class ProductGroupView {
         timeRestriction column: "timeRestriction", sqlType: "json"
         maxSellQuantity column: "maxSellQuantity"
         active column: "active"
+        hidden column: "hidden"
         restrictionTypes column: "restrictionTypes"
         restrictionTypesNumber column: "restrictionTypesNumber"
         productCount column: "productCount"
