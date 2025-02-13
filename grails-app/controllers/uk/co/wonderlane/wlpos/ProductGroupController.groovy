@@ -63,16 +63,16 @@ class ProductGroupController {
                     sortColumn,
                     sortOrder)
 
-            render(template: "productGroupSearchResults", model: [productGroups: productGroups,
-                                                                  productGroupSearchTerm   : searchTerm == null ? "" : searchTerm,
-                                                                  productGroupSearchBy : searchBy == null ? "" : searchBy,
-                                                                  startDate    : startDate == null ? "" : startDate,
-                                                                  endDate      : endDate == null ? "" : endDate,
-                                                                  status       : status == null ? "" : status,
-                                                                  max: params.max ?: 50,
-                                                                  offset       : params.offset ? Integer.parseInt(params.offset) : 0,
-                                                                  sortColumn   : sortColumn,
-                                                                  sortOrder: sortOrder])
+            render(template: "productGroupSearchResults", model: [productGroups         : productGroups,
+                                                                  productGroupSearchTerm: searchTerm == null ? "" : searchTerm,
+                                                                  productGroupSearchBy  : searchBy == null ? "" : searchBy,
+                                                                  startDate             : startDate == null ? "" : startDate,
+                                                                  endDate               : endDate == null ? "" : endDate,
+                                                                  status                : status == null ? "" : status,
+                                                                  max                   : params.max ?: 50,
+                                                                  offset                : params.offset ? Integer.parseInt(params.offset) : 0,
+                                                                  sortColumn            : sortColumn,
+                                                                  sortOrder             : sortOrder])
         } catch (Exception ex) {
             log.error("Error searching product group, Exception " + ex.getMessage(), ex)
             response.status = 400
@@ -139,16 +139,22 @@ class ProductGroupController {
                     }
                     productGroupCommand.days = daysList.toArray(new int[0])
                     productGroupCommand.restrictionStartTime =
-                            insertCharacter(timeRestrictionJson.startSellingTimeRestriction as String, (char)':', 2)
+                            insertCharacter(timeRestrictionJson.startSellingTimeRestriction as String, (char) ':', 2)
                     productGroupCommand.restrictionEndTime =
-                            insertCharacter(timeRestrictionJson.stopSellingTimeRestriction as String, (char)':', 2)
+                            insertCharacter(timeRestrictionJson.stopSellingTimeRestriction as String, (char) ':', 2)
                 }
-                [productGroup: productGroupCommand, edit : true]
+                [productGroup: productGroupCommand, edit: true]
             }
         } else {
             def categories = categoryService.getTopLevelCategories()
             [edit: false]
         }
+    }
+
+    def ajaxSearchCategories(String searchTerm, String searchBy) {
+        def categories = categoryService.searchCategories(searchTerm, searchBy)
+
+        render(template: "categorySearchResults", model: [categories: categories, searchTerm: searchTerm, searchBy: searchBy, max: params.max ?: 50, offset: params.offset, totalResults: categories.totalCount])
     }
 
     def ajaxAddProduct(int productVariantId, long sku, String productDescription) {
@@ -160,6 +166,29 @@ class ProductGroupController {
         render(template: "productGroupProductRow", model: [productGroupProduct: productGroupProduct])
     }
 
+    def ajaxAddProductsFromCategory(int id, int groupId) {// Normally I'ld do this by a join, but.
+        def category = categoryService.getCategory(id)
+
+        // Search for any products that use this category ID
+        def products = Product.findAllByCategory(category)
+
+        def productGroupProducts = []
+        for (Product product in products) {
+            def productVariants = product?.getCurrentVariants()
+
+            for (ProductVariant pv in productVariants) {
+                def productGroupProduct = new ProductGroupProduct()
+                productGroupProduct.sku = pv.sku
+                productGroupProduct.productVariantId = pv.id
+                productGroupProduct.productDescription = product.description
+
+                productGroupProducts.add(productGroupProduct)
+            }
+        }
+
+        render(template: "productGroupProductRows", model: [productGroupProducts: productGroupProducts])
+    }
+
     def save(ProductGroupCommand cmd) {
         def productGroup
         def productGroupProductsToRemove
@@ -169,7 +198,7 @@ class ProductGroupController {
 
             if (!productGroup) {
                 flash.error = "Product Group not found."
-                render (action: "index")
+                render(action: "index")
                 return
             }
 
@@ -203,7 +232,7 @@ class ProductGroupController {
         productGroup.startDate = dateFormatter.parseDateTime(cmd.startDate)
         if (cmd.neverExpires) {
             productGroup.endDate = null
-        } else if (cmd.endDate != null){
+        } else if (cmd.endDate != null) {
             productGroup.endDate = dateFormatter.parseDateTime(cmd.endDate)
         }
 
