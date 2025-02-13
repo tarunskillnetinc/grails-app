@@ -14,7 +14,8 @@ function removeAllOptions(select) {
 
 function updateSelectionOptions(select, url, data) {
     $.ajax({
-        url: url, data: data,
+        url: url,
+        data: data,
         statusCode: {
             401: function () {
                 window.location.href = '/';
@@ -39,6 +40,8 @@ function updateSelectionOptions(select, url, data) {
 }
 
 function renderCashReportResult(url, data) {
+    var reportContainer = $('#report-container');
+
     $.ajax({
         url: url, data: data,
         statusCode: {
@@ -47,14 +50,16 @@ function renderCashReportResult(url, data) {
             },
             500: function () {
                 $("#report-time").html('');
-                $("#report-container").html('');
+                reportContainer.html('');
                 $("#error-container").html('<div class="alert alert-danger alert-wl mx-0 text-center" role="alert">Unexpected Error Occurred</div>');
             },
             200: function (response) {
                 $("#error-container").html('');
                 $("#report-time").html('<div class="alert alert-wl mx-0 font-weight-light text-right" role="alert">' +
                     'Report generated at ' + new Date().toLocaleTimeString() + ' on ' + new Date().toLocaleDateString() + '</div>');
-                $("#report-container").html(response);
+                reportContainer.html(response);
+
+                $('html, body').animate({scrollTop: reportContainer.position().top - 65}, 500);
             },
             204: function (response) {
                 $("#report-time").html('');

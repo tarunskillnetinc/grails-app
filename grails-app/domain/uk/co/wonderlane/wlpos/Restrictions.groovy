@@ -1,5 +1,8 @@
 package uk.co.wonderlane.wlpos
 
+import uk.co.wonderlane.wlpos.PricingClassification
+import uk.co.wonderlane.wlpos.enums.StockClassification
+
 class Restrictions {
 
     int id
@@ -19,6 +22,16 @@ class Restrictions {
     Boolean receiptPrintForced
     Boolean allowsLoyaltyPointsCollection
     Boolean alwaysOpenCashDrawer
+    Boolean excludedFromPromotion
+    Boolean saleAllowed
+    Boolean priceEntryRequired
+    Boolean allowPriceChange
+    BigDecimal maximumMarkdownPercentage
+    Integer quantityChangeRestriction
+    Boolean promptForMarkdown
+    StockClassification stockClassification
+    Integer promptedDaysFrom
+    PricingClassification pricingClassification
 
     static mapping = {
         table "restrictions"
@@ -40,6 +53,16 @@ class Restrictions {
         receiptPrintForced column: "receiptPrintForced"
         allowsLoyaltyPointsCollection column: "allowsLoyaltyPointsCollection"
         alwaysOpenCashDrawer column: "alwaysOpenCashDrawer"
+        excludedFromPromotion column: "excludedFromPromotion"
+        saleAllowed column: "saleAllowed"
+        priceEntryRequired column: "priceEntryRequired"
+        allowPriceChange column: "allowPriceChange"
+        maximumMarkdownPercentage column: "maximumMarkdownPercentage"
+        quantityChangeRestriction column: "quantityChangeRestriction"
+        promptForMarkdown column: "promptForMarkdown"
+        stockClassification column: "stockClassification", sqlType: "text", enumType: "string"
+        promptedDaysFrom column: "promptedDaysFrom"
+        pricingClassification column: "pricingClassificationId"
     }
 
     static constraints = {
@@ -47,15 +70,15 @@ class Restrictions {
         maxOpenPrice min: 0.01 as BigDecimal, max: 99999.99 as BigDecimal, blank: true, nullable: true, scale: 2, validator: {val, obj ->
             return (val == null || obj.minOpenPrice == null) || (val.compareTo(obj.minOpenPrice) > 0) ? true : ["error.Restrictions.maxMoreThanMin"]
         }
-        buyerAgeRestriction min: 1, max: 25, blank: true, nullable: true, validator: { val, obj ->
+        buyerAgeRestriction min: 0, max: 99, blank: true, nullable: true, validator: { val, obj ->
             if (obj.buyerIdRequired && val == null) {
                 return ["restrictions.buyerAgeRestriction.nullable"]
             }
         }
-        buyerChallengeAge min: 1, max: 50, blank: true, nullable: true
+        buyerChallengeAge min: 0, max: 99, blank: true, nullable: true
         buyerIdRequired nullable: true
         buyerIdForced nullable: true
-        sellerAgeRestriction min: 16, max: 21, blank: true, nullable:true, validator: { val, obj ->
+        sellerAgeRestriction min: 0, max: 99, blank: true, nullable:true, validator: { val, obj ->
             if (obj.buyerIdRequired && val == null) {
                 return ["restrictions.sellerAgeRestriction.nullable"]
             }
@@ -69,6 +92,16 @@ class Restrictions {
         receiptPrintForced nullable: true
         allowsLoyaltyPointsCollection nullable: true
         alwaysOpenCashDrawer nullable: true
+        excludedFromPromotion nullable: true
+        saleAllowed nullable: true
+        priceEntryRequired nullable: true
+        allowPriceChange nullable: true
+        maximumMarkdownPercentage nullable: true
+        quantityChangeRestriction nullable: true
+        promptForMarkdown nullable: true
+        stockClassification nullable: true
+        promptedDaysFrom nullable: true
+        pricingClassification nullable: true
     }
 
     public uk.co.wonderlane.wlpos.entities.Restrictions getRestrictions() {
@@ -91,6 +124,17 @@ class Restrictions {
         restrictions.setReceiptPrintForced(receiptPrintForced)
         restrictions.setAllowsLoyaltyPointsCollection(allowsLoyaltyPointsCollection)
         restrictions.setAlwaysOpenCashDrawer(alwaysOpenCashDrawer)
+        restrictions.setExcludedFromPromotion(excludedFromPromotion)
+        restrictions.setSaleAllowed(saleAllowed)
+        restrictions.setPriceEntryRequired(priceEntryRequired)
+        restrictions.setAllowPriceChange(allowPriceChange)
+        restrictions.setMaximumMarkdownPercentage(maximumMarkdownPercentage)
+        restrictions.setQuantityChangeRestriction(quantityChangeRestriction)
+        restrictions.setPromptForMarkdown(promptForMarkdown)
+        restrictions.setStockClassification(stockClassification)
+        restrictions.setPromptedDaysFrom(promptedDaysFrom)
+        restrictions.setPricingClassificationId(pricingClassification?.getId())
+
         return restrictions
     }
 

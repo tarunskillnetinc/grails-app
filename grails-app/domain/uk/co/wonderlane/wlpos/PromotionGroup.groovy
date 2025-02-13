@@ -11,7 +11,7 @@ class PromotionGroup {
     Promotion promotion
     Long sku
     Integer categoryId
-    Integer tagId
+    Integer productGroupId
     Integer requiredQuantity
     BigDecimal requiredValue
     boolean excessQuantity
@@ -25,7 +25,7 @@ class PromotionGroup {
         promotion column: "promotionId"
         sku column: "sku"
         categoryId column: "productCategoryId"
-        tagId column: "tagId"
+        productGroupId column: "productGroupId"
         requiredQuantity column: "requiredQuantity"
         requiredValue column: "requiredValue"
         excessQuantity column: "excessQuantity"
@@ -34,12 +34,12 @@ class PromotionGroup {
     static constraints = {
         type nullable: false
         sku nullable: true, validator: {val, obj ->
-            val != null || !(obj.categoryId == null && obj.tagId == null)
+            val != null || !(obj.categoryId == null && obj.productGroupId == null)
         }
         categoryId nullable: true, validator: {val, obj ->
-            val != null || !(obj.sku == null && obj.tagId == null)
+            val != null || !(obj.sku == null && obj.productGroupId == null)
         }
-        tagId nullable: true, validator: {val, obj ->
+        productGroupId nullable: true, validator: { val, obj ->
             val != null || !(obj.sku == null && obj.categoryId == null)
         }
         requiredQuantity nullable: true, range:1..999999999
@@ -54,7 +54,7 @@ class PromotionGroup {
         promotionGroup.setPromotionId(promotion.id)
         promotionGroup.setSku(sku)
         promotionGroup.setProductCategoryId(categoryId)
-        promotionGroup.setTagId(tagId)
+        promotionGroup.setProductGroupId(productGroupId)
         promotionGroup.setRequiredQuantity(requiredQuantity)
         promotionGroup.setRequiredValue(requiredValue)
         promotionGroup.setExcessQuantity(excessQuantity)

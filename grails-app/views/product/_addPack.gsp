@@ -81,8 +81,8 @@
 
     <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
         <div class="col-4 my-auto font-weight-bold">&nbsp;</div>
+        <div class="col-4 my-auto font-weight-bold"></div>
         <div class="col-4 my-auto font-weight-bold">Min Alcohol Unit Price</div>
-        <div class="col-4 my-auto font-weight-bold">Weighted Average Cost</div>
     </div>
 
     <div class="row mx-4 pt-4 pb-2 wl-striped${packIndex % 2}">
@@ -92,20 +92,13 @@
                 <label class="form-check-label font-weight-bold">Preferred Pack</label>
             </div>
         </div>
+        <div class="input-group col-4 my-auto"></div>
         <div class="input-group col-4 my-auto">
             <div class="input-group-prepend">
                 <span class="input-group-text">&pound;</span>
             </div>
             <g:textField value="${pack?.minAlcoholUnitPrice?pack?.minAlcoholUnitPrice:""}"
                          class="form-control mask-money disabled-input" name="addPack[${packIndex}].minAlcoholUnitPrice" disabled maxlength="10" />
-        </div>
-
-        <div class="input-group col-4 my-auto">
-            <div class="input-group-prepend">
-                <span class="input-group-text">&pound;</span>
-            </div>
-            <g:textField value="${pack?.weightedAverageCost?pack?.weightedAverageCost:""}"
-                         class="form-control mask-money disabled-input" name="addPack[${packIndex}].weightedAverageCost" disabled maxlength="10"/>
         </div>
     </div>
 

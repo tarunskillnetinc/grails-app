@@ -250,6 +250,7 @@
                     params["sku"] = $(selector + "sku").val();
                     params["retailPrice"] = $(selector + "retailPrice").val();
                     params["costPrice"] = $(selector + "costPrice").val();
+                    params["weightedAverageCostPrice"] = $(selector + "weightedAverageCostPrice").val();
                     params["shelfLifeDays"] = $(selector + "shelfLifeDays").val();
                     params["shelfCapacity"] = $(selector + "shelfCapacity").val();
                     params["minimumDisplayQuantity"] = $(selector + "minimumDisplayQuantity").val();
@@ -324,6 +325,7 @@
 
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
+                var weightedAverageCostPrice = $("#addVariantWeightedAverageCostPrice").val();
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
                 var shelfCapacity = $("#addVariantShelfCapacity").val();
                 var minimumDisplayQuantity = $("#addVariantMinimumDisplayQuantity").val();
@@ -347,7 +349,7 @@
                 var width = $("#addVariantWidthCm").val();
                 var depth = $("#addVariantDepthCm").val();
 
-                var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: isPreferredSku, retailPrice: retailPrice, costPrice: costPrice,
+                var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: isPreferredSku, retailPrice: retailPrice, costPrice: costPrice, weightedAverageCostPrice: weightedAverageCostPrice,
                     shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId,
                     description: description, receiptDescription: receiptDescription, priceMarked: priceMarked, unitSize: unitSize, "unitOfMeasure.id": unitOfMeasure, itemsInUnit: itemsInUnit,
                     heightCm: height, widthCm: width, depthCm: depth, effectiveDate: effectiveDate };
@@ -672,7 +674,6 @@
                     params["packs[" +loopIndex +"].priceMarked"] = $(packSelector +"\\.priceMarked").val();
                     params["packs[" +loopIndex +"].priceMarkedType"] = $(packSelector +"\\.priceMarkedType").val();
                     params["packs[" +loopIndex +"].minAlcoholUnitPrice"] = $(packSelector +"\\.minAlcoholUnitPrice").val();
-                    params["packs[" +loopIndex +"].weightedAverageCost"] = $(packSelector +"\\.weightedAverageCost").val();
 
                     params["packs[" +loopIndex +"].lengthCm"] = $(packSelector + "\\.lengthCm").val();
                     params["packs[" +loopIndex +"].heightCm"] = $(packSelector + "\\.heightCm").val();

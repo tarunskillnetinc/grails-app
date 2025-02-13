@@ -6,7 +6,6 @@ function intListener(elementId, maxLength = 9, maxValue = 999999999, textField =
             if (textField) {
                 var valueString = String(element.value)
                 valueString = valueString.match(/-?\d*/)
-                console.log("element " + element.value + " value " + valueString)
                 element.value = valueString
             }
             if (element.value.length > maxLength) {

@@ -1,4 +1,5 @@
 import uk.co.wonderlane.wlpos.Category
+import uk.co.wonderlane.wlpos.EcomSupplierCategoryMapping
 import uk.co.wonderlane.wlpos.Group
 import uk.co.wonderlane.wlpos.ImageRecord
 import uk.co.wonderlane.wlpos.enums.ImageType
@@ -16,7 +17,7 @@ class EposTagLib {
     def reportingService
     def buttonService
     def categoryService
-    def tagService
+    def productGroupService
     def productService
     def promotionService
     def imageService
@@ -150,6 +151,10 @@ class EposTagLib {
                 break
             case ReportType.PAYPOINT_SALES:
                 out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All PayPoint Sales</li>"""
+
+                break
+            case ReportType.CHARITY_DONATIONS:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All Charity Donations</li>"""
 
                 break
             case ReportType.ORDERS:
@@ -502,10 +507,10 @@ class EposTagLib {
             def category = categoryService.getCategory(attrs.promotionGroup.categoryId)
 
             out << category?.description
-        } else if (attrs.promotionGroup.tagId) {
-            def tag = tagService.getTag(attrs.promotionGroup.tagId)
+        } else if (attrs.promotionGroup.productGroupId) {
+            def productGroup = productGroupService.getProductGroup(attrs.promotionGroup.productGroupId)
 
-            out << tag?.description
+            out << productGroup?.description
         }
     }
 
@@ -528,6 +533,32 @@ class EposTagLib {
         }
     }
 
+
+    def renderCategoryHierarchy = { attrs ->
+        // List of mappings and selected categories
+        List<EcomSupplierCategoryMapping> mappings = attrs.mappings ?: []
+        List<Integer> selectedCategories = attrs.selectedCategories ?: []
+
+        // Map all categories by ID for fast lookup
+        Map<Integer, Category> categoryMap = mappings.collectEntries { [(it.category.id): it.category] }
+
+        // Find top-level categories (those without a parent in the mappings)
+        List<Category> topLevelCategories = categoryMap.values().findAll { category ->
+            !mappings.find { it.category.id == category?.parentCategory?.id }
+        }
+
+        // Create a set to track rendered paths and avoid duplication
+        Set<String> renderedPaths = new HashSet<>()
+        StringBuilder output = new StringBuilder()
+
+        // Render hierarchy starting from the top-level categories
+        topLevelCategories.each { category ->
+            output << renderWithChildren(category, selectedCategories, renderedPaths, categoryMap)
+        }
+
+        out << output.toString()
+    }
+
     def renderSafeInfo = { attrs ->
         def safe = attrs.safe
         if (safe) {
@@ -544,7 +575,53 @@ class EposTagLib {
             out << '</div>'
         }
     }
-    
+
+    private String renderWithChildren(Category category, List<Integer> selectedCategories, Set<String> renderedPaths, Map<Integer, Category> categoryMap) {
+        StringBuilder output = new StringBuilder()
+
+        // Build the full path dynamically using parent categories
+        String fullPath = buildFullPath(category)
+
+        // Check if the category has relevant children (descendants that are selected)
+        boolean hasRelevantChildren = category.childCategories?.any { child ->
+            isCategoryOrDescendantSelected(child, selectedCategories, categoryMap)
+        } ?: false
+
+        if (hasRelevantChildren) {
+            // If the category has relevant children, only render its children
+            category.childCategories?.each { child ->
+                if (isCategoryOrDescendantSelected(child, selectedCategories, categoryMap)) {
+                    output << renderWithChildren(child, selectedCategories, renderedPaths, categoryMap)
+                }
+            }
+        } else if (selectedCategories.contains(category.id)) {
+            // Render the current category only if it is a leaf node or explicitly selected
+            output << "${fullPath}<br/>"
+            output << "<hr style='margin: 5px 0; border: 0; border-top: 1px solid #ccc;'/>"
+        }
+
+        return output.toString()
+    }
+
+    private String buildFullPath(Category category) {
+        if (!category.parentCategory) {
+            return category.description // Root category
+        }
+        return "${buildFullPath(category.parentCategory)} →  ${category.description}"
+    }
+
+    private boolean isCategoryOrDescendantSelected(Category category, List<Integer> selectedCategories, Map<Integer, Category> categoryMap) {
+        if (selectedCategories.contains(category?.id)) {
+            return true // Current category is selected
+        }
+
+        // Check if any descendant is selected
+        return category.childCategories?.any { child ->
+            isCategoryOrDescendantSelected(child, selectedCategories, categoryMap)
+        } ?: false
+    }
+
+
     private static String getLocationField(String field) {
         def formattedFieldArray = field?.split("(?=\\p{Upper})")
         return String.join(" ", formattedFieldArray).toLowerCase()

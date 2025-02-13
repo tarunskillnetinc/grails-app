@@ -21,18 +21,23 @@ import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.PriceMarkedType
 import uk.co.wonderlane.wlpos.enums.ProductAttributeType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
+import uk.co.wonderlane.wlpos.enums.ProductMessageType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.utils.WeightedAverageCostPriceUtil
 
 class ProductController extends BaseController {
 
     def springSecurityService
+    def messageService
     def restrictionsService
     def supplierService
     def storeService
-    def tagService
+    def productStockService
+    def productGroupService
     def productHistoryService
+    def productMessageService
 
     /**
      * Landing page of the controller action - displays the product search screen.
@@ -190,19 +195,19 @@ class ProductController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def prices() {
         def categories = categoryService.getTopLevelCategories()
-        def tags = tagService.getTags()
+        def productGroups = productGroupService.getProductGroups()
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
-        [categories: categories, tags: tags, priceBands: priceBands]
+        [categories: categories, productGroups: productGroups, priceBands: priceBands]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def pricesSearch() {
         String searchTerm = params.searchTerm
         Integer categoryId = params.category ? Integer.parseInt(params.category) : null
-        Integer tagId = params.tag ? Integer.parseInt(params.tag) : null
+        Integer productGroupId = params.productGroup ? Integer.parseInt(params.productGroup) : null
 
-        def productPrices = productService.searchProductPrices(searchTerm, categoryId, tagId)
+        def productPrices = productService.searchProductPrices(searchTerm, categoryId, productGroupId)
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
         render(template: "pricesSearchResults", model: [productPrices: productPrices, priceBands: priceBands])
@@ -211,19 +216,19 @@ class ProductController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ranges() {
         def categories = categoryService.getTopLevelCategories()
-        def tags = tagService.getTags()
+        def productGroups = productGroupService.getProductGroups()
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
-        [categories: categories, tags: tags, ranges: ranges]
+        [categories: categories, productGroups: productGroups, ranges: ranges]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def rangesSearch() {
         String searchTerm = params.searchTerm
         Integer categoryId = params.category ? Integer.parseInt(params.category) : null
-        Integer tagId = params.tag ? Integer.parseInt(params.tag) : null
+        Integer productGroupId = params.productGroup ? Integer.parseInt(params.productGroup) : null
 
-        def rangeProducts = productService.searchRangeProducts(searchTerm, categoryId, tagId)
+        def rangeProducts = productService.searchRangeProducts(searchTerm, categoryId, productGroupId)
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
         render(template: "/product/rangesSearchResults", model: [rangeProducts: rangeProducts, ranges: ranges])
@@ -450,6 +455,63 @@ class ProductController extends BaseController {
 
         render "OK"
     }
+    
+    def updateOrCreateMessage(UpdateMessageCommand command) {
+        def product = command.product
+        def messageText = command.messageText
+        def messageId = command.messageId
+        def messageType = command.messageType
+        
+        def message = messageId ? Message.get(messageId) : null
+
+        if (message) {
+            if (messageText == null) {
+                productMessageService.deleteProductMessage(product, message)
+                messageService.deleteMessage(message.id)
+            } else if (message.text != messageText) {
+                message.text = messageText
+                messageService.saveMessage(message)
+            }
+        } else {
+            if (messageText != null) {
+                message = new Message(
+                    retailerId: springSecurityService.principal.retailerId,
+                    text: messageText,
+                    retailerMessageCode: "",
+                    displayOncePerItem: true
+                )
+                
+                messageService.saveMessage(message)
+    
+                // Create a new ProductMessage to link the message to the product
+                def productMessage = new ProductMessage(product: product, message: message, type: messageType)
+                productMessageService.saveProductMessage(productMessage)
+            }
+        }
+    }
+    
+    def updateProductMessages(Product product, ProductCommand editedProduct) {
+        updateOrCreateMessage(new UpdateMessageCommand(
+            product: product,
+            messageText: editedProduct.saleMessage,
+            messageId: editedProduct.saleMessageId,
+            messageType: ProductMessageType.SALE
+        ))
+
+        updateOrCreateMessage(new UpdateMessageCommand(
+            product: product,
+            messageText: editedProduct.refundMessage,
+            messageId: editedProduct.refundMessageId,
+            messageType: ProductMessageType.REFUND
+        ))
+
+        updateOrCreateMessage(new UpdateMessageCommand(
+            product: product,
+            messageText: editedProduct.scoSaleMessage,
+            messageId: editedProduct.scoSaleMessageId,
+            messageType: ProductMessageType.SCO
+        ))
+    }
 
     private Product saveProduct(ProductCommand editedProduct, def paramsMap, boolean isRequest) {
         editedProduct.variants?.removeIf({ it == null })
@@ -659,6 +721,8 @@ class ProductController extends BaseController {
         }
 
         if (!product.hasErrors()) {
+            updateProductMessages(product, editedProduct)
+            
             if (productService.isSingleStageSel() || !changeAffectsSel) {
                 List<RangeProduct> unrangedRangeProducts = []
                 def currentRangeProducts = RangeProduct.findAllByProductId(product.id)
@@ -851,6 +915,9 @@ class ProductController extends BaseController {
                 newVariant.sku = editedVariant.sku
                 newVariant.retailPrice = editedVariant.retailPrice
                 newVariant.costPrice = editedVariant.costPrice
+                if (newVariant.storeId && editedVariant.costPrice != BigDecimal.ZERO) {
+                    newVariant.weightedAverageCostPrice = editedVariant.costPrice
+                }
                 newVariant.minimumStockLevel = editedVariant.minimumStockLevel
                 newVariant.effectiveDate = effectiveDate
                 newVariant.shelfLifeDays = editedVariant.shelfLifeDays
@@ -1379,6 +1446,10 @@ class ProductController extends BaseController {
 
         builder.compare("category", product.category?.description, editedProduct.category?.description)
 
+        builder.compare("saleMessage", (product?.saleMessages?.isEmpty() ? '' : product?.saleMessages?.max { it.id }?.text), editedProduct?.saleMessage)
+        builder.compare("refundMessage", (product?.refundMessages?.isEmpty() ? '' : product?.refundMessages?.max { it.id }?.text), editedProduct?.refundMessage)
+        builder.compare("scoSaleMessage", (product?.scoMessages?.isEmpty() ? '' : product?.scoMessages?.max { it.id }?.text), editedProduct?.scoSaleMessage)
+
         // Restrictions
         builder.compare("minOpenPrice", product.restrictions.minOpenPrice == null ? product.restrictions.getDefaultMinOpenPrice() : product.restrictions.minOpenPrice, editedProduct.restrictions.minOpenPrice)
         builder.compare("maxOpenPrice", product.restrictions.maxOpenPrice == null ? product.restrictions.getDefaultMaxOpenPrice() : product.restrictions.maxOpenPrice, editedProduct.restrictions.maxOpenPrice)
@@ -1396,6 +1467,7 @@ class ProductController extends BaseController {
         builder.compare("receiptPrintForced", product.restrictions.receiptPrintForced, editedProduct.restrictions.receiptPrintForced)
         builder.compare("allowsLoyaltyPointsCollection", product.restrictions.allowsLoyaltyPointsCollection, editedProduct.restrictions.allowsLoyaltyPointsCollection)
         builder.compare("alwaysOpenCashDrawer", product.restrictions.alwaysOpenCashDrawer, editedProduct.restrictions.alwaysOpenCashDrawer)
+        builder.compare("excludedFromPromotion", product.restrictions.excludedFromPromotion, editedProduct.restrictions.excludedFromPromotion)
 
         builder.compare("vatCode", product.vatCode?.description, editedProduct.vatCode?.description)
 
@@ -1672,7 +1744,15 @@ class ProductController extends BaseController {
 
     def ajaxAddVariant(AddVariantCommand cmd, boolean isNewVariant) {
         def unitsOfMeasure = UnitOfMeasure.findAllByRetailerId(springSecurityService.principal.retailerId)
-        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant, unitsOfMeasure: unitsOfMeasure])
+
+	    def wacValue = BigDecimal.ZERO
+        if (cmd.storeId) {
+            wacValue = cmd.weightedAverageCostPrice
+        } else if (springSecurityService.principal.storeId == null) {
+            wacValue = WeightedAverageCostPriceUtil.calculateRetailerWacForSku(productService.getAllProductVariantsForSku(cmd.sku))
+        }
+
+        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, wacValue: wacValue?:BigDecimal.ZERO, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant, unitsOfMeasure: unitsOfMeasure])
     }
 
     def ajaxAddBarcode(int index, String selector) {
@@ -1854,7 +1934,8 @@ class ProductController extends BaseController {
                 first.quantityChangeForced != second.quantityChangeForced ||
                 first.receiptPrintForced != second.receiptPrintForced ||
                 first.allowsLoyaltyPointsCollection != second.allowsLoyaltyPointsCollection ||
-                first.alwaysOpenCashDrawer != second.alwaysOpenCashDrawer
+                first.alwaysOpenCashDrawer != second.alwaysOpenCashDrawer ||
+                first.excludedFromPromotion != second.excludedFromPromotion
     }
 
     private static void copyRestrictions(RestrictionsCommand from, Restrictions to) {
@@ -1874,6 +1955,7 @@ class ProductController extends BaseController {
         to.receiptPrintForced = from.receiptPrintForced
         to.allowsLoyaltyPointsCollection = from.allowsLoyaltyPointsCollection
         to.alwaysOpenCashDrawer = from.alwaysOpenCashDrawer
+        to.excludedFromPromotion = from.excludedFromPromotion
     }
 
     private void copyProduct(ProductCommand from, Product to) {
@@ -2048,6 +2130,7 @@ class AddVariantCommand {
     Long sku
     BigDecimal retailPrice
     BigDecimal costPrice
+    BigDecimal weightedAverageCostPrice
     Integer shelfLifeDays
     DateTime effectiveDate
     List<AddBarcodeCommand> barcodez
@@ -2114,7 +2197,6 @@ class AddPackCommand implements Validateable {
     Integer productVariantId
     List<AddBarcodeCommand> barcodez
     BigDecimal minAlcoholUnitPrice
-    BigDecimal weightedAverageCost
     BigDecimal lengthCm
     BigDecimal heightCm
     BigDecimal widthCm
@@ -2239,6 +2321,12 @@ class ProductCommand {
     VatCode vatCode
     BigDecimal vatPercentageOverride
     RestrictionsCommand restrictions
+    String saleMessage
+    Integer saleMessageId
+    String refundMessage
+    Integer refundMessageId
+    String scoSaleMessage
+    Integer scoSaleMessageId
     String discreetMessage
     ProductStatus status
     String retailerProductId
@@ -2251,7 +2339,7 @@ class ProductCommand {
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
 
-//    Collection<Tag> tags = new ArrayList<>()
+//    Collection<ProductGroup> tags = new ArrayList<>()
 //    Collection<Message> saleMessages = new ArrayList<>()
 //    Collection<Message> refundMessages = new ArrayList<>()
 //    Collection<DiscountRate> discountRates = new ArrayList<>()
@@ -2278,6 +2366,7 @@ class RestrictionsCommand implements Validateable {
     Boolean receiptPrintForced
     Boolean allowsLoyaltyPointsCollection
     Boolean alwaysOpenCashDrawer
+    Boolean excludedFromPromotion
 
     static constraints = {
         importFrom Restrictions
@@ -2532,4 +2621,11 @@ class CSVUploadProduct {
 
         return productCommand
     }
+}
+
+class UpdateMessageCommand {
+    Product product
+    String messageText
+    Integer messageId
+    ProductMessageType messageType
 }

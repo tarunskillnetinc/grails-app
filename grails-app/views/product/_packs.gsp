@@ -19,7 +19,6 @@
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].primaryCase" value="${pack.primaryCase}"/>
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].priceMarked" value="${pack.priceMarked}"/>
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].minAlcoholUnitPrice" value="${pack.minAlcoholUnitPrice}"/>
-            <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].weightedAverageCost" value="${pack.weightedAverageCost}"/>
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].lengthCm" value="${pack.lengthCm}"/>
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].heightCm" value="${pack.heightCm}"/>
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].widthCm" value="${pack.widthCm}"/>

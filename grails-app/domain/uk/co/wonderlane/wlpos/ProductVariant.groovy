@@ -22,6 +22,7 @@ class ProductVariant implements Serializable {
     long sku
     BigDecimal retailPrice
     BigDecimal costPrice
+    BigDecimal weightedAverageCostPrice
     int minimumStockLevel
     DateTime effectiveDate
     boolean delete
@@ -40,7 +41,7 @@ class ProductVariant implements Serializable {
     String extras
 
     Collection<Pack> packs = new ArrayList<>()
-//    Collection<Tag> tags = new ArrayList<>()
+//    Collection<ProductGroup> tags = new ArrayList<>()
 
     Collection<Barcode> barcodez = new ArrayList<>()
     Collection<Location> locationz = new ArrayList<>()
@@ -69,6 +70,7 @@ class ProductVariant implements Serializable {
         sku column: "sku"
         retailPrice column: "price"
         costPrice column: "costPrice"
+        weightedAverageCostPrice column: "weightedAverageCostPrice"
         shelfLifeDays column: "shelfLifeDays"
         minimumStockLevel column: "minimumStockLevel"
         effectiveDate column: "effectiveDate"
@@ -100,6 +102,7 @@ class ProductVariant implements Serializable {
         defaultSupplierId nullable: true
         retailPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
+        weightedAverageCostPrice nullable: true
         shelfLifeDays nullable: true
         effectiveDate nullable: false
         packs nullable: true
@@ -253,9 +256,6 @@ class ProductVariant implements Serializable {
 
             productVariant.getPacks().add(pack.getPack())
         }
-
-        // TODO Set tags
-//        productVariant.getTags().add(it.getTag())
 
         getLocations()?.each {
             productVariant.getLocations().add(it.getCommonLocation())

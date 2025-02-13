@@ -29,6 +29,7 @@ class ProductService extends MySqlDal {
     def sessionFactory
     def rabbitService
     def gsonProvider
+    def pricingClassificationService
 
     ProductService(DatabaseCredentials databaseCredentials) {
         super(databaseCredentials)
@@ -76,6 +77,30 @@ class ProductService extends MySqlDal {
             return null
         } catch (Exception ex) {
             log.error("Order create exception found when retrieving product variant from DB, Exception " + ex.getMessage())
+            throw ex
+        } finally {
+            if (connection != null) {
+                connection.close()
+            }
+        }
+    }
+
+    List<uk.co.wonderlane.wlpos.entities.ProductVariant> getAllProductVariantsForSku(long sku) throws SQLException {
+        Connection conn
+        CallableStatement cstmt
+        try {
+            conn = getConnection()
+            cstmt = conn.prepareCall("{ call getAllProductVariantsForSku(?, ?) }")
+            cstmt.setInt(1, springSecurityService.principal.retailerId)
+            cstmt.setLong(2, sku)
+            ResultSet rs = cstmt.executeQuery()
+            List<uk.co.wonderlane.wlpos.entities.ProductVariant> variants = new ArrayList<>()
+            while (rs.next()) {
+                variants.add(mapProductVariant(rs))
+            }
+            return variants
+        } catch (Exception ex) {
+            log.error("Exception thrown when retrieving product variant from DB, Exception " + ex.getMessage())
             throw ex
         } finally {
             if (connection != null) {
@@ -586,7 +611,7 @@ class ProductService extends MySqlDal {
         }
     }
 
-    def searchProductPrices(String searchTerm, Integer categoryId, Integer tagId) {
+    def searchProductPrices(String searchTerm, Integer categoryId, Integer productGroupId) {
         def results = []
 
         Connection conn = getConnection()
@@ -613,8 +638,8 @@ class ProductService extends MySqlDal {
                 cstmt.setNull(4, Types.INTEGER)
             }
 
-            if (tagId != null) {
-                cstmt.setInt(5, tagId)
+            if (productGroupId != null) {
+                cstmt.setInt(5, productGroupId)
             } else {
                 cstmt.setNull(5, Types.INTEGER)
             }
@@ -645,7 +670,7 @@ class ProductService extends MySqlDal {
         return results.groupBy { it.sku }
     }
 
-    def searchRangeProducts(String searchTerm, Integer categoryId, Integer tagId) {
+    def searchRangeProducts(String searchTerm, Integer categoryId, Integer productGroupId) {
         def results = []
 
         Connection conn = getConnection()
@@ -672,8 +697,8 @@ class ProductService extends MySqlDal {
                 cstmt.setNull(4, Types.INTEGER)
             }
 
-            if (tagId != null) {
-                cstmt.setInt(5, tagId)
+            if (productGroupId != null) {
+                cstmt.setInt(5, productGroupId)
             } else {
                 cstmt.setNull(5, Types.INTEGER)
             }
@@ -759,6 +784,25 @@ class ProductService extends MySqlDal {
                 log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber} (insert: $insert)")
 
                 rabbitService.sendMessage(syncMessage)
+
+                productEntities.forEach({
+                    def pricingClassificationId = it?.restrictions?.pricingClassificationId
+
+                    if (pricingClassificationId != null) {
+                        List<uk.co.wonderlane.wlpos.entities.PricingClassification> pricingClassificationList = new ArrayList<>()
+
+                        def pricingClassification = pricingClassificationService.getPricingClassificationById(pricingClassificationId)
+                        pricingClassificationList.add(pricingClassification.getPricingClassification())
+
+                        SyncMessage pricingSyncMessage = new SyncMessage(SyncMessageType.PRICING_CLASSIFICATION, springSecurityService.principal.retailerId, 0, 0, 0)
+                        pricingSyncMessage.setInsert(insert)
+                        pricingSyncMessage.setPricingClassifications(pricingClassificationList)
+
+                        log.println("Syncing ${pricingClassificationList.size()} pricing classification updates to store ${store.config.storeNumber} (insert: $insert)")
+                        
+                        rabbitService.sendMessage(pricingSyncMessage)
+                    }
+                })
             }
         }
     }
@@ -870,6 +914,11 @@ class ProductService extends MySqlDal {
             productVariant.setCostPrice(null)
         }
 
+        productVariant.setWeightedAverageCostPrice(resultSet.getBigDecimal("weightedAverageCostPrice"))
+        if (resultSet.wasNull()) {
+            productVariant.setWeightedAverageCostPrice(null)
+        }
+
         productVariant.setSize(resultSet.getString("size"))
         if (resultSet.wasNull()) {
             productVariant.setSize(null)
@@ -879,6 +928,7 @@ class ProductService extends MySqlDal {
         if (resultSet.wasNull()) {
             productVariant.setColour(null)
         }
+        productVariant.setQuantityInStock(QuantityHelper.quantityOrDefault(resultSet, "quantityInStock", BigDecimal.ZERO))
         productVariant.setQuantityOnOrder(QuantityHelper.quantityOrDefault(resultSet, "quantityOnOrder", BigDecimal.ZERO))
         productVariant.setMinimumStockLevel(resultSet.getInt("minimumStockLevel"))
         productVariant.setEffectiveDate(new DateTime(resultSet.getTimestamp("effectiveDate"), DateTimeZone.UTC))
@@ -902,6 +952,16 @@ class ProductService extends MySqlDal {
         }
 
         return results.sort { it.id }
+    }
+
+    def processedValueForNullEmpty(String value, ProductAttributeType productAttributeType) {
+        if (value == null) {
+            value = "";
+        } else if (productAttributeType == ProductAttributeType.BOOLEAN && value == "false") {
+            value = "";
+        }
+
+        return value;
     }
 
     List<ProductAttributeValues> getProductInformation(Product product) {
@@ -931,7 +991,7 @@ class ProductService extends MySqlDal {
         def existingProductAttributeIds = productAttributeValuesList*.productAttributeId.toSet()
         def missingProductAttributes = productAttributeList.findAll {
             !existingProductAttributeIds.contains(it.id)
-        }?.sort { it.id }
+        }
 
         missingProductAttributes.each { productAttribute ->
             ProductAttributeValues dummyEntry = new ProductAttributeValues(
@@ -942,7 +1002,7 @@ class ProductService extends MySqlDal {
             )
             returnedAttributeValuesList << dummyEntry
         }
-        return returnedAttributeValuesList
+        return returnedAttributeValuesList?.sort { it?.productAttributeId }
     }
 
     ArrayList<ProductAttributeValues> getUpdatedProductAttributeValues(Product product, ProductCommand editedProduct, ProductHistoryBuilder builder, effectiveDate) {
@@ -984,21 +1044,32 @@ class ProductService extends MySqlDal {
                         //If updated attribute already on `productattributevalues` table
                         //If so then check updated value is change to current value
                         //If it does then update current value to new value
-                        if (existingAttr?.value != editedAttr?.value) {
+                        def existingAttrProcessedDefaultValue = processedValueForNullEmpty(existingAttr?.value, productAttributes?.type)
+                        def editedAttrProcessedValue = processedValueForNullEmpty(editedAttr?.value, productAttributes?.type)
+
+                        if (existingAttrProcessedDefaultValue != editedAttrProcessedValue) {
                             builder.compare(editedAttr?.attributeName, existingAttr?.value, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
                             existingAttr?.value = editedAttr?.value
                         }
-                    } else if (productAttributes?.defaultValue != editedAttr?.value) {
-                        def newAttr = new ProductAttributeValues(
-                                retailerId: editedAttr?.retailerId,
-                                productAttributeId: editedAttr?.productAttributeId,
-                                value: editedAttr?.value,
-                                id: editedAttr?.productAttributeId,
-                                attributeName: editedAttr?.attributeName,
-                                attributeType: editedAttr?.attributeType
-                        )
-                        builder.compare(editedAttr?.attributeName, productAttributes?.defaultValue, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
-                        updatedOrNewAttributes << newAttr
+                    } else {
+                        def productAttrProcessedDefaultValue = processedValueForNullEmpty(productAttributes?.defaultValue, productAttributes?.type)
+                        def editedAttrProcessedValue = processedValueForNullEmpty(editedAttr?.value, productAttributes?.type)
+
+                        if (productAttrProcessedDefaultValue != editedAttrProcessedValue) {
+                            // ignore matching attributes and close attributes values like ""/null.
+                            def newAttr = new ProductAttributeValues(
+                                    retailerId: editedAttr?.retailerId,
+                                    productAttributeId: editedAttr?.productAttributeId,
+                                    value: editedAttr?.value,
+                                    id: editedAttr?.productAttributeId,
+                                    attributeName: editedAttr?.attributeName,
+                                    attributeType: editedAttr?.attributeType
+                            )
+
+                            // During the initial product creation, don't record the changes to product attributes.
+                            builder.compare(editedAttr?.attributeName, productAttributes?.defaultValue, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
+                            updatedOrNewAttributes << newAttr
+                        }
                     }
                 }
             }
@@ -1033,6 +1104,15 @@ class ProductService extends MySqlDal {
             }
         }
         return isValidationPassed
+    }
+
+    def getProducts(List<Long> skus) {
+        def criteria = Product.createCriteria()
+
+        return criteria.list {
+            'in'("itemCode", skus)
+            eq("retailerId", springSecurityService.principal.retailerId)
+        }
     }
 
 }

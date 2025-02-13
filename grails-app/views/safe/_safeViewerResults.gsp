@@ -39,7 +39,7 @@
     </g:if>
     <g:else>
         <g:each in="${safes}" var="safe" status="i">
-            <div id="safe-result-${i + 1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable"
+            <div id="safe-result-${i + 1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable pointer"
                  onclick="handleSafeRowClickEvent(event, '${createLink(action:'addSafe', params: [id: safe?.id, edit: true])}');">
                 <div id="safe-id-${i + 1}" class="col-1 text-center d-flex align-items-center justify-content-center"><div>${safe?.id}</div></div>
                 <div id="safe-description-${i + 1}" class="col-4 text-center d-flex align-items-center justify-content-center"><div>${safe?.description}</div></div>

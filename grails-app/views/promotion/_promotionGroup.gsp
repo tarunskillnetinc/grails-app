@@ -3,7 +3,8 @@
     <g:hiddenField name="${promotionGroupType}Groups[${promoGroupId}].type" value="${promotionGroup.type}" />
     <g:hiddenField name="${promotionGroupType}Groups[${promoGroupId}].sku" value="${promotionGroup.sku}" />
     <g:hiddenField name="${promotionGroupType}Groups[${promoGroupId}].categoryId" value="${promotionGroup.categoryId}" />
-    <g:hiddenField name="${promotionGroupType}Groups[${promoGroupId}].tagId" value="${promotionGroup.tagId}" />
+    <g:hiddenField name="${promotionGroupType}Groups[${promoGroupId}].productGroupId"
+                   value="${promotionGroup.productGroupId}"/>
 
     <g:hasErrors bean="${promotionGroup}">
         <section id="errors-container" class="container-fluid">

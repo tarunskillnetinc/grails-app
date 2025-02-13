@@ -33,7 +33,6 @@ class Pack implements Serializable {
     DateTime updateDatetime
     Collection<Barcode> barcodez = new ArrayList<>()
     BigDecimal minAlcoholUnitPrice
-    BigDecimal weightedAverageCost
     PriceMarkedType priceMarkedType
     BigDecimal priceMarkedValue
     BigDecimal lengthCm
@@ -66,7 +65,6 @@ class Pack implements Serializable {
         updateDatetime column: "updateDatetime"
         primaryCase column: "primaryCase"
         minAlcoholUnitPrice column: "minAlcoholUnitPrice"
-        weightedAverageCost column: "weightedAverageCost"
         priceMarkedType column: "priceMarkedType", sqlType: "enum", enumType: "string"
         priceMarkedValue column: "priceMarkedValue"
         lengthCm column: "lengthCm"
@@ -103,7 +101,6 @@ class Pack implements Serializable {
         barcodez bindable: true
         priceMarkedType nullable: true
         minAlcoholUnitPrice nullable: true, blank: true, max: 999999.99 as BigDecimal, scale: 2
-        weightedAverageCost nullable: true, max: 999999.99 as BigDecimal, scale: 2
         priceMarkedValue nullable: true, max: 999999.99 as BigDecimal, scale: 2
         lengthCm nullable: true, max: 9999.99 as BigDecimal, scale: 2
         widthCm nullable: true, max: 9999.99 as BigDecimal, scale: 2
@@ -130,7 +127,6 @@ class Pack implements Serializable {
         pack.setPrimaryCase(primaryCase)
         pack.setUpdateDate(updateDatetime)
         pack.setMinAlcoholUnitPrice(minAlcoholUnitPrice)
-        pack.setWeightedAverageCost(weightedAverageCost)
         pack.setPriceMarkedType(priceMarkedType)
         pack.setPriceMarkedValue(priceMarkedValue)
         getBarcodes()?.each {

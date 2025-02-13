@@ -16,6 +16,7 @@
     <g:form name="addVariantForm">
         <g:hiddenField name="addVariantId" value="${variant?.id ?: ''}" />
         <g:hiddenField name="addVariantStoreId" value="${variant?.storeId}" />
+        <g:hiddenField name="addVariantWeightedAverageCostPrice" value="${variant?.weightedAverageCostPrice}" />
         <g:hiddenField name="addEffectiveDate" value="${variant?.effectiveDate}" />
 
         <div class="row mx-4 pt-4">
@@ -64,13 +65,21 @@
                     <label class="form-check-label font-weight-bold">Price Marked</label>
                 </div>
             </div>
+		<div class="row form-group mb-4">
+            	<label for="weightedAverageCostPrice" class="col-3 offset-1 col-form-label text-right"
+                   data-toggle="tooltip" title="Weighted Average Cost Price">WAC</label>
+            	<div class="input-group col-4">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">&pound;</span>
+                </div>
+                <g:textField name="weightedAverageCostPrice" readonly="true" disabled="true" class="form-control"
+                             value="${wacValue != BigDecimal.ZERO ? String.format("%,.2f", wacValue) : '-'}" />
+            	</div>
+        	</div>
         </div>
 
-        <div class="row mx-4 pt-4">
-            <div class="col-4 my-auto font-weight-bold">Shelf Life</div>
-            <div class="col-4 my-auto font-weight-bold">Shelf Capacity</div>
-            <div class="col-4 my-auto font-weight-bold">Minimum Display Quantity</div>
-        </div>
+        <div class="row form-group mb-4">
+            <label for="addVariantShelfLifeDays" class="col-3 offset-1 col-form-label text-right">Shelf Life (Days)</label>
 
         <div class="row mx-4 py-2">
             <div class="input-group col-4 my-auto">
