@@ -361,7 +361,10 @@
                            data-target="#productSearchModal">
                             Add Products
                         </a>
-                        <button id="addCategoriesBtn" class="btn btn-wl">Add Categories</button>
+                        <a id="addCategoriesBtn" href="#" role="button" class="btn btn-wl mr-2" data-toggle="modal"
+                           data-target="#categoryAddProductsModal">
+                            Add Categories
+                        </a>
                     </div>
                 </div>
             </div>
@@ -395,6 +398,35 @@
         </g:form>
     </div>
 </section>
+
+<div class="modal fade" id="categoryAddProductsModal" tabindex="-1" aria-labelledby="categoryAddProductsModalTitle"
+     aria-hidden="true" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="controlsModalLabel">Add Categories</h5>
+            </div>
+
+            <div class="modal-body">
+                <div class="row mt-2">
+                    <div class="form-group row col-12 col-sm-6 offset-sm-1">
+                        <label for="categorySelect" class="col-4 col-form-label text-right pr-4">Category:</label>
+
+                        <div class="col-12 col-sm-8 px-0">
+                            <g:render template="/product/categorySelect"
+                                      model="[categories: topLevelCategories, productCategoryList: categoryList, selectedCategoryId: category?.parentCategory?.id, level: 1, triggerOnCategoryChange: true]"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Add Products</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <g:render template="/product/productSearch"/>
 
