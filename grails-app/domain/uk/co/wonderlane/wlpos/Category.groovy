@@ -38,11 +38,6 @@ class Category {
                 return true
             }
 
-            def existingCategory = Category.findByRetailerIdAndDescription(obj.retailerId, val)
-            if (existingCategory && (obj.id == null || obj.id == 0 || obj.id != existingCategory.id)) {
-                return ['category.description.unique.error']
-            }
-
             if (!val.matches("\\A\\p{ASCII}*\\z")) {
                 return ['category.description.ascii.error']
             }
@@ -61,18 +56,13 @@ class Category {
                 return true
             }
 
-            def existingCategory = Category.findByRetailerIdAndRetailerCategoryCode(obj.retailerId, val)
-            if (existingCategory && (obj.id == null || obj.id == 0 || obj.id != existingCategory.id)) {
-                return ['category.retailerCategoryCode.unique.error']
-            }
-
             if (!val.matches("\\A\\p{ASCII}*\\z")) {
                 return ['category.retailerCategoryCode.ascii.error']
             }
         }
         parentCategory nullable: true
-        varianceQuantity nullable: true, min: 1, max: 99
-        varianceValue nullable: true, min: BigDecimal.ZERO, max: 99999.99
+        varianceQuantity nullable: true, min: 1, max: 1000
+        varianceValue nullable: true, min: BigDecimal.ONE, max: 9999999.99
     }
 
     public uk.co.wonderlane.wlpos.entities.Category getCategory() {
