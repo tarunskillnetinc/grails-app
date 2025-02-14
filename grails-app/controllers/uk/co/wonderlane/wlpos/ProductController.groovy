@@ -38,7 +38,6 @@ class ProductController extends BaseController {
     def productGroupService
     def productHistoryService
     def productMessageService
-    def gsonProvider
 
     /**
      * Landing page of the controller action - displays the product search screen.
@@ -158,7 +157,6 @@ class ProductController extends BaseController {
 
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
-
         List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(null)
 
         def allergenOptions = Allergen.findAll();
@@ -2485,15 +2483,10 @@ class PackCommand {
     boolean priceMarked = false
     PriceMarkedType priceMarkedType
     BigDecimal priceMarkedValue
-    String description
-    String receiptDescription
-    BigDecimal unitSize
-    UnitOfMeasure unitOfMeasure
-    Integer itemsInUnit
-    BigDecimal heightCm
+    BigDecimal lengthCm
     BigDecimal widthCm
-    BigDecimal depthCm
-    String extras
+    BigDecimal heightCm
+    BigDecimal weightKg
 
     static constraints = {
         importFrom Pack

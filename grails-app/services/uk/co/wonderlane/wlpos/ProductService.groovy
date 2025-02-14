@@ -188,13 +188,7 @@ class ProductService extends MySqlDal {
         }
 
         if (updatedAttributes != null && updatedAttributes.size() > 0) {
-            updatedAttributes.each {
-                try {
-                    (productAttributeValues) -> product.addToProductAttributeValues(productAttributeValues)
-                } catch (Exception e) {
-                    int a = 1
-                }
-            }
+            updatedAttributes.each { productAttributeValues -> product.addToProductAttributeValues(productAttributeValues)}
         }
 
         product.save(flush: true)

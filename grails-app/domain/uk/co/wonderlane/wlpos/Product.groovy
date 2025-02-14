@@ -1,20 +1,17 @@
 package uk.co.wonderlane.wlpos
 
-import com.google.gson.reflect.TypeToken
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.springframework.context.i18n.LocaleContextHolder
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.ProductMessageType
 
-import java.lang.reflect.Type
 import java.math.RoundingMode
 
 class Product {
 
     def springSecurityService
     def messageSource
-    def gsonProvider
 
     int id
     int retailerId
