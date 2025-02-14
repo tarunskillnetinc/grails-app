@@ -147,7 +147,6 @@ class ProductGroupController {
                 [edit: true, productGroup: productGroupCommand]
             }
         } else {
-            def categories = categoryService.getTopLevelCategories()
             [edit: false]
         }
     }
@@ -399,7 +398,10 @@ class ProductGroupCommand {
         }
         endDate nullable: true
         maxSellQuantity nullable: true, validator: { val, obj ->
-            if (val ?: 0 < 0 || val ?: 0 > 999999) {
+            if (val == null) {
+                return true; // maxSellQuantity can be empty
+            }
+            if (val < 1 || val > 999999) { // if its not empty then it must be a sensible number
                 return ['producthistory.maxSellQuantity.invalid']
             }
         }
@@ -408,7 +410,7 @@ class ProductGroupCommand {
                 return ['producthistory.active.null']
             }
         }
-        sku nullable: false, validator: { val, obj ->
+        sku nullable: true, validator: { val, obj ->
             if (val?.size() == 0) {
                 return ['producthistory.productgroupproducts.nullorempty']
             }

@@ -143,17 +143,6 @@
             });
         });
 
-        function modeEditInputDisable() {
-            if (${edit}) {
-                $('input').prop('disabled', true);
-                $('select').prop('disabled', true);
-                $('button').hide();
-                $('input[type="button"]').hide();
-                $('input[type="submit"]').hide();
-                $('a[role="button"]').hide();
-            }
-        }
-
         function formatDate(date, options, separator) {
             function format(option) {
                 let formatter = new Intl.DateTimeFormat('en', option);
