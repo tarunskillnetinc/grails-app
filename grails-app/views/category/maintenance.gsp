@@ -26,6 +26,10 @@
             intListener("restrictions.maximumMarkdownPercentage", 3, 100, true)
             intListener("restrictions.quantityChangeRestriction", 2, 99, true)
             intListener("restrictions.promptedDaysFrom", 2, 99, true)
+
+            $('#collapseCategoryHistory').on('show.bs.collapse', function () {
+                getCategoryHistory(${category?.id});
+            });
         });
 
         function onCategoryChanged(selectedCategoryId) {
@@ -107,6 +111,25 @@
 
 
             $("#restrictions\\.allowsLoyaltyPointsCollection").attr("disabled", ${!loyaltyEnabled});
+        }
+
+        function getCategoryHistory(categoryId) {
+            $('#categoryHistoryContainer').html("<div class=\"d-flex justify-content-center\">\n" +
+                "  <div class=\"spinner-border\" role=\"status\">\n" +
+                "    <span class=\"sr-only\">Loading...</span>\n" +
+                "  </div>\n" +
+                "</div>");
+
+            var getCategoryHistoryUrl = "${createLink(controller: 'category', action: 'ajaxGetCategoryHistory')}";
+
+            $.ajax({
+                url: getCategoryHistoryUrl,
+                method: "GET",
+                data: { categoryId: categoryId },
+                success: function(resp) {
+                    $("#categoryHistoryContainer").html(resp);
+                }
+            });
         }
     </script>
 </head>

@@ -319,10 +319,6 @@
                                     <label class="form-check-label" for="columnsDescription">Description</label>
                                 </div>
                                 <div class="form-group form-check">
-                                    <g:checkBox name="columns" id="columnsUnitSize" class="form-check-input" value="unitSize" checked="${!userColumns || userColumns?.columns?.find { it.column == 'unitSize' }?.enabled}" />
-                                    <label class="form-check-label" for="columnsUnitSize">Unit Size</label>
-                                </div>
-                                <div class="form-group form-check">
                                     <g:checkBox name="columns" id="columnsVatRate" class="form-check-input" value="vatRate" checked="${!userColumns || userColumns?.columns?.find { it.column == 'vatRate' }?.enabled}" />
                                     <label class="form-check-label" for="columnsVatRate">VAT Rate</label>
                                 </div>

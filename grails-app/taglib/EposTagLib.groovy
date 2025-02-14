@@ -2,6 +2,7 @@ import uk.co.wonderlane.wlpos.Category
 import uk.co.wonderlane.wlpos.EcomSupplierCategoryMapping
 import uk.co.wonderlane.wlpos.Group
 import uk.co.wonderlane.wlpos.ImageRecord
+import uk.co.wonderlane.wlpos.enums.CategoryHistoryType
 import uk.co.wonderlane.wlpos.enums.ImageType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.PromotionType
@@ -298,33 +299,37 @@ class EposTagLib {
 
     def productHistory = { attrs, body ->
         def productHistory = attrs.productHistory
+        def userText = 'System'
+        if (productHistory?.usersName) {
+            userText = """User ${productHistory?.usersName}"""
+        }
         switch ((ProductHistoryType)productHistory?.productHistoryType) {
             case ProductHistoryType.FIELD:
-                out << """User ${productHistory?.usersName} changed 
+                out << """${userText} changed 
                         ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.PRICE:
-                out << """User ${productHistory?.usersName} changed price from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                out << """${userText} changed price from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.PRODUCT_RANGE_ADD:
-                out << """User ${productHistory?.usersName} added product range ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                out << """${userText} added product range ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.PRODUCT_RANGE_DELETE:
-                out << """User ${productHistory?.usersName} deleted product range ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                out << """${userText} deleted product range ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.LOCATION_ADD:
-                out << """User ${productHistory?.usersName} added new location with 
+                out << """${userText} added new location with 
                         ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
                             from ${(productHistory?.fromValue) == "0" ? "unset" : productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.LOCATION_EDIT:
-                out << """User ${productHistory?.usersName} changed location with 
+                out << """${userText} changed location with 
                         ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.LOCATION_DELETE:
-                out << """User ${productHistory?.usersName} deleted location with 
+                out << """${userText} deleted location with 
                         ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
                             from ${productHistory?.fromValue} to ${(productHistory?.toValue) == "0" ? "unset" : productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
@@ -332,17 +337,46 @@ class EposTagLib {
                 out << """Product created at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.PREFERRED_SKU:
-                out << """User ${productHistory?.usersName} changed Preferred SKU from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                out << """${userText} changed Preferred SKU from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break;
             case ProductHistoryType.PRODUCT_ATTRIBUTE:
-                out << """User ${productHistory?.usersName} changed product attribute field
+                out << """${userText} changed product attribute field
                         ${productHistory?.field} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
+            case ProductHistoryType.ALLERGEN:
+                out << """${userText} ${(productHistory?.toValue) == "unset" ? "removed" : "added"} 
+                        ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
+                            ${(productHistory?.toValue) == "unset" ? productHistory?.fromValue : productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
             default:
-                out << """User ${productHistory?.usersName} changed 
+                out << """${userText} changed 
                         ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+        }
+    }
+
+    def categoryHistory = { attrs, body ->
+        def category = attrs.category
+        def categoryHistory = attrs.categoryHistory
+        switch ((CategoryHistoryType)categoryHistory?.type) {
+            case CategoryHistoryType.FIELD:
+                out << """User ${categoryHistory?.usersName} changed 
+                    ${(g.message(code: 'CategoryHistory.' + categoryHistory?.field) != null && !g.message(code: 'CategoryHistory.' + categoryHistory?.field).isEmpty())  ? g.message(code: 'CategoryHistory.' + categoryHistory?.field) : categoryHistory?.field} 
+                        for ${category?.description} from ${categoryHistory?.fromValue} to ${categoryHistory?.toValue} at ${categoryHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case CategoryHistoryType.NEW_CATEGORY:
+                out << """User ${categoryHistory?.usersName} created ${category?.retailerCategoryCode} for ${category?.description} at ${categoryHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}<br>"""
+                out << """User ${categoryHistory?.usersName} created ${category?.description} at ${categoryHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case CategoryHistoryType.ADD_PRODUCT:
+            case CategoryHistoryType.REMOVE_PRODUCT:
+                break
+            default:
+                out << """User ${categoryHistory?.usersName} changed 
+                    ${(g.message(code: 'CategoryHistory.' + categoryHistory?.field) != null && !g.message(code: 'CategoryHistory.' + categoryHistory?.field).isEmpty())  ? g.message(code: 'CategoryHistory.' + categoryHistory?.field) : categoryHistory?.field} 
+                        from ${categoryHistory?.fromValue} to ${categoryHistory?.toValue} at ${categoryHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
         }
     }

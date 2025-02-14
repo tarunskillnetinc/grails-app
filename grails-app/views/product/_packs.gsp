@@ -19,6 +19,10 @@
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].primaryCase" value="${pack.primaryCase}"/>
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].priceMarked" value="${pack.priceMarked}"/>
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].minAlcoholUnitPrice" value="${pack.minAlcoholUnitPrice}"/>
+            <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].lengthCm" value="${pack.lengthCm}"/>
+            <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].heightCm" value="${pack.heightCm}"/>
+            <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].widthCm" value="${pack.widthCm}"/>
+            <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].weightKg" value="${pack.weightKg}"/>
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].priceMarkedType" value="${pack.priceMarkedType}"/>
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].priceMarkedValue" value="${pack.priceMarkedValue}"/>
 
@@ -26,17 +30,10 @@
             <g:each in="${pack.barcodez ? pack.barcodez : pack.hasProperty("barcodes") ? pack.barcodes : ""}"
                     var="barcode" status="barcodeIndex">
                     <div id="barcodeContainer${barcodeIndex}">
-                        <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].barcodez[${barcodeIndex}].id"
-                                       value="${barcode.id}"/>
-                        <g:hiddenField
-                                name="variants[${variantIndex}].packs[${packIndex}].barcodez[${barcodeIndex}].barcode"
-                                value="${barcode.barcode}"/>
-                        <g:hiddenField
-                                name="variants[${variantIndex}].packs[${packIndex}].barcodez[${barcodeIndex}].effectiveDate"
-                                value="${barcode.effectiveDate}"/>
-                        <g:hiddenField
-                                name="variants[${variantIndex}].packs[${packIndex}].barcodez[${barcodeIndex}].recordStatus"
-                                value="${barcode.recordStatus}"/>
+                        <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].barcodez[${barcodeIndex}].id" value="${barcode.id}"/>
+                        <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].barcodez[${barcodeIndex}].barcode" value="${barcode.barcode}"/>
+                        <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].barcodez[${barcodeIndex}].effectiveDate" value="${barcode.effectiveDate}"/>
+                        <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].barcodez[${barcodeIndex}].recordStatus" value="${barcode.recordStatus}"/>
                     </div>
                 </g:each>
             </div>
