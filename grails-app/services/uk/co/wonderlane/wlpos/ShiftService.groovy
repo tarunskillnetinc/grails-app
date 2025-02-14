@@ -134,8 +134,6 @@ class ShiftService extends MySqlPoolDal {
             }
         }
 
-        safeManagementService.addTenderToSafe(safeId, addedTenderAmounts)
-
         SafeSession safeSession = safeManagementService.addTenderToSafe(safeId, addedTenderAmounts)
 
         List<TenderTotal> tenderTotalList = getTenderTotalList(shift)
