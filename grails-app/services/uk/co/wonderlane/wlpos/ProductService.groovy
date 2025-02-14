@@ -29,6 +29,7 @@ class ProductService extends MySqlDal {
     def sessionFactory
     def rabbitService
     def gsonProvider
+    def pricingClassificationService
 
     ProductService(DatabaseCredentials databaseCredentials) {
         super(databaseCredentials)
@@ -789,6 +790,25 @@ class ProductService extends MySqlDal {
                 log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber} (insert: $insert)")
 
                 rabbitService.sendMessage(syncMessage)
+
+                productEntities.forEach({
+                    def pricingClassificationId = it?.restrictions?.pricingClassificationId
+
+                    if (pricingClassificationId != null) {
+                        List<uk.co.wonderlane.wlpos.entities.PricingClassification> pricingClassificationList = new ArrayList<>()
+
+                        def pricingClassification = pricingClassificationService.getPricingClassificationById(pricingClassificationId)
+                        pricingClassificationList.add(pricingClassification.getPricingClassification())
+
+                        SyncMessage pricingSyncMessage = new SyncMessage(SyncMessageType.PRICING_CLASSIFICATION, springSecurityService.principal.retailerId, 0, 0, 0)
+                        pricingSyncMessage.setInsert(insert)
+                        pricingSyncMessage.setPricingClassifications(pricingClassificationList)
+
+                        log.println("Syncing ${pricingClassificationList.size()} pricing classification updates to store ${store.config.storeNumber} (insert: $insert)")
+                        
+                        rabbitService.sendMessage(pricingSyncMessage)
+                    }
+                })
             }
         }
     }
@@ -1090,6 +1110,15 @@ class ProductService extends MySqlDal {
             }
         }
         return isValidationPassed
+    }
+
+    def getProducts(List<Long> skus) {
+        def criteria = Product.createCriteria()
+
+        return criteria.list {
+            'in'("itemCode", skus)
+            eq("retailerId", springSecurityService.principal.retailerId)
+        }
     }
 
 }

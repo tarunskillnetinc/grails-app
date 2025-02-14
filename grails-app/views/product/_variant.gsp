@@ -8,6 +8,15 @@
     <g:hiddenField name="variants[${index}].shelfLifeDays" value="${variant?.shelfLifeDays}" />
     <g:hiddenField name="variants[${index}].shelfCapacity" value="${variant?.shelfCapacity}" />
     <g:hiddenField name="variants[${index}].minimumDisplayQuantity" value="${variant?.minimumDisplayQuantity}" />
+    <g:hiddenField name="variants[${index}].description" value="${variant?.description}" />
+    <g:hiddenField name="variants[${index}].receiptDescription" value="${variant?.receiptDescription}" />
+    <g:hiddenField name="variants[${index}].priceMarked" value="${variant?.priceMarked}" />
+    <g:hiddenField name="variants[${index}].unitSize" value="${variant?.unitSize}" />
+    <g:hiddenField name="variants[${index}].unitOfMeasure" value="${variant?.unitOfMeasure?.id}" />
+    <g:hiddenField name="variants[${index}].itemsInUnit" value="${variant?.itemsInUnit}" />
+    <g:hiddenField name="variants[${index}].heightCm" value="${variant?.heightCm}" />
+    <g:hiddenField name="variants[${index}].widthCm" value="${variant?.widthCm}" />
+    <g:hiddenField name="variants[${index}].depthCm" value="${variant?.depthCm}" />
     <g:hiddenField name="variants[${index}].effectiveDate" value="${variant?.effectiveDate}" />
     <g:hiddenField name="variants[${index}].preferredSku" value="${variant?.preferredSku}" />
 

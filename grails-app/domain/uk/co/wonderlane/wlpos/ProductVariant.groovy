@@ -23,14 +23,22 @@ class ProductVariant implements Serializable {
     BigDecimal retailPrice
     BigDecimal costPrice
     BigDecimal weightedAverageCostPrice
-    String size
-    String colour
     int minimumStockLevel
     DateTime effectiveDate
     boolean delete
     Integer shelfLifeDays
     Integer shelfCapacity
     Integer minimumDisplayQuantity
+    String description
+    String receiptDescription
+    boolean priceMarked
+    BigDecimal unitSize
+    UnitOfMeasure unitOfMeasure
+    Integer itemsInUnit
+    BigDecimal heightCm
+    BigDecimal widthCm
+    BigDecimal depthCm
+    String extras
 
     Collection<Pack> packs = new ArrayList<>()
 //    Collection<ProductGroup> tags = new ArrayList<>()
@@ -63,14 +71,22 @@ class ProductVariant implements Serializable {
         retailPrice column: "price"
         costPrice column: "costPrice"
         weightedAverageCostPrice column: "weightedAverageCostPrice"
-        size column:"size"
-        colour column:"colour"
         shelfLifeDays column: "shelfLifeDays"
         minimumStockLevel column: "minimumStockLevel"
         effectiveDate column: "effectiveDate"
         packs cascade: "all-delete-orphan"
         shelfCapacity column: "shelfCapacity"
         minimumDisplayQuantity column: "minimumDisplayQuantity"
+        description column: "`description`"
+        receiptDescription column: "receiptDescription"
+        priceMarked column: "priceMarked"
+        unitSize column: "unitSize"
+        unitOfMeasure column: "unitOfMeasure"
+        itemsInUnit column: "itemsInUnit"
+        heightCm column: "heightCm"
+        widthCm column: "widthCm"
+        depthCm column: "depthCm"
+        extras column: "extras", sqlType: "json"
     }
 
     static constraints = {
@@ -93,13 +109,21 @@ class ProductVariant implements Serializable {
         retailPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         weightedAverageCostPrice nullable: true
-        size size: 0..45, blank: true, nullable: true
-        colour size: 0..45, blank: true, nullable: true
         shelfLifeDays nullable: true
         effectiveDate nullable: false
         packs nullable: true
         shelfCapacity nullable: true
         minimumDisplayQuantity nullable: true
+        description nullable: true
+        receiptDescription nullable: true
+        priceMarked nullable: false
+        unitSize nullable: true, max: 9999.999 as BigDecimal, scale: 3
+        unitOfMeasure nullable: true
+        itemsInUnit nullable: false, min: 1
+        heightCm nullable: true
+        widthCm nullable: true
+        depthCm nullable: true
+        extras nullable: true
         delete bindable: true
         barcodez bindable: true
         locationz bindable: true
@@ -218,8 +242,8 @@ class ProductVariant implements Serializable {
         productVariant.setSku(sku)
         productVariant.setRetailPrice(getCurrentPrice(priceBand))
         productVariant.setCostPrice(getCostPrice())
-        productVariant.setSize(size)
-        productVariant.setColour(colour)
+        productVariant.setSize(null)
+        productVariant.setColour(null)
         productVariant.setMinimumStockLevel(minimumStockLevel)
         productVariant.setEffectiveDate(effectiveDate)
         productVariant.setMinimumDisplayQuantity(minimumDisplayQuantity)
@@ -280,5 +304,19 @@ class ProductVariant implements Serializable {
             }
         }
         return locationHierarchy;
+    }
+
+    String getSelUnitSize() {
+        if (unitSize == null) {
+            return null
+        }
+
+        String exponent = ""
+        if(itemsInUnit?:1 > 1) {
+            exponent = itemsInUnit + "x"
+        }
+
+        Integer perUnit = unitSize * itemsInUnit?:1
+        return exponent + perUnit + unitOfMeasure?.symbol?:"EACH"
     }
 }

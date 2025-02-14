@@ -84,7 +84,7 @@ class ProductListItem {
         productListItem.setProductShortDescription(productVariant?.product?.receiptDescription)
         productListItem.setProductBarcodes(productVariant?.barcodes?.collect{ it.barcode })
         productListItem.setProductPrice(productVariant?.getCurrentPrice(priceBand))
-        productListItem.setUnitSize(productVariant?.product?.unitSize)
+        productListItem.setUnitSize(productVariant?.product?.variants?.get(0)?.getSelUnitSize())
         productListItem.setProductQuantityInStock(productVariant?.getProductStock(storeId)?.quantityInStock)
         productListItem.setQuantity(quantity)
         productListItem.setFillQuantity(fillQuantity)

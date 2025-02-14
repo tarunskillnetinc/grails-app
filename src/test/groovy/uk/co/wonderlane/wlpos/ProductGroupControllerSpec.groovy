@@ -190,7 +190,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         }
 
         when: 'save action is executed'
-        SaveProductGroupCommand saveProductGroupCommand = new SaveProductGroupCommand()
+        ProductGroupCommand saveProductGroupCommand = new ProductGroupCommand()
         saveProductGroupCommand.setId(100)
         controller.save(saveProductGroupCommand)
 
@@ -222,7 +222,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         controller.springSecurityService = getFakeSpringSecurityService()
 
         when: 'save action is executed'
-        SaveProductGroupCommand saveProductGroupCommand = new SaveProductGroupCommand()
+        ProductGroupCommand saveProductGroupCommand = new ProductGroupCommand()
         saveProductGroupCommand.setId(100)
         Long[] skus = new Long[2]
         skus[0] = 100
@@ -247,7 +247,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         controller.springSecurityService = getFakeSpringSecurityService()
 
         when: 'save action is executed'
-        SaveProductGroupCommand saveProductGroupCommand = new SaveProductGroupCommand()
+        ProductGroupCommand saveProductGroupCommand = new ProductGroupCommand()
         Long[] skus = new Long[0]
         saveProductGroupCommand.setSku(skus)
         saveProductGroupCommand.setDescription("Test Command")
@@ -278,7 +278,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         controller.springSecurityService = getFakeSpringSecurityService()
 
         when: 'save action is executed'
-        SaveProductGroupCommand saveProductGroupCommand = new SaveProductGroupCommand()
+        ProductGroupCommand saveProductGroupCommand = new ProductGroupCommand()
         Long[] skus = new Long[1]
         skus[0] = 100
         saveProductGroupCommand.setSku(skus)
@@ -316,7 +316,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         controller.springSecurityService = getFakeSpringSecurityService()
 
         when: 'save action is executed'
-        SaveProductGroupCommand saveProductGroupCommand = new SaveProductGroupCommand()
+        ProductGroupCommand saveProductGroupCommand = new ProductGroupCommand()
         saveProductGroupCommand.setId(100)
         Long[] skus = new Long[1]
         skus[0] = 100

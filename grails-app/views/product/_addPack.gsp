@@ -146,6 +146,62 @@
     </div>
 
     <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
+        <div class="col-4 my-auto font-weight-bold">Length</div>
+        <div class="col-4 my-auto font-weight-bold">Width</div>
+        <div class="col-4 my-auto font-weight-bold">Height</div>
+    </div>
+
+    <div class="row mx-4 py-2 wl-striped${packIndex % 2}">
+        <div class="input-group col-4 my-auto">
+            <input id="addPack[${packIndex}].lengthCm" value="${pack?.lengthCm}" type="text"
+                         class="form-control text-right" maxlength="7"
+                   onkeydown="acceptFloat(event)" onkeyup="validateFloatQuantity(this, 0, 9999.99, 2)"/>
+            <div class="input-group-append">
+                <span class="input-group-text" id="lengthCmSymbolSuffix${packIndex}">
+                    Cm
+                </span>
+            </div>
+        </div>
+        <div class="input-group col-4 my-auto">
+            <input id="addPack[${packIndex}].widthCm" value="${pack?.widthCm}" type="text"
+                   class="form-control text-right" maxlength="7"
+                   onkeydown="acceptFloat(event)" onkeyup="validateFloatQuantity(this, 0, 9999.99, 2)"/>
+            <div class="input-group-append">
+                <span class="input-group-text" id="widthCmSymbolSuffix${packIndex}">
+                    Cm
+                </span>
+            </div>
+        </div>
+        <div class="input-group col-4 my-auto">
+            <input id="addPack[${packIndex}].heightCm" value="${pack?.heightCm}" type="text"
+                   class="form-control text-right" maxlength="7"
+                   onkeydown="acceptFloat(event)" onkeyup="validateFloatQuantity(this, 0, 9999.99, 2)"/>
+            <div class="input-group-append">
+                <span class="input-group-text" id="heightCmSymbolSuffix${packIndex}">
+                    Cm
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
+        <div class="col-4 my-auto font-weight-bold">Weight</div>
+    </div>
+
+    <div class="row mx-4 py-2 wl-striped${packIndex % 2}">
+        <div class="input-group col-4 my-auto">
+            <input id="addPack[${packIndex}].weightKg" value="${pack?.weightKg}" type="text"
+                   class="form-control text-right" maxlength="7"
+                   onkeydown="acceptFloat(event)" onkeyup="validateFloatQuantity(this, 0, 9999.999, 3)"/>
+            <div class="input-group-append">
+                <span class="input-group-text" id="weightKgSymbolSuffix${packIndex}">
+                    Kg
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
         <div class="col-4 my-auto font-weight-bold">Barcodes</div>
         <div class="col-4 my-auto font-weight-bold">Status</div>
     </div>

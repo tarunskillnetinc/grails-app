@@ -33,23 +33,23 @@
                                 <label for="effectiveDate" class="col-3 col-form-label text-right pr-4">Effective Date</label>
                                 <g:textField name="effectiveDate" type="text" class="col-5 form-control bottom-border" value="${effectiveDateIndex ? effectiveDateIndex[1]?.toString('dd/MM/yyyy') : now?.toString('dd/MM/yyyy')}" autocomplete="off" />
                             </div>
-                            <div class="row form-group mb-3">
+                            <div class="row form-group">
                                 <label for="itemCode" class="col-3 col-form-label text-right pr-4">Item Code (PLU)</label>
                                 <g:field maxLength="20" type="text" name="itemCode" class="col-5 form-control bottom-border" value="${product?.itemCode}" onblur="itemCodeChanged(this.value);" />
                             </div>
-                            <div class="row form-group mb-3">
+                            <div class="row form-group">
                                 <label for="description" class="col-3 col-form-label text-right pr-4">Description</label>
                                 <g:textField maxLength="100" name="description" class="col-5 form-control bottom-border add-product-desc" value="${product?.description}" required="true" />
                             </div>
-                            <div class="row form-group mb-3">
+                            <div class="row form-group">
                                 <label for="receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
                                 <g:textField maxLength="50" name="receiptDescription" value="${product?.receiptDescription}" class="col-5 form-control bottom-border add-product-receiptDesc" required="true" />
                             </div>
-                            <div class="row form-group mb-3">
+                            <div class="row form-group">
                                 <label for="selDescription" class="col-3 col-form-label text-right pr-4">SEL Description</label>
                                 <g:textField maxLength="16" name="selDescription" value="${product?.selDescription}" class="col-5 form-control bottom-border" required="true" />
                             </div>
-                            <div class="row form-group mb-3">
+                            <div class="row form-group">
                                 <label for="selType" class="col-3 col-form-label text-right pr-4">SEL type</label>
                                 <g:select name="selType"
                                           class="col-3 form-control select-border"
@@ -57,10 +57,6 @@
                                           optionKey="id"
                                           optionValue="name"
                                           value="${product?.selType?.id}"/>
-                            </div>
-                            <div class="row form-group mb-3">
-                                <label for="unitSize" class="col-3 col-form-label text-right pr-4">Unit Size</label>
-                                <g:textField maxLength="50" name="unitSize" class="col-5 form-control bottom-border" value="${product?.unitSize ?: 'EACH'}"/>
                             </div>
                         </div>
 
@@ -76,7 +72,7 @@
                                     <g:render template="categorySelect" model="[categories: categoryValues, productCategoryList: productCategoryList, selectedCategoryId: product?.category?.id, level: 1, triggerOnCategoryChange: true]" />
                                 </div>
                             </div>
-                            <div class="row form-group mb-3">
+                            <div class="row form-group">
                                 <label for="productImgUrl" class="col-3 col-form-label text-right pr-4">Image URL</label>
                                 <g:textField
                                         maxLength="150"
@@ -87,6 +83,10 @@
                                         pattern="https?://.+"
                                         title="Please enter a valid URL starting with http:// or https://"
                                 />
+                            </div>
+                            <div class="row form-group form-check pl-0">
+                                <label for="ownLabel" class="col-3 col-form-label text-right pr-4">Own Label</label>
+                                <g:checkBox name="ownLabel" id="ownLabel" class="col-1 form-check-input wl-checkbox" checked="${product?.ownLabel}" />
                             </div>
                         </div>
                     </div>
@@ -140,7 +140,7 @@
                         <g:each in="${product?.variants}" var="variant" status="i">
                             <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                 <div id="variant-${i}">
-                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes, storeId: storeId]" />
+                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes, unitOfMeasure: variant.unitOfMeasure?.id, storeId: storeId]" />
                                 </div>
                             </g:if>
                         </g:each>
