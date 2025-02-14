@@ -392,13 +392,13 @@ class ProductGroupCommand {
     Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
 
     static constraints = {
-        sku nullable: false
+        sku nullable: true
         days nullable: true
         restrictionStartTime nullable: true
         restrictionEndTime nullable: true
 
-        description nullable: false, size: 1..60, validator: { val, obj ->
-            if (!val || val.trim().length() < 1 || val.trim().length() > 60) {
+        description nullable: true, size: 1..60, validator: { val, obj ->
+            if (val == null || val.trim().length() < 1 || val.trim().length() > 60) {
                 return ['producthistory.description.size']
             }
         }
