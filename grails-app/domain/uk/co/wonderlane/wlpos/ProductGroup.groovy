@@ -61,7 +61,7 @@ class ProductGroup {
             }
         }
         productGroupProducts nullable: false, validator: { val, obj ->
-            if (val?.size() == 0) {
+            if (val == null || val.size() == 0) {
                 return ['producthistory.productgroupproducts.nullorempty']
             }
         }
