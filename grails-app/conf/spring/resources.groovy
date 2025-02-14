@@ -150,6 +150,10 @@ beans = {
         springSecurityService = ref('springSecurityService')
     }
 
+    categoryHistoryService(CategoryHistoryService) {
+        springSecurityService = ref('springSecurityService')
+    }
+
     storeService(StoreService,
             new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
                     Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),

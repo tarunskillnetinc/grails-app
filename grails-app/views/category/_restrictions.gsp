@@ -165,7 +165,7 @@
         <label for="restrictions.stockClassification" class="col-5 col-form-label text-right pr-4">Stock Management:</label>
         <div class="col-7">
             <div>
-                <g:radio id="stockClassification.STANDARD" name="restrictions.stockClassification" value="STANDARD" checked="${category?.restrictions?.stockClassification == StockClassification.STANDARD}" />
+                <g:radio id="stockClassification.STANDARD" name="restrictions.stockClassification" value="STANDARD" checked="${(category?.restrictions?.stockClassification ?: StockClassification.STANDARD) == StockClassification.STANDARD}" />
                 <label for="stockClassification.STANDARD"> Standard Stock Management</label>
             </div>
         </div>

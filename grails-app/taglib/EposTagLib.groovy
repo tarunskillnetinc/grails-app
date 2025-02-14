@@ -2,6 +2,7 @@ import uk.co.wonderlane.wlpos.Category
 import uk.co.wonderlane.wlpos.EcomSupplierCategoryMapping
 import uk.co.wonderlane.wlpos.Group
 import uk.co.wonderlane.wlpos.ImageRecord
+import uk.co.wonderlane.wlpos.enums.CategoryHistoryType
 import uk.co.wonderlane.wlpos.enums.ImageType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.PromotionType
@@ -352,6 +353,30 @@ class EposTagLib {
                 out << """${userText} changed 
                         ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+        }
+    }
+
+    def categoryHistory = { attrs, body ->
+        def category = attrs.category
+        def categoryHistory = attrs.categoryHistory
+        switch ((CategoryHistoryType)categoryHistory?.type) {
+            case CategoryHistoryType.FIELD:
+                out << """User ${categoryHistory?.usersName} changed 
+                    ${(g.message(code: 'CategoryHistory.' + categoryHistory?.field) != null && !g.message(code: 'CategoryHistory.' + categoryHistory?.field).isEmpty())  ? g.message(code: 'CategoryHistory.' + categoryHistory?.field) : categoryHistory?.field} 
+                        for ${category?.description} from ${categoryHistory?.fromValue} to ${categoryHistory?.toValue} at ${categoryHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case CategoryHistoryType.NEW_CATEGORY:
+                out << """User ${categoryHistory?.usersName} created ${category?.retailerCategoryCode} for ${category?.description} at ${categoryHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}<br>"""
+                out << """User ${categoryHistory?.usersName} created ${category?.description} at ${categoryHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case CategoryHistoryType.ADD_PRODUCT:
+            case CategoryHistoryType.REMOVE_PRODUCT:
+                break
+            default:
+                out << """User ${categoryHistory?.usersName} changed 
+                    ${(g.message(code: 'CategoryHistory.' + categoryHistory?.field) != null && !g.message(code: 'CategoryHistory.' + categoryHistory?.field).isEmpty())  ? g.message(code: 'CategoryHistory.' + categoryHistory?.field) : categoryHistory?.field} 
+                        from ${categoryHistory?.fromValue} to ${categoryHistory?.toValue} at ${categoryHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
         }
     }
