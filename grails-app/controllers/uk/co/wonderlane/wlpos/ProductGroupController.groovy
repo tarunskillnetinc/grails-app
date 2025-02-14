@@ -147,7 +147,6 @@ class ProductGroupController {
                 [edit: true, productGroup: productGroupCommand]
             }
         } else {
-            def categories = categoryService.getTopLevelCategories()
             [edit: false]
         }
     }
@@ -408,7 +407,7 @@ class ProductGroupCommand {
                 return ['producthistory.active.null']
             }
         }
-        sku nullable: false, validator: { val, obj ->
+        sku nullable: true, validator: { val, obj ->
             if (val?.size() == 0) {
                 return ['producthistory.productgroupproducts.nullorempty']
             }
