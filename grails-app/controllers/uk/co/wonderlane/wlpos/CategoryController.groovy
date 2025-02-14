@@ -153,7 +153,8 @@ class CategoryController extends BaseController {
         } else {
             category.parentCategory = null
         }
-
+        
+        category.validate()
         if (category.hasErrors()) {
             render(view: "maintenance", model: [category: category, addCategory: false, topLevelCategories: categoryService.getTopLevelCategories(), pricingClassifications: pricingClassification])
             return
