@@ -299,7 +299,7 @@ class ProductGroupController {
 
                 redirect(action: "index", id: productGroup.id)
             } catch (Exception ex) {
-                flash.error = "Product Group failed to send. " + ex.toString();
+                flash.error = "Product Group failed to send."
 
                 ex.printStackTrace()
 
