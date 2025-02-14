@@ -182,7 +182,7 @@ class ProductGroupController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def ajaxAddProductsFromCategory(int id, int groupId) {// Normally I'ld do this by a join, but.
+    def ajaxAddProductsFromCategory(int id) {// Normally I'ld do this by a join, but.
         def category = categoryService.getCategory(id)
 
         // Search for any products that use this category ID

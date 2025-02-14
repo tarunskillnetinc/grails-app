@@ -160,20 +160,10 @@
         }
 
         function addProductsFromCategory(id, url) {
-            // Figure out what group ID (position) this will be based on how many groups already exist.
-            var groupId = 0;
-
-            // if (selectedPromotionGroupType === "required") {
-            //     groupId = $("#promotionRequiredGroupsContainer").children("div").length;
-            // } else if (selectedPromotionGroupType === "offer") {
-            //     groupId = $("#promotionOfferGroupsContainer").children("div").length;
-            // }
-
             $.ajax({
                 url: url,
                 data: {
-                    id: id,
-                    groupId: groupId
+                    id: id
                 },
                 success: function (resp) {
                     $("#productList").append(resp);
