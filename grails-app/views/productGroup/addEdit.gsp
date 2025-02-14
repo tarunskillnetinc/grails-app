@@ -415,16 +415,16 @@
                     </div>
 
                     <div id="productList" class="row align-content-center mb-5">
-                        <g:if test="${!productGroup?.productGroupProductsDisplayRow || productGroup?.productGroupProductsDisplayRow?.size() == 0}">
+                        <g:if test="${!productGroup?.productGroupProducts || productGroup?.productGroupProducts?.size() == 0}">
                             <div id="noResultsRow"
                                  class="col-17 pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
                         </g:if>
 
-                        <g:each in="${productGroup?.productGroupProductsDisplayRow?.sort { it.sku }}"
-                                var="productGroupProductsDisplayRow"
+                        <g:each in="${productGroup?.productGroupProducts?.sort { it.sku }}"
+                                var="productGroupProduct"
                                 status="i">
                             <g:render template="productGroupProductRow"
-                                      model="[productGroupProduct: productGroupProductsDisplayRow, i: i, edit: edit]"/>
+                                      model="[productGroupProduct: productGroupProduct, i: i, edit: edit]"/>
                         </g:each>
                     </div>
                 </div>

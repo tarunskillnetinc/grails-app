@@ -48,7 +48,7 @@ class ProductGroup {
         endDate nullable: true
         timeRestriction nullable: true
         maxSellQuantity nullable: true, validator: { val, obj ->
-            if (!val || val < 0) {
+            if (val ?: 0 < 0 || val ?: 0 > 999999) {
                 return ['producthistory.maxSellQuantity.invalid']
             }
         }

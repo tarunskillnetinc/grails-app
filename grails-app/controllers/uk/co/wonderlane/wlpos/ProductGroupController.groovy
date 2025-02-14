@@ -114,7 +114,7 @@ class ProductGroupController {
                 productGroup?.productGroupProducts?.each { productGroupProduct ->
                     def productGroupProductDisplayRow = makeProductGroupProductDisplayRow(productGroupProduct, productvariants);
 
-                    productGroupCommand.productGroupProductsDisplayRow.add(productGroupProductDisplayRow)
+                    productGroupCommand.productGroupProducts.add(productGroupProductDisplayRow)
                 }
 
                 def dateFormat = getDateFormat()
@@ -161,7 +161,7 @@ class ProductGroupController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddProduct(int productVariantId, long sku, String productDescription) {
-        def productGroupProductDisplayRow = new ProductGroupProductDisplayRow()
+        def productGroupProductDisplayRow = new ProductGroupProduct()
         productGroupProductDisplayRow.sku = sku
         productGroupProductDisplayRow.productVariantId = productVariantId
         productGroupProductDisplayRow.productDescription = productDescription
@@ -189,30 +189,30 @@ class ProductGroupController {
         // Search for any products that use this category ID
         def products = Product.findAllByCategory(category)
 
-        def productGroupProductsDisplayRows = []
+        def productGroupProducts = []
         for (Product product in products) {
             def productVariants = product?.getCurrentVariants()
 
             for (ProductVariant pv in productVariants) {
-                def productGroupProductDisplayRow = new ProductGroupProductDisplayRow()
-                productGroupProductDisplayRow.sku = pv.sku
-                productGroupProductDisplayRow.productVariantId = pv.id
-                productGroupProductDisplayRow.productDescription = product.description
+                def productGroupProduct = new ProductGroupProduct()
+                productGroupProduct.sku = pv.sku
+                productGroupProduct.productVariantId = pv.id
+                productGroupProduct.productDescription = product.description
 
                 def barcodes = []
                 pv.getBarcodes()?.each {
                     barcodes.add(it.barcode)
                 }
 
-                productGroupProductDisplayRow.barcodes = barcodes.join(",")
-                productGroupProductDisplayRow.categoryDescription = category.description
-                productGroupProductDisplayRow.itemCode = product.itemCode
+                productGroupProduct.barcodes = barcodes.join(",")
+                productGroupProduct.categoryDescription = category.description
+                productGroupProduct.itemCode = product.itemCode
 
-                productGroupProductsDisplayRows.add(productGroupProductDisplayRow)
+                productGroupProducts.add(productGroupProduct)
             }
         }
 
-        render(template: "productGroupProductRows", model: [productGroupProducts: productGroupProductsDisplayRows])
+        render(template: "productGroupProductRows", model: [productGroupProducts: productGroupProducts])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -300,9 +300,9 @@ class ProductGroupController {
                 def productsvariants = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
 
                 productGroup.productGroupProducts.each { productGroupProduct ->
-                    def productGroupProductDisplayRow = makeProductGroupProductDisplayRow(productGroupProduct, productsvariants)
+                    def productGroupProductForDisplay = makeProductGroupProductDisplayRow(productGroupProduct, productsvariants)
 
-                    cmd.productGroupProductsDisplayRow.add(productGroupProductDisplayRow)
+                    cmd.productGroupProducts.add(productGroupProductForDisplay)
                 }
             }
 
@@ -352,7 +352,7 @@ class ProductGroupController {
     private static def makeProductGroupProductDisplayRow(ProductGroupProduct productGroupProduct, List<Long> products) {
         Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
 
-        def productGroupProductDisplayRow = new ProductGroupProductDisplayRow()
+        def productGroupProductDisplayRow = new ProductGroupProduct()
         productGroupProductDisplayRow.sku = productGroupProduct.sku
         productGroupProductDisplayRow.productVariantId = productGroupProduct.productVariantId
         productGroupProductDisplayRow.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
@@ -387,7 +387,7 @@ class ProductGroupCommand {
     String startDate
     String endDate
     boolean neverExpires
-    Set<ProductGroupProductDisplayRow> productGroupProductsDisplayRow = new HashSet<>()
+    Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
 
     static constraints = {
         description nullable: false, blank: false, maxSize: 100
@@ -399,15 +399,4 @@ class ProductGroupCommand {
         startDate nullable: false
         endDate nullable: true
     }
-}
-
-class ProductGroupProductDisplayRow {
-    long sku
-
-    int productVariantId
-    int productId
-    String productDescription
-    String itemCode
-    String barcodes
-    String categoryDescription
 }
