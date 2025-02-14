@@ -8,12 +8,15 @@ class ProductGroupProduct implements Serializable {
 
     long sku
 
-    static transients = [ "productVariantId", "productId", "productDescription", "itemCode" ]
+    static transients = ["productVariantId", "productId", "productDescription", "itemCode", "barcodes", "categoryDescription"]
 
     int productVariantId
     int productId
     String productDescription
     String itemCode
+
+    String barcodes
+    String categoryDescription
 
     // Need this parameterless constructor or else dependency injection (SpringSecurityService) breaks.
     public ProductGroupProduct() {}

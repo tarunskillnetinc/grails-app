@@ -2,12 +2,11 @@ package uk.co.wonderlane.wlpos
 
 import grails.converters.JSON
 import groovy.json.JsonSlurper
-import org.apache.commons.lang.StringUtils
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
-import org.springframework.validation.FieldError
+import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
@@ -19,6 +18,7 @@ class ProductGroupController {
     def rabbitService
     def categoryService
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
         session.SEARCH_TERM = null
         session.SEARCH_BY = null
@@ -34,6 +34,7 @@ class ProductGroupController {
         return (param == "null" || param == "") ? null : param
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGetProductGroups() {
         try {
             DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
@@ -63,16 +64,16 @@ class ProductGroupController {
                     sortColumn,
                     sortOrder)
 
-            render(template: "productGroupSearchResults", model: [productGroups: productGroups,
-                                                                  productGroupSearchTerm   : searchTerm == null ? "" : searchTerm,
-                                                                  productGroupSearchBy : searchBy == null ? "" : searchBy,
-                                                                  startDate    : startDate == null ? "" : startDate,
-                                                                  endDate      : endDate == null ? "" : endDate,
-                                                                  status       : status == null ? "" : status,
-                                                                  max: params.max ?: 50,
-                                                                  offset       : params.offset ? Integer.parseInt(params.offset) : 0,
-                                                                  sortColumn   : sortColumn,
-                                                                  sortOrder: sortOrder])
+            render(template: "productGroupSearchResults", model: [productGroups         : productGroups,
+                                                                  productGroupSearchTerm: searchTerm == null ? "" : searchTerm,
+                                                                  productGroupSearchBy  : searchBy == null ? "" : searchBy,
+                                                                  startDate             : startDate == null ? "" : startDate,
+                                                                  endDate               : endDate == null ? "" : endDate,
+                                                                  status                : status == null ? "" : status,
+                                                                  max                   : params.max ?: 50,
+                                                                  offset                : params.offset ? Integer.parseInt(params.offset) : 0,
+                                                                  sortColumn            : sortColumn,
+                                                                  sortOrder             : sortOrder])
         } catch (Exception ex) {
             log.error("Error searching product group, Exception " + ex.getMessage(), ex)
             response.status = 400
@@ -108,13 +109,12 @@ class ProductGroupController {
                 flash.error = "Product Group not found."
                 redirect(action: "index")
             } else {
-                def products = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
+                def productvariants = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
                 ProductGroupCommand productGroupCommand = new ProductGroupCommand()
                 productGroup?.productGroupProducts?.each { productGroupProduct ->
-                    Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
-                    productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
-                    productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
-                    productGroupCommand.productGroupProducts.add(productGroupProduct)
+                    def productGroupProductDisplayRow = makeProductGroupProductDisplayRow(productGroupProduct, productvariants);
+
+                    productGroupCommand.productGroupProducts.add(productGroupProductDisplayRow)
                 }
 
                 def dateFormat = getDateFormat()
@@ -139,27 +139,82 @@ class ProductGroupController {
                     }
                     productGroupCommand.days = daysList.toArray(new int[0])
                     productGroupCommand.restrictionStartTime =
-                            insertCharacter(timeRestrictionJson.startSellingTimeRestriction as String, (char)':', 2)
+                            insertCharacter(timeRestrictionJson.startSellingTimeRestriction as String, (char) ':', 2)
                     productGroupCommand.restrictionEndTime =
-                            insertCharacter(timeRestrictionJson.stopSellingTimeRestriction as String, (char)':', 2)
+                            insertCharacter(timeRestrictionJson.stopSellingTimeRestriction as String, (char) ':', 2)
                 }
-                [productGroup: productGroupCommand, edit : true]
+
+                [edit: true, productGroup: productGroupCommand]
             }
         } else {
-            def categories = categoryService.getTopLevelCategories()
             [edit: false]
         }
     }
 
-    def ajaxAddProduct(int productVariantId, long sku, String productDescription) {
-        def productGroupProduct = new ProductGroupProduct()
-        productGroupProduct.sku = sku
-        productGroupProduct.productVariantId = productVariantId
-        productGroupProduct.productDescription = productDescription
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSearchCategories(String searchTerm, String searchBy) {
+        def categories = categoryService.searchCategories(searchTerm, searchBy)
 
-        render(template: "productGroupProductRow", model: [productGroupProduct: productGroupProduct])
+        render(template: "categorySearchResults", model: [categories: categories, searchTerm: searchTerm, searchBy: searchBy, max: params.max ?: 50, offset: params.offset, totalResults: categories.totalCount])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxAddProduct(int productVariantId, long sku, String productDescription) {
+        def productGroupProductDisplayRow = new ProductGroupProduct()
+        productGroupProductDisplayRow.sku = sku
+        productGroupProductDisplayRow.productVariantId = productVariantId
+        productGroupProductDisplayRow.productDescription = productDescription
+
+        ProductVariant pv = ProductVariant.findById(productVariantId)
+        def barcodes = []
+        pv.getBarcodes()?.each {
+            barcodes.add(it.barcode)
+        }
+
+        Product product = pv?.getProduct()
+
+        productGroupProductDisplayRow.barcodes = barcodes.join(",")
+        productGroupProductDisplayRow.itemCode = product.itemCode
+
+        productGroupProductDisplayRow.categoryDescription = product?.getCategory()?.description
+
+        render(template: "productGroupProductRow", model: [productGroupProduct: productGroupProductDisplayRow])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxAddProductsFromCategory(int id) {// Normally I'ld do this by a join, but.
+        def category = categoryService.getCategory(id)
+
+        // Search for any products that use this category ID
+        def products = Product.findAllByCategory(category)
+
+        def productGroupProducts = []
+        for (Product product in products) {
+            def productVariants = product?.getCurrentVariants()
+
+            for (ProductVariant pv in productVariants) {
+                def productGroupProduct = new ProductGroupProduct()
+                productGroupProduct.sku = pv.sku
+                productGroupProduct.productVariantId = pv.id
+                productGroupProduct.productDescription = product.description
+
+                def barcodes = []
+                pv.getBarcodes()?.each {
+                    barcodes.add(it.barcode)
+                }
+
+                productGroupProduct.barcodes = barcodes.join(",")
+                productGroupProduct.categoryDescription = category.description
+                productGroupProduct.itemCode = product.itemCode
+
+                productGroupProducts.add(productGroupProduct)
+            }
+        }
+
+        render(template: "productGroupProductRows", model: [productGroupProducts: productGroupProducts])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def save(ProductGroupCommand cmd) {
         def productGroup
         def productGroupProductsToRemove
@@ -169,7 +224,7 @@ class ProductGroupController {
 
             if (!productGroup) {
                 flash.error = "Product Group not found."
-                render (action: "index")
+                render(action: "index")
                 return
             }
 
@@ -190,9 +245,16 @@ class ProductGroupController {
         productGroup.description = cmd.description
         productGroup.maxSellQuantity = cmd.maxSellQuantity
         productGroup.active = cmd.active
-        if (cmd.days != null && cmd.days.size() > 0) {
+
+        if (cmd.days != null && cmd.days.size() > 0) { // multiple days of the week have been selected as restricted.
             def jsonMap = [
                     timeRestrictionDays: (0..6).collect { day -> cmd.days.contains(day) },
+                    startSellingTimeRestriction: cmd.restrictionStartTime?.replace(":", "") ?: "",
+                    stopSellingTimeRestriction : cmd.restrictionEndTime?.replace(":", "") ?: ""
+            ]
+            productGroup.timeRestriction = (jsonMap as JSON).toString()
+        } else if (cmd.restrictionStartTime?.isEmpty() || cmd.restrictionEndTime?.isEmpty()) {
+            def jsonMap = [
                     startSellingTimeRestriction: cmd.restrictionStartTime?.replace(":", "") ?: "",
                     stopSellingTimeRestriction : cmd.restrictionEndTime?.replace(":", "") ?: ""
             ]
@@ -200,10 +262,12 @@ class ProductGroupController {
         }
 
         def dateFormatter = getDateFormat()
-        productGroup.startDate = dateFormatter.parseDateTime(cmd.startDate)
+        if (cmd.startDate != null) {
+            productGroup.startDate = dateFormatter.parseDateTime(cmd.startDate)
+        }
         if (cmd.neverExpires) {
             productGroup.endDate = null
-        } else if (cmd.endDate != null){
+        } else if (cmd.endDate != null) {
             productGroup.endDate = dateFormatter.parseDateTime(cmd.endDate)
         }
 
@@ -225,27 +289,34 @@ class ProductGroupController {
                 productGroupService.deleteProductGroupProduct(productGroup.id, it.sku)
             }
 
-            productGroupService.saveProductGroup(productGroup)
+            try {
+                productGroupService.saveProductGroup(productGroup)
 
-            // Send this update to the whole Retailer exchange!
-            sendProductGroup(productGroup)
+                // Send this update to the whole Retailer exchange!
+                sendProductGroup(productGroup)
 
-            flash.message = "Product Group saved successfully."
+                flash.message = "Product Group saved successfully."
 
-            redirect(action: "index", id: productGroup.id)
+                redirect(action: "index", id: productGroup.id)
+            } catch (Exception ex) {
+                flash.error = "Product Group failed to send."
+
+                ex.printStackTrace()
+
+                render(view: "addEdit", model: [productGroup: cmd, productGroupErrors: productGroup])
+            }
         } else {
             if (productGroup.productGroupProducts && productGroup.productGroupProducts?.size() > 0) {
-                def productVariants = productService.getProductVariants(productGroup.productGroupProducts?.collect { it.sku })
+                def productsvariants = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
 
                 productGroup.productGroupProducts.each { productGroupProduct ->
-                    Integer variantId = productVariants.find { it.sku == productGroupProduct.sku }?.id
-                    productGroupProduct.productVariantId = variantId ? variantId : 0
-                    productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.description
-                    cmd.productGroupProducts.add(productGroupProduct)
+                    def productGroupProductForDisplay = makeProductGroupProductDisplayRow(productGroupProduct, productsvariants)
+
+                    cmd.productGroupProducts.add(productGroupProductForDisplay)
                 }
             }
 
-            render(view: "addEdit", model: [productGroup: cmd])
+            render(view: "addEdit", model: [productGroup: cmd, productGroupErrors: productGroup])
         }
     }
 
@@ -284,8 +355,32 @@ class ProductGroupController {
         return chars.join()
     }
 
-    def getDateFormat() {
+    private static def getDateFormat() {
         return DateTimeFormat.forPattern("dd/MM/yyyy")
+    }
+
+    private static def makeProductGroupProductDisplayRow(ProductGroupProduct productGroupProduct, List<Long> products) {
+        Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
+
+        def productGroupProductDisplayRow = new ProductGroupProduct()
+        productGroupProductDisplayRow.sku = productGroupProduct.sku
+        productGroupProductDisplayRow.productVariantId = productGroupProduct.productVariantId
+        productGroupProductDisplayRow.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
+
+        ProductVariant pv = ProductVariant.findById(productVariantId)
+        def barcodes = []
+        pv.getBarcodes()?.each {
+            barcodes.add(it.barcode)
+        }
+
+        Product product = pv?.getProduct()
+
+        productGroupProductDisplayRow.barcodes = barcodes.join(",")
+        productGroupProductDisplayRow.itemCode = product.itemCode
+
+        productGroupProductDisplayRow.categoryDescription = product?.getCategory()?.description
+
+        productGroupProductDisplayRow
     }
 }
 
@@ -305,13 +400,39 @@ class ProductGroupCommand {
     Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
 
     static constraints = {
-        description nullable: false, blank: false, maxSize: 100
-        maxSellQuantity nullable: true, min: 1, max: 999
-        sku nullable: false
+        sku nullable: true
         days nullable: true
         restrictionStartTime nullable: true
         restrictionEndTime nullable: true
-        startDate nullable: false
+
+        description nullable: true, size: 1..60, validator: { val, obj ->
+            if (val == null || val.trim().length() < 1 || val.trim().length() > 60) {
+                return ['producthistory.description.size']
+            }
+        }
+        startDate nullable: false, validator: { val, obj ->
+            if (val == null) {
+                return ['producthistory.startdate.empty']
+            }
+        }
         endDate nullable: true
+        maxSellQuantity nullable: true, validator: { val, obj ->
+            if (val == null) {
+                return true; // maxSellQuantity can be empty
+            }
+            if (val < 1 || val > 999999) { // if its not empty then it must be a sensible number
+                return ['producthistory.maxSellQuantity.invalid']
+            }
+        }
+        active nullable: false, validator: { val, obj ->
+            if (val == null) {
+                return ['producthistory.active.null']
+            }
+        }
+        sku nullable: true, validator: { val, obj ->
+            if (val == null || val.size() == 0) {
+                return ['producthistory.productgroupproducts.nullorempty']
+            }
+        }
     }
 }

@@ -133,6 +133,7 @@
                 let options = [{year: 'numeric'}, {month: '2-digit'}, {day: '2-digit'}];
                 let formatted = formatDate(event.date, options, '-');
 
+                $('#neverExpires').prop("checked", false);
                 $("#endDate").val(formatted);
             });
 
@@ -143,17 +144,6 @@
             });
         });
 
-        function modeEditInputDisable() {
-            if (${edit}) {
-                $('input').prop('disabled', true);
-                $('select').prop('disabled', true);
-                $('button').hide();
-                $('input[type="button"]').hide();
-                $('input[type="submit"]').hide();
-                $('a[role="button"]').hide();
-            }
-        }
-
         function formatDate(date, options, separator) {
             function format(option) {
                 let formatter = new Intl.DateTimeFormat('en', option);
@@ -161,6 +151,25 @@
             }
 
             return options.map(format).join(separator);
+        }
+
+        function addProductGroupCategoryProducts(id) {
+            var addProductsFromCategoryUrl = "${createLink(controller: 'productGroup', action: 'ajaxAddProductsFromCategory')}";
+
+            addProductsFromCategory(id, addProductsFromCategoryUrl);
+        }
+
+        function addProductsFromCategory(id, url) {
+            $.ajax({
+                url: url,
+                data: {
+                    id: id
+                },
+                success: function (resp) {
+                    $("#productList").append(resp);
+                    $('#noResultsRow').hide();
+                }
+            });
         }
     </script>
 </head>
@@ -203,8 +212,13 @@
         <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
     </g:if>
 
-    <g:hasErrors bean="${productGroup}">
+    <g:hasErrors bean="${productGroupErrors}">
         <div id="tag-management-errors-list" class="alert alert-danger alert-wl mx-0" role="alert">
+            <g:renderErrors bean="${productGroupErrors}" as="list"/>
+        </div>
+    </g:hasErrors>
+    <g:hasErrors bean="${productGroup}">
+        <div id="tag-management-errors-list" class="alert alert-danger alert-wl mx-0 pgerrors" role="alert">
             <g:renderErrors bean="${productGroup}" as="list"/>
         </div>
     </g:hasErrors>
@@ -247,8 +261,11 @@
                 <!-- Status -->
                 <div class="form-group row mt-4">
                     <label for="status" class="col-6 col-form-label text-right pr-4">Status</label>
-                    <g:select name="status" from="${['Active', 'Inactive']}"
-                              value="${productGroup ? (productGroup?.active ? 'Active' : 'Inactive') : 'Active'}"
+                <g:select name="active"
+                          from="${[['activeFlag': true, 'name': 'Active'], ['activeFlag': false, 'name': 'Inactive']]}"
+                          optionKey="activeFlag"
+                          optionValue="name"
+                          value="${productGroup?.active}"
                               class="col-6 form-control"/>
                 </div>
 
@@ -361,7 +378,10 @@
                            data-target="#productSearchModal">
                             Add Products
                         </a>
-                        <button id="addCategoriesBtn" class="btn btn-wl">Add Categories</button>
+                        <a id="addCategoriesBtn" href="#" role="button" class="btn btn-wl mr-2" data-toggle="modal"
+                           data-target="#categoryAddProductsModal">
+                            Add Categories
+                        </a>
                     </div>
                 </div>
             </div>
@@ -369,22 +389,27 @@
             <div class="row">
                 <div class="col-12">
                     <div class="row font-weight-bold mb-2">
-                        <div class="col-3">Item Code</div>
+                        <div class="col-2">Item Code</div>
 
-                        <div class="col-3">SKU</div>
+                        <div class="col-2">SKU</div>
 
-                        <div class="col-4">Description</div>
+                        <div class="col-2">Barcode</div>
 
-                        <div class="col-2">&nbsp;</div>
+                        <div class="col-3">Description</div>
+
+                        <div class="col-2">Category</div>
+
+                        <div class="col-1"></div>
                     </div>
 
                     <div id="productList" class="row align-content-center mb-5">
                         <g:if test="${!productGroup?.productGroupProducts || productGroup?.productGroupProducts?.size() == 0}">
                             <div id="noResultsRow"
-                                 class="col-12 pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
+                                 class="col-17 pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
                         </g:if>
 
-                        <g:each in="${productGroup?.productGroupProducts?.sort { it.sku }}" var="productGroupProduct"
+                        <g:each in="${productGroup?.productGroupProducts?.sort { it.sku }}"
+                                var="productGroupProduct"
                                 status="i">
                             <g:render template="productGroupProductRow"
                                       model="[productGroupProduct: productGroupProduct, i: i, edit: edit]"/>
@@ -396,6 +421,8 @@
     </div>
 </section>
 
+
+<g:render template="categorySearch"/>
 <g:render template="/product/productSearch"/>
 
 <asset:javascript src="productgroup.js"/>

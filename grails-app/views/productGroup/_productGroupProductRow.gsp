@@ -3,12 +3,17 @@
      id="productVariant${productGroupProduct.productVariantId}">
     <g:hiddenField name="sku" value="${productGroupProduct.sku}"/>
 
-    <div id="tag-product-${pos}-id" class="col-3">${productGroupProduct.itemCode}</div>
+    <div id="tag-product-${pos}-id" class="col-2">${productGroupProduct.itemCode}</div>
 
-    <div id="tag-product-${pos}-sku" class="col-3">${productGroupProduct.sku}</div>
+    <div id="tag-product-${pos}-sku" class="col-2">${productGroupProduct.sku}</div>
 
-    <div id="tag-product-${pos}-description" class="col-4">${productGroupProduct.productDescription}</div>
+    <div id="tag-product-${pos}-barcode" class="col-2">${productGroupProduct.barcodes}</div>
 
-    <div class="col-2 my-auto"><a id="tag-product-${pos}-remove-btn" href="#" class="btn btn-sm btn-danger" role="button"
+    <div id="tag-product-${pos}-description" class="col-3">${productGroupProduct.productDescription}</div>
+
+    <div id="tag-product-${pos}-category" class="col-2">${productGroupProduct.categoryDescription}</div>
+
+    <div class="col-1 my-auto"><a id="tag-product-${pos}-remove-btn" href="#" class="btn btn-sm btn-danger"
+                                  role="button"
                                   onClick="removeProduct(${productGroupProduct.productVariantId});">Remove</a></div>
 </div>

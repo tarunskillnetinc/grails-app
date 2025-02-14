@@ -48,7 +48,10 @@ class ProductGroup {
         endDate nullable: true
         timeRestriction nullable: true
         maxSellQuantity nullable: true, validator: { val, obj ->
-            if (!val || val < 0) {
+            if (val == null) {
+                return true; // maxSellQuantity can be empty
+            }
+            if (val < 1 || val > 999999) { // if its not empty then it must be a sensible number
                 return ['producthistory.maxSellQuantity.invalid']
             }
         }
@@ -57,12 +60,11 @@ class ProductGroup {
                 return ['producthistory.active.null']
             }
         }
-// temporarily disabled - will be used.
-//        productGroupProducts nullable: false, validator: { val, obj ->
-//            if( val?.size()==0 ) {
-//                return ['producthistory.productgroupproducts.nullorempty']
-//            }
-//        }
+        productGroupProducts nullable: false, validator: { val, obj ->
+            if (val == null || val.size() == 0) {
+                return ['producthistory.productgroupproducts.nullorempty']
+            }
+        }
     }
 
     def beforeUpdate() {
