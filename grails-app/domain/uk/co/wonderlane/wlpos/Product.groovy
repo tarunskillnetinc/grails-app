@@ -48,7 +48,7 @@ class Product {
     SelType selType
     String productImgUrl
 
-    String allergenListJson
+    String allergenIds
 
     static hasMany = [ variants: ProductVariant, productAttributeValues: ProductAttributeValues ]
     static belongsTo = [selType: SelType]
@@ -88,7 +88,7 @@ class Product {
         preferredSku column: "preferredSku"
         ownLabel column: "ownLabel"
         extras column: "extras", sqlType: "json"
-        allergenListJson column: "allergenList", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        allergenIds column: "allergenIds"
     }
 
     static constraints = {
@@ -103,16 +103,7 @@ class Product {
         status nullable: false
         category nullable: false
         retailerProductId nullable: true
-        allergenListJson nullable: true , validator: { val, obj ->
-            try {
-                if (val != null) {
-                    new groovy.json.JsonSlurper().parseText(val)
-                }
-                return true
-            } catch (Exception e) {
-                return false
-            }
-        }
+        allergenIds nullable: true
         restrictions validator: {val, obj ->
             return val?.validate() ? true : ["error.Product.badRestrictions"]
         }
@@ -137,15 +128,6 @@ class Product {
         preferredSku nullable: true
         ownLabel nullable: false
         extras nullable: true
-    }
-
-    List<Integer> getAllergenList() {
-        if (allergenListJson != null) {
-            Type listType = new TypeToken<List<Integer>>() {}.getType();
-            List<Integer> integerList = gsonProvider.gson.fromJson(allergenListJson, listType);
-            return integerList
-        }
-        return new ArrayList<Integer>()
     }
 
     List<RangeProduct> getRanges() {
@@ -284,7 +266,7 @@ class Product {
         product.setRestrictions(restrictions.getRestrictions())
         product.setDiscreetMessage(discreetMessage)
         product.setStatus(status)
-        product.setAllergenList(allergenList)
+        product.setAllergenIds(allergenIds)
         variants.each {
             if (it.storeId == null || it.storeId == storeId) {
                 product.getVariants().add(it.getProductVariant(priceBand))

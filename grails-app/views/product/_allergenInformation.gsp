@@ -29,7 +29,7 @@
 						<div class="col-6">
 							<div class="form-check d-flex align-items-center pl-0">
 								<g:checkBox id="allergenSelection-${index}"
-											name="allergenList"
+											name="allergenIds"
 											value="${AllergenDefinitions[index].id}"
 											checked="${isInArray(AllergenProductSelections,AllergenDefinitions[index].id)==true}"
 											class="col-lg-12 form-check-input wl-checkbox"
@@ -54,7 +54,7 @@
 						<div class="col-6">
 							<div class="form-check d-flex align-items-center pl-0">
 								<g:checkBox id="allergenSelection-${index}"
-											name="allergenList"
+											name="allergenIds"
 											value="${AllergenDefinitions[index].id}"
 											checked="${isInArray(AllergenProductSelections,AllergenDefinitions[index].id)==true}"
 											class="col-lg-12 form-check-input wl-checkbox"

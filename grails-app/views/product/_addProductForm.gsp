@@ -494,8 +494,8 @@
             <div id="collapseAllergenInformation" class="collapse collapsed" aria-labelledby="AllergenInformation" data-parent="#accordion">
                 <div class="card-body py-5">
                     <div id="AllergenInformationContainer"  style="max-height: 400px; overflow-x: hidden; overflow-y: auto;">
-                        <g:render template="allergenInformation" model="[AllergenProductSelections: product?.allergenList,
-                                                                         AllergenDefinitions : allergenList]" />
+                        <g:render template="allergenInformation" model="[AllergenProductSelections: productAllergens,
+                                                                         AllergenDefinitions : allergenOptions]" />
                     </div>
                 </div>
             </div>
