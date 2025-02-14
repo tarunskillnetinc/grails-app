@@ -65,6 +65,16 @@ class ProductController extends BaseController {
 
         def product = productService.getProduct(id)
 
+        def allergenOptions = Allergen.findAll();
+        def productAllergens = new ArrayList<Integer>()
+        if (StringUtils.isNotEmpty(product.getAllergenIds())) {
+            product.getAllergenIds().split(",").each {
+                if (StringUtils.isNotBlank(it)) {
+                    productAllergens.add(Integer.valueOf(it))
+                }
+            }
+        }
+
         if (!product) {
             flash.message = "Product not found"
             redirect(action: "index")
@@ -110,7 +120,9 @@ class ProductController extends BaseController {
                                     locationsEnabled   : locationsEnabled,
                                     locationsType      : locationsType,
                                     loyaltyEnabled     : loyaltyEnabled,
-                                    productAttributeValuesList : productAttributeValuesList])
+                                    productAttributeValuesList : productAttributeValuesList,
+                                    allergenOptions    : allergenOptions,
+                                    productAllergens   : productAllergens])
     }
 
     private void setEffectiveDate() {
@@ -147,6 +159,9 @@ class ProductController extends BaseController {
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
         List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(null)
 
+        def allergenOptions = Allergen.findAll();
+        def productAllergens = new ArrayList<Integer>()
+
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
                                     statusValues    : ProductStatus.values(),
                                     selTypeValues   : selTypeValues,
@@ -159,7 +174,9 @@ class ProductController extends BaseController {
                                     locationsEnabled: locationsEnabled,
                                     locationsType   : springSecurityService.principal.retailer.config.locationsType.name(),
                                     loyaltyEnabled  : loyaltyEnabled,
-                                    productAttributeValuesList : productAttributeValuesList])
+                                    productAttributeValuesList : productAttributeValuesList,
+                                    allergenOptions    : allergenOptions,
+                                    productAllergens   : productAllergens])
     }
 
     def search() {
@@ -627,6 +644,7 @@ class ProductController extends BaseController {
             product.selDescription = editedProduct.selDescription ?: editedProduct.receiptDescription?.take(16)
             product.productImgUrl = editedProduct.productImgUrl
             product.ownLabel = editedProduct.ownLabel
+            product.allergenIds = editedProduct.allergenIds
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
@@ -828,6 +846,15 @@ class ProductController extends BaseController {
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
             def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
             List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product ?: null)
+            def allergenOptions = Allergen.findAll();
+            def productAllergens = new ArrayList<Integer>()
+            if (StringUtils.isNotEmpty(product.getAllergenIds())) {
+                product.getAllergenIds().split(",").each {
+                    if (StringUtils.isNotBlank(it)) {
+                        productAllergens.add(Integer.valueOf(it))
+                    }
+                }
+            }
 
             render(view: "add", model: [product            : product,
                                         skuList            : skuList(product),
@@ -845,7 +872,9 @@ class ProductController extends BaseController {
                                         locationsType      : springSecurityService.principal.retailer.config.locationsType.name(),
                                         locationsEnabled   : locationsEnabled,
                                         loyaltyEnabled     : loyaltyEnabled,
-                                        productAttributeValuesList : productAttributeValuesList])
+                                        productAttributeValuesList : productAttributeValuesList,
+                                        allergenOptions    : allergenOptions,
+                                        productAllergens   : productAllergens])
         }
     }
 
@@ -1471,6 +1500,8 @@ class ProductController extends BaseController {
 
         builder.compare("vatCode", product.vatCode?.description, editedProduct.vatCode?.description)
 
+        doAllergenComparison(builder, product.allergenIds, editedProduct.allergenIds)
+
         List<String> deletedBarcodes = new ArrayList<>()
         editedProduct.variants.stream().filter({ variant -> variant != null }).forEach({ variant ->
             product.variants.stream().filter({ v -> v.id == variant.id }).findAny().ifPresentOrElse({ oldVariant ->
@@ -1490,6 +1521,31 @@ class ProductController extends BaseController {
                 // Variant deleted
                 doVariantComparison(builder, existingVariants.id, existingVariants, new ProductVariantCommand(), deletedBarcodes)
             }
+        }
+    }
+
+    private void doAllergenComparison(ProductHistoryBuilder builder, String currentIds, String editedIds) {
+        try {
+            def current = (currentIds ?: '').split(",").toList()
+            def edited = (editedIds ?: '').split(",").toList()
+
+            def removed = new ArrayList<>(current)
+            removed.removeAll(edited)
+            def added = new ArrayList<>(edited)
+            added.removeAll(current)
+
+            for (String id : removed) {
+                builder.compare("productAllergen",
+                        Allergen.findById(Integer.valueOf(id))?.name, null,
+                        ProductHistoryType.ALLERGEN)
+            }
+            for (String id : added) {
+                builder.compare("productAllergen",
+                        null, Allergen.findById(Integer.valueOf(id))?.name,
+                        ProductHistoryType.ALLERGEN)
+            }
+        } catch (Exception ex) {
+            log.println("exception thrown when comparing allergen ids: ${ex.getMessage()}")
         }
     }
 
@@ -1979,7 +2035,7 @@ class ProductController extends BaseController {
         to.status = from.status
         to.ownLabel = from.ownLabel
         to.retailerProductId = from.retailerProductId
-
+        to.allergenIds = from.allergenIds
     }
 
     private void copyProductVariants(ProductCommand from, Product to) {
@@ -2335,6 +2391,7 @@ class ProductCommand {
     SelType selType
     String productImgUrl
     boolean ownLabel
+    String allergenIds
 
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
