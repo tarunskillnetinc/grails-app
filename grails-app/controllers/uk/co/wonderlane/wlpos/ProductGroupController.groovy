@@ -228,16 +228,6 @@ class ProductGroupController {
                 render(action: "index")
                 return
             }
-
-            // Find the products that needs to be Removed upon successful save
-            // If there are no products left the CMD will have no skus so we can just use the whole productGroup products list
-            // which will fail save validation but lets the user rectify.
-            if (!cmd.sku) {
-                productGroupProductsToRemove = productGroup.productGroupProducts
-            } else {
-                // Remove any ProductGroupProducts which are no longer in the productGroup.
-                productGroupProductsToRemove = productGroup.productGroupProducts?.findAll { !cmd.sku.contains(it.sku) }
-            }
         } else {
             productGroup = new ProductGroup()
         }
@@ -418,7 +408,7 @@ class ProductGroupCommand {
                 return ['producthistory.active.null']
             }
         }
-        productGroupProducts nullable: false, validator: { val, obj ->
+        sku nullable: false, validator: { val, obj ->
             if (val?.size() == 0) {
                 return ['producthistory.productgroupproducts.nullorempty']
             }
