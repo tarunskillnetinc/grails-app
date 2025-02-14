@@ -35,6 +35,10 @@ class Pack implements Serializable {
     BigDecimal minAlcoholUnitPrice
     PriceMarkedType priceMarkedType
     BigDecimal priceMarkedValue
+    BigDecimal lengthCm
+    BigDecimal widthCm
+    BigDecimal heightCm
+    BigDecimal weightKg
 
     static transients = ['barcodez']
 
@@ -63,6 +67,10 @@ class Pack implements Serializable {
         minAlcoholUnitPrice column: "minAlcoholUnitPrice"
         priceMarkedType column: "priceMarkedType", sqlType: "enum", enumType: "string"
         priceMarkedValue column: "priceMarkedValue"
+        lengthCm column: "lengthCm"
+        widthCm column: "widthCm"
+        heightCm column: "heightCm"
+        weightKg column: "weightKg"
     }
 
     int getQuantity(def packLines) {
@@ -94,6 +102,10 @@ class Pack implements Serializable {
         priceMarkedType nullable: true
         minAlcoholUnitPrice nullable: true, blank: true, max: 999999.99 as BigDecimal, scale: 2
         priceMarkedValue nullable: true, max: 999999.99 as BigDecimal, scale: 2
+        lengthCm nullable: true, max: 9999.99 as BigDecimal, scale: 2
+        widthCm nullable: true, max: 9999.99 as BigDecimal, scale: 2
+        heightCm nullable: true, max: 9999.99 as BigDecimal, scale: 2
+        weightKg nullable: true, max: 9999.999 as BigDecimal, scale: 3
     }
 
     public uk.co.wonderlane.wlpos.entities.supplier.Pack getPack() {

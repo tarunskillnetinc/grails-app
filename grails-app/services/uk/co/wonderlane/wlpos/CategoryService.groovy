@@ -75,5 +75,4 @@ class CategoryService {
     def deleteCategory(Category category) {
         category.delete()
     }
-
 }

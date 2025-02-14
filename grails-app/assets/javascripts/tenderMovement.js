@@ -414,7 +414,7 @@ function confirmAndSubmit(message, yesCallBack) {
 
 function enforceAlphanumeric(input) {
     // Remove any non-alphanumeric characters
-    input.value = input.value.replace(/[^a-zA-Z0-9]/g, '');
+    input.value = input.value.replace(/[^a-zA-Z0-9 ]/g, '');
 
     // Ensure the input doesn't exceed the maxlength
     if (input.value.length > input.maxLength) {

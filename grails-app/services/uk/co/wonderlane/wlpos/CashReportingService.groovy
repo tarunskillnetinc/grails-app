@@ -232,6 +232,7 @@ class CashReportingService {
         return tenderMovement
     }
 
+    @Transactional("reporting")
     def saveTenderMovement(TenderMovement tenderMovement) {
         if (tenderMovement.validate()) {
             tenderMovement.save(flush: true)
