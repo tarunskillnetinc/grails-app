@@ -133,6 +133,7 @@
                 let options = [{year: 'numeric'}, {month: '2-digit'}, {day: '2-digit'}];
                 let formatted = formatDate(event.date, options, '-');
 
+                $('#neverExpires').prop("checked", false);
                 $("#endDate").val(formatted);
             });
 
