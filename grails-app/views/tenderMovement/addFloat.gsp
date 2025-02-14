@@ -159,11 +159,9 @@
                                 </div>
                                 <div class="dropdown-menu">
                                     <g:each in="${tills}" var="till">
-                                        <div class="dropdown-item">
-                                            <label class="mb-0">
-                                                <input type="checkbox" name="tillNos" value="${till.tillId}"> ${till.tillId}
-                                            </label>
-                                        </div>
+                                        <label class="mb-0 dropdown-item">
+                                            <input type="checkbox" name="tillNos" value="${till.tillId}"> ${till.tillId}
+                                        </label>
                                     </g:each>
                                 </div>
                             </div>
