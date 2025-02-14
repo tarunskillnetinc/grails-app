@@ -237,6 +237,11 @@
             <g:renderErrors bean="${productGroupErrors}" as="list"/>
         </div>
     </g:hasErrors>
+    <g:hasErrors bean="${productGroup}">
+        <div id="tag-management-errors-list" class="alert alert-danger alert-wl mx-0 pgerrors" role="alert">
+            <g:renderErrors bean="${productGroup}" as="list"/>
+        </div>
+    </g:hasErrors>
     <div class="form-container mt-4">
         <g:form name="productGroup-form" action="save" novalidate="novalidate" class="mt-4">
             <g:hiddenField name="id" value="${productGroup?.id ?: 0}"/>

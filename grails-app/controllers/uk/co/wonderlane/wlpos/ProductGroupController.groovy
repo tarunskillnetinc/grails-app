@@ -262,7 +262,9 @@ class ProductGroupController {
         }
 
         def dateFormatter = getDateFormat()
-        productGroup.startDate = dateFormatter.parseDateTime(cmd.startDate)
+        if (cmd.startDate != null) {
+            productGroup.startDate = dateFormatter.parseDateTime(cmd.startDate)
+        }
         if (cmd.neverExpires) {
             productGroup.endDate = null
         } else if (cmd.endDate != null) {
@@ -390,13 +392,36 @@ class ProductGroupCommand {
     Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
 
     static constraints = {
-        description nullable: false, blank: false, maxSize: 100
-        maxSellQuantity nullable: true, min: 1, max: 999
         sku nullable: false
         days nullable: true
         restrictionStartTime nullable: true
         restrictionEndTime nullable: true
-        startDate nullable: false
+
+        description nullable: false, size: 1..60, validator: { val, obj ->
+            if (!val || val.trim().length() < 1 || val.trim().length() > 60) {
+                return ['producthistory.description.size']
+            }
+        }
+        startDate nullable: false, validator: { val, obj ->
+            if (val == null) {
+                return ['producthistory.startdate.empty']
+            }
+        }
         endDate nullable: true
+        maxSellQuantity nullable: true, validator: { val, obj ->
+            if (val ?: 0 < 0 || val ?: 0 > 999999) {
+                return ['producthistory.maxSellQuantity.invalid']
+            }
+        }
+        active nullable: false, validator: { val, obj ->
+            if (val == null) {
+                return ['producthistory.active.null']
+            }
+        }
+        productGroupProducts nullable: false, validator: { val, obj ->
+            if (val?.size() == 0) {
+                return ['producthistory.productgroupproducts.nullorempty']
+            }
+        }
     }
 }
