@@ -4,6 +4,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.enums.CategoryHistoryType
 import uk.co.wonderlane.wlpos.enums.StockClassification
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
@@ -13,6 +14,7 @@ class CategoryController extends BaseController {
 
     def springSecurityService
     def rabbitService
+    def categoryHistoryService
     def pricingClassificationService
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -106,7 +108,8 @@ class CategoryController extends BaseController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def save() {
+    def save(CategoryCommand editedCategory) {
+        def builder = null
         def addingCategory = false
         def category = null
         def categoryId = tryParseInt(params.get("id").toString())
@@ -121,6 +124,9 @@ class CategoryController extends BaseController {
             category.retailerId = springSecurityService.principal.retailerId
             category.restrictions = new Restrictions()
             addingCategory = true
+        } else {
+            builder = new CategoryHistoryBuilder(category.id, springSecurityService)
+            doComparison(builder, category, editedCategory)
         }
 
         bindData(category, params)
@@ -175,6 +181,15 @@ class CategoryController extends BaseController {
         if (!category.hasErrors()) {
             // Send the category to Rabbit to be inserted / updated in the tills
             sendMessageToRabbit(true, category)
+            
+            if (addingCategory) {
+                builder = new CategoryHistoryBuilder(category.id, springSecurityService)
+                builder.add(CategoryHistoryType.NEW_CATEGORY)
+            }
+
+            if (builder && builder.categoryHistories) {
+                categoryHistoryService.saveCategoryHistories(builder.categoryHistories)
+            }
 
             flash.message = "Category ${category.description} saved successfully"
             redirect("controller": "category", action:"index")
@@ -208,6 +223,11 @@ class CategoryController extends BaseController {
             render(template: "maintenanceForm", model: [category: category, hasChildren: true, topLevelCategories: categoryService.getTopLevelCategories()])
             return
         }
+        
+        def builder = new CategoryHistoryBuilder(category.id, springSecurityService)
+        builder.add(CategoryHistoryType.DELETE)
+
+        categoryHistoryService.saveCategoryHistories(builder.categoryHistories)
 
         // Send the category to Rabbit to be deleted from the tills
         sendMessageToRabbit(false, category)
@@ -215,6 +235,45 @@ class CategoryController extends BaseController {
 
         flash.message = "Category ${category.description} deleted successfully"
         render("OK")
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxGetCategoryHistory(int categoryId) {
+        def categoryHistoryMap = [:]
+        def category = categoryService.getCategory(categoryId)
+
+        if (categoryId > 0) {
+            def effectiveDate = DateTime.now(DateTimeZone.UTC)
+
+            if (session != null && session.effectiveDate != null && session.effectiveDate[1] != null) {
+                effectiveDate = session.effectiveDate[1]
+            }
+
+            def categoryHistoryList = categoryHistoryService.getCategoryHistory(categoryId, effectiveDate)
+
+            categoryHistoryList = categoryHistoryList?.sort {
+                it?.effectiveDate
+            }
+
+            categoryHistoryList = categoryHistoryList?.reverse()
+
+            String nullString = "null"
+            categoryHistoryList?.each { item ->
+                if (item?.fromValue == null || item?.fromValue == nullString) {
+                    item?.fromValue = "unset"
+                }
+
+                if (item?.toValue == null || item?.toValue == nullString) {
+                    item?.toValue = "unset"
+                }
+            }
+
+            categoryHistoryMap = categoryHistoryList?.groupBy {
+                it?.effectiveDate?.toDate()?.format('dd/MM/yyyy')
+            }
+        }
+
+        render(template: "categoryHistory", model: [category: category, categoryHistoryMap: categoryHistoryMap])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -329,4 +388,48 @@ class CategoryController extends BaseController {
         }
         return false
     }
+
+    private void doComparison(CategoryHistoryBuilder builder, Category category, CategoryCommand editedCategory) {
+        builder.compare("description", category.description, editedCategory.description)
+        builder.compare("shortDescription", category.shortDescription, editedCategory.shortDescription)
+        builder.compare("retailerCategoryCode", category.retailerCategoryCode, editedCategory.retailerCategoryCode)
+        builder.compare("varianceQuantity", category.varianceQuantity, editedCategory.varianceQuantity)
+        builder.compare("varianceValue", category.varianceValue, editedCategory.varianceValue)
+        builder.compare("restrictions.minOpenPrice", category.restrictions.minOpenPrice, editedCategory.restrictions.minOpenPrice)
+        builder.compare("restrictions.maxOpenPrice", category.restrictions.maxOpenPrice, editedCategory.restrictions.maxOpenPrice)
+        builder.compare("restrictions.buyerIdRequired", category.restrictions.buyerIdRequired, editedCategory.restrictions.buyerIdRequired)
+        builder.compare("restrictions.buyerIdForced", category.restrictions.buyerIdForced, editedCategory.restrictions.buyerIdForced)
+        builder.compare("restrictions.buyerAgeRestriction", category.restrictions.buyerAgeRestriction, editedCategory.restrictions.buyerAgeRestriction)
+        builder.compare("restrictions.buyerChallengeAge", category.restrictions.buyerChallengeAge, editedCategory.restrictions.buyerChallengeAge)
+        builder.compare("restrictions.sellerAgeRestriction", category.restrictions.sellerAgeRestriction, editedCategory.restrictions.sellerAgeRestriction)
+        builder.compare("restrictions.refundAllowed", category.restrictions.refundAllowed, editedCategory.restrictions.refundAllowed)
+        builder.compare("restrictions.markdownAllowed", category.restrictions.markdownAllowed, editedCategory.restrictions.markdownAllowed)
+        builder.compare("restrictions.discountAllowed", category.restrictions.discountAllowed, editedCategory.restrictions.discountAllowed)
+        builder.compare("restrictions.creditPaymentAllowed", category.restrictions.creditPaymentAllowed, editedCategory.restrictions.creditPaymentAllowed)
+        builder.compare("restrictions.quantityChangeAllowed", category.restrictions.quantityChangeAllowed, editedCategory.restrictions.quantityChangeAllowed)
+        builder.compare("restrictions.quantityChangeForced", category.restrictions.quantityChangeForced, editedCategory.restrictions.quantityChangeForced)
+        builder.compare("restrictions.receiptPrintForced", category.restrictions.receiptPrintForced, editedCategory.restrictions.receiptPrintForced)
+        builder.compare("restrictions.allowsLoyaltyPointsCollection", category.restrictions.allowsLoyaltyPointsCollection, editedCategory.restrictions.allowsLoyaltyPointsCollection)
+        builder.compare("restrictions.alwaysOpenCashDrawer", category.restrictions.alwaysOpenCashDrawer, editedCategory.restrictions.alwaysOpenCashDrawer)
+        builder.compare("restrictions.excludedFromPromotion", category.restrictions.excludedFromPromotion, editedCategory.restrictions.excludedFromPromotion)
+        builder.compare("restrictions.saleAllowed", !category.restrictions.saleAllowed, editedCategory.restrictions.saleAllowed)
+        builder.compare("restrictions.priceEntryRequired", category.restrictions.priceEntryRequired, editedCategory.restrictions.priceEntryRequired)
+        builder.compare("restrictions.allowPriceChange", category.restrictions.allowPriceChange, editedCategory.restrictions.allowPriceChange)
+        builder.compare("restrictions.maximumMarkdownPercentage", category.restrictions.maximumMarkdownPercentage, editedCategory.restrictions.maximumMarkdownPercentage)
+        builder.compare("restrictions.quantityChangeRestriction", category.restrictions.quantityChangeRestriction, editedCategory.restrictions.quantityChangeRestriction)
+        builder.compare("restrictions.promptForMarkdown", category.restrictions.promptForMarkdown, editedCategory.restrictions.promptForMarkdown)
+        builder.compare("restrictions.stockClassification", category.restrictions.stockClassification, editedCategory.restrictions.stockClassification)
+        builder.compare("restrictions.promptedDaysFrom", category.restrictions.promptedDaysFrom, editedCategory.restrictions.promptedDaysFrom)
+        builder.compare("restrictions.pricingClassification", category.restrictions.pricingClassification, editedCategory.restrictions.pricingClassification)
+    }
+}
+
+class CategoryCommand {
+    int id
+    String description
+    String shortDescription
+    String retailerCategoryCode
+    Restrictions restrictions
+    Integer varianceQuantity
+    BigDecimal varianceValue
 }
