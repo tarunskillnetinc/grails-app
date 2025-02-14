@@ -245,6 +245,7 @@ class ProductGroupController {
         productGroup.description = cmd.description
         productGroup.maxSellQuantity = cmd.maxSellQuantity
         productGroup.active = cmd.active
+
         if (cmd.days != null && cmd.days.size() > 0) { // multiple days of the week have been selected as restricted.
             def jsonMap = [
                     timeRestrictionDays: (0..6).collect { day -> cmd.days.contains(day) },
@@ -288,14 +289,22 @@ class ProductGroupController {
                 productGroupService.deleteProductGroupProduct(productGroup.id, it.sku)
             }
 
-            productGroupService.saveProductGroup(productGroup)
+            try {
+                productGroupService.saveProductGroup(productGroup)
 
-            // Send this update to the whole Retailer exchange!
-            sendProductGroup(productGroup)
+                // Send this update to the whole Retailer exchange!
+                sendProductGroup(productGroup)
 
-            flash.message = "Product Group saved successfully."
+                flash.message = "Product Group saved successfully."
 
-            redirect(action: "index", id: productGroup.id)
+                redirect(action: "index", id: productGroup.id)
+            } catch (Exception ex) {
+                flash.error = "Product Group failed to send. " + ex.toString();
+
+                ex.printStackTrace()
+
+                render(view: "addEdit", model: [productGroup: cmd, productGroupErrors: productGroup])
+            }
         } else {
             if (productGroup.productGroupProducts && productGroup.productGroupProducts?.size() > 0) {
                 def productsvariants = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })

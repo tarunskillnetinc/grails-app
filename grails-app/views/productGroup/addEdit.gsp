@@ -270,8 +270,11 @@
                 <!-- Status -->
                 <div class="form-group row mt-4">
                     <label for="status" class="col-6 col-form-label text-right pr-4">Status</label>
-                    <g:select name="status" from="${['Active', 'Inactive']}"
-                              value="${productGroup ? (productGroup?.active ? 'Active' : 'Inactive') : 'Active'}"
+                <g:select name="active"
+                          from="${[['activeFlag': true, 'name': 'Active'], ['activeFlag': false, 'name': 'Inactive']]}"
+                          optionKey="activeFlag"
+                          optionValue="name"
+                          value="${productGroup?.active}"
                               class="col-6 form-control"/>
                 </div>
 
