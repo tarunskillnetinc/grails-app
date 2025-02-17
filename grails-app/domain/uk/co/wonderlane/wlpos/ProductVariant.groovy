@@ -113,7 +113,7 @@ class ProductVariant implements Serializable {
         priceMarked nullable: false
         unitSize nullable: true, max: 9999.999 as BigDecimal, scale: 3
         unitOfMeasure nullable: true
-        itemsInUnit nullable: false, min: 1
+        itemsInUnit nullable: false, min: 1, max: 9999
         heightCm nullable: true
         widthCm nullable: true
         depthCm nullable: true

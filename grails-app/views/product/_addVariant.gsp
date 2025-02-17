@@ -122,7 +122,7 @@
                           noSelection="${[null: '']}"/>
             </div>
             <div class="input-group col-4 my-auto">
-                <g:textField name="addVariantItemsInUnit" value="${variant?.itemsInUnit}" class="form-control" onkeydown="acceptMinMaxNumberValue(event, 1, Number.MAX_SAFE_INTEGER)" />
+                <g:textField name="addVariantItemsInUnit" value="${variant?.itemsInUnit}" class="form-control" onkeydown="acceptMinMaxNumberValue(event, 1, 9999)" />
             </div>
         </div>
 
