@@ -4,7 +4,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>Wonderlane Category Maintenance</title>
+    <title>Trust Retail Category Maintenance</title>
 
     <asset:javascript src="jquery-ui.js" />
     <asset:stylesheet src="jquery-ui.css" />
