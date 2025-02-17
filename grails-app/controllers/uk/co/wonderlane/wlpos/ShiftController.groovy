@@ -114,7 +114,7 @@ class ShiftController {
                 if ((shift.getShiftStatus() == ShiftStatus.RECONCILED) && (!shiftService.isShiftRecountAmountNotExceed(shift) || isFinalise)) {
                     // When we move into finalise view we need to pass safe location to summary view to select
                     // For that select if no have create safe location
-                    def safes = safeService.getStoreSafes()
+                    def safes = safeService.getActiveStoreSafes()
                     def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
 
                     render(template: "cashUpFinalizeModal", model: [shift: shift, safes: safes, varianceReasons:varianceReasons, tenderTypes: applicableTenderTypes])
