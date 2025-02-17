@@ -1804,7 +1804,7 @@ class ProductController extends BaseController {
 	    def wacValue = BigDecimal.ZERO
         if (cmd.storeId) {
             wacValue = cmd.weightedAverageCostPrice
-        } else if (springSecurityService.principal.storeId == null) {
+        } else if (springSecurityService.principal.storeId == null && cmd.sku) {
             wacValue = WeightedAverageCostPriceUtil.calculateRetailerWacForSku(productService.getAllProductVariantsForSku(cmd.sku))
         }
 
