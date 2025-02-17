@@ -180,12 +180,9 @@
         <div class="row mt-4">
             <div class="col">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li class="breadcrumb-item"><g:link controller="productGroup"
-                                                        action="index">Product Group Management</g:link></li>
-                    <li class="breadcrumb-item active" aria-current="page">
-                        ${productGroup?.description ? "Edit Product Group" : "Add Product Group"}
-                    </li>
+                    <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                    <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="productGroup" action="index">Product Group Management</g:link></li>
+                    <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${productGroup?.description ? "Edit Product Group" : "Add Product Group"}</li>
                 </ol>
             </div>
         </div>
