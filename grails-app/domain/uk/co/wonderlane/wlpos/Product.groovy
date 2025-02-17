@@ -45,8 +45,6 @@ class Product {
     SelType selType
     String productImgUrl
 
-    String allergenIds
-
     static hasMany = [ variants: ProductVariant, productAttributeValues: ProductAttributeValues ]
     static belongsTo = [selType: SelType]
 
@@ -85,7 +83,6 @@ class Product {
         preferredSku column: "preferredSku"
         ownLabel column: "ownLabel"
         extras column: "extras", sqlType: "json"
-        allergenIds column: "allergenIds"
     }
 
     static constraints = {
@@ -100,7 +97,6 @@ class Product {
         status nullable: false
         category nullable: false
         retailerProductId nullable: true
-        allergenIds nullable: true
         restrictions validator: {val, obj ->
             return val?.validate() ? true : ["error.Product.badRestrictions"]
         }
@@ -263,7 +259,7 @@ class Product {
         product.setRestrictions(restrictions.getRestrictions())
         product.setDiscreetMessage(discreetMessage)
         product.setStatus(status)
-        product.setAllergenIds(allergenIds)
+
         variants.each {
             if (it.storeId == null || it.storeId == storeId) {
                 product.getVariants().add(it.getProductVariant(priceBand))
