@@ -14,6 +14,7 @@ abstract class BaseController {
 
     def productService
     def categoryService
+    def amendableOrderService
 
     abstract getColumns()
 
@@ -41,6 +42,8 @@ abstract class BaseController {
                     productService.saveColumns(reportColumns)
                 } else if (reportType == ReportType.CATEGORY_SEARCH) {
                     categoryService.saveColumns(reportColumns)
+                } else if (reportType == ReportType.AMENDABLE_ORDER_SEARCH || reportType == ReportType.AMENDABLE_ORDER_VIEW_CATEGORY) {
+                    amendableOrderService.saveColumns(reportColumns)
                 }
 
                 render(status: 200)

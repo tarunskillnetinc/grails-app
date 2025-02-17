@@ -189,6 +189,9 @@
                                 <div class="dropdown-divider"></div>
                             </sec:ifAnyGranted>
 
+                            <g:link elementId="amendable-order-dropdown" controller="amendableOrder" action="index" class="dropdown-item">Order Amendments</g:link>
+                            <div class="dropdown-divider"></div>
+
                             <span id="other-reports" class="dropdown-header">Other Reports</span>
 
                             <g:link elementId="till-control-events-dropdown" controller="reporting" action="tillControlEvents" class="dropdown-item">Till Control Events</g:link>
