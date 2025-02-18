@@ -61,7 +61,7 @@ abstract class BaseController {
             def categories = categoryService.searchCategories(searchTerm)
             productCategoryList.addAll(categories?.collect { it.id })
             categories?.each {
-                addCategoriesHierarchy(topLevelCategories, productCategoryList, it)
+                addCategoriesHierarchy(topLevelCategories, productCategoryList, it, [])
             }
         } else {
             topLevelCategories = categoryService.getTopLevelCategories()
