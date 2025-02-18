@@ -350,7 +350,7 @@ class ProductGroupController {
     }
 
     private static def insertCharacter(String original, char charToInsert, int index) {
-        if (original.length() > index) {
+        if (original?.length() > index) {
             def chars = original.toCharArray() as List
             chars.add(index, charToInsert)
             return chars.join()
