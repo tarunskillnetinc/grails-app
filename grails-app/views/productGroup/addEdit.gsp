@@ -95,7 +95,6 @@
                 var minutes = e.time.minutes.toString().padStart(2, '0');
                 $(this).val(hours + ':' + minutes);
             });
-            ;
 
             // Show widget when clicking on the input or the icon
             $('#startTimeContainer, #endTimeContainer').on('click', function (e) {
@@ -141,6 +140,21 @@
                 if ($(this).is(':checked')) {
                     $('#endDate').val('');
                 }
+            });
+
+            $('#dayDropdownToggle').on('click', function (e) {
+                e.preventDefault();
+                $('#days-dropdown-menu').toggle();
+            });
+
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('#dayDropdownToggle, #days-dropdown-menu').length) {
+                    $('#days-dropdown-menu').hide();
+                }
+            });
+
+            $('#days-dropdown-menu').on('click', function (e) {
+                e.stopPropagation();
             });
         });
 
@@ -305,21 +319,31 @@
 
                     <!-- Day Restrictions -->
                     <div class="form-group row mt-4">
-                        <label class="col-6 col-form-label text-right pr-4">Day Restrictions</label>
+                    <label class="col-6 col-form-label text-right pr-4">Day Restrictions</label>
 
-                        <div class="col-6 px-0">
-                            <div class="checkbox-group">
+                    <div class="col-6 px-0">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dayDropdownToggle"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Select Days
+                            </button>
+
+                            <div id="days-dropdown-menu" aria-labelledby="dayDropdown" class="dropdown-menu"
+                                 style="display:none">
                                 <g:each in="${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}"
                                         var="day" status="i">
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="${day}" name="days"
-                                               value="${i}"
-                                            ${productGroup?.days?.contains(i) ? 'checked' : ''}>
-                                        <label class="form-check-label" for="${day}">${day}</label>
+                                    <div class="dropdown-item">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="${day}" name="days"
+                                                   value="${i}"
+                                                ${productGroup?.days?.contains(i) ? 'checked' : ''}>
+                                            <label class="form-check-label" for="${day}">${day}</label>
+                                        </div>
                                     </div>
                                 </g:each>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </div>
 
