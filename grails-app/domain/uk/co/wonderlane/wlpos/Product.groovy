@@ -95,7 +95,13 @@ class Product {
         vatPercentageOverride min:0 as BigDecimal, max: 100 as BigDecimal, blank: true, nullable: true, scale: 2
         vatCode nullable: false
         status nullable: false
-        category nullable: false
+        category nullable: false, validator: {val, obj ->
+            if (val?.retailerCategoryCode == null) {
+                return ["error.Product.retailerCategoryCode"]
+            }
+
+            return val?.validate()
+        }
         retailerProductId nullable: true
         restrictions validator: {val, obj ->
             return val?.validate() ? true : ["error.Product.badRestrictions"]
