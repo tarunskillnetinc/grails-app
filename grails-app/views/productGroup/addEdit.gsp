@@ -73,6 +73,11 @@
         margin-top: 0.3rem;
         margin-left: -1.5rem;
     }
+
+#dayDropdownToggle {
+    white-space: normal;
+    text-align: left;
+}
     </style>
     <script>
         $(function () {
@@ -95,7 +100,6 @@
                 var minutes = e.time.minutes.toString().padStart(2, '0');
                 $(this).val(hours + ':' + minutes);
             });
-            ;
 
             // Show widget when clicking on the input or the icon
             $('#startTimeContainer, #endTimeContainer').on('click', function (e) {
@@ -142,7 +146,44 @@
                     $('#endDate').val('');
                 }
             });
+
+            $('#dayDropdownToggle').on('click', function (e) {
+                e.preventDefault();
+                $('#days-dropdown-menu').toggle();
+            });
+
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('#dayDropdownToggle, #days-dropdown-menu').length) {
+                    $('#days-dropdown-menu').hide();
+                }
+            });
+
+            $('#days-dropdown-menu').on('click', function (e) {
+                e.stopPropagation();
+            });
+
+            $('.day-checkbox').on('change', function () {
+                updateButtonText();
+            });
+
+            updateButtonText();
         });
+
+        function updateButtonText() {
+            var selectedDays = $('.day-checkbox:checked').map(function () {
+                return $(this).next('label').text();
+            }).get();
+
+            var buttonText;
+            if (selectedDays.length === 7) {
+                buttonText = 'All Days';
+            } else if (selectedDays.length > 0) {
+                buttonText = selectedDays.join(', ');
+            } else {
+                buttonText = 'Select Days';
+            }
+            $('#dayDropdownToggle').text(buttonText);
+        }
 
         function formatDate(date, options, separator) {
             function format(option) {
@@ -305,21 +346,31 @@
 
                     <!-- Day Restrictions -->
                     <div class="form-group row mt-4">
-                        <label class="col-6 col-form-label text-right pr-4">Day Restrictions</label>
+                    <label for="dayDropdownToggle" class="col-6 col-form-label text-right pr-4">Day Restrictions</label>
+                    <div class="col-6 px-0">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dayDropdownToggle"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Select Days
+                            </button>
 
-                        <div class="col-6 px-0">
-                            <div class="checkbox-group">
+                            <div id="days-dropdown-menu" aria-labelledby="dayDropdown" class="dropdown-menu"
+                                 style="display:none">
                                 <g:each in="${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}"
                                         var="day" status="i">
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="${day}" name="days"
-                                               value="${i}"
-                                            ${productGroup?.days?.contains(i) ? 'checked' : ''}>
-                                        <label class="form-check-label" for="${day}">${day}</label>
+                                    <div class="dropdown-item">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="day-checkbox form-check-input" id="${day}"
+                                                   name="days"
+                                                   value="${i}"
+                                                ${productGroup?.days?.contains(i) ? 'checked' : ''}>
+                                            <label class="form-check-label" for="${day}">${day}</label>
+                                        </div>
                                     </div>
                                 </g:each>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </div>
 
@@ -327,9 +378,9 @@
                     <!-- Start Time -->
                     <div class="form-group row mt-4">
                     <label for="restrictionStartTime"
-                           class="col-6 col-form-label text-right pr-4">Start Time</label>
+                           class="col-3 col-form-label text-right pr-4">Start Time</label>
 
-                        <div class="col-6 px-0">
+                    <div class="col-3 px-0">
                             <div id="startTimeContainer" class="input-group bootstrap-timepicker timepicker">
                                 <input id="restrictionStartTime" name="restrictionStartTime" type="text"
                                        class="form-control input-small"
@@ -341,24 +392,21 @@
                                 </span>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- End Time -->
-                    <div class="form-group row mt-4">
-                        <label for="restrictionEndTime" class="col-6 col-form-label text-right pr-4">End Time</label>
+                    <label for="restrictionEndTime" class="col-3 col-form-label text-right pr-4">End Time</label>
 
-                        <div class="col-6 px-0">
-                            <div id="endTimeContainer" class="input-group bootstrap-timepicker timepicker">
-                                <input id="restrictionEndTime" name="restrictionEndTime" type="text"
-                                       class="form-control input-small"
-                                       value="${productGroup?.restrictionEndTime}"/>
-                                <span class="input-group-addon">
-                                    <svg class="icon-clock" width="16" height="16">
-                                        <use xlink:href="#icon-clock"></use>
-                                    </svg>
-                                </span>
-                            </div>
+                    <div class="col-3 px-0">
+                        <div id="endTimeContainer" class="input-group bootstrap-timepicker timepicker">
+                            <input id="restrictionEndTime" name="restrictionEndTime" type="text"
+                                   class="form-control input-small"
+                                   value="${productGroup?.restrictionEndTime}"/>
+                            <span class="input-group-addon">
+                                <svg class="icon-clock" width="16" height="16">
+                                    <use xlink:href="#icon-clock"></use>
+                                </svg>
+                            </span>
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>
