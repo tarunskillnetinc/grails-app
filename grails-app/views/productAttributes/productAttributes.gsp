@@ -80,7 +80,7 @@
 
         <div class="col-12 text-right mt-3">
             <div class="d-flex justify-content-end align-items-center">
-                <g:link controller="productAttributes" action="addProductAttribute" tabindex="-1" role="button"
+                <g:link elementId="add-product-attribute-btn"  controller="productAttributes" action="addProductAttribute" tabindex="-1" role="button"
                         class="btn btn-wl ml-1">Add Product Attribute</g:link>
             </div>
         </div>
