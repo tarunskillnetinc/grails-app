@@ -350,9 +350,13 @@ class ProductGroupController {
     }
 
     private static def insertCharacter(String original, char charToInsert, int index) {
-        def chars = original.toCharArray() as List
-        chars.add(index, charToInsert)
-        return chars.join()
+        if (original.length() > index) {
+            def chars = original.toCharArray() as List
+            chars.add(index, charToInsert)
+            return chars.join()
+        } else {
+            return original;
+        }
     }
 
     private static def getDateFormat() {
