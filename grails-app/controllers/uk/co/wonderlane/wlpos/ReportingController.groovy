@@ -451,7 +451,7 @@ class ReportingController {
 
             def salesGroupedCurrentLevel = salesGroup.value.groupBy { Sale sale -> sale.salesCategories?.find { it.categoryLevel == currentCategoryLevel + 1 }?.categoryId }
 
-            if (salesGroupedCurrentLevel.size() > 1 && currentCategoryLevel < maxCategoryLevel) {
+            if (!salesGroupedCurrentLevel.isEmpty() && currentCategoryLevel < maxCategoryLevel) {
                 populateCategorySalesFinalSales(currentCategoryLevel + 1, salesGroupedCurrentLevel, finalSales, maxCategoryLevel)
             }
         }
