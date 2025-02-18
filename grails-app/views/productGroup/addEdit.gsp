@@ -73,6 +73,11 @@
         margin-top: 0.3rem;
         margin-left: -1.5rem;
     }
+
+#dayDropdownToggle {
+    white-space: normal;
+    text-align: left;
+}
     </style>
     <script>
         $(function () {
@@ -156,7 +161,29 @@
             $('#days-dropdown-menu').on('click', function (e) {
                 e.stopPropagation();
             });
+
+            $('.day-checkbox').on('change', function () {
+                updateButtonText();
+            });
+
+            updateButtonText();
         });
+
+        function updateButtonText() {
+            var selectedDays = $('.day-checkbox:checked').map(function () {
+                return $(this).next('label').text();
+            }).get();
+
+            var buttonText;
+            if (selectedDays.length === 7) {
+                buttonText = 'All Days';
+            } else if (selectedDays.length > 0) {
+                buttonText = selectedDays.join(', ');
+            } else {
+                buttonText = 'Select Days';
+            }
+            $('#dayDropdownToggle').text(buttonText);
+        }
 
         function formatDate(date, options, separator) {
             function format(option) {
@@ -319,6 +346,7 @@
 
                     <!-- Day Restrictions -->
                     <div class="form-group row mt-4">
+                    <label for="dayDropdownToggle" class="col-6 col-form-label text-right pr-4">Day Restrictions</label>
                     <div class="col-6 px-0">
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" id="dayDropdownToggle"
@@ -332,7 +360,8 @@
                                         var="day" status="i">
                                     <div class="dropdown-item">
                                         <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="${day}" name="days"
+                                            <input type="checkbox" class="day-checkbox form-check-input" id="${day}"
+                                                   name="days"
                                                    value="${i}"
                                                 ${productGroup?.days?.contains(i) ? 'checked' : ''}>
                                             <label class="form-check-label" for="${day}">${day}</label>
