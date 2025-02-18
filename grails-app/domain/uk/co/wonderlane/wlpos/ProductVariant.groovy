@@ -82,7 +82,7 @@ class ProductVariant implements Serializable {
         priceMarked column: "priceMarked"
         unitSize column: "unitSize"
         unitOfMeasure column: "unitOfMeasure"
-        itemsInUnit column: "itemsInUnit"
+        itemsInUnit column: "itemsInUnit", sqlType: "smallint"
         heightCm column: "heightCm"
         widthCm column: "widthCm"
         depthCm column: "depthCm"
