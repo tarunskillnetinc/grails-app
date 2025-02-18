@@ -66,7 +66,7 @@ class CategoryController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGetInheritance(int selectedCategoryId) {
         def parentCategory = categoryService.getCategory(selectedCategoryId)
-        render(template:"categoryInheritance", model: [category: parentCategory])
+        render(template:"restrictions", model: [category: parentCategory])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -142,6 +142,8 @@ class CategoryController extends BaseController {
             if (parentCategorySearch != null) {
                 if (parentCategorySearch.id == category.id) {
                     category.errors.reject('category.parentCategory.notUnique')
+                } else if (parentCategorySearch.retailerCategoryCode == null) {
+                    category.errors.reject('category.parentCategory.categorycode')
                 } else if (parentIsSubCategory(category.id, parentId.get())) {
                     category.errors.reject('category.parentCategory.subcategory.error')
                 } else {
@@ -153,8 +155,7 @@ class CategoryController extends BaseController {
         } else {
             category.parentCategory = null
         }
-        
-        category.validate()
+
         if (category.hasErrors()) {
             render(view: "maintenance", model: [category: category, addCategory: false, topLevelCategories: categoryService.getTopLevelCategories(), pricingClassifications: pricingClassification])
             return

@@ -41,7 +41,7 @@
 
                     <div class="row">
                         <div class="form-group row col-12 col-sm-6 offset-sm-1">
-                            <label for="retailerCategoryCode" class="col-4 col-form-label text-right pr-4">Retailer Category Code:</label>
+                            <label for="retailerCategoryCode" class="col-4 col-form-label text-right pr-4">Category Code:</label>
                             <g:field type="text" maxlength="30" name="retailerCategoryCode" class="col-4 form-control bottom-border" required="true" value="${category?.retailerCategoryCode}"/>
                         </div>
                     </div>
@@ -73,8 +73,10 @@
 
             <div id="collapseCategoryRestrictions" class="collapse collapsed" aria-labelledby="categoryRestrictions" data-parent="#accordion">
                 <div class="card-body py-5">
-                    <div id="productHistoryContainer"  style="max-height: 300px; overflow-x: auto; overflow-y: auto;">
-                        <g:render template="categoryInheritance" model="[category: category]"></g:render>
+                    <div id="productHistoryContainer" style="max-height: 300px; overflow-x: auto; overflow-y: auto;">
+                        <div id="restrictions">
+                            <g:render template="restrictions" model="[category: category]"></g:render>
+                        </div>
                     </div>
                 </div>
             </div>
