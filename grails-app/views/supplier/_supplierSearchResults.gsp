@@ -10,22 +10,22 @@
 
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="searchSupplier({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'reference', sortOrder: ${sortParams?.sortColumn == 'reference' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Supplier Reference</a>
+        <a id="supplier-header-reference" href="#" onclick="searchSupplier({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'reference', sortOrder: ${sortParams?.sortColumn == 'reference' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Supplier Reference</a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="searchSupplier({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'name', sortOrder: ${sortParams?.sortColumn == 'name' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Supplier Name</a>
+        <a id="supplier-header-name" href="#" onclick="searchSupplier({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'name', sortOrder: ${sortParams?.sortColumn == 'name' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Supplier Name</a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="searchSupplier({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'customerReference', sortOrder: ${sortParams?.sortColumn == 'customerReference' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Customer Reference</a>
+        <a id="supplier-header-customer-reference" href="#" onclick="searchSupplier({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'customerReference', sortOrder: ${sortParams?.sortColumn == 'customerReference' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Customer Reference</a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="searchSupplier({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'contactName', sortOrder: ${sortParams?.sortColumn == 'contactName' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Contact Name</a>
+        <a id="supplier-header-contact-name" href="#" onclick="searchSupplier({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'contactName', sortOrder: ${sortParams?.sortColumn == 'contactName' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Contact Name</a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="searchSupplier({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'email', sortOrder: ${sortParams?.sortColumn == 'email' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Email</a>
+        <a id="supplier-header-email" href="#" onclick="searchSupplier({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'email', sortOrder: ${sortParams?.sortColumn == 'email' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Email</a>
     </div>
     <div class="col-2 font-weight-bold">
-        <a href="#" onclick="searchSupplier({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'phoneNumber', sortOrder: ${sortParams?.sortColumn == 'phoneNumber' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Telephone</a>
+        <a id="supplier-header-telephone" href="#" onclick="searchSupplier({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'phoneNumber', sortOrder: ${sortParams?.sortColumn == 'phoneNumber' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Telephone</a>
     </div>
 </div>
 
