@@ -331,6 +331,10 @@ class ProductService extends MySqlDal {
     }
 
     def updateProductAllergens(int productId, List<Integer> allergenIds, ProductHistoryBuilder builder) {
+        if (allergenIds == null) {
+            allergenIds = new ArrayList<>()
+        }
+
         def current = ProductAllergen.getExistingProductAllergens(productId)
 
         def removed = new ArrayList<>(current)
