@@ -22,6 +22,8 @@
                 todayBtn: "linked",
                 orientation: "bottom auto"
             });
+
+            search();
         });
 
         function saveViewCategoryColumns() {
@@ -45,17 +47,19 @@
         }
 
         function search() {
-            var url = "${createLink(controller: 'amendableOrder', action: 'ajaxViewCategoryOrders')}";
+            const url = "${createLink(controller: 'amendableOrder', action: 'ajaxViewCategoryOrders')}";
 
             $("#search-results").hide();
             $("#loading-indicator").show();
 
             $.ajax({
                 url: url,
-                data: { category: $('#categorySearchTerm').val(), storeId: $('#storeIdFilter').val() },
+                data: { categoryId: ${category.getId()},
+                    sku: $('#skuSearch').val(),
+                    productDescription: $('#productDescriptionSearch').val(),
+                    deliveryDate: $('#deliveryDateSearch').val()},
                 success: function(resp) {
                     $('#results-container').html(resp);
-                    $('#categorySearchTerm').data('prev',$('#categorySearchTerm').val())
                 }
             });
         }
@@ -70,7 +74,7 @@
                 <ol class="breadcrumb">
                     <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
                     <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link action="index">Order Amendments</g:link></li>
-                    <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${categoryDescription}</li>
+                    <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${category.getDescription()}</li>
                 </ol>
             </div>
         </div>
@@ -93,7 +97,7 @@
     </g:if>
 
     <div class="row mt-4">
-        <div class="col-6">
+        <div class="col-4">
             <div class="card bg-light border-wl">
                 <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                     <div class="row">
@@ -106,23 +110,23 @@
                     </div>
                 </div>
 
-                <div class="card-body collapse show" id="filterCollapse">
+                <div class="card-body collapse" id="filterCollapse">
                     <div class="form-group row">
-                        <label for="sku" class="col-2 col-form-label-sm text-right">Line Number</label>
+                        <label for="skuSearch" class="col-2 col-form-label-sm text-right">Line Number</label>
                         <div class="col-10 input-group">
-                            <g:textField id="sku" name="sku" maxlength="100" value="${sku}" class="form-control" aria-describedby="select-addon2" />
+                            <g:textField id="skuSearch" name="skuSearch" maxlength="100" value="${sku}" class="form-control" aria-describedby="select-addon2" />
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="productDescription" class="col-2 col-form-label-sm text-right">Description</label>
+                        <label for="productDescriptionSearch" class="col-2 col-form-label-sm text-right">Description</label>
                         <div class="col-10 input-group">
-                            <g:textField id="productDescription" name="productDescription" maxlength="100" value="${productDescription}" class="form-control" aria-describedby="select-addon2" />
+                            <g:textField id="productDescriptionSearch" name="productDescriptionSearch" maxlength="100" value="${productDescription}" class="form-control" aria-describedby="select-addon2" />
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="deliveryDate" class="col-2 col-form-label-sm text-right">Delivery Date</label>
+                        <label for="deliveryDateSearch" class="col-2 col-form-label-sm text-right">Delivery Date</label>
                         <div class="col-4 input-group">
-                            <g:textField name="deliveryDate" id="deliveryDate" type="text" class="col-8 form-control bottom-border"
+                            <g:textField name="deliveryDateSearch" id="deliveryDateSearch" type="text" class="col-8 form-control bottom-border"
                                          value="${g.formatDate(format: "dd/MM/yyyy", date: deliveryDate?.toDate())}"
                                          autocomplete="off"/>
                         </div>
@@ -138,7 +142,12 @@
             </div>
         </div>
 
-        <div class="col-2 offset-4">
+        <div class="col-2 text-right offset-4">
+            <g:link elementId="cancel-btn" action="index" role="button" class="btn btn-danger">Cancel</g:link>
+
+            <button id="save-btn" class="btn btn-success" name="save" onclick="$('#saveAmendedOrderForm').submit();">Save</button>
+        </div>
+        <div class="col-2">
             <div class="card bg-light border-wl">
                 <div id="columns-collapse" class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse" aria-expanded="false" aria-controls="columnsCollapse">
                     <div class="row">
@@ -184,10 +193,6 @@
                             <g:checkBox name="columns" id="columnsOrderQuantity" class="form-check-input" value="orderQuantity" checked="${!userColumns || userColumns?.columns?.find { it.column == 'orderQuantity' }?.enabled}" />
                             <label class="form-check-label" for="columnsOrderQuantity">Order Quantity</label>
                         </div>
-                        <div class="form-group form-check">
-                            <g:checkBox name="columns" id="columnsMessages" class="form-check-input" value="messages" checked="${!userColumns || userColumns?.columns?.find { it.column == 'messages' }?.enabled}" />
-                            <label class="form-check-label" for="columnsMessages">Messages</label>
-                        </div>
 
                         <button id="columns-submit-button" type="button" class="btn btn-wl" onclick="saveViewCategoryColumns();">Apply</button>
                     </g:form>
@@ -197,7 +202,7 @@
     </div>
 
     <div id="results-container" class="align-content-center">
-        <g:render template="orderSearchResults" />
+        <g:render template="categoryResults" />
     </div>
 </section>
 </body>

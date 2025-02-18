@@ -61,17 +61,17 @@ class AmendableOrderService extends MySqlPoolDal {
     def getOrdersForCategory(categoryId, sku, productDescription, deliveryDate) {
         def criteria = getCommonSearchCriteria()
 
-        addCategoryOrderSearchCriteria(categoryId, criteria, sku, productDescription, deliveryDate)
-        criteria.createAlias("packLines", "packl", JoinType.LEFT_OUTER_JOIN)
-        criteria.createAlias("packl.pack", "pack", JoinType.LEFT_OUTER_JOIN)
+        criteria = addCategoryOrderSearchCriteria(categoryId, criteria, sku, productDescription, deliveryDate)
+        criteria = criteria.createAlias("packLines", "packl", JoinType.LEFT_OUTER_JOIN)
+        criteria = criteria.createAlias("packl.pack", "pack", JoinType.LEFT_OUTER_JOIN)
 
-        criteria.setProjection(getCategoryViewProjections())
-        criteria.setResultTransformer(getCategoryResultsTransform())
+        criteria = criteria.setProjection(getCategoryViewProjections())
+        criteria = criteria.setResultTransformer(getCategoryResultsTransform())
 
         return criteria.list()
     }
 
-    private void addCategoryOrderSearchCriteria(categoryId, Criteria criteria, sku, productDescription, deliveryDate) {
+    private Criteria addCategoryOrderSearchCriteria(categoryId, Criteria criteria, sku, productDescription, deliveryDate) {
         // If category for the product has a parent category then match on that otherwise it's a top
         // level category and we should match on that id
         def parentCategoryRestriction = HibernateRestrictions.and(HibernateRestrictions.isNotNull("pc.id"),
@@ -79,19 +79,21 @@ class AmendableOrderService extends MySqlPoolDal {
         def childCategoryRestriction = HibernateRestrictions.and(HibernateRestrictions.isNull("pc.id"),
                 HibernateRestrictions.eq("c.id", categoryId))
 
-        criteria.add(HibernateRestrictions.or(parentCategoryRestriction, childCategoryRestriction))
+        criteria = criteria.add(HibernateRestrictions.or(parentCategoryRestriction, childCategoryRestriction))
 
         if (sku) {
-            HibernateRestrictions.like("pv.sku", "%" + (String) sku + "%")
+            criteria = criteria.add(HibernateRestrictions.like("pv.sku", "%" + (String) sku + "%"))
         }
 
         if (productDescription) {
-            HibernateRestrictions.like("p.description", "%" + (String) productDescription + "%")
+            criteria = criteria.add(HibernateRestrictions.like("p.description", "%" + (String) productDescription + "%"))
         }
 
         if (deliveryDate) {
-            criteria.add(HibernateRestrictions.eq("pl.endDate", DateTime.now(DateTimeZone.UTC)))
+            criteria = criteria.add(HibernateRestrictions.eq("pl.endDate", DateTime.now(DateTimeZone.UTC)))
         }
+
+        return criteria
     }
 
     private ProjectionList getOrderSearchProjections() {
@@ -110,11 +112,11 @@ class AmendableOrderService extends MySqlPoolDal {
                 .add(Projections.property("pv.sku"))
                 .add(Projections.property("p.id"))
                 .add(Projections.property("p.description"))
-                .add(Projections.property("pv.price"))
+                .add(Projections.property("productVariant"))
                 .add(Projections.property("pack.quantity"))
                 .add(Projections.property("pl.endDate"))
                 .add(Projections.property("quantity"))
-                .add(Projections.property("pl.storeId"))
+                .add(Projections.property("pl.store"))
 
     }
 
@@ -124,18 +126,19 @@ class AmendableOrderService extends MySqlPoolDal {
             Object transformTuple(
                     Object[] tuple,
                     String[] aliases) {
-                ProductStock productStock = ProductStock.findBySkuAndStoreId(tuple[1], tuple[9])
-                return new AmendableOrderController.AmendOrderCommand(
+                def store = ((Store)tuple[8])
+                ProductStock productStock = ProductStock.findBySkuAndStoreId((long)tuple[1], store.id)
+
+                return new AmendedLine(
                         productListItemId: tuple[0],
                         sku: tuple[1],
                         demand: CurrentSalesForecast.findByProduct(Product.load(tuple[2]))?.currentForecast,
                         available: productStock == null ? BigDecimal.ZERO : productStock.quantityDelivered.add(productStock.quantityInStock),
                         productDescription: tuple[3],
-                        price: tuple[4],
+                        price: ((ProductVariant)tuple[4]).getCurrentPrice(store.priceBand),
                         packQuantity: tuple[5],
                         deliveryDate: tuple[6],
-                        originalOrderQuantity: tuple[7],
-                        amendedOrderQuantity: tuple[8]
+                        originalOrderQuantity: tuple[7]
                 )
             }
 
@@ -194,5 +197,18 @@ class AmendableOrderService extends MySqlPoolDal {
         String categoryDescription
         String storeNumber
         DateTime amendableDate
+    }
+
+    class AmendedLine {
+        Integer productListItemId
+        String sku
+        String productDescription
+        BigDecimal price
+        BigDecimal packQuantity
+        DateTime deliveryDate
+        BigDecimal originalOrderQuantity
+        BigDecimal amendedOrderQuantity
+        BigDecimal demand
+        BigDecimal available
     }
 }

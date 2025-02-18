@@ -1,8 +1,11 @@
 package uk.co.wonderlane.wlpos
 
+import org.apache.logging.log4j.core.util.Integers
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.reporting.ReportType
+
+import java.lang.reflect.Array
 
 class AmendableOrderController extends BaseController {
     // TODO - What security do we want to put on all of this
@@ -45,8 +48,9 @@ class AmendableOrderController extends BaseController {
         def productListItems = amendableOrderService.search(params.category, storeId)
         def stores = storeService.getStores((int)springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
 
-        render(template: "orderSearchResults", model: [storeId     : springSecurityService.principal.storeId,
+        render(template: "orderSearchResults", model: [     storeId: springSecurityService.principal.storeId != null ? springSecurityService.principal.storeId: params.storeId,
                                                             orders: productListItems,
+                                                            category: params.category,
                                                             stores: stores,
                                                             userColumns : getColumns(),
                                                             max         : max,
@@ -56,34 +60,37 @@ class AmendableOrderController extends BaseController {
     def viewCategory(int categoryId) {
         def category = categoryService.getCategory(categoryId)
 
-        [categoryDescription: category.description]
+        [category: category]
     }
 
     def ajaxViewCategoryOrders() {
         int offset = params.offset ? Integer.parseInt(params.offset) : 0
         int max = params.max ? Integer.parseInt(params.max) : 50
 
-        def amendOrderCommand = amendableOrderService.getOrdersForCategory(
-                params.categoryId,
+        def amendedLines = amendableOrderService.getOrdersForCategory(
+                Integers.parseInt(params.categoryId),
                 params.sku,
                 params.productDescription,
                 params.deliveryDate)
 
-        render(template: "categoryView", model: [
-                amendCommand: amendOrderCommand
+        render(template: "categoryResults", model: [
+                amendedLines: amendedLines,
+                categoryId: params.categoryId,
+                sku: params.sku,
+                productDescription: params.productDescription,
+                deliveryDate: params.deliveryDate,
+                max: max,
+                offset: offset
         ])
     }
 
-    class AmendOrderCommand {
-        Integer productListItemId
-        String sku
-        String productDescription
-        BigDecimal price
-        BigDecimal packQuantity
-        DateTime deliveryDate
-        BigDecimal originalOrderQuantity
-        BigDecimal amendedOrderQuantity
-        BigDecimal demand
-        BigDecimal available
+    def save(SaveAmendedLinesCommand saveCommand) {
+        bindData(saveCommand, params)
+
+        return index()
+    }
+
+    class SaveAmendedLinesCommand {
+        List amendedLines = [].withLazyDefault { new AmendableOrderService.AmendedLine(null)}
     }
 }
