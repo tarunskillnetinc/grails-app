@@ -319,8 +319,6 @@
 
                     <!-- Day Restrictions -->
                     <div class="form-group row mt-4">
-                    <label class="col-6 col-form-label text-right pr-4">Day Restrictions</label>
-
                     <div class="col-6 px-0">
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" id="dayDropdownToggle"
@@ -351,9 +349,9 @@
                     <!-- Start Time -->
                     <div class="form-group row mt-4">
                     <label for="restrictionStartTime"
-                           class="col-6 col-form-label text-right pr-4">Start Time</label>
+                           class="col-3 col-form-label text-right pr-4">Start Time</label>
 
-                        <div class="col-6 px-0">
+                    <div class="col-3 px-0">
                             <div id="startTimeContainer" class="input-group bootstrap-timepicker timepicker">
                                 <input id="restrictionStartTime" name="restrictionStartTime" type="text"
                                        class="form-control input-small"
@@ -365,24 +363,21 @@
                                 </span>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- End Time -->
-                    <div class="form-group row mt-4">
-                        <label for="restrictionEndTime" class="col-6 col-form-label text-right pr-4">End Time</label>
+                    <label for="restrictionEndTime" class="col-3 col-form-label text-right pr-4">End Time</label>
 
-                        <div class="col-6 px-0">
-                            <div id="endTimeContainer" class="input-group bootstrap-timepicker timepicker">
-                                <input id="restrictionEndTime" name="restrictionEndTime" type="text"
-                                       class="form-control input-small"
-                                       value="${productGroup?.restrictionEndTime}"/>
-                                <span class="input-group-addon">
-                                    <svg class="icon-clock" width="16" height="16">
-                                        <use xlink:href="#icon-clock"></use>
-                                    </svg>
-                                </span>
-                            </div>
+                    <div class="col-3 px-0">
+                        <div id="endTimeContainer" class="input-group bootstrap-timepicker timepicker">
+                            <input id="restrictionEndTime" name="restrictionEndTime" type="text"
+                                   class="form-control input-small"
+                                   value="${productGroup?.restrictionEndTime}"/>
+                            <span class="input-group-addon">
+                                <svg class="icon-clock" width="16" height="16">
+                                    <use xlink:href="#icon-clock"></use>
+                                </svg>
+                            </span>
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>
