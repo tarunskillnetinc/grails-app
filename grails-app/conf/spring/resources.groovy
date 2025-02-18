@@ -4,6 +4,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.S3Configuration
+import software.amazon.awssdk.services.sns.SnsClient
 import uk.co.wonderlane.wlpos.*
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 
@@ -323,6 +324,18 @@ beans = {
                             .build()
                     config = grailsApplication.config
                 }
+                snsClient(SnsClient) { bean ->
+                    bean.factoryMethod = 'builder'
+                    bean.constructorArgs = []
+                    bean.setProperty('region', Region.of(grailsApplication.config.getProperty('aws.region')))
+                    bean.setProperty('endpointOverride', URI.create(grailsApplication.config.getProperty('aws.endpoint')))
+                    bean.setProperty('credentialsProvider', StaticCredentialsProvider.create(
+                            AwsBasicCredentials.create(
+                                    grailsApplication.config.getProperty('aws.accessKey'),
+                                    grailsApplication.config.getProperty('aws.secretKey')
+                            )
+                    ))
+                }
             }
             hades {
                 imageService(AmazonImageService) {
@@ -331,6 +344,11 @@ beans = {
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')
+                }
+                snsClient(SnsClient) { bean ->
+                    bean.factoryMethod = 'builder'
+                    bean.constructorArgs = []
+                    bean.setProperty('region', Region.of(grailsApplication.config.getProperty('aws.region')))
                 }
             }
             persephone {
@@ -373,4 +391,8 @@ beans = {
     }
 
     multipartResolver(MaxFileUploadSizeResolver)
+
+    snsService(SnsService) {
+        snsClient = ref('snsClient')
+    }
 }

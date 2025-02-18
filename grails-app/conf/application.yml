@@ -1080,3 +1080,9 @@ wlpos:
     loyaltyTransactionService: "LoyaltyTransactionService"
     loyaltyOfferService: "LoyaltyOfferService"
     loyaltyOfferAllocationService: "LoyaltyOfferAllocationService"
+
+aws:
+    accessKey: test
+    secretKey: test
+    region: us-east-1
+    endpoint: http://localhost:4566
