@@ -13,6 +13,8 @@ beans = {
     userDetailsService(WonderLaneUserDetailsService)
     retailerConfigService(RetailerConfigService)
 
+
+
     wonderLaneAuthenticationProvider(WonderLaneAuthenticationProvider) {
         storeNumberValidator = ref('storeNumberValidator')
         retailerProvider = ref('retailerProvider')
@@ -324,18 +326,6 @@ beans = {
                             .build()
                     config = grailsApplication.config
                 }
-                snsClient(SnsClient) { bean ->
-                    bean.factoryMethod = 'builder'
-                    bean.constructorArgs = []
-                    bean.setProperty('region', Region.of(grailsApplication.config.getProperty('aws.region')))
-                    bean.setProperty('endpointOverride', URI.create(grailsApplication.config.getProperty('aws.endpoint')))
-                    bean.setProperty('credentialsProvider', StaticCredentialsProvider.create(
-                            AwsBasicCredentials.create(
-                                    grailsApplication.config.getProperty('aws.accessKey'),
-                                    grailsApplication.config.getProperty('aws.secretKey')
-                            )
-                    ))
-                }
             }
             hades {
                 imageService(AmazonImageService) {
@@ -344,11 +334,6 @@ beans = {
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')
-                }
-                snsClient(SnsClient) { bean ->
-                    bean.factoryMethod = 'builder'
-                    bean.constructorArgs = []
-                    bean.setProperty('region', Region.of(grailsApplication.config.getProperty('aws.region')))
                 }
             }
             persephone {
@@ -388,6 +373,17 @@ beans = {
                 }
             }
         }
+    }
+
+    snsClient(SnsClientFactoryBean) {
+        region = Region.of(grailsApplication.config.getProperty('aws.region'))
+        credentialsProvider = StaticCredentialsProvider.create(
+                AwsBasicCredentials.create(
+                        grailsApplication.config.getProperty('aws.accessKey'),
+                        grailsApplication.config.getProperty('aws.secretKey')
+                )
+        )
+        endpoint = grailsApplication.config.getProperty('aws.endpoint')
     }
 
     multipartResolver(MaxFileUploadSizeResolver)
