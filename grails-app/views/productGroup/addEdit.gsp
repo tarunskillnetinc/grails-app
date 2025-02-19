@@ -293,7 +293,8 @@
                         <label for="neverExpires" class="col-6 col-form-label text-right pr-4">Never Expires</label>
 
                 <div class="col-6 d-flex align-items-center p-0">
-                            <g:checkBox id="neverExpires" name="neverExpires" value="${productGroup?.neverExpires}"
+                    <g:checkBox id="neverExpires" name="neverExpires"
+                                value="${productGroup?.description ? productGroup?.neverExpires : true}"
                                         class="big-checkbox"/>
                         </div>
                     </div>

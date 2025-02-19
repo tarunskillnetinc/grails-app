@@ -282,6 +282,8 @@ class ProductGroupController {
             }
         }
 
+        productGroup.neverExpires = cmd.neverExpires == "on"
+
         if (cmd.validate() && productGroup.validate()) {
             // Commit the product deletion if the final productGroup is valid for saving
             //  and there are products to remove
@@ -400,7 +402,7 @@ class ProductGroupCommand {
     String restrictionEndTime
     String startDate
     String endDate
-    boolean neverExpires
+    String neverExpires
     Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
 
     static constraints = {
@@ -420,6 +422,7 @@ class ProductGroupCommand {
             }
         }
         endDate nullable: true
+        neverExpires nullable: true
         maxSellQuantity nullable: true, validator: { val, obj ->
             if (val == null) {
                 return true; // maxSellQuantity can be empty

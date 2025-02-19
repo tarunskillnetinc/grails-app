@@ -17,6 +17,9 @@ class ProductGroup {
     boolean hidden
     boolean active
 
+    static transients = ["neverExpires"]
+    boolean neverExpires
+
     static hasMany = [productGroupProducts: ProductGroupProduct]
 
     static mapping = {
@@ -49,6 +52,13 @@ class ProductGroup {
             if (val != null) {
                 if (val < obj.startDate) {
                     return ['productgroup.enddate.before.startdate']
+                }
+                if (obj.neverExpires) {
+                    return ['productgroup.enddate.and.neverexpires']
+                }
+            } else {
+                if (!obj.neverExpires) {
+                    return ['productgroup.enddate.or.neverexpires']
                 }
             }
         }
