@@ -8,6 +8,10 @@ class ProductGroupService {
 
     def springSecurityService
 
+    def getProductGroups(String searchTerm, String searchBy, int offset, int max = 50) {
+        return getProductGroups(searchTerm, searchBy, null, null, null, offset, max, "description", "asc")
+    }
+
     def getProductGroups(String searchTerm = null, String searchBy = "everything", DateTime startDate = null, DateTime endDate = null, String status = null ,  int offset = 0, int max = 50,
                          String sort = "description", String sortOrder = "asc") {
 
