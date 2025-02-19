@@ -351,6 +351,15 @@ beans = {
                     springSecurityService = ref('springSecurityService')
                 }
             }
+            zagreus {
+                imageService(AmazonImageService) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
+                    config = grailsApplication.config
+                }
+                brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    springSecurityService = ref('springSecurityService')
+                }
+            }
             preprod {
                 imageService(AmazonImageService) {
                     s3Client = S3Client.builder().region(Region.EU_WEST_1).build()

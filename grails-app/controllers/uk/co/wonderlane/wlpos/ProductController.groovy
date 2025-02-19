@@ -584,6 +584,9 @@ class ProductController extends BaseController {
             product.variants?.each { variant ->
                 variant.storeId = springSecurityService.principal.storeId
                 variant.effectiveDate = effectiveDate
+                if (variant.storeId && variant.weightedAverageCostPrice == null && variant.costPrice != BigDecimal.ZERO) {
+                    variant.weightedAverageCostPrice = variant.costPrice
+                }
 
                 // Check whether the SKU is used elsewhere
                 if (!isValidSku(variant.sku)) {
