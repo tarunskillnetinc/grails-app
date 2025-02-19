@@ -260,21 +260,29 @@ class ShiftController {
                 shiftService.processShiftDataSave(saveShiftCommand, shift)
 
                 if (saveShiftCommand.isFinalise) { // Only update this if it is finalized.
-                    def cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
+                    def safe = safeService.getSafeById(saveShiftCommand.safeId)
 
-                    if (shift.reconciliationTotals.sum { it.variance.abs() } > cashManagementConfig.tillShiftVarianceLimit &&
-                            (saveShiftCommand.tenderReconciliationVarianceReason == null || saveShiftCommand.tenderReconciliationVarianceReason.isEmpty())) {
-                        log.warn("No VarianceReason configured or selected.")
+                    if (safe.active) {
+                        def cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
+    
+                        if (shift.reconciliationTotals.sum { it.variance.abs() } > cashManagementConfig.tillShiftVarianceLimit &&
+                                (saveShiftCommand.tenderReconciliationVarianceReason == null || saveShiftCommand.tenderReconciliationVarianceReason.isEmpty())) {
+                            log.warn("No VarianceReason configured or selected.")
+                        }
+    
+                        shiftService.updateFinaliseTenderMovement(shift, saveShiftCommand.safeId) //Move into update tender movement
+                        shiftService.updateFinaliseShiftToSafeSessionMovements(shift, saveShiftCommand.safeId) //Move into safe session
+    
+                        // If any till id added into filter then pass it back to the view.
+                        Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
+    
+                        redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised shift %d for till %d.", shift.getShiftNumber(), shift.getTillId())])
+                        return
+
+                    } else {
+                        // do not finalize against an inactive safe
+                        render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Safe is inactive.")
                     }
-
-                    shiftService.updateFinaliseTenderMovement(shift, saveShiftCommand.safeId) //Move into update tender movement
-                    shiftService.updateFinaliseShiftToSafeSessionMovements(shift, saveShiftCommand.safeId) //Move into safe session
-
-                    // If any till id added into filter then pass it back to the view.
-                    Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
-
-                    redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised shift %d for till %d.", shift.getShiftNumber(), shift.getTillId())])
-                    return
                 } else {
                     Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
                     redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter])
