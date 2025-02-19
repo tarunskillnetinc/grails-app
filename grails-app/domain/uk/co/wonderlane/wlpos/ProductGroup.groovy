@@ -37,32 +37,38 @@ class ProductGroup {
     static constraints = {
         description nullable: false, size: 1..60, validator: { val, obj ->
             if (!val || val.trim().length() < 1 || val.trim().length() > 60) {
-                return ['producthistory.description.size']
+                return ['productgroup.description.size']
             }
         }
         startDate nullable: true, validator: { val, obj ->
             if (val == null) {
-                return ['producthistory.startdate.empty']
+                return ['productgroup.startdate.empty']
             }
         }
-        endDate nullable: true
+        endDate nullable: true, validator: { val, obj ->
+            if (val != null) {
+                if (val < obj.startDate) {
+                    return ['productgroup.enddate.before.startdate']
+                }
+            }
+        }
         timeRestriction nullable: true
         maxSellQuantity nullable: true, validator: { val, obj ->
             if (val == null) {
                 return true; // maxSellQuantity can be empty
             }
             if (val < 1 || val > 999999) { // if its not empty then it must be a sensible number
-                return ['producthistory.maxSellQuantity.invalid']
+                return ['productgroup.maxSellQuantity.invalid']
             }
         }
         active nullable: false, validator: { val, obj ->
             if (val == null) {
-                return ['producthistory.active.null']
+                return ['productgroup.active.null']
             }
         }
         productGroupProducts nullable: false, validator: { val, obj ->
             if (val == null || val.size() == 0) {
-                return ['producthistory.productgroupproducts.nullorempty']
+                return ['productgroup.productgroupproducts.nullorempty']
             }
         }
     }
