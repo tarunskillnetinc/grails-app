@@ -40,7 +40,7 @@ class ProductGroup {
                 return ['producthistory.description.size']
             }
         }
-        startDate nullable: false, validator: { val, obj ->
+        startDate nullable: true, validator: { val, obj ->
             if (val == null) {
                 return ['producthistory.startdate.empty']
             }

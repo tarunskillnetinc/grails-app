@@ -117,6 +117,7 @@
                 weekStart: 1,
                 todayHighlight: true,
                 autoclose: true,
+                startDate: new Date(),
                 todayBtn: "linked",
                 orientation: "bottom auto"
             }).on('changeDate', function (event) {
