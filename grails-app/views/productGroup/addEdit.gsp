@@ -81,7 +81,7 @@
     </style>
     <script>
         $(function () {
-            intListener("maxSellQuantity", 10, 999);
+            intListener("maxSellQuantity", 10, 999999);
 
             $('#restrictionStartTime, #restrictionEndTime').timepicker({
                 showMeridian: false,
@@ -329,7 +329,7 @@
                     <div class="form-group row mt-4">
                         <label for="maxSellQuantity"
                                class="col-6 col-form-label text-right pr-4">Maximum Sell Quantity</label>
-                        <g:field name="maxSellQuantity" type="number" min="0" max="999"
+                    <g:field name="maxSellQuantity" type="number" min="0" max="999999"
                                  value="${productGroup?.maxSellQuantity}" class="col-6 form-control"
                                  onkeypress="return preventNegativeInteger(event);" onpaste="return false;"/>
                     </div>
