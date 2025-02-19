@@ -294,7 +294,7 @@
 
                 <div class="col-6 d-flex align-items-center p-0">
                     <g:checkBox id="neverExpires" name="neverExpires"
-                                value="${productGroup?.description ? productGroup?.neverExpires : true}"
+                                value="${productGroup?.neverExpires}"
                                         class="big-checkbox"/>
                         </div>
                     </div>
