@@ -120,9 +120,12 @@
                 startDate: new Date(),
                 todayBtn: "linked",
                 orientation: "bottom auto"
-            }).on('changeDate', function (event) {
+            }).on('changeDate', function (selected) {
                 let options = [{year: 'numeric'}, {month: '2-digit'}, {day: '2-digit'}];
-                let formatted = formatDate(event.date, options, '-');
+                let formatted = formatDate(selected.date, options, '-');
+
+                var minDate = new Date(selected.date.valueOf());
+                $('#endDate').datepicker('setStartDate', minDate);
 
                 $("#startDate").val(formatted);
             });
@@ -132,6 +135,7 @@
                 weekStart: 1,
                 todayHighlight: true,
                 autoclose: true,
+                startDate: new Date(),
                 todayBtn: "linked",
                 orientation: "bottom auto"
             }).on('changeDate', function (event) {
