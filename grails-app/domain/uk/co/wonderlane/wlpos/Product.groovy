@@ -255,7 +255,7 @@ class Product {
         product.setDescription(description)
         product.setReceiptDescription(receiptDescription)
         product.setCategory(category.getCategory())
-        product.setUnitSize(variants?.get(0)?.getSelUnitSize())
+        product.setUnitSize(variants?.sort {a,b -> -(a.getEffectiveDate() <=> b.getEffectiveDate())}?.find {it.storeId == storeId || it.storeId == null}?.getSelUnitSize()?: "EACH")
         product.setWeightedItem(weightedItem)
         product.setPricePerKg(pricePerKg)
         product.setOpenPrice(openPrice)
