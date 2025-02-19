@@ -81,7 +81,7 @@
     </style>
     <script>
         $(function () {
-            intListener("maxSellQuantity", 10, 999);
+            intListener("maxSellQuantity", 10, 999999);
 
             $('#restrictionStartTime, #restrictionEndTime').timepicker({
                 showMeridian: false,
@@ -117,11 +117,15 @@
                 weekStart: 1,
                 todayHighlight: true,
                 autoclose: true,
+                startDate: new Date(),
                 todayBtn: "linked",
                 orientation: "bottom auto"
-            }).on('changeDate', function (event) {
+            }).on('changeDate', function (selected) {
                 let options = [{year: 'numeric'}, {month: '2-digit'}, {day: '2-digit'}];
-                let formatted = formatDate(event.date, options, '-');
+                let formatted = formatDate(selected.date, options, '-');
+
+                var minDate = new Date(selected.date.valueOf());
+                $('#endDate').datepicker('setStartDate', minDate);
 
                 $("#startDate").val(formatted);
             });
@@ -131,6 +135,7 @@
                 weekStart: 1,
                 todayHighlight: true,
                 autoclose: true,
+                startDate: new Date(),
                 todayBtn: "linked",
                 orientation: "bottom auto"
             }).on('changeDate', function (event) {
@@ -288,7 +293,8 @@
                         <label for="neverExpires" class="col-6 col-form-label text-right pr-4">Never Expires</label>
 
                 <div class="col-6 d-flex align-items-center p-0">
-                            <g:checkBox id="neverExpires" name="neverExpires" value="${productGroup?.neverExpires}"
+                    <g:checkBox id="neverExpires" name="neverExpires"
+                                value="${productGroup?.description ? productGroup?.neverExpires : true}"
                                         class="big-checkbox"/>
                         </div>
                     </div>
@@ -329,7 +335,7 @@
                     <div class="form-group row mt-4">
                         <label for="maxSellQuantity"
                                class="col-6 col-form-label text-right pr-4">Maximum Sell Quantity</label>
-                        <g:field name="maxSellQuantity" type="number" min="0" max="999"
+                    <g:field name="maxSellQuantity" type="number" min="0" max="999999"
                                  value="${productGroup?.maxSellQuantity}" class="col-6 form-control"
                                  onkeypress="return preventNegativeInteger(event);" onpaste="return false;"/>
                     </div>
