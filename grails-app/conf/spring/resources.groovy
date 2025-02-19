@@ -330,6 +330,7 @@ beans = {
                     config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
             }
@@ -339,6 +340,7 @@ beans = {
                     config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
             }
@@ -348,6 +350,7 @@ beans = {
                     config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
             }
@@ -357,6 +360,7 @@ beans = {
                     config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
             }
@@ -366,6 +370,7 @@ beans = {
                     config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
             }
@@ -375,6 +380,7 @@ beans = {
                     config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
             }
