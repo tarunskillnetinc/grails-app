@@ -8,7 +8,7 @@
     </div>
     <div class="form-group row col-5">
         <label for="varianceValue" class="col-5 col-form-label text-right pr-4">Variance Value Threshold:</label>
-        <g:field type="number" min="1" max="9999999.99" step=".01" name="varianceValue" value="${category?.varianceValue}" class="col-4 form-control" oninput="validateNumericInputField(this, 1, 9999999.99, 0.01, true)" />
+        <g:field type="number" min="1" max="9999999.99" step=".01" name="varianceValue" value="${category?.varianceValue}" class="col-4 form-control" />
         <small id="varianceValueHelp" class="col-8 text-right form-text text-muted">Adjustments of this value will trigger a variance report.</small>
     </div>
 </div>
