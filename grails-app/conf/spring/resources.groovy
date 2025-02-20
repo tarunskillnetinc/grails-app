@@ -327,14 +327,14 @@ beans = {
                     config = grailsApplication.config
                 }
                 snsClient(SnsClientFactoryBean) {
-                    region = Region.of(grailsApplication.config.getProperty('aws.region'))
+                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
                     credentialsProvider = StaticCredentialsProvider.create(
                             AwsBasicCredentials.create(
-                                    grailsApplication.config.getProperty('aws.accessKey'),
-                                    grailsApplication.config.getProperty('aws.secretKey')
+                                    grailsApplication.config.getProperty('sns.accessKey'),
+                                    grailsApplication.config.getProperty('sns.secretKey')
                             )
                     )
-                    endpoint = grailsApplication.config.getProperty('aws.endpoint')
+                    endpoint = grailsApplication.config.getProperty('sns.endpoint')
                 }
             }
             hades {
@@ -347,11 +347,11 @@ beans = {
                 }
 
                 snsClient(SnsClientFactoryBean) {
-                    region = Region.of(grailsApplication.config.getProperty('aws.region'))
+                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
                     credentialsProvider = StaticCredentialsProvider.create(
                             AwsBasicCredentials.create(
-                                    grailsApplication.config.getProperty('aws.accessKey'),
-                                    grailsApplication.config.getProperty('aws.secretKey')
+                                    grailsApplication.config.getProperty('sns.accessKey'),
+                                    grailsApplication.config.getProperty('sns.secretKey')
                             )
                     )
                 }
@@ -365,11 +365,11 @@ beans = {
                     springSecurityService = ref('springSecurityService')
                 }
                 snsClient(SnsClientFactoryBean) {
-                    region = Region.of(grailsApplication.config.getProperty('aws.region'))
+                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
                     credentialsProvider = StaticCredentialsProvider.create(
                             AwsBasicCredentials.create(
-                                    grailsApplication.config.getProperty('aws.accessKey'),
-                                    grailsApplication.config.getProperty('aws.secretKey')
+                                    grailsApplication.config.getProperty('sns.accessKey'),
+                                    grailsApplication.config.getProperty('sns.secretKey')
                             )
                     )
                 }
@@ -383,11 +383,11 @@ beans = {
                     springSecurityService = ref('springSecurityService')
                 }
                 snsClient(SnsClientFactoryBean) {
-                    region = Region.of(grailsApplication.config.getProperty('aws.region'))
+                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
                     credentialsProvider = StaticCredentialsProvider.create(
                             AwsBasicCredentials.create(
-                                    grailsApplication.config.getProperty('aws.accessKey'),
-                                    grailsApplication.config.getProperty('aws.secretKey')
+                                    grailsApplication.config.getProperty('sns.accessKey'),
+                                    grailsApplication.config.getProperty('sns.secretKey')
                             )
                     )
                 }
@@ -401,11 +401,11 @@ beans = {
                     springSecurityService = ref('springSecurityService')
                 }
                 snsClient(SnsClientFactoryBean) {
-                    region = Region.of(grailsApplication.config.getProperty('aws.region'))
+                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
                     credentialsProvider = StaticCredentialsProvider.create(
                             AwsBasicCredentials.create(
-                                    grailsApplication.config.getProperty('aws.accessKey'),
-                                    grailsApplication.config.getProperty('aws.secretKey')
+                                    grailsApplication.config.getProperty('sns.accessKey'),
+                                    grailsApplication.config.getProperty('sns.secretKey')
                             )
                     )
                 }
@@ -419,11 +419,11 @@ beans = {
                     springSecurityService = ref('springSecurityService')
                 }
                 snsClient(SnsClientFactoryBean) {
-                    region = Region.of(grailsApplication.config.getProperty('aws.region'))
+                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
                     credentialsProvider = StaticCredentialsProvider.create(
                             AwsBasicCredentials.create(
-                                    grailsApplication.config.getProperty('aws.accessKey'),
-                                    grailsApplication.config.getProperty('aws.secretKey')
+                                    grailsApplication.config.getProperty('sns.accessKey'),
+                                    grailsApplication.config.getProperty('sns.secretKey')
                             )
                     )
                 }
@@ -436,9 +436,9 @@ beans = {
     snsService(SnsService) { bean ->
         bean.constructorArgs = [
                 ref('snsClient'),
-                grailsApplication.config.getProperty("aws.accountId"),
-                grailsApplication.config.getProperty("aws.snsSupplierUpdateTopic"),
-                grailsApplication.config.getProperty('aws.region'),
+                grailsApplication.config.getProperty("sns.accountId"),
+                grailsApplication.config.getProperty("sns.snsSupplierUpdateTopic"),
+                grailsApplication.config.getProperty('sns.region'),
                 ref('gsonProvider')
         ]
     }

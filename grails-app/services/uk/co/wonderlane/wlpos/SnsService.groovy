@@ -2,8 +2,6 @@ package uk.co.wonderlane.wlpos
 
 import com.google.gson.Gson
 import grails.gorm.transactions.Transactional
-import org.springframework.beans.factory.annotation.Value
-import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sns.SnsClient
 import software.amazon.awssdk.services.sns.model.PublishRequest
 import uk.co.wonderlane.wlpos.entities.supplier.Supplier
@@ -32,7 +30,7 @@ class SnsService {
 
     def publishSupplierAdd(Supplier supplier) {
         def supplierRequest = new SupplierRequest(
-                supplierRequestType: SupplierRequestType.ADD,
+                type: MessageType.SUPPLIER_ADD,
                 supplier: supplier
         )
         PublishRequest request = PublishRequest.builder()
@@ -45,7 +43,7 @@ class SnsService {
 
     def publishSupplierDelete(Supplier supplier) {
         def supplierRequest = new SupplierRequest(
-                supplierRequestType: SupplierRequestType.DELETE,
+                type: MessageType.SUPPLIER_DELETE,
                 supplier: supplier
         )
         PublishRequest request = PublishRequest.builder()
@@ -61,11 +59,11 @@ class SnsService {
     }
 
     class SupplierRequest {
-        SupplierRequestType supplierRequestType
+        MessageType type
         Supplier supplier
     }
 
-    enum SupplierRequestType {
-        ADD, DELETE
+    enum MessageType {
+        SUPPLIER_ADD, SUPPLIER_DELETE
     }
 }
