@@ -194,7 +194,7 @@
     <section id="maintenance-section" class="container-fluid">
         <div class="row header-wl mt-3">
             <div class="col-8 offset-2">
-                <h2 class="mx-auto my-auto">Category Management</h2>
+                <h2 id="page-title" class="mx-auto my-auto">Category Management</h2>
             </div>
 
             <div class="col-2 text-right">
