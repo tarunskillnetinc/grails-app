@@ -20,6 +20,7 @@ class SupplierService extends MySqlDal {
 
     def springSecurityService
     def sessionFactory
+    def snsService
 
     SupplierService(DatabaseCredentials databaseCredentials) {
         super(databaseCredentials)
@@ -43,11 +44,16 @@ class SupplierService extends MySqlDal {
     }
 
     def saveSupplier(Supplier supplier) {
+        def id = supplier.id
         supplier.save()
+        if (id == 0) {
+            snsService.publishSupplierAdd(supplier.getSupplier())
+        }
     }
 
     def deleteSupplier(Supplier supplier) {
         supplier.delete()
+        snsService.publishSupplierDelete(supplier.getSupplier())
     }
 
     def getSymbolGroupSubscriptions() {

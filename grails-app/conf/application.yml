@@ -130,6 +130,13 @@ databaseDefaultProperties: &databaseDefaultProperties
 
 environments:
     development:
+        aws:
+            accessKey: "test"
+            secretKey: "test"
+            region: "eu-west-1"
+            endpoint: "http://localhost:4566"
+            accountId: "000000000000"
+            snsSupplierUpdateTopic: "supplier-update"
         dataSource:
             pooled: true
             #logSql: true
@@ -1082,7 +1089,8 @@ wlpos:
     loyaltyOfferAllocationService: "LoyaltyOfferAllocationService"
 
 aws:
-    accessKey: test
-    secretKey: test
-    region: us-east-1
-    endpoint: http://localhost:4566
+    accessKey: "test"
+    secretKey: "test"
+    region: "eu-west-1"
+    accountId: "000000000000"
+    snsSupplierUpdateTopic: "supplier-update"
