@@ -95,7 +95,7 @@ class ProductGroupController {
         productGroup.productGroupProducts.each { productGroupProduct ->
             Integer productVariantId = productVariants?.find { it.sku == productGroupProduct.sku }?.id
             productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
-            productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.name
+            productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.description
         }
 
         render(view: "addEdit", model: [productGroup: productGroup])
