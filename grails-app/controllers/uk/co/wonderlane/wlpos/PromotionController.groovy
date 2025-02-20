@@ -108,7 +108,7 @@ class PromotionController {
         promotionGroup.type = PromotionGroupType.valueOf(promotionGroupType.toUpperCase())
         promotionGroup.sku = id
 
-        render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: productVariant?.product?.name, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
+        render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: productVariant?.product?.description, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
     }
 
     def ajaxGetProductGroup(int id, String promotionType, String promotionGroupType, int groupId) {
