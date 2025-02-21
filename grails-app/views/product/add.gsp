@@ -1227,9 +1227,7 @@
                                                         snappyEnabled      : snappyEnabled,
                                                         locationsEnabled   : locationsEnabled,
                                                         locationsType      : locationsType,
-                                                        productAttributeValuesList : productAttributeValuesList,
-                                                        allergenOptions    : allergenOptions,
-                                                        productAllergens   : productAllergens]" />
+                                                        productAttributeValuesList: productAttributeValuesList]"/>
         </section>
 
         <section id="addVariant-modal" class="container-fluid">

@@ -65,9 +65,6 @@ class ProductController extends BaseController {
 
         def product = productService.getProduct(id)
 
-        def allergenOptions = Allergen.findAll()
-        def productAllergens = ProductAllergen.getExistingProductAllergens(product.getId())
-
         if (!product) {
             flash.message = "Product not found"
             redirect(action: "index")
@@ -113,9 +110,7 @@ class ProductController extends BaseController {
                                     locationsEnabled   : locationsEnabled,
                                     locationsType      : locationsType,
                                     loyaltyEnabled     : loyaltyEnabled,
-                                    productAttributeValuesList : productAttributeValuesList,
-                                    allergenOptions    : allergenOptions,
-                                    productAllergens   : productAllergens])
+                                    productAttributeValuesList: productAttributeValuesList])
     }
 
     private void setEffectiveDate() {
@@ -152,9 +147,6 @@ class ProductController extends BaseController {
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
         List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(null)
 
-        def allergenOptions = Allergen.findAll();
-        def productAllergens = new ArrayList<Integer>()
-
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
                                     statusValues    : ProductStatus.values(),
                                     selTypeValues   : selTypeValues,
@@ -167,9 +159,7 @@ class ProductController extends BaseController {
                                     locationsEnabled: locationsEnabled,
                                     locationsType   : springSecurityService.principal.retailer.config.locationsType.name(),
                                     loyaltyEnabled  : loyaltyEnabled,
-                                    productAttributeValuesList : productAttributeValuesList,
-                                    allergenOptions    : allergenOptions,
-                                    productAllergens   : productAllergens])
+                                    productAttributeValuesList: productAttributeValuesList])
     }
 
     def search() {
@@ -707,8 +697,6 @@ class ProductController extends BaseController {
                 return product
             }
 
-            productService.updateProductAllergens(product.id, editedProduct.allergenIds?.toList(), builder)
-
             if (builder && builder.productHistories) {
                 productService.saveProductHistories(builder.productHistories)
             }
@@ -843,8 +831,6 @@ class ProductController extends BaseController {
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
             def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
             List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product ?: null)
-            def allergenOptions = Allergen.findAll();
-            def productAllergens = ProductAllergen.getExistingProductAllergens(product.getId())
 
             render(view: "add", model: [product            : product,
                                         skuList            : skuList(product),
@@ -862,9 +848,7 @@ class ProductController extends BaseController {
                                         locationsType      : springSecurityService.principal.retailer.config.locationsType.name(),
                                         locationsEnabled   : locationsEnabled,
                                         loyaltyEnabled     : loyaltyEnabled,
-                                        productAttributeValuesList : productAttributeValuesList,
-                                        allergenOptions    : allergenOptions,
-                                        productAllergens   : productAllergens])
+                                        productAttributeValuesList: productAttributeValuesList])
         }
     }
 
@@ -2353,7 +2337,7 @@ class ProductCommand {
     SelType selType
     String productImgUrl
     boolean ownLabel
-    int[] allergenIds
+    String allergenIds
 
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
