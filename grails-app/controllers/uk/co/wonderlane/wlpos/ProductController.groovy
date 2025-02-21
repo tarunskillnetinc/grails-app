@@ -2337,7 +2337,6 @@ class ProductCommand {
     SelType selType
     String productImgUrl
     boolean ownLabel
-    String allergenIds
 
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
