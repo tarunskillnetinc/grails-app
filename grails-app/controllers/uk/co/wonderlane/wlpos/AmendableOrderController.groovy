@@ -1,11 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import org.apache.logging.log4j.core.util.Integers
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.reporting.ReportType
-
-import java.lang.reflect.Array
 
 class AmendableOrderController extends BaseController {
     // TODO - What security do we want to put on all of this
@@ -37,8 +33,8 @@ class AmendableOrderController extends BaseController {
     }
 
     def ajaxSearchOrders() {
-        int offset = params.offset ? Integer.parseInt(params.offset) : 0
-        int max = params.max ? Integer.parseInt(params.max) : 50
+        int offset = params.offset ? Integer.parseInt((String)params.offset) : 0
+        int max = params.max ? Integer.parseInt((String)params.max) : 50
 
         def storeId = params.storeId
         if(storeId) {
@@ -64,17 +60,26 @@ class AmendableOrderController extends BaseController {
     }
 
     def ajaxViewCategoryOrders() {
-        int offset = params.offset ? Integer.parseInt(params.offset) : 0
-        int max = params.max ? Integer.parseInt(params.max) : 50
+        int offset = params.offset ? Integer.parseInt((String)params.offset) : 0
+        int max = params.max ? Integer.parseInt((String)params.max) : 50
 
         def amendedLines = amendableOrderService.getOrdersForCategory(
-                Integers.parseInt(params.categoryId),
+                Integers.parseInt((String)params.categoryId),
                 params.sku,
                 params.productDescription,
                 params.deliveryDate)
 
+        def groupedLines = amendedLines.groupBy { it.sku }.collectEntries {key, value -> [new GroupedLine(
+                sku: key,
+                productDescription: value[0].productDescription,
+                price: value[0].price,
+                packQuantity: value[0].packQuantity,
+                demand: value[0].demand,
+                available: value[0].available
+        ), value ]}
+
         render(template: "categoryResults", model: [
-                amendedLines: amendedLines,
+                amendedLines: groupedLines,
                 categoryId: params.categoryId,
                 sku: params.sku,
                 productDescription: params.productDescription,
@@ -87,10 +92,27 @@ class AmendableOrderController extends BaseController {
     def save(SaveAmendedLinesCommand saveCommand) {
         bindData(saveCommand, params)
 
-        return index()
+        saveCommand.amendedLines.forEach {
+            if (it.amendedOrderQuantity) {
+                amendableOrderService.saveAmendedQuantity(it)
+            }
+        }
+
+        flash.message = "Order amended successfully"
+        redirect("controller": "amendableOrder", action:"index")
     }
 
     class SaveAmendedLinesCommand {
-        List amendedLines = [].withLazyDefault { new AmendableOrderService.AmendedLine(null)}
+        List<AmendableOrderService.AmendedLine> amendedLines = [].withLazyDefault { new AmendableOrderService.AmendedLine(null)}
+    }
+
+    class GroupedLine {
+        String sku
+        String productDescription
+        BigDecimal price
+        BigDecimal packQuantity
+        BigDecimal demand
+        BigDecimal available
+        List<AmendableOrderService.AmendedLine> lines
     }
 }

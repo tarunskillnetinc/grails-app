@@ -111,7 +111,8 @@ beans = {
             grailsApplication.config.getProperty('rabbitmq.username'),
             grailsApplication.config.getProperty('rabbitmq.password'),
             Boolean.parseBoolean(grailsApplication.config.getProperty('rabbitmq.useSsl')),
-            grailsApplication.config.getProperty('rabbitmq.senderExchange')
+            grailsApplication.config.getProperty('rabbitmq.senderExchange'),
+            grailsApplication.config.getProperty('rabbitmq.exportExchange')
             ) {
 
         springSecurityService = ref('springSecurityService')
@@ -292,6 +293,7 @@ beans = {
         springSecurityService = ref('springSecurityService')
         sessionFactory = ref('sessionFactory')
         gsonProvider = ref("gsonProvider")
+        productListService = ref("productListService")
     }
 
 

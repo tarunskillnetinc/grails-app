@@ -11,10 +11,11 @@
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
     <asset:javascript src="moment-with-locales.min.js"/>
+    <asset:javascript src="numberHelper.js" />
 
     <script type="application/javascript">
         $(document).ready(function() {
-            $('#deliveryDate').datepicker({
+            $('#deliveryDateSearch').datepicker({
                 format: "dd/mm/yyyy",
                 weekStart: 1,
                 todayHighlight: true,
@@ -62,6 +63,12 @@
                     $('#results-container').html(resp);
                 }
             });
+        }
+
+        function resetForm() {
+            document.getElementById('skuSearch').value = null;
+            document.getElementById('productDescriptionSearch').value = '';
+            document.getElementById('deliveryDateSearch').value = '';
         }
     </script>
 </head>

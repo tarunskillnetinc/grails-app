@@ -13,6 +13,10 @@
     <asset:javascript src="moment-with-locales.min.js"/>
 
     <script type="application/javascript">
+        $(document).ready(function() {
+            search();
+        });
+
         function saveColumns() {
             var url = "${createLink(controller: 'amendableOrder', action: 'ajaxSaveColumns')}";
 
@@ -47,6 +51,11 @@
                     $('#categorySearchTerm').data('prev',$('#categorySearchTerm').val())
                 }
             });
+        }
+
+        function resetForm() {
+            document.getElementById('categorySearchTerm').value = null;
+            document.getElementById('storeIdFilter').value = '';
         }
     </script>
 </head>
@@ -115,7 +124,7 @@
                     </div>
 
                     <div class="form-group row">
-                        <div class="col-4 offset-8 text-right">
+                        <div class="offset-8 text-right">
                             <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                             <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>
                         </div>

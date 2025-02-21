@@ -9,6 +9,8 @@ import org.hibernate.sql.JoinType
 import org.hibernate.transform.ResultTransformer
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlPoolDal
 import uk.co.wonderlane.wlpos.entities.StoreConfig
@@ -17,11 +19,14 @@ import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
 import org.hibernate.criterion.Restrictions as HibernateRestrictions
 
+import java.math.RoundingMode
+
 @Transactional
 class AmendableOrderService extends MySqlPoolDal {
     def springSecurityService
     def sessionFactory
     def gsonProvider
+    def productListService
 
     AmendableOrderService(DatabaseCredentials databaseCredentials) {
         super(databaseCredentials)
@@ -71,7 +76,24 @@ class AmendableOrderService extends MySqlPoolDal {
         return criteria.list()
     }
 
-    private Criteria addCategoryOrderSearchCriteria(categoryId, Criteria criteria, sku, productDescription, deliveryDate) {
+    def saveAmendedQuantity(AmendedLine amendedLine) {
+        def productListItem = ProductListItem.findById(amendedLine.productListItemId)
+
+        // Get the original quantity as this will be needed to send as part of ProductListStockTransaction
+        productListItem.quantity = amendedLine.amendedOrderQuantity
+        productListItem.save(flush: true, failOnError: true)
+
+        def productList = productListItem.productList.getProductList(null, springSecurityService.principal.storeId)
+        def commonProductListItem = productListItem.getProductListItem(null, springSecurityService.principal.storeId)
+        commonProductListItem.setOriginalQuantity(amendedLine.originalOrderQuantity)
+
+        // We're only planning to send the productListItem that has changed as part of the stock transaction
+        productList.productListItems = new ArrayList<>()
+        productList.productListItems.add(commonProductListItem)
+        productListService.sendProductListExportRequest(productList)
+    }
+
+    private static Criteria addCategoryOrderSearchCriteria(categoryId, Criteria criteria, sku, productDescription, deliveryDate) {
         // If category for the product has a parent category then match on that otherwise it's a top
         // level category and we should match on that id
         def parentCategoryRestriction = HibernateRestrictions.and(HibernateRestrictions.isNotNull("pc.id"),
@@ -82,7 +104,7 @@ class AmendableOrderService extends MySqlPoolDal {
         criteria = criteria.add(HibernateRestrictions.or(parentCategoryRestriction, childCategoryRestriction))
 
         if (sku) {
-            criteria = criteria.add(HibernateRestrictions.like("pv.sku", "%" + (String) sku + "%"))
+            criteria = criteria.add(HibernateRestrictions.sqlRestriction("sku like '%" + (String) sku + "%'"))
         }
 
         if (productDescription) {
@@ -90,7 +112,8 @@ class AmendableOrderService extends MySqlPoolDal {
         }
 
         if (deliveryDate) {
-            criteria = criteria.add(HibernateRestrictions.eq("pl.endDate", DateTime.now(DateTimeZone.UTC)))
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd/MM/YYYY").withZoneUTC()
+            criteria = criteria.add(HibernateRestrictions.eq("pl.endDate", dateTimeFormatter.parseDateTime((String)deliveryDate)))
         }
 
         return criteria
@@ -129,7 +152,7 @@ class AmendableOrderService extends MySqlPoolDal {
                 def store = ((Store)tuple[8])
                 ProductStock productStock = ProductStock.findBySkuAndStoreId((long)tuple[1], store.id)
 
-                return new AmendedLine(
+                def amendedLine = new AmendedLine(
                         productListItemId: tuple[0],
                         sku: tuple[1],
                         demand: CurrentSalesForecast.findByProduct(Product.load(tuple[2]))?.currentForecast,
@@ -140,6 +163,10 @@ class AmendableOrderService extends MySqlPoolDal {
                         deliveryDate: tuple[6],
                         originalOrderQuantity: tuple[7]
                 )
+
+                amendedLine.convertQuantitiesToPackNumbers()
+
+                return amendedLine
             }
 
             @Override
@@ -162,7 +189,7 @@ class AmendableOrderService extends MySqlPoolDal {
                         categoryDescription: categoryDescription,
                         storeNumber: gsonProvider.gson.fromJson(tuple[4], StoreConfig.class).storeNumber,
                         amendableDate: tuple[5]
-                );
+                )
             }
 
             @Override
@@ -210,5 +237,10 @@ class AmendableOrderService extends MySqlPoolDal {
         BigDecimal amendedOrderQuantity
         BigDecimal demand
         BigDecimal available
+
+        void convertQuantitiesToPackNumbers() {
+            demand = demand?.divide(packQuantity)?.setScale(3, RoundingMode.HALF_UP)
+            available = available?.divide(packQuantity)?.setScale(3, RoundingMode.HALF_UP)
+        }
     }
 }
