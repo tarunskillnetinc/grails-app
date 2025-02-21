@@ -479,27 +479,7 @@
             </div>
         </g:if>
 
-        <div class="card bg-light border-wl accordion-card">
-            <div class="card-header pointer" id="allergenInformation" data-toggle="collapse" data-target="#collapseAllergenInformation" aria-expanded="true" aria-controls="collapseAllergenInformation">
-                <div class="row">
-                    <div class="col-10"><strong>Allergen Information</strong></div>
-                    <div class="col-2 text-right">
-                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
 
-            <div id="collapseAllergenInformation" class="collapse collapsed" aria-labelledby="AllergenInformation" data-parent="#accordion">
-                <div class="card-body py-5">
-                    <div id="AllergenInformationContainer"  style="max-height: 400px; overflow-x: hidden; overflow-y: auto;">
-                        <g:render template="allergenInformation" model="[AllergenProductSelections: productAllergens,
-                                                                         AllergenDefinitions : allergenOptions]" />
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Product history. -->
         <div class="card bg-light border-wl accordion-card">
