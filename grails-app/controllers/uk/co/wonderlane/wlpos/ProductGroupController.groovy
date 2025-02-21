@@ -124,7 +124,7 @@ class ProductGroupController {
                 productGroupCommand.startDate = productGroup.startDate?.toString(dateFormat)
                 productGroupCommand.endDate = productGroup.endDate?.toString(dateFormat)
                 productGroupCommand.active = productGroup.active
-                productGroupCommand.neverExpires = productGroup.endDate == null
+                productGroupCommand.neverExpires = productGroup.endDate == null ? "true" : ""
 
                 //Extract days and restrictionStartTime,restrictionEndTime
                 if (productGroup.timeRestriction != null) {
