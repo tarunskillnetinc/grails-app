@@ -20,9 +20,6 @@
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
                 <div class="col font-weight-bold">Description</div>
             </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "unitSize" }?.enabled}">
-                <div class="col-1 font-weight-bold">Unit Size</div>
-            </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vatRate" }?.enabled}">
                 <div class="col-1 font-weight-bold">VAT Rate</div>
             </g:if>
@@ -75,9 +72,6 @@
                     </g:if>
                     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
                         <div id="product-result-${i+1}-description" class="col ml-0">${product.description}</div>
-                    </g:if>
-                    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "unitSize" }?.enabled}">
-                        <div id="product-result-${i+1}-unit-size" class="col-1">${product.unitSize}</div>
                     </g:if>
                     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vatRate" }?.enabled}">
                         <div id="product-result-${i+1}-vat-rate" class="col-1">${product.vatCode?.percentage}%</div>

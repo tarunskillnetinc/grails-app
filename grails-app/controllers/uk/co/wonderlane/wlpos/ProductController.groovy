@@ -25,6 +25,7 @@ import uk.co.wonderlane.wlpos.enums.ProductMessageType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.utils.WeightedAverageCostPriceUtil
 
 class ProductController extends BaseController {
 
@@ -33,7 +34,8 @@ class ProductController extends BaseController {
     def restrictionsService
     def supplierService
     def storeService
-    def tagService
+    def productStockService
+    def productGroupService
     def productHistoryService
     def productMessageService
 
@@ -108,7 +110,7 @@ class ProductController extends BaseController {
                                     locationsEnabled   : locationsEnabled,
                                     locationsType      : locationsType,
                                     loyaltyEnabled     : loyaltyEnabled,
-                                    productAttributeValuesList : productAttributeValuesList])
+                                    productAttributeValuesList: productAttributeValuesList])
     }
 
     private void setEffectiveDate() {
@@ -157,7 +159,7 @@ class ProductController extends BaseController {
                                     locationsEnabled: locationsEnabled,
                                     locationsType   : springSecurityService.principal.retailer.config.locationsType.name(),
                                     loyaltyEnabled  : loyaltyEnabled,
-                                    productAttributeValuesList : productAttributeValuesList])
+                                    productAttributeValuesList: productAttributeValuesList])
     }
 
     def search() {
@@ -193,19 +195,19 @@ class ProductController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def prices() {
         def categories = categoryService.getTopLevelCategories()
-        def tags = tagService.getTags()
+        def productGroups = productGroupService.getProductGroups()
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
-        [categories: categories, tags: tags, priceBands: priceBands]
+        [categories: categories, productGroups: productGroups, priceBands: priceBands]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def pricesSearch() {
         String searchTerm = params.searchTerm
         Integer categoryId = params.category ? Integer.parseInt(params.category) : null
-        Integer tagId = params.tag ? Integer.parseInt(params.tag) : null
+        Integer productGroupId = params.productGroup ? Integer.parseInt(params.productGroup) : null
 
-        def productPrices = productService.searchProductPrices(searchTerm, categoryId, tagId)
+        def productPrices = productService.searchProductPrices(searchTerm, categoryId, productGroupId)
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
         render(template: "pricesSearchResults", model: [productPrices: productPrices, priceBands: priceBands])
@@ -214,19 +216,19 @@ class ProductController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ranges() {
         def categories = categoryService.getTopLevelCategories()
-        def tags = tagService.getTags()
+        def productGroups = productGroupService.getProductGroups()
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
-        [categories: categories, tags: tags, ranges: ranges]
+        [categories: categories, productGroups: productGroups, ranges: ranges]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def rangesSearch() {
         String searchTerm = params.searchTerm
         Integer categoryId = params.category ? Integer.parseInt(params.category) : null
-        Integer tagId = params.tag ? Integer.parseInt(params.tag) : null
+        Integer productGroupId = params.productGroup ? Integer.parseInt(params.productGroup) : null
 
-        def rangeProducts = productService.searchRangeProducts(searchTerm, categoryId, tagId)
+        def rangeProducts = productService.searchRangeProducts(searchTerm, categoryId, productGroupId)
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
         render(template: "/product/rangesSearchResults", model: [rangeProducts: rangeProducts, ranges: ranges])
@@ -463,8 +465,11 @@ class ProductController extends BaseController {
         def message = messageId ? Message.get(messageId) : null
 
         if (message) {
-            if (message.text != (messageText ?: '')) {
-                message.text = messageText ?: ''
+            if (messageText == null) {
+                productMessageService.deleteProductMessage(product, message)
+                messageService.deleteMessage(message.id)
+            } else if (message.text != messageText) {
+                message.text = messageText
                 messageService.saveMessage(message)
             }
         } else {
@@ -569,6 +574,9 @@ class ProductController extends BaseController {
             product.variants?.each { variant ->
                 variant.storeId = springSecurityService.principal.storeId
                 variant.effectiveDate = effectiveDate
+                if (variant.storeId && variant.weightedAverageCostPrice == null && variant.costPrice != BigDecimal.ZERO) {
+                    variant.weightedAverageCostPrice = variant.costPrice
+                }
 
                 // Check whether the SKU is used elsewhere
                 if (!isValidSku(variant.sku)) {
@@ -606,8 +614,6 @@ class ProductController extends BaseController {
             product.description = editedProduct.description
             product.receiptDescription = editedProduct.receiptDescription
             product.category = editedProduct.category
-            changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, product.unitSize, editedProduct.unitSize)
-            product.unitSize = editedProduct.unitSize
             product.weightedItem = editedProduct.weightedItem
             product.openPrice = editedProduct.openPrice
             product.zeroPrice = editedProduct.zeroPrice
@@ -623,6 +629,7 @@ class ProductController extends BaseController {
             product.selType = editedProduct.selType
             product.selDescription = editedProduct.selDescription ?: editedProduct.receiptDescription?.take(16)
             product.productImgUrl = editedProduct.productImgUrl
+            product.ownLabel = editedProduct.ownLabel
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
@@ -841,7 +848,7 @@ class ProductController extends BaseController {
                                         locationsType      : springSecurityService.principal.retailer.config.locationsType.name(),
                                         locationsEnabled   : locationsEnabled,
                                         loyaltyEnabled     : loyaltyEnabled,
-                                        productAttributeValuesList : productAttributeValuesList])
+                                        productAttributeValuesList: productAttributeValuesList])
         }
     }
 
@@ -866,14 +873,26 @@ class ProductController extends BaseController {
                     existingVariant.retailPrice = editedVariant.retailPrice
                     changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.costPrice, editedVariant.costPrice)
                     existingVariant.costPrice = editedVariant.costPrice
-                    existingVariant.size = editedVariant.size
-                    existingVariant.colour = editedVariant.colour
                     existingVariant.minimumStockLevel = editedVariant.minimumStockLevel
                     existingVariant.effectiveDate = effectiveDate
                     existingVariant.shelfLifeDays = editedVariant.shelfLifeDays
                     existingVariant.shelfCapacity = editedVariant.shelfCapacity
                     existingVariant.minimumDisplayQuantity = editedVariant.minimumDisplayQuantity
                     existingVariant.defaultSupplierId = editedVariant.defaultSupplierId
+                    changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.description, editedVariant.description)
+                    existingVariant.description = editedVariant.description
+                    existingVariant.receiptDescription = editedVariant.receiptDescription
+                    existingVariant.priceMarked = editedVariant.priceMarked
+                    changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.unitSize, editedVariant.unitSize)
+                    changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.unitOfMeasure, editedVariant.unitOfMeasure)
+                    changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.itemsInUnit, editedVariant.itemsInUnit)
+                    existingVariant.unitSize = editedVariant.unitSize
+                    existingVariant.unitOfMeasure = editedVariant.unitOfMeasure
+                    existingVariant.itemsInUnit = editedVariant.itemsInUnit
+                    existingVariant.heightCm = editedVariant.heightCm
+                    existingVariant.widthCm = editedVariant.widthCm
+                    existingVariant.depthCm = editedVariant.depthCm
+
                     if (existingVariant.getShelfCapacity() != null
                             && !(existingVariant.getShelfCapacity() >= 1 && existingVariant.getShelfCapacity() <= 999)) {
                         product.errors.reject('productVariant.shelfCapacity.size.error', 'Shelf Capacity must be between 1 to 999.')
@@ -899,14 +918,24 @@ class ProductController extends BaseController {
                 newVariant.sku = editedVariant.sku
                 newVariant.retailPrice = editedVariant.retailPrice
                 newVariant.costPrice = editedVariant.costPrice
-                newVariant.size = editedVariant.size
-                newVariant.colour = editedVariant.colour
+                if (newVariant.storeId && editedVariant.costPrice != BigDecimal.ZERO) {
+                    newVariant.weightedAverageCostPrice = editedVariant.costPrice
+                }
                 newVariant.minimumStockLevel = editedVariant.minimumStockLevel
                 newVariant.effectiveDate = effectiveDate
                 newVariant.shelfLifeDays = editedVariant.shelfLifeDays
                 newVariant.shelfCapacity = editedVariant.shelfCapacity
                 newVariant.minimumDisplayQuantity = editedVariant.minimumDisplayQuantity
                 newVariant.defaultSupplierId = editedVariant.defaultSupplierId
+                newVariant.description = editedVariant.description
+                newVariant.receiptDescription = editedVariant.receiptDescription
+                newVariant.priceMarked = editedVariant.priceMarked
+                newVariant.unitSize = editedVariant.unitSize
+                newVariant.unitOfMeasure = editedVariant.unitOfMeasure
+                newVariant.itemsInUnit = editedVariant.itemsInUnit
+                newVariant.heightCm = editedVariant.heightCm
+                newVariant.widthCm = editedVariant.widthCm
+                newVariant.depthCm = editedVariant.depthCm
 
                 editedVariant.packs?.each { editedPack ->
                     Pack newPack = new Pack()
@@ -1333,6 +1362,10 @@ class ProductController extends BaseController {
                 || newPack.priceMarked != existingPack.priceMarked
                 || newPack.priceMarkedType != existingPack.priceMarkedType
                 || newPack.priceMarkedValue != existingPack.priceMarkedValue
+                || newPack.lengthCm != existingPack.lengthCm
+                || newPack.widthCm != existingPack.widthCm
+                || newPack.heightCm != existingPack.heightCm
+                || newPack.weightKg != existingPack.weightKg
     }
 
     def locationChanged(def newLocation, def existingLocation) {
@@ -1365,6 +1398,10 @@ class ProductController extends BaseController {
             packToBeUpdated.priceMarkedType = editedPack.priceMarkedType
             packToBeUpdated.priceMarkedValue = editedPack.priceMarkedValue
         }
+        packToBeUpdated.lengthCm = editedPack.lengthCm
+        packToBeUpdated.widthCm = editedPack.widthCm
+        packToBeUpdated.heightCm = editedPack.heightCm
+        packToBeUpdated.weightKg = editedPack.weightKg
 
         if (packToBeUpdated.hasProperty('updateDatetime')) {
             packToBeUpdated.updateDatetime = now
@@ -1397,7 +1434,6 @@ class ProductController extends BaseController {
         builder.compare("itemCode", product.itemCode, editedProduct.itemCode)
         builder.compare("description", product.description, editedProduct.description)
         builder.compare("receiptDescription", product.receiptDescription, editedProduct.receiptDescription)
-        builder.compare("unitSize", product.unitSize, editedProduct.unitSize)
         builder.compare("weightedItem", product.weightedItem, editedProduct.weightedItem)
         builder.compare("pricePerKg", (!product.weightedItem && product.pricePerKg) ? false : product.pricePerKg, editedProduct.pricePerKg)
         builder.compare("snappyProduct", product.snappyProduct, editedProduct.snappyProduct)
@@ -1412,6 +1448,7 @@ class ProductController extends BaseController {
         builder.compare("selDescription", product.selDescription, editedProduct.selDescription)
         builder.compare("selType", product.selType?.name, editedProduct.selType?.name)
         builder.compare("productImgUrl", product.productImgUrl, editedProduct.productImgUrl)
+        builder.compare("ownLabel", product.ownLabel, editedProduct.ownLabel)
 
         builder.compare("category", product.category?.description, editedProduct.category?.description)
 
@@ -1476,8 +1513,6 @@ class ProductController extends BaseController {
         if (oldVariant.costPrice != null && variant.costPrice != null) {
             builder.compare(id, "costPrice", oldVariant.costPrice ?: BigDecimal.ZERO, variant.costPrice ?: BigDecimal.ZERO)
         }
-        builder.compare(id, "size", oldVariant.size, variant.size)
-        builder.compare(id, "colour", oldVariant.colour, variant.colour)
         builder.compare(id, "minimumStockLevel", oldVariant.minimumStockLevel, variant.minimumStockLevel)
         builder.compare(id, "shelfLifeDays", oldVariant.shelfLifeDays, variant.shelfLifeDays)
         if ((oldVariant.shelfCapacity == null && variant.shelfCapacity != null) || (oldVariant.shelfCapacity != null && variant.shelfCapacity != null)) {
@@ -1487,6 +1522,15 @@ class ProductController extends BaseController {
             builder.compare(id, "minimumDisplayQuantity", oldVariant.minimumDisplayQuantity, variant.minimumDisplayQuantity, ProductHistoryType.LOCATION_EDIT)
         }
         builder.compare(id, "defaultSupplierId", oldVariant.defaultSupplierId, variant.defaultSupplierId)
+        builder.compare(id, "description", oldVariant.description, variant.description)
+        builder.compare(id, "receiptDescription", oldVariant.receiptDescription, variant.receiptDescription)
+        builder.compare(id, "priceMarked", oldVariant.priceMarked, variant.priceMarked)
+        builder.compare(id, "unitSize", oldVariant.unitSize, variant.unitSize)
+        builder.compare(id, "unitOfMeasure", oldVariant.unitOfMeasure?.name, variant.unitOfMeasure?.name)
+        builder.compare(id, "itemsInUnit", oldVariant.itemsInUnit, variant.itemsInUnit)
+        builder.compare(id, "heightCm", oldVariant.heightCm, variant.heightCm)
+        builder.compare(id, "widthCm", oldVariant.widthCm, variant.widthCm)
+        builder.compare(id, "depthCm", oldVariant.depthCm, variant.depthCm)
 
         //---------------------------- Update history for barcode fields --------------------------------//
 
@@ -1556,6 +1600,10 @@ class ProductController extends BaseController {
         builder.compare("packPriceMarked", oldPack.priceMarked, pack.priceMarked)
         builder.compare("packPriceMarkedType", oldPack.priceMarkedType, pack.priceMarkedType)
         builder.compare("packPriceMarkedValue", oldPack.priceMarkedValue, pack.priceMarkedValue)
+        builder.compare("packLengthCm", oldPack.lengthCm, pack.lengthCm)
+        builder.compare("packWidthCm", oldPack.widthCm, pack.widthCm)
+        builder.compare("packHeightCm", oldPack.heightCm, pack.heightCm)
+        builder.compare("packWeightKg", oldPack.weightKg, pack.weightKg)
     }
 
     void compareLocationFields(ProductHistoryBuilder builder, Location oldLocation, def location, ProductHistoryType productHistoryType) {
@@ -1701,7 +1749,16 @@ class ProductController extends BaseController {
     }
 
     def ajaxAddVariant(AddVariantCommand cmd, boolean isNewVariant) {
-        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant])
+        def unitsOfMeasure = UnitOfMeasure.findAllByRetailerId(springSecurityService.principal.retailerId)
+
+	    def wacValue = BigDecimal.ZERO
+        if (cmd.storeId) {
+            wacValue = cmd.weightedAverageCostPrice
+        } else if (springSecurityService.principal.storeId == null && cmd.sku) {
+            wacValue = WeightedAverageCostPriceUtil.calculateRetailerWacForSku(productService.getAllProductVariantsForSku(cmd.sku))
+        }
+
+        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, wacValue: wacValue?:BigDecimal.ZERO, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant, unitsOfMeasure: unitsOfMeasure])
     }
 
     def ajaxAddBarcode(int index, String selector) {
@@ -1812,7 +1869,6 @@ class ProductController extends BaseController {
         if (category != null) {
             restrictions = category.restrictions
         }
-
         //when rendering restriction tab manually set isNewProduct to false since category mapped restriction should be loaded rather default values
         render(view: "/product/_restrictions", model: [restrictions: restrictions, productOpenPrice: productOpenPrice, isNewProduct: false])
     }
@@ -1917,7 +1973,6 @@ class ProductController extends BaseController {
         to.description = from.description
         to.receiptDescription = from.receiptDescription
         to.category = from.category
-        to.unitSize = from.unitSize
         to.weightedItem = from.weightedItem
         to.openPrice = from.openPrice
         to.zeroPrice = from.zeroPrice
@@ -1928,8 +1983,8 @@ class ProductController extends BaseController {
         to.vatPercentageOverride = from.vatPercentageOverride
         to.discreetMessage = from.discreetMessage
         to.status = from.status
+        to.ownLabel = from.ownLabel
         to.retailerProductId = from.retailerProductId
-
     }
 
     private void copyProductVariants(ProductCommand from, Product to) {
@@ -1957,6 +2012,15 @@ class ProductController extends BaseController {
             productVariant.shelfLifeDays = variant.shelfLifeDays
             productVariant.shelfCapacity = variant.shelfCapacity
             productVariant.minimumDisplayQuantity = variant.minimumDisplayQuantity
+            productVariant.description = variant.description
+            productVariant.receiptDescription = variant.receiptDescription
+            productVariant.priceMarked = variant.priceMarked
+            productVariant.unitSize = variant.unitSize
+            productVariant.unitOfMeasure = UnitOfMeasure.findById(variant.unitOfMeasure)
+            productVariant.itemsInUnit = variant.itemsInUnit
+            productVariant.heightCm = variant.heightCm
+            productVariant.widthCm = variant.widthCm
+            productVariant.depthCm = variant.depthCm
             productVariant.setProduct(to)
 
             List<Barcode> barcodes = new ArrayList<>()
@@ -2071,6 +2135,7 @@ class AddVariantCommand {
     Long sku
     BigDecimal retailPrice
     BigDecimal costPrice
+    BigDecimal weightedAverageCostPrice
     Integer shelfLifeDays
     DateTime effectiveDate
     List<AddBarcodeCommand> barcodez
@@ -2081,6 +2146,15 @@ class AddVariantCommand {
     int operationMode
     Integer shelfCapacity
     Integer minimumDisplayQuantity
+    String description
+    String receiptDescription
+    BigDecimal unitSize
+    UnitOfMeasure unitOfMeasure
+    Integer itemsInUnit
+    BigDecimal heightCm
+    BigDecimal widthCm
+    BigDecimal depthCm
+    boolean priceMarked
     boolean preferredSku
 
     BigDecimal getCurrentPrice() {
@@ -2128,7 +2202,10 @@ class AddPackCommand implements Validateable {
     Integer productVariantId
     List<AddBarcodeCommand> barcodez
     BigDecimal minAlcoholUnitPrice
-    BigDecimal weightedAverageCost
+    BigDecimal lengthCm
+    BigDecimal heightCm
+    BigDecimal widthCm
+    BigDecimal weightKg
     boolean priceMarked = false
     PriceMarkedType priceMarkedType
     BigDecimal priceMarkedValue
@@ -2240,7 +2317,6 @@ class ProductCommand {
     String receiptDescription
     Category category
     boolean dumpCode
-    String unitSize
     boolean weightedItem
     boolean openPrice
     boolean zeroPrice
@@ -2263,11 +2339,12 @@ class ProductCommand {
     String selDescription
     SelType selType
     String productImgUrl
+    boolean ownLabel
 
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
 
-//    Collection<Tag> tags = new ArrayList<>()
+//    Collection<ProductGroup> tags = new ArrayList<>()
 //    Collection<Message> saleMessages = new ArrayList<>()
 //    Collection<Message> refundMessages = new ArrayList<>()
 //    Collection<DiscountRate> discountRates = new ArrayList<>()
@@ -2308,8 +2385,6 @@ class ProductVariantCommand {
     long sku
     BigDecimal retailPrice
     BigDecimal costPrice
-    String size
-    String colour
     Integer shelfLifeDays
     Integer shelfCapacity
     Integer minimumDisplayQuantity
@@ -2323,6 +2398,16 @@ class ProductVariantCommand {
     int updatedUserId
     boolean delete
     boolean preferredSku
+    String description
+    String receiptDescription
+    boolean priceMarked
+    BigDecimal unitSize
+    UnitOfMeasure unitOfMeasure
+    Integer itemsInUnit
+    BigDecimal heightCm
+    BigDecimal widthCm
+    BigDecimal depthCm
+    String extras
 
     Collection<PackCommand> packs = new ArrayList<>()
     Collection<BarcodeCommand> barcodez = new ArrayList<>()
@@ -2346,6 +2431,10 @@ class PackCommand {
     boolean priceMarked = false
     PriceMarkedType priceMarkedType
     BigDecimal priceMarkedValue
+    BigDecimal lengthCm
+    BigDecimal widthCm
+    BigDecimal heightCm
+    BigDecimal weightKg
 
     static constraints = {
         importFrom Pack
@@ -2419,9 +2508,6 @@ class CSVUploadProduct {
 
     @CsvBindByName(column = 'default_sku')
     Integer defaultSKU
-
-    @CsvBindByName(column = 'unit_size')
-    String unitSize
 
     @CsvBindByName(column = 'price_bands')
     String priceBands

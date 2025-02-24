@@ -1,4 +1,4 @@
-<div class="modal fade" id="productSearchModal" tabindex="-1" role="dialog" aria-labelledby="productSearchModalTitle" aria-hidden="true">
+<div class="modal fade header-wl" id="productSearchModal" tabindex="-1" role="dialog" aria-labelledby="productSearchModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-body">
@@ -21,13 +21,13 @@
                 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
                     <div class="col-2 font-weight-bold">Item Code</div>
                     <div class="col-4 font-weight-bold">Description</div>
+                    <div class="col-2 font-weight-bold">SKU</div>
                     <div class="col-2 font-weight-bold">Category</div>
-                    <div class="col-2 font-weight-bold">Cost Price</div>
-                    <div class="col-2 font-weight-bold">Retail Price</div>
+                    <div class="col-2 font-weight-bold">Actions</div>
                 </div>
 
                 <div id="productSearchResults" class="align-content-center">
-                    <g:render template="/product/addProductSearchResults" model="${[ products: products ]}" />
+                    <g:render template="/product/addProductSearchResults" model="${[ products: products]}" />
                 </div>
 
                 <div class="row mt-3">

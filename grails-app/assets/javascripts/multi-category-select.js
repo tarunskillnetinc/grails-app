@@ -61,7 +61,6 @@ function getCurrentSelectedCategoryIds(originalSelectedIds, selectedCategoryIds,
     return Array.from(finalSelectedIds);
 }
 
-
 function filterCategories(supplierId, supplierCategoryId) {
     var params = {};
     params["supplierId"] = (supplierId) ? supplierId : null; // Pass null if supplierId is missing

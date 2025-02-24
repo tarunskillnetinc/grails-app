@@ -119,6 +119,16 @@ class SafeService {
         }
     }
 
+    List<Safe> getActiveStoreSafes() {
+        return Safe.withCriteria {
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("storeId", springSecurityService.principal.storeId)
+            eq("active", true)
+            order("active", "desc")
+            order("description")
+        }
+    }
+
     List<Safe> getSafesByStoreNumber(int storeNumber) {
         return Safe.withCriteria {
             eq("retailerId", springSecurityService.principal.retailerId)

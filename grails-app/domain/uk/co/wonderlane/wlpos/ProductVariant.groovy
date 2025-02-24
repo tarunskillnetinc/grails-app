@@ -22,17 +22,26 @@ class ProductVariant implements Serializable {
     long sku
     BigDecimal retailPrice
     BigDecimal costPrice
-    String size
-    String colour
+    BigDecimal weightedAverageCostPrice
     int minimumStockLevel
     DateTime effectiveDate
     boolean delete
     Integer shelfLifeDays
     Integer shelfCapacity
     Integer minimumDisplayQuantity
+    String description
+    String receiptDescription
+    boolean priceMarked
+    BigDecimal unitSize
+    UnitOfMeasure unitOfMeasure
+    Integer itemsInUnit
+    BigDecimal heightCm
+    BigDecimal widthCm
+    BigDecimal depthCm
+    String extras
 
     Collection<Pack> packs = new ArrayList<>()
-//    Collection<Tag> tags = new ArrayList<>()
+//    Collection<ProductGroup> tags = new ArrayList<>()
 
     Collection<Barcode> barcodez = new ArrayList<>()
     Collection<Location> locationz = new ArrayList<>()
@@ -61,14 +70,23 @@ class ProductVariant implements Serializable {
         sku column: "sku"
         retailPrice column: "price"
         costPrice column: "costPrice"
-        size column:"size"
-        colour column:"colour"
+        weightedAverageCostPrice column: "weightedAverageCostPrice"
         shelfLifeDays column: "shelfLifeDays"
         minimumStockLevel column: "minimumStockLevel"
         effectiveDate column: "effectiveDate"
         packs cascade: "all-delete-orphan"
         shelfCapacity column: "shelfCapacity"
         minimumDisplayQuantity column: "minimumDisplayQuantity"
+        description column: "`description`"
+        receiptDescription column: "receiptDescription"
+        priceMarked column: "priceMarked"
+        unitSize column: "unitSize"
+        unitOfMeasure column: "unitOfMeasure"
+        itemsInUnit column: "itemsInUnit", sqlType: "smallint"
+        heightCm column: "heightCm"
+        widthCm column: "widthCm"
+        depthCm column: "depthCm"
+        extras column: "extras", sqlType: "json"
     }
 
     static constraints = {
@@ -84,13 +102,22 @@ class ProductVariant implements Serializable {
         defaultSupplierId nullable: true
         retailPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
-        size size: 0..45, blank: true, nullable: true
-        colour size: 0..45, blank: true, nullable: true
+        weightedAverageCostPrice nullable: true
         shelfLifeDays nullable: true
         effectiveDate nullable: false
         packs nullable: true
         shelfCapacity nullable: true
         minimumDisplayQuantity nullable: true
+        description nullable: true
+        receiptDescription nullable: true
+        priceMarked nullable: false
+        unitSize nullable: true, max: 9999.999 as BigDecimal, scale: 3
+        unitOfMeasure nullable: true
+        itemsInUnit nullable: false, min: 1, max: 9999
+        heightCm nullable: true
+        widthCm nullable: true
+        depthCm nullable: true
+        extras nullable: true
         delete bindable: true
         barcodez bindable: true
         locationz bindable: true
@@ -209,8 +236,8 @@ class ProductVariant implements Serializable {
         productVariant.setSku(sku)
         productVariant.setRetailPrice(getCurrentPrice(priceBand))
         productVariant.setCostPrice(getCostPrice())
-        productVariant.setSize(size)
-        productVariant.setColour(colour)
+        productVariant.setSize(null)
+        productVariant.setColour(null)
         productVariant.setMinimumStockLevel(minimumStockLevel)
         productVariant.setEffectiveDate(effectiveDate)
         productVariant.setMinimumDisplayQuantity(minimumDisplayQuantity)
@@ -229,9 +256,6 @@ class ProductVariant implements Serializable {
 
             productVariant.getPacks().add(pack.getPack())
         }
-
-        // TODO Set tags
-//        productVariant.getTags().add(it.getTag())
 
         getLocations()?.each {
             productVariant.getLocations().add(it.getCommonLocation())
@@ -274,5 +298,23 @@ class ProductVariant implements Serializable {
             }
         }
         return locationHierarchy;
+    }
+
+    String getSelUnitSize() {
+        if (unitOfMeasure == null) {
+            return "EACH"
+        }
+
+        String exponent = ""
+        if( (itemsInUnit?:1) > 1) {
+            exponent = itemsInUnit + "x"
+        }
+
+        BigDecimal perUnit = null
+        if (unitSize != null) {
+            perUnit = unitSize.divide(itemsInUnit?:1, 3, RoundingMode.HALF_UP)
+        }
+
+        return exponent + (perUnit?:"") + unitOfMeasure?.symbol?:"EACH"
     }
 }

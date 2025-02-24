@@ -64,8 +64,10 @@
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "reason" }?.enabled}">
                 <div class="col-2 my-auto">
-                    <g:if test="${!tenderMovement.reason}">N/A</g:if>
-                    <g:elseif test="${tenderMovement.type == 'PAID_OUT'}"><g:message code="PaidOutReason.${tenderMovement.reason}" /></g:elseif>
+                    <g:if test="${tenderMovement.type.name() == "ADD_FLOAT" || tenderMovement.type.name() == "CASH_LIFT" || tenderMovement.type.name() == "BANKING" || tenderMovement.type.name() == "CASH_INBOUND"}">
+                        ${tenderMovement.tenderTypeName}
+                    </g:if>
+                    <g:elseif test="${!tenderMovement.reason}">N/A</g:elseif>
                     <g:else>
                         <g:set var="maxLength" value="${30}" />
                         <g:set var="originalValue" value="${tenderMovement.reason}" />

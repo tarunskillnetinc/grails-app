@@ -397,8 +397,8 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
             getTopLevelCategories() >> new ArrayList()
         }
 
-        controller.tagService = Stub(TagService) {
-            getTags() >> new ArrayList()
+        controller.productGroupService = Stub(ProductGroupService) {
+            getProductGroups() >> new ArrayList()
         }
 
         controller.springSecurityService = getFakeSpringSecurityService()
@@ -458,8 +458,8 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
             getTopLevelCategories() >> new ArrayList()
         }
 
-        controller.tagService = Stub(TagService) {
-            getTags() >> new ArrayList()
+        controller.productGroupService = Stub(ProductGroupService) {
+            getProductGroups() >> new ArrayList()
         }
 
         controller.springSecurityService = getFakeSpringSecurityService()
@@ -1143,6 +1143,11 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
             packCommand.priceMarked = it.priceMarked
             packCommand.priceMarkedType = it.priceMarkedType
             packCommand.priceMarkedValue = it.priceMarkedValue
+            packCommand.lengthCm = it.lengthCm
+            packCommand.widthCm = it.widthCm
+            packCommand.heightCm = it.heightCm
+            packCommand.weightKg = it.weightKg
+
             packs.add(packCommand)
         }
         variantCmd.packs.addAll(packs)

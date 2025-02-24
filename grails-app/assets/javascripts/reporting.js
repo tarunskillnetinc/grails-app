@@ -56,6 +56,10 @@ function getReportData(sortParams, filterParams) {
         data: params,
         success: function(resp) {
             $("#results-container").html(resp);
+
+            if (reportType === "BANKING_REPORT") {
+                $('html, body').animate({scrollTop: $("#results-container").position().top - 30}, 500);
+            }
         }
     });
 }

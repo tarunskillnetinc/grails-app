@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import grails.converters.JSON
+import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.enums.ProductAttributeType;
 
 class ProductAttributesController extends BaseController {
@@ -14,6 +15,7 @@ class ProductAttributesController extends BaseController {
         return null
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def productAttributes() {
         int max = params.int('max') ?: 50
         int offset = params.int('offset') ?: 0
@@ -26,6 +28,7 @@ class ProductAttributesController extends BaseController {
         [productAttributes: paginatedResults.list, productAttributesCount: paginatedResults.count]
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxProductAttributes() {
         int max = params.int('max') ?: 50
         int offset = params.int('offset') ?: 0
@@ -38,16 +41,19 @@ class ProductAttributesController extends BaseController {
         render(template: "productAttributesResultsView", model: [productAttributes: paginatedResults.list, productAttributesCount: paginatedResults.count])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveProductAttributeChanges() {
         def a = params
         return;
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def addProductAttribute() {
         def types = ProductAttributeType.values();
         [attributeTypes: types]
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def saveProductAttribute() {
         def productAttributes = new ProductAttributes()
         productAttributes.name = params.attributeName
@@ -63,11 +69,13 @@ class ProductAttributesController extends BaseController {
         }
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddAttributeListItem() {
         def attributeId = params.attributeId
         render(template: "productAttributeAddListItem", model: [attributeId: attributeId])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def saveAttributeListItem() {
         def attributeId = params.attributeId ? Integer.parseInt(params.attributeId) : null
         if (attributeId == null) {
@@ -113,6 +121,7 @@ class ProductAttributesController extends BaseController {
         }
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def bulkUpdateAttributes() {
         def result = [success: false]
 

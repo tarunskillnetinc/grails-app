@@ -1,30 +1,33 @@
 package uk.co.wonderlane.wlpos
 
-class TagProduct implements Serializable {
+class ProductGroupProduct implements Serializable {
 
     def springSecurityService
 
-    static belongsTo = [ tag: Tag ]
+    static belongsTo = [productgroup: ProductGroup]
 
     long sku
 
-    static transients = [ "productVariantId", "productId", "productDescription", "itemCode" ]
+    static transients = ["productVariantId", "productId", "productDescription", "itemCode", "barcodes", "categoryDescription"]
 
     int productVariantId
     int productId
     String productDescription
     String itemCode
 
+    String barcodes
+    String categoryDescription
+
     // Need this parameterless constructor or else dependency injection (SpringSecurityService) breaks.
-    public TagProduct() { }
+    public ProductGroupProduct() {}
 
     static mapping = {
-        table "tagproduct"
+        table "productgroupproduct"
         version false
 
-        id composite: ['tag', 'sku']
+        id composite: ['productgroup', 'sku']
 
-        tag column: "tagId"
+        productgroup column: "productGroupId"
         sku column: "sku"
     }
 
@@ -60,13 +63,13 @@ class TagProduct implements Serializable {
         itemCode = productVariant?.product?.itemCode
     }
 
-    public uk.co.wonderlane.wlpos.entities.TagProduct getTagProduct() {
-        uk.co.wonderlane.wlpos.entities.TagProduct tagProduct = new uk.co.wonderlane.wlpos.entities.TagProduct()
+    public uk.co.wonderlane.wlpos.entities.ProductGroupProduct getProductGroupProduct() {
+        uk.co.wonderlane.wlpos.entities.ProductGroupProduct productGroupProduct = new uk.co.wonderlane.wlpos.entities.ProductGroupProduct()
 
-        tagProduct.setTagId(tag.id)
-        tagProduct.setSku(sku)
+        productGroupProduct.setProductGroupId(productGroupProduct.productGroupId)
+        productGroupProduct.setSku(sku)
 
-        return tagProduct
+        return productGroupProduct
     }
 
     @Override
@@ -74,9 +77,9 @@ class TagProduct implements Serializable {
         if (this.is(that)) return true
         if (getClass() != that.class) return false
 
-        TagProduct tagProduct = (TagProduct)that
-        if (sku != tagProduct.sku || productVariantId != tagProduct.productVariantId
-                || productId != tagProduct.productId || tag?.id != tagProduct.tag?.id || itemCode != tagProduct.itemCode) {
+        ProductGroupProduct productGroupProduct = (ProductGroupProduct) that
+        if (sku != productGroupProduct.sku || productVariantId != productGroupProduct.productVariantId
+                || productId != productGroupProduct.productId || productGroup?.id != productGroupProduct.productGroupId || itemCode != productGroupProduct.itemCode) {
             return false
         }
 
@@ -85,6 +88,6 @@ class TagProduct implements Serializable {
 
     @Override
     int hashCode() {
-        return sku.hashCode() + productVariantId.hashCode() + productId.hashCode() + (tag?.id?.hashCode() ?: 123)
+        return sku.hashCode() + productVariantId.hashCode() + productId.hashCode() + (productgroup?.id?.hashCode() ?: 123)
     }
 }

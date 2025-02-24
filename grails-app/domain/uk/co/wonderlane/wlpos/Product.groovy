@@ -19,7 +19,6 @@ class Product {
     String description
     String receiptDescription
     Category category
-    String unitSize
     boolean weightedItem
     boolean openPrice
     boolean zeroPrice
@@ -33,6 +32,8 @@ class Product {
     ProductStatus status
     String retailerProductId
     Long preferredSku
+    boolean ownLabel
+    String extras
 
     Collection<ProductVariant> variants = new ArrayList<>()
     Collection<ProductAttributeValues> productAttributeValues = new ArrayList<>()
@@ -44,7 +45,7 @@ class Product {
     SelType selType
     String productImgUrl
 
-    static hasMany = [ productMessages: ProductMessage, variants: ProductVariant, productAttributeValues: ProductAttributeValues ]
+    static hasMany = [ variants: ProductVariant, productAttributeValues: ProductAttributeValues ]
     static belongsTo = [selType: SelType]
 
     static transients = ['retailPrice', 'costPrice']
@@ -62,7 +63,6 @@ class Product {
         description column: "`description`"
         receiptDescription column: "receiptDescription"
         category column: "categoryId"
-        unitSize column: "unitSize"
         pricePerKg column: "pricePerKg"
         snappyProduct column: "snappyProduct"
         deliItem column: "deliItem"
@@ -81,8 +81,8 @@ class Product {
         selType column: "selType"
         productImgUrl column: "productImgUrl"
         preferredSku column: "preferredSku"
-
-        productMessages: 'product'
+        ownLabel column: "ownLabel"
+        extras column: "extras", sqlType: "json"
     }
 
     static constraints = {
@@ -92,11 +92,16 @@ class Product {
         description size: 1..100, blank: false, nullable: false
         receiptDescription size: 1..50, blank: false, nullable: false
         discreetMessage size: 0..50, blank: true, nullable: true
-        unitSize size: 1..50, blank: false, nullable:false
         vatPercentageOverride min:0 as BigDecimal, max: 100 as BigDecimal, blank: true, nullable: true, scale: 2
         vatCode nullable: false
         status nullable: false
-        category nullable: false
+        category nullable: false, validator: {val, obj ->
+            if (val?.retailerCategoryCode == null) {
+                return ["error.Product.retailerCategoryCode"]
+            }
+
+            return val?.validate()
+        }
         retailerProductId nullable: true
         restrictions validator: {val, obj ->
             return val?.validate() ? true : ["error.Product.badRestrictions"]
@@ -120,6 +125,8 @@ class Product {
         selType nullable: true
         productImgUrl nullable: true, blank: true, url: true
         preferredSku nullable: true
+        ownLabel nullable: false
+        extras nullable: true
     }
 
     List<RangeProduct> getRanges() {
@@ -248,7 +255,7 @@ class Product {
         product.setDescription(description)
         product.setReceiptDescription(receiptDescription)
         product.setCategory(category.getCategory())
-        product.setUnitSize(unitSize)
+        product.setUnitSize(variants?.sort {a,b -> -(a.getEffectiveDate() <=> b.getEffectiveDate())}?.find {it.storeId == storeId || it.storeId == null}?.getSelUnitSize()?: "EACH")
         product.setWeightedItem(weightedItem)
         product.setPricePerKg(pricePerKg)
         product.setOpenPrice(openPrice)
@@ -258,6 +265,7 @@ class Product {
         product.setRestrictions(restrictions.getRestrictions())
         product.setDiscreetMessage(discreetMessage)
         product.setStatus(status)
+
         variants.each {
             if (it.storeId == null || it.storeId == storeId) {
                 product.getVariants().add(it.getProductVariant(priceBand))
@@ -286,14 +294,32 @@ class Product {
     }
 
     def getSaleMessages() {
-        return ProductMessage.findAllByProductAndType(this, ProductMessageType.SALE)*.message
+        def saleMessages = []
+        
+        if (id != 0) {
+            saleMessages = ProductMessage.findAllByProductAndType(this, ProductMessageType.SALE)*.message
+        }
+
+        return saleMessages
     }
     
     def getRefundMessages() {
-        return ProductMessage.findAllByProductAndType(this, ProductMessageType.REFUND)*.message
+        def refundMessages = []
+        
+        if (id != 0) {
+            refundMessages = ProductMessage.findAllByProductAndType(this, ProductMessageType.REFUND)*.message
+        }
+
+        return refundMessages
     }
     
     def getScoMessages() {
-        return ProductMessage.findAllByProductAndType(this, ProductMessageType.SCO)*.message
+        def scoMessages = []
+        
+        if (id != 0) {
+            scoMessages = ProductMessage.findAllByProductAndType(this, ProductMessageType.SCO)*.message
+        }
+
+        return scoMessages
     }
 }

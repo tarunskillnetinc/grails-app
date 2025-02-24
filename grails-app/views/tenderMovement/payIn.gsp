@@ -1,13 +1,14 @@
 <script type="text/javascript">
 	var successMessage = "${success}";
     var errorMessage = "${error}";
+
     $(document).ready(function () {
         addMoneyMaskLogic();
         processPayInActionButton();
         handlePayInResponseMessages("${success}", "${error}");
     });
 
-    function processPayInActionButton(){
+    function processPayInActionButton() {
         // Remove any existing click handlers for #tender-lift-save
         $(document).off('click', '#payin-save');
 
@@ -29,7 +30,7 @@
         });
     }
 
-    function handlePayInResponseMessages(successMessage, errorMessage){
+    function handlePayInResponseMessages(successMessage, errorMessage) {
         if(successMessage != null && successMessage !== ''){
             $("#messages-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + successMessage + '</div>');
         } else if (errorMessage != null && errorMessage !== '') {
@@ -42,7 +43,7 @@
 
 <div id="payin" class="centered-content">
     <div class="form-container">
-        <section id="segment-details" class="container-fluid">
+        <section id="segment-details" class="container-fluid px-0">
             <div id="messages-container"></div>
         </section>
 
@@ -72,13 +73,8 @@
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="tender" class="col-form-label">Tender</label>
-                            <g:select name="tender"
-                                      from="${tenders}"
-                                      optionValue="${{ it.toString().toLowerCase().capitalize() }}"
-                                      class="form-control select-border"
-                                      title="list of tenders"
-                                      readonly="true"/>
+                            <label for="tenderTypeId" class="col-form-label">Tender</label>
+                            <g:select name="tenderTypeId" from="${tenders}" optionKey="id" optionValue="name" class="form-control select-border" title="list of tenders" />
                         </div>
                         <div class="form-group">
                             <label for="amount" class="col-form-label">Amount</label>
