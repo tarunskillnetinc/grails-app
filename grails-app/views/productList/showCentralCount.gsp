@@ -68,12 +68,12 @@
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="dateStarted" class="col-4 col-form-label text-right pr-4">Date Started</label>
-                    <g:textField name="dateStarted" class="col-5 form-control bottom-border" value="${productList?.dateStarted}" disabled="disabled" />
+                    <g:textField name="dateStarted" class="col-5 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy HH:mm:ss", date:productList?.dateStarted?.toDate())}" disabled="disabled" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="dateCompleted" class="col-4 col-form-label text-right pr-4">Date Completed</label>
-                    <g:textField name="dateCompleted" class="col-5 form-control bottom-border" value="${productList?.dateCompleted}" disabled="disabled" />
+                    <g:textField name="dateCompleted" class="col-5 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy HH:mm:ss", date:productList?.dateCompleted?.toDate())}" disabled="disabled" />
                 </div>
 
                 <div class="header-wl mt-5">

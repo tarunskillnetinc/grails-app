@@ -1423,6 +1423,9 @@ class ProductController extends BaseController {
         if (locationToBeUpdated.id == 0 || locationsType == LocationsType.SIMPLE) {
             locationToBeUpdated.location = editedLocation.location
         }
+
+        locationToBeUpdated.locationDescription = editedLocation.locationDescription
+        locationToBeUpdated.locationNumber = editedLocation.locationNumber
         locationToBeUpdated.shelfCapacity = editedLocation.shelfCapacity
         locationToBeUpdated.minimumDisplayQuantity = editedLocation.minimumDisplayQuantity
     }

@@ -443,7 +443,7 @@ class StoreConfigCommand implements Validateable {
         secondaryTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         accentTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         backgroundColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
-        countIncrement nullable: false, min: new BigDecimal(0.001).round(new MathContext(1, RoundingMode.HALF_EVEN)), max: BigDecimal.ONE
+        countIncrement nullable: false, min: new BigDecimal(0.01).round(new MathContext(1, RoundingMode.HALF_EVEN)), max: BigDecimal.ONE
         website nullable: true, maxsize: 40
         companyNumber nullable: true, maxSize: 10
         returnsMessage nullable: true, maxSize: 200
