@@ -290,7 +290,7 @@ function saveCashUpdate() {
         data: formValues + "&tillIdFilter=" + tillIdFilter ,
         success: function(resp) {
             if (resp == 'OK') {
-                cashUpdateAction =  "Cash lift";
+                cashUpdateAction =  "Tender lift";
                 if (isAddFloat) {
                     cashUpdateAction = "Add float";
                 }

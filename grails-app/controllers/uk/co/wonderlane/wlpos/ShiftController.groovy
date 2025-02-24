@@ -435,7 +435,7 @@ class ShiftController {
         }
     }
 
-    //This will load either Add Float or Cash Lift popup based on button we clicked
+    //This will load either Add Float or Tender Lift popup based on button we clicked
     def ajaxCashUpdateModal(){
         boolean isAddFloat = false
         Integer retailerId = null
@@ -466,8 +466,8 @@ class ShiftController {
                                                         tillId: tillId, shiftId: shiftId, safeLocations: safeLocations, primarySafe: primarySafe,
                                                         cashAmount:cashAmount, voucherAmount:voucherAmount , error: error])
         } catch (Exception ex) {
-            log.error(String.format("${isAddFloat ? 'Add float ' : 'Cash lift '} modal loading error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
-            String error =  "${isAddFloat ? 'Add float ' : 'Cash lift '} action failed. "
+            log.error(String.format("${isAddFloat ? 'Add float ' : 'Tender lift '} modal loading error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
+            String error =  "${isAddFloat ? 'Add float ' : 'Tender lift '} action failed. "
             if (flash.error) {
                 error = error + flash.error
             }

@@ -146,10 +146,13 @@
                 $("#eligibleForFloat").attr("disabled", true);
                 $("#eligibleForCashLift").prop("checked", false);
                 $("#eligibleForCashLift").attr("disabled", true);
+                $("#cashTender").prop("checked", false);
+                $("#cashTender").attr("disabled", true);
             } else {
                 $("#eligibleForBanking").attr("disabled", false);
                 $("#eligibleForFloat").attr("disabled", false);
                 $("#eligibleForCashLift").attr("disabled", false);
+                $("#cashTender").attr("disabled", false);
             }
         }
 
@@ -168,11 +171,14 @@
 
         function cashTenderChanged(checkbox) {
             if (checkbox.checked === true) {
+                $("#autoReconcile").prop("checked", false);
+                $("#autoReconcile").attr("disabled", true);
                 $("#cardPayment").prop("checked", false);
                 $("#cardPayment").attr("disabled", true);
                 $("#voucherType").val("");
                 $("#voucherType").attr("disabled", true);
             } else {
+                $("#autoReconcile").attr("disabled", false);
                 $("#cardPayment").attr("disabled", false);
                 $("#voucherType").attr("disabled", false);
             }
