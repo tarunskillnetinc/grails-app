@@ -8,4 +8,9 @@ class ProductMessageService {
         productMessage.save(flush: true)
         return productMessage.id
     }
+
+    def deleteProductMessage(Product product, Message message) {
+        def productMessage = ProductMessage.findByProductAndMessage(product, message)
+        productMessage.delete()
+    }
 }

@@ -76,11 +76,8 @@
 
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="tenders" class="col-form-label">Tender</label>
-                            <g:select name="tender"
-                                      from="${tenders}"
-                                      optionValue="${{ it.toString().toLowerCase().capitalize() }}"
-                                      class="form-control select-border"/>
+                            <label for="tenderTypeId" class="col-form-label">Tender</label>
+                            <g:select name="tenderTypeId" from="${tenders}" optionKey="id" optionValue="name" class="form-control select-border" />
                         </div>
 
                         <div class="form-group">

@@ -47,6 +47,11 @@ class RetailerController {
             }
         }
 
+        Integer multiplier = retailerCommand.alcoholMinimumPriceMultiplier
+        if (multiplier != null && (multiplier > 1000 || multiplier < 1)) {
+            errorMessages << message(code: 'retailer.alcoholMinimumPriceMultiplier.size')
+        }
+
         for(toggle in retailerCommand.menuItemDetails?.functionToggles?.values()){
             var t = new FunctionToggle()
             t.name = toggle.name
@@ -238,6 +243,7 @@ class RetailerCommand implements Validateable {
     Integer cfdMaxProfiles
     Integer cfdProfileImageCount
     boolean amendableOrdersEnabled
+    Integer alcoholMinimumPriceMultiplier
 
     MultipartFile brandLogo
 

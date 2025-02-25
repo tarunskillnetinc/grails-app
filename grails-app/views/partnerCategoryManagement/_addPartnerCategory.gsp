@@ -193,8 +193,8 @@
                                              value="${ecomSupplierCategory?.description}"
                                              class="form-control bottom-border alpha-field"
                                              minLength="1"
-                                             maxLength="45"
-                                             size="45"/>
+                                             maxLength="60"
+                                             size="60"/>
                             </div>
                         </div>
                     </div>

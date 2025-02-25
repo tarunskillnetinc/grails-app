@@ -19,6 +19,7 @@ class ShiftController {
     def reasonCodeService
     def safeService
     def safeManagementService
+    def tenderTypeService
 
     def index() {
         if (!springSecurityService.principal.storeId) {
@@ -107,15 +108,24 @@ class ShiftController {
             // 2. If it is RECONCILE request -> Shift status must be UNRECONCILED
             // 3. If it is RECOUNT or FINALISED request -> Shift status must be RECONCILED
             if (shift != null && ((!isRecount && !isFinalise && shift.getShiftStatus() == ShiftStatus.UNRECONCILED) || ((isRecount || isFinalise) && shift.getShiftStatus() == ShiftStatus.RECONCILED))) {
+                // Go and find all tender types which are used in this store.
+                def applicableTenderTypes = tenderTypeService.getApplicableTenderTypes()
+
                 if ((shift.getShiftStatus() == ShiftStatus.RECONCILED) && (!shiftService.isShiftRecountAmountNotExceed(shift) || isFinalise)) {
                     // When we move into finalise view we need to pass safe location to summary view to select
                     // For that select if no have create safe location
-                    def safes = safeService.getStoreSafes()
+                    def safes = safeService.getActiveStoreSafes()
                     def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
-                    render(template: "cashUpFinalizeModal", model: [shift: shift, safes: safes, varianceReasons:varianceReasons])
+
+                    render(template: "cashUpFinalizeModal", model: [shift: shift, safes: safes, varianceReasons:varianceReasons, tenderTypes: applicableTenderTypes])
                     return
                 }
-                render(template: "cashUpModal", model: [shift: shift])
+
+                // Remove any tender types which do not need to be cashed up manually.
+                applicableTenderTypes?.removeAll { it.cashTender } // Cash is handled completely separately.
+                applicableTenderTypes?.removeAll { it.autoReconcile } // Auto-reconciled, so not cashed up.
+
+                render(template: "cashUpModal", model: [shift: shift, tenderTypes: applicableTenderTypes])
             } else if (shift != null && !isRecount && !isFinalise && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
                 render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Already reconciled.")
@@ -137,6 +147,11 @@ class ShiftController {
     // This will use to move between each cash up views (value, denomination or totals)
     def ajaxChangeCashUpType(CashUpCommand cashUpCommand) {
         try {
+            // Go and find all tender types which are used in this store.
+            def applicableTenderTypes = tenderTypeService.getApplicableTenderTypes()
+            applicableTenderTypes?.removeAll { it.cashTender } // Cash is handled completely separately.
+            applicableTenderTypes?.removeAll { it.autoReconcile } // Auto-reconciled, so not cashed up.
+
             def template = ""
             if (cashUpCommand.type == "VALUE") {
                 template = "cashUpByValue"
@@ -178,7 +193,8 @@ class ShiftController {
                     cashUpCommand.cashTotal = cashUpCommand.fiftyPounds * 50 + cashUpCommand.twentyPounds * 20 + cashUpCommand.tenPounds * 10 + cashUpCommand.fivePounds * 5 + cashUpCommand.twoPounds * 2 + cashUpCommand.onePounds * 1 + cashUpCommand.fiftyPences * 0.50 + cashUpCommand.twentyPences * 0.20 + cashUpCommand.tenPences * 0.10 + cashUpCommand.fivePences * 0.05 + cashUpCommand.twoPences * 0.02 + cashUpCommand.onePences * 0.01
                 }
             }
-            render(template: template, model: [values: cashUpCommand])
+
+            render(template: template, model: [values: cashUpCommand, tenderTypes: applicableTenderTypes])
         } catch (Exception ex) {
             log.error(String.format("Shift cash up type change error for shift id: %d error: %s", cashUpCommand.shiftId, ex.getMessage()), ex)
             return null
@@ -190,21 +206,31 @@ class ShiftController {
     def ajaxSaveCash(CashUpCommand cashUpCommand) {
         try {
             def shift = shiftService.getShift(cashUpCommand.shiftId, -1, -1)
+
             if (shift != null && ((!cashUpCommand.isRecount && shift.getShiftStatus() == ShiftStatus.UNRECONCILED) || (cashUpCommand.isRecount && shift.getShiftStatus() == ShiftStatus.RECONCILED))) {
                 def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
+                def applicableTenderTypes = tenderTypeService.getApplicableTenderTypes()
+
                 if (shift.getShiftStatus() == ShiftStatus.RECONCILED && !shiftService.isShiftRecountAmountNotExceed(shift)) {
                     def safes = safeService.getStoreSafes()
-                    render(template: "cashUpFinalizeModal", model: [shift: shift, safes: safes, varianceReasons:varianceReasons])
+
+                    render(template: "cashUpFinalizeModal", model: [shift: shift, safes: safes, varianceReasons:varianceReasons, tenderTypes: applicableTenderTypes])
                     return
                 }
+
                 shiftService.processShiftCashSave(cashUpCommand, shift)
+
                 def safes = safeService.getStoreSafes()
                 def cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
                 def tillShiftVarianceLimit = cashManagementConfig?new BigDecimal(cashManagementConfig.getTillShiftVarianceLimit()).movePointLeft(2):0.00
+
                 response.status = 200
-                //Here this will load cash up summary with on hold data because that hasn't save into shift's reconciliationTotals values
-                render(template: "cashUpSummaryModal", model: [shift: shift, varianceReasons: varianceReasons, safes: safes,
-                                                               tillShiftVarianceLimit : tillShiftVarianceLimit])
+                // Here this will load cash up summary with on hold data because that hasn't save into shift's reconciliationTotals values
+                render(template: "cashUpSummaryModal", model: [shift: shift,
+                                                               varianceReasons: varianceReasons,
+                                                               safes: safes,
+                                                               tillShiftVarianceLimit : tillShiftVarianceLimit,
+                                                               tenderTypes: applicableTenderTypes])
             } else if (shift != null && !cashUpCommand.isRecount && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
                 render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Already reconciled.")
@@ -229,20 +255,34 @@ class ShiftController {
     def ajaxSaveShift(SaveShiftCommand saveShiftCommand) {
         try {
             def shift = shiftService.getShift(saveShiftCommand.shiftId, -1, -1)
+
             if (shift != null && ((!saveShiftCommand.isRecount && !saveShiftCommand.isFinalise && shift.getShiftStatus() == ShiftStatus.UNRECONCILED) || ((saveShiftCommand.isRecount || saveShiftCommand.isFinalise) && shift.getShiftStatus() == ShiftStatus.RECONCILED))) {
                 shiftService.processShiftDataSave(saveShiftCommand, shift)
-                if (saveShiftCommand.isFinalise) { //Only update this if it is finalized
-                    def cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
-                    if (shift.reconciliationTotals.sum{ it.variance.abs() } > cashManagementConfig.tillShiftVarianceLimit &&
-                            (saveShiftCommand.tenderReconciliationVarianceReason == null || saveShiftCommand.tenderReconciliationVarianceReason.isEmpty())) {
-                        log.warn("No VarianceReason configured or selected.")
+
+                if (saveShiftCommand.isFinalise) { // Only update this if it is finalized.
+                    def safe = safeService.getSafeById(saveShiftCommand.safeId)
+
+                    if (safe.active) {
+                        def cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
+    
+                        if (shift.reconciliationTotals.sum { it.variance.abs() } > cashManagementConfig.tillShiftVarianceLimit &&
+                                (saveShiftCommand.tenderReconciliationVarianceReason == null || saveShiftCommand.tenderReconciliationVarianceReason.isEmpty())) {
+                            log.warn("No VarianceReason configured or selected.")
+                        }
+    
+                        shiftService.updateFinaliseTenderMovement(shift, saveShiftCommand.safeId) //Move into update tender movement
+                        shiftService.updateFinaliseShiftToSafeSessionMovements(shift, saveShiftCommand.safeId) //Move into safe session
+    
+                        // If any till id added into filter then pass it back to the view.
+                        Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
+    
+                        redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised shift %d for till %d.", shift.getShiftNumber(), shift.getTillId())])
+                        return
+
+                    } else {
+                        // do not finalize against an inactive safe
+                        render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Safe is inactive.")
                     }
-                    //If any till id added into filter then pass it
-                    Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
-                    shiftService.updateFinaliseTenderMovement(shift, saveShiftCommand.safeId) //Move into update tender movement
-                    shiftService.updateFinaliseShiftToSafeSessionMovements(shift, saveShiftCommand.safeId) //Move into safe session
-                    redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised shift %d for till %d.", shift.getShiftNumber(), shift.getTillId())])
-                    return
                 } else {
                     Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
                     redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter])
@@ -456,8 +496,14 @@ class CashUpCommand {
     BigDecimal twoPences = BigDecimal.ZERO
     BigDecimal onePences = BigDecimal.ZERO
     BigDecimal cashTotal = BigDecimal.ZERO
-    BigDecimal chequesTotal = BigDecimal.ZERO
-    BigDecimal vouchersTotal = BigDecimal.ZERO
+
+    CashUpTotalCommand[] totals
+}
+
+class CashUpTotalCommand {
+
+    int tenderTypeId
+    BigDecimal value = BigDecimal.ZERO
 }
 
 class SaveShiftCommand {

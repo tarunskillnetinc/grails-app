@@ -35,9 +35,13 @@ class EcomSupplierCategory implements Serializable{
                 return ['partnerCategory.ecom.partner.category.valid.retailer']
             }
         }
-        description nullable: false, validator: { val, obj ->
+        description size: 1..60 , nullable: false, validator: { val, obj ->
             if (!val || val.trim().isEmpty()) {
                 return ['partnerCategory.ecom.partner.category.not.nullable']
+            }
+
+            if (val.trim().length() < 1 || val.trim().length() > 60) {
+                return ['partnerCategory.ecom.partner.category.size']
             }
 
             def existingCategory = EcomSupplierCategory.createCriteria().get { // check any description there for same name

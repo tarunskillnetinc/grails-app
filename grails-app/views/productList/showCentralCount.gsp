@@ -98,8 +98,8 @@
                             <div class="col-1">${productListItem.productVariant?.product?.id}</div>
                             <div class="col-2">${productListItem.productVariant?.sku}</div>
                             <div class="col">${productListItem.productVariant?.product?.description}</div>
-                            <div class="col-1">${productListItem.productVariant?.colour ?: 'N/A'}</div>
-                            <div class="col-1">${productListItem.productVariant?.size ?: 'N/A'}</div>
+                            <div class="col-1">N/A</div>
+                            <div class="col-1">N/A</div>
                         </div>
                     </g:each>
                 </div>

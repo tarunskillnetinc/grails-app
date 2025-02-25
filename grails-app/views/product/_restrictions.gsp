@@ -1,3 +1,4 @@
+<g:hiddenField name="restrictions.id" value="${restrictions?.id}" />
 <div class="card-body py-5">
     <div class="row">
         <div class="col-12 col-lg-5 offset-lg-1">

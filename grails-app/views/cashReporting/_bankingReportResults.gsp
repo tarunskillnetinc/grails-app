@@ -74,8 +74,8 @@
                                     <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${bankingReport?.usersRealName}</div>
                                 </td>
                                 <td id="reportData_${i + 1}_amount" scope="row" class="border">
-                                    <div class="text-truncate">${bankingReport?.tenderType}</div>
-                                    <div class="text-truncate">£${bankingReport?.amount}</div>
+                                    <div class="text-truncate">${bankingReport?.tenderTypeName}</div>
+                                    <div class="text-truncate"><g:formatNumber number="${bankingReport?.amount}" type="currency" /></div>
                                 </td>
                                 <td id="reportData_${i + 1}_comments scope="row" class="border">
                                 ${bankingReport?.comment}

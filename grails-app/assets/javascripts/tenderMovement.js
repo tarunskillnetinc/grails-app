@@ -1,7 +1,7 @@
 function processTenderLift() {
     const safeIdElement = $("select[name='safeId']");
     const tillNoElement = $("select[name='tillNo']");
-    const tenderElement = $("select[name='tender']");
+    const tenderElement = $("select[name='tenderTypeId']");
     const amountElement = $("#amount");
 
     const formElements = [safeIdElement, tillNoElement, tenderElement, amountElement];
@@ -24,7 +24,7 @@ function processTenderLift() {
 
 function processAddFloat() {
     const safeIdElement = $("select[name='safeId']");
-    const tenderElement = $("select[name='tender']");
+    const tenderElement = $("select[name='tenderTypeId']");
     const amountElement = $("#amount");
 
     const tillNos = $("input[name='tillNos']:checked").map(function() {
@@ -57,7 +57,7 @@ function processPayIn() {
 
     // Get form elements
     const safeIdElement = $("select[name='safeId']");
-    const tenderElement = $("select[name='tender']");
+    const tenderElement = $("select[name='tenderTypeId']");
     const reasonCodeElement = $("select[name='reasoncodeId']");
     const amountElement = $("#amount");
 
@@ -95,7 +95,7 @@ function processPayOut() {
     // Get form elements
     const safeIdElement = $("select[name='safeId']");
     const reasonCodeElement = $("select[name='reasonCode']");
-    const tenderElement = $("#tender");
+    const tenderElement = $("#tenderTypeId");
     const amountElement = $("#amount");
 
     // Get form values
@@ -133,7 +133,7 @@ function processBankDeposit() {
     // Get form elements
     const safeIdElement = $("select[name='safeId']");
     const bankingDateElement = $("input[name='bankingDate']");
-    const tenderElement = $("input[name='tender']");
+    const tenderElement = $("#tenderTypeId");
     const amountElement = $("#amount");
 
     // Get form values
@@ -173,7 +173,7 @@ function processBankReceipt() {
     // Get form elements
     const safeIdElement = $("select[name='safeId']");
     const bankingDateElement = $("input[name='bankingDate']");
-    const tenderElement = $("input[name='tender']");
+    const tenderElement = $("#tenderTypeId");
     const amountElement = $("#amount");
 
     // Get form values
@@ -261,7 +261,7 @@ function getTillBalance(tillNos, tender, enteredAmount, callback) {
     $.ajax({
         url: TenderMovementUrls.getTillAvailableBalance(),
         method: 'GET',
-        data: { tillNos: JSON.stringify(tillNos), tender: tender, enteredAmount: enteredAmount },
+        data: { tillNos: JSON.stringify(tillNos), tenderTypeId: tender, enteredAmount: enteredAmount },
         dataType: 'json',
         success: function(response) {
             if (response.success) {
@@ -301,7 +301,7 @@ function getSafeBalance(totalAmountToBeDistributed, tender, safeId, callback) {
     $.ajax({
         url: TenderMovementUrls.getSafeAvailableBalance(),
         method: 'GET',
-        data: { totalAmountToBeDistributed: totalAmountToBeDistributed, tender: tender, safeId: safeId },
+        data: { totalAmountToBeDistributed: totalAmountToBeDistributed, tenderTypeId: tender, safeId: safeId },
         dataType: 'json',
         success: function(response) {
             if (response.success) {
@@ -414,7 +414,7 @@ function confirmAndSubmit(message, yesCallBack) {
 
 function enforceAlphanumeric(input) {
     // Remove any non-alphanumeric characters
-    input.value = input.value.replace(/[^a-zA-Z0-9]/g, '');
+    input.value = input.value.replace(/[^a-zA-Z0-9 ]/g, '');
 
     // Ensure the input doesn't exceed the maxlength
     if (input.value.length > input.maxLength) {

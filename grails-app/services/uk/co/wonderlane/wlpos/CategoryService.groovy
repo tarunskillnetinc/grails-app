@@ -27,6 +27,20 @@ class CategoryService {
         }
     }
 
+    def searchForCategories(String description, String categoryCode, int offset = 0, int max = 50, String sort = "description", String order = "ASC") {
+        return Category.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            
+            if (description != null && description != "") {
+                like("description", "%$description%")
+            } 
+            
+            if (categoryCode != null && categoryCode != "") {
+                like("retailerCategoryCode", "%$categoryCode%")
+            }
+        }
+    }
+
     def getTopLevelCategories() {
         return Category.findAllByRetailerIdAndParentCategoryIsNull(springSecurityService.principal.retailerId, [sort: 'description', order: 'asc'])
     }
@@ -61,5 +75,4 @@ class CategoryService {
     def deleteCategory(Category category) {
         category.delete()
     }
-
 }
