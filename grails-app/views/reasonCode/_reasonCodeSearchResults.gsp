@@ -1,11 +1,12 @@
 <%@ page import="uk.co.wonderlane.wlpos.enums.ReasonCodeType" %>
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-    <div class="col-4 font-weight-bold"><a href="#" onclick="ajaxSearch({ sortColumn: 'description', sortOrder: ${sortColumn == 'description' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Description</a></div>
+    <div class="col-4 font-weight-bold">Description</div>
     <g:if test="${type == ReasonCodeType.PRODUCT_LIST.name()}">
-        <div class="col-2 font-weight-bold"><a href="#" onclick="ajaxSearch({ sortColumn: 'additionalFunctionality', sortOrder: ${sortColumn == 'additionalFunctionality' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Direction</a></div>
+        <div class="col-2 font-weight-bold">Direction</div>
     </g:if>
-    <div class="col-2 font-weight-bold"><a href="#" onclick="ajaxSearch({ sortColumn: 'secret', sortOrder: ${sortColumn == 'secret' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Secret</a></div>
-    <div class="col-2 font-weight-bold"><a href="#" onclick="ajaxSearch({ sortColumn: 'preferredReasonCode', sortOrder: ${sortColumn == 'preferredReasonCode' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Preferred Reason Code</a></div>
+    <div class="col-2 font-weight-bold">Secret</div>
+
+    <div class="col-2 font-weight-bold">Preferred Reason Code</div>
     <div class="col-4 font-weight-bold"></div>
 </div>
 

@@ -6,6 +6,7 @@ class ReasonCode {
 
     int id
     ReasonCodeType type
+    Integer priority
     String code
     String description
     boolean deleted
@@ -27,6 +28,7 @@ class ReasonCode {
         deleted column: "deleted"
         additionalFunctionality column: "additionalFunctionality"
         promptForText column: "promptForText"
+        priority column: "priority"
         retailerId column: "retailerId", sqlType: "tinyint"
         preferredReasonCode column: "preferredReasonCode"
         secret column: "secret"

@@ -11,29 +11,29 @@ class ReasonCodeService {
         rc.save()
     }
 
-    Pair<Integer, List<ReasonCode>> getReasonCodesOfType(int retailerId, ReasonCodeType type, int offset, int max, String sortColumn, String sortOrder) {
+    Pair<Integer, List<ReasonCode>> getReasonCodesOfType(int retailerId, ReasonCodeType type, int offset, int max) {
         int count = ReasonCode.countByRetailerIdAndTypeAndDeleted(retailerId, type, false)
         if (count == 0) {
             return new Pair<Integer, List<ReasonCode>>(0, new ArrayList<ReasonCode>())
         }
-        def result = ReasonCode.findAllByRetailerIdAndTypeAndDeleted(retailerId, type, false, [offset: offset, max: max, sort: sortColumn, order: sortOrder])
+        def result = ReasonCode.findAllByRetailerIdAndTypeAndDeleted(retailerId, type, false, [offset: offset, max: max, sort: [priority: 'asc', id: 'asc']])
         return new Pair<Integer, List<ReasonCode>>(count, result != null ? result : new ArrayList<ReasonCode>())
     }
 
      List<ReasonCode> getReasonCodesByType(int retailerId, ReasonCodeType type) {
-        return ReasonCode.findAllByRetailerIdAndTypeAndDeleted(retailerId, type, false)
+         return ReasonCode.findAllByRetailerIdAndTypeAndDeleted(retailerId, type, false, [offset: 0, max: 9999, sort: [priority: 'asc', id: 'asc']])
     }
 
     List<ReasonCode> findReasonCodesByCodes(int retailerId, List<String> code) {
-        return ReasonCode.findAllByRetailerIdAndCodeInList(retailerId, code)
+        return ReasonCode.findAllByRetailerIdAndCodeInList(retailerId, code, [offset: 0, max: 9999, sort: [priority: 'asc', id: 'asc']])
     }
 
     ReasonCode findByCode(int retailerId, String code, boolean additionalFunctionality, int id) {
-        return ReasonCode.findByRetailerIdAndCodeAndAdditionalFunctionalityAndIdNotEqual(retailerId, code, additionalFunctionality, id)
+        return ReasonCode.findByRetailerIdAndCodeAndAdditionalFunctionalityAndIdNotEqual(retailerId, code, additionalFunctionality, id, [offset: 0, max: 9999, sort: [priority: 'asc', id: 'asc']])
     }
 
     ReasonCode findByTypeAndCode(int retailerId, ReasonCodeType type, String code) {
-        return ReasonCode.findByRetailerIdAndTypeAndCode(retailerId, type, code)
+        return ReasonCode.findByRetailerIdAndTypeAndCode(retailerId, type, code, [offset: 0, max: 9999, sort: [priority: 'asc', id: 'asc']])
     }
 
     List<ReasonCode> findReasonCodesByIds(List<Integer> id) {
