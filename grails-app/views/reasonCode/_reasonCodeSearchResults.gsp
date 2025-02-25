@@ -34,6 +34,3 @@
     </div>
 </g:each>
 
-<div class="my-3 text-right">
-    <util:remotePaginate controller="reasonCode" action="ajaxSearch" total="${totalResults ?: 0}" update="search-results" offset="${offset ?: 0}" max="${max ?: 50}" params="[type: type, sortColumn: sortColumn, sortOrder: sortOrder]" onSuccess="\$('html, body').animate({ scrollTop: 0 }, 'fast')"/>
-</div>
