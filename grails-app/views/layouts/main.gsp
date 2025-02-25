@@ -189,8 +189,10 @@
                                 <div class="dropdown-divider"></div>
                             </sec:ifAnyGranted>
 
-                            <g:link elementId="amendable-order-dropdown" controller="amendableOrder" action="index" class="dropdown-item">Order Amendments</g:link>
-                            <div class="dropdown-divider"></div>
+                            <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.amendableOrdersEnabled').toBoolean()}">
+                                <g:link elementId="amendable-order-dropdown" controller="amendableOrder" action="index" class="dropdown-item">Order Amendments</g:link>
+                                <div class="dropdown-divider"></div>
+                            </g:if>
 
                             <span id="other-reports" class="dropdown-header">Other Reports</span>
 

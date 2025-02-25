@@ -237,6 +237,7 @@ class RetailerCommand implements Validateable {
     Integer cfdMaxImageUpload
     Integer cfdMaxProfiles
     Integer cfdProfileImageCount
+    boolean amendableOrdersEnabled
 
     MultipartFile brandLogo
 

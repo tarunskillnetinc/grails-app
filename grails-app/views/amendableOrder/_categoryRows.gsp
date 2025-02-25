@@ -23,7 +23,7 @@
         </g:if>
         <div id="amend-result-${i+1}-deliveryDates" class="col-1">
             <g:each in="${skuGrouping.value}" var="amendedLine" >
-                <div  style="margin-bottom:5px">${g.formatDate(format:"dd/MM/yyyy", date:amendedLine?.deliveryDate?.toDate())}</div>
+                <div  style="margin-bottom:20px">${g.formatDate(format:"dd/MM/yyyy", date:amendedLine?.deliveryDate?.toDate())}</div>
             </g:each>
         </div>
         <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "demand" }?.enabled}">
@@ -39,7 +39,7 @@
         <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "orderQuantity" }?.enabled}">
             <div id="amend-result-${i+1}-originalOrder" class="col-1">
                 <g:each in="${skuGrouping.value}" var="amendedLine" >
-                    <div style="margin-bottom: 5px">${amendedLine.originalOrderQuantity}</div>
+                    <div style="margin-bottom: 20px">${amendedLine.originalOrderQuantity}</div>
                 </g:each>
             </div>
         </g:if>
