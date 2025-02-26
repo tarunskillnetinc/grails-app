@@ -34,6 +34,7 @@
         const addUrl = "${createLink(controller: 'reasonCode', action: 'ajaxAddReasonCode')}";
         const saveUrl = "${createLink(controller: 'reasonCode', action: 'ajaxSaveReasonCode')}";
         const deleteUrl = "${createLink(controller: 'reasonCode', action: 'ajaxDeleteReasonCode')}"
+        const reinstateUrl = "${createLink(controller: 'reasonCode', action: 'ajaxReinstateReasonCode')}"
         const saveReorderUrl = "${createLink(controller: 'reasonCode', action: 'ajaxSaveReorderReasonCode')}"
         const reasonCodeTypeProductList = "${ReasonCodeType.PRODUCT_LIST.name()}";
 
@@ -213,7 +214,31 @@
                         }
                     },
                     error: function () {
-                        showErrorMsg('Error occurred trying to save reason code details.');
+                        showErrorMsg('Error occurred trying to delete reason code.');
+                    }
+                });
+            }
+        }
+
+        function ajaxReinstate(id, desc) {
+            clearSuccessMsg()
+            clearErrorMsg();
+
+            if (confirm('This will delete reason code "' + desc + '"')) {
+                $.ajax({
+                    url: reinstateUrl,
+                    method: "PUT",
+                    data: {id: id},
+                    success: function (resp) {
+                        if (resp === "OK") {
+                            ajaxSearch();
+                            showSuccessMsg("Reason code " + desc + " reinstated")
+                        } else {
+                            showErrorMsg(resp);
+                        }
+                    },
+                    error: function () {
+                        showErrorMsg('Error occurred trying to reinstate reason code.');
                     }
                 });
             }

@@ -190,6 +190,23 @@ class ReasonCodeController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxReinstateReasonCode() {
+        ReasonCode rc
+        if (!paramIsNullOrEmpty(params, "id", ["", "0"])) {
+            rc = ReasonCode.get(params.id.toString().toInteger())
+        }
+        if (rc == null) {
+            render "Error occurred trying to reinstate reason code."
+            return
+        }
+
+        rc.deleted = false
+        reasonCodeService.saveReasonCode(rc)
+        sendSyncMessage(rc, false)
+        render "OK"
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGetReasonCodeHistory() {
         def reasonCodeHistoryMap = [:]
         def reasonCodeHistoryList = reasonCodeHistoryService.getReasonCodeHistory()
