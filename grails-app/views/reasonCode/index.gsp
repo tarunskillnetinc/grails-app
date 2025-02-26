@@ -18,6 +18,14 @@
         cursor: grab
     }
 
+    #sortable .non-sortable .grabhandle {
+        visibility: hidden;
+    }
+
+    #sortable .non-sortable {
+        cursor: auto;
+    }
+
     .grabhandle {
         display: inline-block;
         fill: #AAA;

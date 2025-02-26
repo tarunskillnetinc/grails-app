@@ -15,6 +15,7 @@
 
 <script>
     $("#sortable").sortable({
+        cancel: ".non-sortable",
         update: function (event, ui) {
             reasonCodeNewOrders = $(this).sortable('toArray', {attribute: 'value'});
         }
@@ -27,7 +28,7 @@
 
 <ul id="sortable">
     <g:each in="${reasonCodes}" var="code" status="i">
-        <li value="${code.id}" class="ui-state-default row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" onclick='ajaxEdit("${code.id}")' >
+        <li value="${code.id}" class='ui-state-default row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable ${code.deleted ? "non-sortable" : ""}' onclick='ajaxEdit("${code.id}")'  >
         <svg data-baseweb="icon" title="Grab" viewBox="0 0 24 24" class="grabhandle"><path fill-rule="evenodd"
                                                                                            clip-rule="evenodd"
                                                                                            d="M5 8C4.44775 8 4 8.44775 4 9C4 9.55225 4.44775 10 5 10H19C19.5522 10 20 9.55225 20 9C20 8.44775 19.5522 8 19 8H5ZM5 14C4.44775 14 4 14.4478 4 15C4 15.5522 4.44775 16 5 16H19C19.5522 16 20 15.5522 20 15C20 14.4478 19.5522 14 19 14H5Z"></path>
