@@ -51,6 +51,10 @@
 
             ajaxSearch();
             updateDirectionColumnVisibility();
+
+            $('#collapseReasonCodeHistory').on('show.bs.collapse', function () {
+                getReasonCodeHistory();
+            });
         });
 
         function ajaxSaveReorder() {
@@ -259,6 +263,25 @@
             $("#save-code-btn").show()
         }
 
+        function getReasonCodeHistory() {
+            $('#reasonCodeHistoryContainer').html("<div class=\"d-flex justify-content-center\">\n" +
+                "  <div class=\"spinner-border\" role=\"status\">\n" +
+                "    <span class=\"sr-only\">Loading...</span>\n" +
+                "  </div>\n" +
+                "</div>");
+
+            var getReasonCodeHistoryUrl = "${createLink(controller: 'reasonCode', action: 'ajaxGetReasonCodeHistory')}";
+
+            $.ajax({
+                url: getReasonCodeHistoryUrl,
+                method: "GET",
+                data: {},
+                success: function (resp) {
+                    $("#reasonCodeHistoryContainer").html(resp);
+                }
+            });
+        }
+
         $(function () {
             $("#sortable").sortable();
         });
@@ -358,11 +381,11 @@
             </div>
         </section>
 </section>
-<section class='container-fluid'>
+<section id="accordion" class='container-fluid'>
     <!-- ReasonCode History. -->
     <div class="card bg-light border-wl accordion-card">
         <div class="card-header pointer" id="reasonCodeHistory" data-toggle="collapse"
-             data-target="#collapseReasonCodeHistor" aria-expanded="true" aria-controls="collapseReasonCodeHistory">
+             data-target="#collapseReasonCodeHistory" aria-expanded="true" aria-controls="collapseReasonCodeHistory">
             <div class="row">
                 <div class="col-10"><strong>Reason Code History</strong></div>
 
@@ -375,10 +398,10 @@
             </div>
         </div>
 
-        <div id="collapseReasonCodeHistor" class="collapse collapsed" aria-labelledby="categoryReasonCodeHistor"
+        <div id="collapseReasonCodeHistory" class="collapse collapsed" aria-labelledby="categoryReasonCodeHistory"
              data-parent="#accordion">
             <div class="card-body py-5">
-                <div id="reasonCodeHistorContainer"
+                <div id="reasonCodeHistoryContainer"
                      style="max-height: 300px; overflow-x: auto; overflow-y: auto;"></div>
             </div>
         </div>
