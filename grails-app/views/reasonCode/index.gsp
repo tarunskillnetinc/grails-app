@@ -34,23 +34,46 @@
         const addUrl = "${createLink(controller: 'reasonCode', action: 'ajaxAddReasonCode')}";
         const saveUrl = "${createLink(controller: 'reasonCode', action: 'ajaxSaveReasonCode')}";
         const deleteUrl = "${createLink(controller: 'reasonCode', action: 'ajaxDeleteReasonCode')}"
-        const reorderUrl = "${createLink(controller: 'reasonCode', action: 'ajaxReorderReasonCode')}"
+        const saveReorderUrl = "${createLink(controller: 'reasonCode', action: 'ajaxSaveReorderReasonCode')}"
         const reasonCodeTypeProductList = "${ReasonCodeType.PRODUCT_LIST.name()}";
 
         let modalContents;
         let modal;
         let errorMsg;
+        let successMsg;
+        let reasonCodeNewOrders;
 
         $(document).ready(function() {
             modalContents = $('#edit-code-content');
             modal = $('#edit-code-modal');
             errorMsg = $('#error-message');
+            successMsg = $('success-message');
+
             ajaxSearch();
             updateDirectionColumnVisibility();
         });
 
-        function ajaxSearch(sortParams) {
+        function ajaxSaveReorder() {
+            clearSuccessMsg();
             clearErrorMsg();
+            $.ajax({
+                url: saveReorderUrl,
+                type: "POST",
+                data: {order: reasonCodeNewOrders},
+                success: function (response) {
+                    showSuccessMsg('Order saved.');
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    showErrorMsg('Error updating reason code details.');
+                    console.log(thrownError)
+                }
+            })
+        }
+
+        function ajaxSearch(sortParams) {
+            clearSuccessMsg();
+            clearErrorMsg();
+
             const searchResults = $('#search-results');
 
             searchResults.html(
@@ -99,7 +122,9 @@
         }
 
         function ajaxEdit(id) {
+            clearSuccessMsg();
             clearErrorMsg();
+
             setupModal();
             $.ajax({
                 url: editUrl,
@@ -118,6 +143,8 @@
 
         function ajaxAdd() {
             clearErrorMsg();
+            clearSuccessMsg()
+
             setupModal();
             $.ajax({
                 url: addUrl,
@@ -135,9 +162,12 @@
 
         function ajaxSave() {
             const data = $('#edit-code-form').serialize()
+            clearSuccessMsg()
             clearErrorMsg();
+
             setupModal();
             hideSaveBtns();
+
             $.ajax({
                 url: saveUrl,
                 method: "POST",
@@ -160,7 +190,9 @@
         }
 
         function ajaxDelete(id, desc) {
+            clearSuccessMsg()
             clearErrorMsg();
+
             if (confirm('This will delete reason code "' + desc + '"')) {
                 $.ajax({
                     url: deleteUrl,
@@ -169,6 +201,7 @@
                     success: function (resp) {
                         if (resp === "OK") {
                             ajaxSearch();
+                            showSuccessMsg("Reason code " + desc + " deleted")
                         } else {
                             showErrorMsg(resp);
                         }
@@ -204,6 +237,16 @@
         function showErrorMsg(msg) {
             errorMsg.text(msg);
             errorMsg.show();
+        }
+
+        function clearSuccessMsg() {
+            successMsg.text('');
+            successMsg.hide();
+        }
+
+        function showSuccessMsg(msg) {
+            successMsg.text(msg);
+            successMsg.show();
         }
 
         function hideSaveBtns() {
@@ -246,6 +289,7 @@
             </div>
         </div>
 
+        <div class="alert alert-success alert-wl mx-0" role="alert" id="success-message" style="display: none"></div>
         <div class="alert alert-danger alert-wl mx-0" role="alert" id="error-message" style="display: none"></div>
 
         <div class="row mt-4">
@@ -282,6 +326,15 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-12 text-right">
+                        <button id="save-btn" class="btn btn-success ml-1" name="save"
+                                onclick="ajaxSaveReorder();">Save</button>
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="search-results">
 		<div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
@@ -304,6 +357,32 @@
                 </div>
             </div>
         </section>
+</section>
+<section class='container-fluid'>
+    <!-- ReasonCode History. -->
+    <div class="card bg-light border-wl accordion-card">
+        <div class="card-header pointer" id="reasonCodeHistory" data-toggle="collapse"
+             data-target="#collapseReasonCodeHistor" aria-expanded="true" aria-controls="collapseReasonCodeHistory">
+            <div class="row">
+                <div class="col-10"><strong>Reason Code History</strong></div>
+
+                <div class="col-2 text-right">
+                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right"
+                         fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div id="collapseReasonCodeHistor" class="collapse collapsed" aria-labelledby="categoryReasonCodeHistor"
+             data-parent="#accordion">
+            <div class="card-body py-5">
+                <div id="reasonCodeHistorContainer"
+                     style="max-height: 300px; overflow-x: auto; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
 </section>
 </body>
 </html>

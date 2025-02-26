@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import grails.gorm.transactions.Transactional
 import grails.util.Pair
 import grails.web.mapping.mvc.RedirectEventListener
 import org.springframework.context.MessageSource
@@ -70,8 +71,9 @@ class ReasonCodeController {
         ])
     }
 
+    @Transactional
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def ajaxReorderReasonCode() {
+    def ajaxSaveReorderReasonCode() {
         def newOrder = params.getOrDefault("order[]", [])
 
         int priority = 0
@@ -80,7 +82,7 @@ class ReasonCodeController {
             ReasonCode code = ReasonCode.get(reasonCodeId)
             if (code != null) {
                 code.setPriority(priority++)
-                code.save()
+                code.save(flush: true, failOnError: true)
                 sendSyncMessage(code, false)
             }
         }

@@ -16,18 +16,19 @@
 <script>
     $("#sortable").sortable({
         update: function (event, ui) {
-            var newOrder = $(this).sortable('toArray', {attribute: 'value'});
-            console.log(newOrder); // Log the new order
+            reasonCodeNewOrders = $(this).sortable('toArray', {attribute: 'value'});
+            console.log(reasonCodeNewOrders); // Log the new order
 
-            // Here you could send the new order to your server
-            $.ajax({
-                url: reorderUrl,
-                method: 'POST',
-                data: {order: newOrder},
-                success: function (response) {
-                    console.log('Order updated successfully');
-                }
-            });
+
+            // // Here you could send the new order to your server
+            // $.ajax({
+            //     url: ajaxSaveReorderReasonCode,
+            //     method: 'POST',
+            //     data: {order: newOrder},
+            //     success: function (response) {
+            //         console.log('Order updated successfully');
+            //     }
+            // });
         }
     });
 </script>

@@ -52,7 +52,8 @@ class ReasonCode {
                 promptForText,
                 retailerId,
                 preferredReasonCode,
-                secret
+                secret,
+                priority
         )
     }
 }
