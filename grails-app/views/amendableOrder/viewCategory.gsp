@@ -58,7 +58,8 @@
                 data: { categoryId: ${category.getId()},
                     sku: $('#skuSearch').val(),
                     productDescription: $('#productDescriptionSearch').val(),
-                    deliveryDate: $('#deliveryDateSearch').val()},
+                    deliveryDate: $('#deliveryDateSearch').val(),
+                    storeId: ${store.getId()}},
                 success: function(resp) {
                     $('#results-container').html(resp);
                 }

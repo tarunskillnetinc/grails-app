@@ -38,6 +38,12 @@ class AmendableOrderService extends MySqlPoolDal {
     }
 
     @Transactional("reporting")
+    def getCategoryViewColumns() {
+        return ReportColumns.findByUserIdAndReportType(springSecurityService.principal.id, ReportType.AMENDABLE_ORDER_VIEW_CATEGORY)
+    }
+
+
+    @Transactional("reporting")
     def saveColumns(ReportColumns reportColumns) {
         reportColumns.save()
     }
@@ -63,10 +69,10 @@ class AmendableOrderService extends MySqlPoolDal {
         return criteria.list()
     }
 
-    def getOrdersForCategory(categoryId, sku, productDescription, deliveryDate) {
+    def getOrdersForCategory(categoryId, sku, productDescription, deliveryDate, storeId) {
         def criteria = getCommonSearchCriteria()
 
-        criteria = addCategoryOrderSearchCriteria(categoryId, criteria, sku, productDescription, deliveryDate)
+        criteria = addCategoryOrderSearchCriteria(categoryId, criteria, sku, productDescription, deliveryDate, storeId)
         criteria = criteria.createAlias("packLines", "packl", JoinType.LEFT_OUTER_JOIN)
         criteria = criteria.createAlias("packl.pack", "pack", JoinType.LEFT_OUTER_JOIN)
 
@@ -79,7 +85,8 @@ class AmendableOrderService extends MySqlPoolDal {
     def saveAmendedQuantity(AmendedLine amendedLine) {
         def productListItem = ProductListItem.findById(amendedLine.productListItemId)
 
-        // Get the original quantity as this will be needed to send as part of ProductListStockTransaction
+        // Store quantity before so we'll know whether to send out a new message
+        def quantityBefore = productListItem.quantity
         productListItem.quantity = amendedLine.amendedOrderQuantity
         productListItem.save(flush: true, failOnError: true)
 
@@ -87,13 +94,15 @@ class AmendableOrderService extends MySqlPoolDal {
         def commonProductListItem = productListItem.getProductListItem(null, springSecurityService.principal.storeId)
         commonProductListItem.setOriginalQuantity(amendedLine.originalOrderQuantity)
 
-        // We're only planning to send the productListItem that has changed as part of the stock transaction
-        productList.productListItems = new ArrayList<>()
-        productList.productListItems.add(commonProductListItem)
-        productListService.sendProductListExportRequest(productList)
+        if(amendedLine.amendedOrderQuantity != quantityBefore) {
+            // We're only planning to send the productListItem that has changed as part of the stock transaction
+            productList.productListItems = new ArrayList<>()
+            productList.productListItems.add(commonProductListItem)
+            productListService.sendProductListExportRequest(productList)
+        }
     }
 
-    private static Criteria addCategoryOrderSearchCriteria(categoryId, Criteria criteria, sku, productDescription, deliveryDate) {
+    private static Criteria addCategoryOrderSearchCriteria(categoryId, Criteria criteria, sku, productDescription, deliveryDate, storeId) {
         // If category for the product has a parent category then match on that otherwise it's a top
         // level category and we should match on that id
         def parentCategoryRestriction = HibernateRestrictions.and(HibernateRestrictions.isNotNull("pc.id"),
@@ -116,6 +125,10 @@ class AmendableOrderService extends MySqlPoolDal {
             criteria = criteria.add(HibernateRestrictions.eq("pl.endDate", dateTimeFormatter.parseDateTime((String)deliveryDate)))
         }
 
+        if (storeId) {
+            criteria = criteria.add(HibernateRestrictions.eq("s.id", storeId))
+        }
+
         return criteria
     }
 
@@ -127,6 +140,7 @@ class AmendableOrderService extends MySqlPoolDal {
                 .add(Projections.groupProperty("pc.description"))
                 .add(Projections.groupProperty("s.config"))
                 .add(Projections.groupProperty("effectiveDate"))
+                .add(Projections.groupProperty("s.id"))
     }
 
     private ProjectionList getCategoryViewProjections() {
@@ -140,6 +154,7 @@ class AmendableOrderService extends MySqlPoolDal {
                 .add(Projections.property("pl.endDate"))
                 .add(Projections.property("quantity"))
                 .add(Projections.property("pl.store"))
+                .add(Projections.property("fillQuantity"))
 
     }
 
@@ -161,7 +176,8 @@ class AmendableOrderService extends MySqlPoolDal {
                         price: ((ProductVariant)tuple[4]).getCurrentPrice(store.priceBand),
                         packQuantity: tuple[5],
                         deliveryDate: tuple[6],
-                        originalOrderQuantity: tuple[7]
+                        originalOrderQuantity: tuple[9],
+                        amendedOrderQuantity: tuple[7]
                 )
 
                 amendedLine.convertQuantitiesToPackNumbers()
@@ -188,7 +204,8 @@ class AmendableOrderService extends MySqlPoolDal {
                         categoryId: categoryId,
                         categoryDescription: categoryDescription,
                         storeNumber: gsonProvider.gson.fromJson(tuple[4], StoreConfig.class).storeNumber,
-                        amendableDate: tuple[5]
+                        amendableDate: tuple[5],
+                        storeId: tuple[6]
                 )
             }
 
@@ -224,6 +241,7 @@ class AmendableOrderService extends MySqlPoolDal {
         String categoryDescription
         String storeNumber
         DateTime amendableDate
+        Integer storeId
     }
 
     class AmendedLine {
@@ -239,8 +257,8 @@ class AmendableOrderService extends MySqlPoolDal {
         BigDecimal available
 
         void convertQuantitiesToPackNumbers() {
-            demand = demand?.divide(packQuantity)?.setScale(3, RoundingMode.HALF_UP)
-            available = available?.divide(packQuantity)?.setScale(3, RoundingMode.HALF_UP)
+            demand = demand?.divide(packQuantity, 3 , RoundingMode.HALF_UP)
+            available = available?.divide(packQuantity, 3, RoundingMode.HALF_UP)
         }
     }
 }

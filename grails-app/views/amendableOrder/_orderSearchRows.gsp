@@ -1,5 +1,5 @@
 <g:each in="${orders}" var="order" status="i">
-    <div id="order-result-${i+1}" class="row ml-0 mr-0 px-0 pt-2 pb-2 wl-striped${row++%2} hoverable" title="Click to view products" style="cursor: pointer;" onclick="document.location.href='${createLink(controller:'amendableOrder', action: 'viewCategory', params: [categoryId: order.categoryId])}';">
+    <div id="order-result-${i+1}" class="row ml-0 mr-0 px-0 pt-2 pb-2 wl-striped${row++%2} hoverable" title="Click to view products" style="cursor: pointer;" onclick="document.location.href='${createLink(controller:'amendableOrder', action: 'viewCategory', params: [categoryId: order.categoryId, storeId: order.storeId])}';">
         <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "category" }?.enabled}">
             <div id="order-result-${i+1}-category" class="col-6">
                 ${order.categoryDescription}

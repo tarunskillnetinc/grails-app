@@ -19,7 +19,15 @@ class AmendableOrderController extends BaseController {
 
     @Override
     def getColumns() {
-        return amendableOrderService.getColumns()
+        if (!params.reportType || params.reportType == ReportType.AMENDABLE_ORDER_SEARCH.toString()) {
+            return amendableOrderService.getColumns()
+        } else {
+            return amendableOrderService.getCategoryViewColumns()
+        }
+    }
+
+    def getCategoryViewColumns() {
+        return amendableOrderService.getCategoryViewColumns()
     }
 
     def ajaxSaveColumns() {
@@ -36,12 +44,14 @@ class AmendableOrderController extends BaseController {
         int offset = params.offset ? Integer.parseInt((String)params.offset) : 0
         int max = params.max ? Integer.parseInt((String)params.max) : 50
 
-        def storeId = params.storeId
-        if(storeId) {
-            storeId = Integer.parseInt((String)storeId)
+        def storeIdToSearchBy
+        if (params.storeId) {
+            storeIdToSearchBy = Integer.parseInt((String)params.storeId)
+        } else {
+            storeIdToSearchBy = springSecurityService.principal.storeId
         }
 
-        def productListItems = amendableOrderService.search(params.category, storeId)
+        def productListItems = amendableOrderService.search(params.category, storeIdToSearchBy)
         def stores = storeService.getStores((int)springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
 
         render(template: "orderSearchResults", model: [     storeId: springSecurityService.principal.storeId != null ? springSecurityService.principal.storeId: params.storeId,
@@ -53,10 +63,11 @@ class AmendableOrderController extends BaseController {
                                                             offset      : offset])
     }
 
-    def viewCategory(int categoryId) {
+    def viewCategory(int categoryId, int storeId) {
         def category = categoryService.getCategory(categoryId)
+        def store = storeService.getStore(springSecurityService.principal.retailerId, storeId)
 
-        [category: category]
+        [category: category, store: store]
     }
 
     def ajaxViewCategoryOrders() {
@@ -67,7 +78,8 @@ class AmendableOrderController extends BaseController {
                 Integers.parseInt((String)params.categoryId),
                 params.sku,
                 params.productDescription,
-                params.deliveryDate)
+                params.deliveryDate,
+                Integer.parseInt((String)params.storeId))
 
         def groupedLines = amendedLines.groupBy { it.sku }.collectEntries {key, value -> [new GroupedLine(
                 sku: key,
@@ -76,7 +88,7 @@ class AmendableOrderController extends BaseController {
                 packQuantity: value[0].packQuantity,
                 demand: value[0].demand,
                 available: value[0].available
-        ), value ]}
+        ), value.sort { it.deliveryDate} ]}
 
         render(template: "categoryResults", model: [
                 amendedLines: groupedLines,
@@ -84,9 +96,10 @@ class AmendableOrderController extends BaseController {
                 sku: params.sku,
                 productDescription: params.productDescription,
                 deliveryDate: params.deliveryDate,
+                storeId: params.storeId,
+                userColumns : getCategoryViewColumns(),
                 max: max,
-                offset: offset
-        ])
+                offset: offset])
     }
 
     def save(SaveAmendedLinesCommand saveCommand) {
@@ -102,10 +115,6 @@ class AmendableOrderController extends BaseController {
         redirect("controller": "amendableOrder", action:"index")
     }
 
-    class SaveAmendedLinesCommand {
-        List<AmendableOrderService.AmendedLine> amendedLines = [].withLazyDefault { new AmendableOrderService.AmendedLine(null)}
-    }
-
     class GroupedLine {
         String sku
         String productDescription
@@ -116,3 +125,8 @@ class AmendableOrderController extends BaseController {
         List<AmendableOrderService.AmendedLine> lines
     }
 }
+
+class SaveAmendedLinesCommand {
+    List<AmendableOrderService.AmendedLine> amendedLines = [].withLazyDefault { new AmendableOrderService.AmendedLine(null)}
+}
+
