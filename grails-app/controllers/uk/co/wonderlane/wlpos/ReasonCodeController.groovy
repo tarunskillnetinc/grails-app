@@ -84,7 +84,7 @@ class ReasonCodeController {
     def ajaxSaveReorderReasonCode() {
         def newOrder = params.getOrDefault("order[]", [])
 
-        int priority = 0
+        int priority = 1
         for (String reasonCodeOrder : newOrder) {
             Integer reasonCodeId = reasonCodeOrder.toInteger()
             ReasonCode code = ReasonCode.get(reasonCodeId)
