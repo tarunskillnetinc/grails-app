@@ -9,6 +9,25 @@
     <asset:javascript src="jquery-ui.js" />
     <asset:stylesheet src="jquery-ui.css" />
 
+    <style>
+    #sortable {
+        padding-left: 0
+    }
+
+    #sortable li {
+        cursor: grab
+    }
+
+    .grabhandle {
+        display: inline-block;
+        fill: #AAA;
+        height: 1em;
+        width: 1em;
+        position: relative;
+        top: 0.7em;
+    }
+    </style>
+
     <script type="application/javascript">
         const searchUrl = "${createLink(controller: 'reasonCode', action: 'ajaxSearch')}";
         const editUrl = "${createLink(controller: 'reasonCode', action: 'ajaxEditReasonCode')}";
@@ -195,6 +214,10 @@
             $("#cancel-edit-btn").show()
             $("#save-code-btn").show()
         }
+
+        $(function () {
+            $("#sortable").sortable();
+        });
     </script>
 </head>
 
