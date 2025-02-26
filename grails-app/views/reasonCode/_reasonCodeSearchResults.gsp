@@ -59,7 +59,7 @@
                     ajaxDelete("${code.id}", "${code.description}")'>Delete</button>
         </g:if>
         <g:else>
-            <button id="delete-${i + 1}" class="btn btn-warning mx-2"
+            <button id="delete-${i + 1}" class="btn btn-info mx-2"
                     onclick='event.stopPropagation();
                     ajaxReinstate("${code.id}", "${code.description}")'>Reinstate</button>
         </g:else>
