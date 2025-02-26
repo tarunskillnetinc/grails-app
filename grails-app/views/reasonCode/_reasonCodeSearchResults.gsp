@@ -27,7 +27,7 @@
 
 <ul id="sortable">
     <g:each in="${reasonCodes}" var="code" status="i">
-        <li value="${code.id}" class="ui-state-default row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable">
+        <li value="${code.id}" class="ui-state-default row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" onclick='ajaxEdit("${code.id}")' >
         <svg data-baseweb="icon" title="Grab" viewBox="0 0 24 24" class="grabhandle"><path fill-rule="evenodd"
                                                                                            clip-rule="evenodd"
                                                                                            d="M5 8C4.44775 8 4 8.44775 4 9C4 9.55225 4.44775 10 5 10H19C19.5522 10 20 9.55225 20 9C20 8.44775 19.5522 8 19 8H5ZM5 14C4.44775 14 4 14.4478 4 15C4 15.5522 4.44775 16 5 16H19C19.5522 16 20 15.5522 20 15C20 14.4478 19.5522 14 19 14H5Z"></path>
@@ -52,15 +52,16 @@
         <g:else>
             <div class="col-4 my-auto text-right">
         </g:else>
-        <button id="edit-${i + 1}" class="btn btn-wl mx-2" onclick='ajaxEdit("${code.id}");'>Edit</button>
 
         <g:if test="${!code.deleted}">
             <button id="delete-${i + 1}" class="btn btn-danger mx-2"
-                    onclick='ajaxDelete("${code.id}", "${code.description}")'>Delete</button>
+                    onclick='event.stopPropagation();
+                    ajaxDelete("${code.id}", "${code.description}")'>Delete</button>
         </g:if>
         <g:else>
             <button id="delete-${i + 1}" class="btn btn-warning mx-2"
-                    onclick='ajaxReinstate("${code.id}", "${code.description}")'>Reinstate</button>
+                    onclick='event.stopPropagation();
+                    ajaxReinstate("${code.id}", "${code.description}")'>Reinstate</button>
         </g:else>
         </div>
 </li>
