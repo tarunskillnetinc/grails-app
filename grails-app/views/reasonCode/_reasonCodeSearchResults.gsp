@@ -1,12 +1,15 @@
 <%@ page import="uk.co.wonderlane.wlpos.enums.ReasonCodeType" %>
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-    <div class="col-4 font-weight-bold">Description</div>
+    <div class="col-1 font-weight-bold">Reason Code Id</div>
+
+    <div class="col-1 font-weight-bold">Reason Code</div>
+
+    <div class="col-2 font-weight-bold">Description</div>
     <g:if test="${type == ReasonCodeType.PRODUCT_LIST.name()}">
         <div class="col-2 font-weight-bold">Direction</div>
     </g:if>
-    <div class="col-2 font-weight-bold">Secret</div>
 
-    <div class="col-2 font-weight-bold">Preferred Reason Code</div>
+    <div class="col-2 font-weight-bold">Status</div>
     <div class="col-4 font-weight-bold"></div>
 </div>
 
@@ -16,12 +19,18 @@
 
 <g:each in="${reasonCodes}" var="code" status="i">
     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable">
-        <div id="desc-${i + 1}" class="col-4 my-auto text-truncate">${code.description}</div>
-        <g:if test="${type == ReasonCodeType.PRODUCT_LIST.name()}">
+    <div id="id-${i + 1}" class="col-1 my-auto text-truncate">${code.id}</div>
+
+    <div id="code-${i + 1}" class="col-1 my-auto text-truncate">${code.code}</div>
+
+    <div id="desc-${i + 1}" class="col-2 my-auto text-truncate">${code.description}</div>
+
+    <g:if test="${type == ReasonCodeType.PRODUCT_LIST.name()}">
             <div id="desc-${i + 1}" class="col-2 my-auto text-truncate">${code.additionalFunctionality ? "Movement In" : "Movement Out"}</div>
         </g:if>
-        <div id="secret-${i + 1}" class="col-2 my-auto text-truncate">${code.secret}</div>
-        <div id="preferredReasonCode-${i + 1}" class="col-2 my-auto text-truncate">${code.preferredReasonCode}</div>
+
+    <div id="status-${i + 1}" class="col-2 my-auto text-truncate">${code.deleted ? "Inactive" : "Active"}</div>
+
     <g:if test="${type == ReasonCodeType.PRODUCT_LIST.name()}">
             <div class="col-2 my-auto text-right">
         </g:if>
