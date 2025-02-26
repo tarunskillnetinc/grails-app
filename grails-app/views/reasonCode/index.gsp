@@ -90,7 +90,9 @@
 
             $.ajax({
                 url: searchUrl,
-                data: {type: $("#code-type-select").val(),
+                data: {
+                    type: $("#code-type-select").val(),
+                    deleted: showDeletedFilter.checked,
                     max: sortParams ? sortParams["max"] : null,
                     offset: sortParams ? sortParams.offset : null,
                     sortColumn: sortParams ? sortParams.sortColumn : null,
@@ -344,6 +346,16 @@
                                     <option value="TENDER_RECONCILIATION_VARIANCE">Tender Reconciliation Variance</option>
                                     <option value="TENDER_RECONCILIATION_SAFE_VARIANCE">Tender Reconciliation Safe Variance</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-0 mt-6">
+                            <div class="col-6 offset-2">
+                                <g:checkBox id="showDeletedFilter" name="showDeletedFilter"
+                                            class="form-check-input wl-checkbox ml-0 pointer"
+                                            checked="${showDeletedFilter}" onchange="ajaxSearch()"/>
+                                <label for="showDeletedFilter"
+                                       class="col-form-label-sm wl-label-right pointer">Show deleted reason codes</label>
                             </div>
                         </div>
                     </div>

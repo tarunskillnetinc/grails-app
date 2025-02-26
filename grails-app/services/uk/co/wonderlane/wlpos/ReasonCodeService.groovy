@@ -11,12 +11,21 @@ class ReasonCodeService {
         rc.save()
     }
 
-    Pair<Integer, List<ReasonCode>> getReasonCodesOfType(int retailerId, ReasonCodeType type, int offset, int max) {
+    Pair<Integer, List<ReasonCode>> getReasonCodesOfTypeIncludingDeleted(int retailerId, ReasonCodeType type) {
+        int count = ReasonCode.countByRetailerIdAndType(retailerId, type)
+        if (count == 0) {
+            return new Pair<Integer, List<ReasonCode>>(0, new ArrayList<ReasonCode>())
+        }
+        def result = ReasonCode.findAllByRetailerIdAndType(retailerId, type, [offset: 0, max: 9999, sort: [priority: 'asc', id: 'asc']])
+        return new Pair<Integer, List<ReasonCode>>(count, result != null ? result : new ArrayList<ReasonCode>())
+    }
+
+    Pair<Integer, List<ReasonCode>> getReasonCodesOfType(int retailerId, ReasonCodeType type) {
         int count = ReasonCode.countByRetailerIdAndTypeAndDeleted(retailerId, type, false)
         if (count == 0) {
             return new Pair<Integer, List<ReasonCode>>(0, new ArrayList<ReasonCode>())
         }
-        def result = ReasonCode.findAllByRetailerIdAndTypeAndDeleted(retailerId, type, false, [offset: offset, max: max, sort: [priority: 'asc', id: 'asc']])
+        def result = ReasonCode.findAllByRetailerIdAndTypeAndDeleted(retailerId, type, false, [offset: 0, max: 9999, sort: [priority: 'asc', id: 'asc']])
         return new Pair<Integer, List<ReasonCode>>(count, result != null ? result : new ArrayList<ReasonCode>())
     }
 

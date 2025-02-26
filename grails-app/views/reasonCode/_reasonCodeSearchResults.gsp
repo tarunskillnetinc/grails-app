@@ -65,8 +65,15 @@
             <div class="col-4 my-auto text-right">
         </g:else>
         <button id="edit-${i + 1}" class="btn btn-wl mx-2" onclick='ajaxEdit("${code.id}");'>Edit</button>
-        <button id="delete-${i + 1}" class="btn btn-danger mx-2"
-                onclick='ajaxDelete("${code.id}", "${code.description}")'>Delete</button>
+
+        <g:if test="${!code.deleted}">
+            <button id="delete-${i + 1}" class="btn btn-danger mx-2"
+                    onclick='ajaxDelete("${code.id}", "${code.description}")'>Delete</button>
+        </g:if>
+        <g:else>
+            <button id="delete-${i + 1}" class="btn btn-warning mx-2"
+                    onclick='ajaxReinstate("${code.id}", "${code.description}")'>Reinstate</button>
+        </g:else>
         </div>
 </li>
     </g:each>

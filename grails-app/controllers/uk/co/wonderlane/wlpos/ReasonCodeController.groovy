@@ -26,6 +26,7 @@ class ReasonCodeController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSearch() {
         int offset = params.offset ? Integer.parseInt(params.offset) : 0
+        Boolean includeDeleted = params.deleted == "true"
         int max = params.max ? Integer.parseInt(params.max) : 50
         int retailerId = springSecurityService.principal.retailerId
         String typeStr = params.type
@@ -38,7 +39,13 @@ class ReasonCodeController {
             type = ReasonCodeType.PAID_OUT
         }
 
-        Pair<Integer, List<ReasonCode>> searchResults = reasonCodeService.getReasonCodesOfType(retailerId, type, offset, max)
+        Pair<Integer, List<ReasonCode>> searchResults
+        if (includeDeleted) {
+            searchResults = reasonCodeService.getReasonCodesOfTypeIncludingDeleted(retailerId, type)
+        } else {
+            searchResults = reasonCodeService.getReasonCodesOfType(retailerId, type)
+        }
+
         render(template: "reasonCodeSearchResults", model: [
                 reasonCodes: searchResults.getbValue(),
                 max: max,
