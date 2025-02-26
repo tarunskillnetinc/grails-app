@@ -1,6 +1,6 @@
 <%@ page import="uk.co.wonderlane.wlpos.enums.ReasonCodeType" %>
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-    <div class="col-1 font-weight-bold">Reason Code Id</div>
+    <div class="col-1 font-weight-bold ml-3">Reason Code Id</div>
 
     <div class="col-1 font-weight-bold">Reason Code</div>
 
@@ -47,10 +47,10 @@
         <div id="status-${i + 1}" class="col-2 my-auto text-truncate">${code.deleted ? "Inactive" : "Active"}</div>
 
         <g:if test="${type == ReasonCodeType.PRODUCT_LIST.name()}">
-            <li class="col-2 my-auto text-right">
+            <div class="col-2 ml-auto text-right">
         </g:if>
         <g:else>
-            <div class="col-4 my-auto text-right">
+            <div class="col-4 ml-auto text-right">
         </g:else>
 
         <g:if test="${!code.deleted}">
@@ -64,7 +64,7 @@
                     ajaxReinstate("${code.id}", "${code.description}")'>Reinstate</button>
         </g:else>
         </div>
-</li>
+</div>
     </g:each>
 </ul>
 
