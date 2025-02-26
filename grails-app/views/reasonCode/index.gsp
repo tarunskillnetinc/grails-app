@@ -224,7 +224,7 @@
             clearSuccessMsg()
             clearErrorMsg();
 
-            if (confirm('This will delete reason code "' + desc + '"')) {
+            if (confirm('This will reinstate reason code "' + desc + '"')) {
                 $.ajax({
                     url: reinstateUrl,
                     method: "PUT",
@@ -387,13 +387,9 @@
                 </div>
             </div>
 
-            <div class="col-6">
-                <div class="row">
-                    <div class="col-12 text-right">
-                        <button id="save-btn" class="btn btn-success ml-1" name="save"
-                                onclick="ajaxSaveReorder();">Save</button>
-                    </div>
-                </div>
+            <div class="mt-auto ml-auto mr-3">
+                <button id="save-btn" class="btn btn-success ml-1" name="save"
+                        onclick="ajaxSaveReorder();">Save</button>
             </div>
         </div>
         <div id="search-results">

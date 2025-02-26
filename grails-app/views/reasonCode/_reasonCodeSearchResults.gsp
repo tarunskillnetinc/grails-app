@@ -4,7 +4,7 @@
 
     <div class="col-1 font-weight-bold">Reason Code</div>
 
-    <div class="col-2 font-weight-bold">Description</div>
+    <div class="col-3 font-weight-bold">Description</div>
     <g:if test="${type == ReasonCodeType.PRODUCT_LIST.name()}">
         <div class="col-2 font-weight-bold">Direction</div>
     </g:if>
@@ -17,18 +17,6 @@
     $("#sortable").sortable({
         update: function (event, ui) {
             reasonCodeNewOrders = $(this).sortable('toArray', {attribute: 'value'});
-            console.log(reasonCodeNewOrders); // Log the new order
-
-
-            // // Here you could send the new order to your server
-            // $.ajax({
-            //     url: ajaxSaveReorderReasonCode,
-            //     method: 'POST',
-            //     data: {order: newOrder},
-            //     success: function (response) {
-            //         console.log('Order updated successfully');
-            //     }
-            // });
         }
     });
 </script>
@@ -49,7 +37,7 @@
 
         <div id="code-${i + 1}" class="col-1 my-auto text-truncate">${code.code}</div>
 
-        <div id="desc-${i + 1}" class="col-2 my-auto text-truncate">${code.description}</div>
+        <div id="desc-${i + 1}" class="col-3 my-auto text-truncate">${code.description}</div>
 
         <g:if test="${type == ReasonCodeType.PRODUCT_LIST.name()}">
             <div id="desc-${i + 1}"
