@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import grails.util.Pair
+import grails.web.mapping.mvc.RedirectEventListener
 import org.springframework.context.MessageSource
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.servlet.support.RequestContextUtils as RCU
@@ -67,6 +68,24 @@ class ReasonCodeController {
                 errors: toJson([]),
                 renderErrors: false,
         ])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxReorderReasonCode() {
+        def newOrder = params.getOrDefault("order[]", [])
+
+        int priority = 0
+        for (String reasonCodeOrder : newOrder) {
+            Integer reasonCodeId = reasonCodeOrder.toInteger()
+            ReasonCode code = ReasonCode.get(reasonCodeId)
+            if (code != null) {
+                code.setPriority(priority++)
+                code.save()
+                sendSyncMessage(code, false)
+            }
+        }
+
+        render "OK"
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])

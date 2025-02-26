@@ -34,6 +34,7 @@
         const addUrl = "${createLink(controller: 'reasonCode', action: 'ajaxAddReasonCode')}";
         const saveUrl = "${createLink(controller: 'reasonCode', action: 'ajaxSaveReasonCode')}";
         const deleteUrl = "${createLink(controller: 'reasonCode', action: 'ajaxDeleteReasonCode')}"
+        const reorderUrl = "${createLink(controller: 'reasonCode', action: 'ajaxReorderReasonCode')}"
         const reasonCodeTypeProductList = "${ReasonCodeType.PRODUCT_LIST.name()}";
 
         let modalContents;
