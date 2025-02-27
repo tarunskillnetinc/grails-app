@@ -1,6 +1,8 @@
 function enforceDecimalLimit(element, decimalPlaces, max) {
     const decimalPlaceIndex = element.value.indexOf(".");
-    if(decimalPlaceIndex === -1) { return;}
+    if (decimalPlaceIndex === -1) {
+        return;
+    }
     // If greater than max number set to max
     if (max && parseFloat(element.value) > max) {
         element.value = max
