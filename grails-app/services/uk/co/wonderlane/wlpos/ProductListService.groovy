@@ -571,6 +571,7 @@ class ProductListService extends MySqlDal {
 
         String stockTransactionJson = gsonProvider.gson.toJson(productListExportRequest, StockTransaction.class)
         rabbitService.sendSenderExchangeMessage(stockTransactionJson)
+        rabbitService.sendExportExchangeMessage(stockTransactionJson)
     }
 
     private void setProductListExportFields(uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, String retailerStoreId, ProductListStockTransaction productListExportRequest) throws SQLException {
