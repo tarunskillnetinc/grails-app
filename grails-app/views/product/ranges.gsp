@@ -53,7 +53,7 @@
             }
 
             function resetButtonClicked() {
-                $('#tag').prop("selectedIndex", 0);
+                $('#productGroup').prop("selectedIndex", 0);
                 $('input[name="category.id"]:checked').prop("checked", false);
                 $('#searchTerm').val("");
             }
@@ -74,7 +74,7 @@
 
                 var searchTerm = $('#searchTerm').val();
                 var category = $('input[name="category.id"]:checked').val();
-                var tag = $('#tag').val();
+                var productGroup = $('#productGroup').val();
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center pt-2\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -84,7 +84,7 @@
 
                 $.ajax({
                     url: URL,
-                    data: { searchTerm: searchTerm, category: category, tag: tag },
+                    data: {searchTerm: searchTerm, category: category, productGroup: productGroup},
                     success: function(resp) {
                         $('#search-results').html(resp);
                     }
@@ -194,9 +194,13 @@
                                     </div>
 
                                     <div class="form-group row">
-                                        <label for="tag" class="col-4 col-form-label text-right">Tag</label>
+                                        <label for="productGroup"
+                                               class="col-4 col-form-label text-right">Product Group</label>
                                         <div class="col-8">
-                                            <g:select name="tag" from="${tags}" noSelection="['':'All Tags']" value="${tag}" optionValue="description" optionKey="id" class="form-control select-border" />
+                                            <g:select name="productGroup" from="${productGroups}"
+                                                      noSelection="['': 'All Product Groups']" value="${productGroup}"
+                                                      optionValue="description" optionKey="id"
+                                                      class="form-control select-border"/>
                                         </div>
                                     </div>
 

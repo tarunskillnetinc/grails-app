@@ -2,7 +2,6 @@ package uk.co.wonderlane.wlpos
 
 import uk.co.wonderlane.wlpos.enums.ButtonType
 import uk.co.wonderlane.wlpos.enums.ProcessType
-import uk.co.wonderlane.wlpos.enums.TenderType
 
 class Button {
 
@@ -20,6 +19,7 @@ class Button {
     Long sku
     Integer subPageId
     ProcessType process
+    uk.co.wonderlane.wlpos.enums.TenderType legacyTenderType
     TenderType tenderType
 
     String bgColour
@@ -46,12 +46,12 @@ class Button {
         buttonGrid column: "buttonGridId"
         type sqlType: "enum", enumType: 'string'
         process sqlType: "enum", enumType: 'string'
-        tenderType sqlType: "enum", enumType: 'string'
+        legacyTenderType column: "tenderType", sqlType: "enum", enumType: 'string'
+        tenderType column: "tenderTypeId"
         row column: "`row`"
         column column: "`column`"
         sku column: "sku"
         subPageId column: "subPageId"
-        tenderType column: "tenderType"
         bgColour column: "bgColour"
         textColour column: "textColour"
         imageDisplay column: "imageDisplay"
@@ -91,9 +91,14 @@ class Button {
                 return false; // Process is not nullable for process buttons.
             }
         }
-        tenderType nullable: true, validator: { val, obj ->
+        legacyTenderType nullable: true, validator: { val, obj ->
             if (obj.type == ButtonType.TENDER && !val) {
                 return false; // Tender type is not nullable for tender buttons.
+            }
+        }
+        tenderType nullable: true, validator: { val, obj ->
+            if (obj.type == ButtonType.TENDER && !val) {
+                return false; // Tender type ID is not nullable for tender buttons.
             }
         }
         bgColour nullable: false
@@ -144,6 +149,7 @@ class Button {
         sku = override.sku
         subPageId = override.subPageId
         process = override.process
+        legacyTenderType = override.legacyTenderType
         tenderType = override.tenderType
         bgColour = override.bgColour
         textColour = override.textColour
@@ -165,6 +171,7 @@ class Button {
         sku = null
         subPageId = null
         process = null
+        legacyTenderType = null
         tenderType = null
         bgColour = "#FFFFFF"
         textColour = "#000000"
@@ -190,7 +197,8 @@ class Button {
         button.setSku(sku)
         button.setSubPageId(subPageId)
         button.setProcess(process)
-        button.setTenderType(tenderType)
+        button.setTenderType(legacyTenderType)
+        button.setTenderTypeId(tenderType?.id)
         button.setBgColour(bgColour)
         button.setTextColour(textColour)
         button.setImageDisplay(imageDisplay)

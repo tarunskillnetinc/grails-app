@@ -55,7 +55,7 @@
         <section id="users-search" class="container-fluid">
             <div class="row header-wl mt-3">
                 <div class="col-8 offset-2">
-                    <h2 class="mx-auto">User Management</h2>
+                    <h2 class="mx-auto" id="page-title">User Management</h2>
                 </div>
 
                 <div class="col-2 text-right">
@@ -64,7 +64,7 @@
             </div>
 
             <g:if test="${flash.message}">
-                <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+                <div class="alert alert-success alert-wl mx-0" role="alert" id="alert-success">${flash.message}</div>
             </g:if>
 
             <g:if test="${flash.error}">
@@ -85,9 +85,9 @@
             </div>
 
             <div class="row mt-5 ml-0 mr-0 pb-2 table-wl bottom-border">
-                <div class="col-4 font-weight-bold">Username</div>
-                <div class="col-4 font-weight-bold">Name</div>
-                <div class="col-2 font-weight-bold">Date of Birth</div>
+                <div class="col-4 font-weight-bold" id="username-header">Username</div>
+                <div class="col-4 font-weight-bold" id="name-header">Name</div>
+                <div class="col-2 font-weight-bold" id="dob-header">Date of Birth</div>
             </div>
 
             <div id="search-results" class="align-content-center">

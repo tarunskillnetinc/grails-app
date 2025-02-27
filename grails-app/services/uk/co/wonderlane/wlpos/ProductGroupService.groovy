@@ -1,0 +1,76 @@
+package uk.co.wonderlane.wlpos
+
+import grails.gorm.transactions.Transactional
+import org.joda.time.DateTime
+
+@Transactional
+class ProductGroupService {
+
+    def springSecurityService
+
+    def getProductGroups(String searchTerm, String searchBy, int offset, int max = 50) {
+        return getProductGroups(searchTerm, searchBy, null, null, null, offset, max, "description", "asc")
+    }
+
+    def getProductGroups(String searchTerm = null, String searchBy = "everything", DateTime startDate = null, DateTime endDate = null, String status = null ,  int offset = 0, int max = 50,
+                         String sort = "description", String sortOrder = "asc") {
+
+        def productGroups = ProductGroupView.createCriteria().list(max: max, offset: offset) {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("hidden", false)
+
+            if (searchTerm) {
+                if (searchBy == "everything") {
+                    if (searchTerm.isNumber()) {
+                        or {
+                            sqlRestriction "cast( id AS char( 256 )) like '%${searchTerm}%'";
+                            like("description", "%$searchTerm%")
+                        }
+                    } else {
+                        like("description", "%$searchTerm%")
+                    }
+                } else if (searchBy == "name") {
+                    like("description", "%$searchTerm%")
+                } else if (searchBy == "productGroupId") {
+                    sqlRestriction "cast( id AS char( 256 )) like '%${searchTerm}%'"
+                }
+            }
+
+            if (startDate) {
+                gte("startDate", startDate) // startDate >= given startDate
+            }
+
+            if (endDate) {
+                lte("endDate", endDate) // endDate <= given endDate
+            }
+
+            if (status != null) {  // Status Filtering
+                Boolean activeStatus = status != null ? status.toString().equalsIgnoreCase("ACTIVE") : null
+                eq("active", activeStatus) // Filters active/inactive records
+            }
+
+            if (sort == "restrictionTypes") {
+                sort = "length(restrictionTypes)"
+            }
+
+            order(sort, sortOrder)
+        }
+        return productGroups
+    }
+
+    def getProductGroup(int id) {
+        return ProductGroup.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
+    }
+
+    def saveProductGroup(ProductGroup productGroup) {
+        productGroup.save()
+    }
+
+    def deleteProductGroupProduct(ProductGroupProduct productGroupProduct) {
+        productGroupProduct.delete()
+    }
+
+    def deleteProductGroupProduct(int productGroupId, long sku) {
+        ProductGroupProduct.executeUpdate("delete ProductGroupProduct pgp where pgp.productgroup.id = :productgroupId and pgp.sku = :sku", [productgroupId: productGroupId, sku: sku])
+    }
+}

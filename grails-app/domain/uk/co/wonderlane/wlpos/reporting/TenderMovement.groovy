@@ -3,7 +3,6 @@ package uk.co.wonderlane.wlpos.reporting
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.Store
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
-import uk.co.wonderlane.wlpos.enums.TenderType
 
 class TenderMovement {
 
@@ -13,17 +12,21 @@ class TenderMovement {
     TenderMovementType type
     String reason
     String reasonOther
-    TenderType tenderType
+    Integer tenderTypeId
+    String tenderTypeName
     Location fromLocation
     Location toLocation
     BigDecimal amount
     Integer userId
     String userName
+    String usersRealName
     DateTime timestamp
     String bankName
     String bankReference
     DateTime bankingDate  // Changed from String to DateTime
     String comment
+    Integer financialWeekId
+    Integer financialWeekNumber
 
     static transients = ['store']
 
@@ -39,17 +42,21 @@ class TenderMovement {
         type column: "type"
         reason column: "reason"
         reasonOther column: "reasonOther"
-        tenderType column: "tenderType"
+        tenderTypeId column: "tenderTypeId"
+        tenderTypeName column: "tenderTypeName"
         fromLocation column: "fromLocation", cascade: "evict"
         toLocation column: "toLocation", cascade: "evict"
         amount column: "amount"
         userId column: "userId"
         userName column: "userName"
+        usersRealName column: "usersRealName"
         timestamp column: "timestamp"
         bankName column: "bankName"
         bankReference column: "bankReference"
         bankingDate column: "bankingDate"  // Added mapping for bankingDate
         comment column: "comment"
+        financialWeekId column: "financialWeekId"
+        financialWeekNumber column: "financialWeekNumber"
     }
 
     static constraints = {
@@ -59,17 +66,21 @@ class TenderMovement {
         type nullable: false, blank: false, maxSize: 45
         reason nullable: true, maxSize: 50
         reasonOther nullable: true, maxSize: 200
-        tenderType nullable: false, blank: false, maxSize: 45
+        tenderTypeId nullable: false
+        tenderTypeName nullable: false, blank: false, maxSize: 24
         fromLocation nullable: true
         toLocation nullable: true
         amount nullable: false
         userId nullable: false
         userName nullable: false, blank: false, maxSize: 45
+        usersRealName nullable: false, blank: true, maxSize: 50
         timestamp nullable: true
         bankName nullable: true
         bankReference nullable: true
         bankingDate nullable: true  // Added constraint for bankingDate
         comment nullable: true
+        financialWeekId nullable: true
+        financialWeekNumber nullable: true
     }
 
     Store getStore() {

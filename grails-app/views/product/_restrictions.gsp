@@ -47,9 +47,15 @@
                 </div>
             </div>
             <div class="row form-group form-check pl-0">
-                <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
+                <div class="col-4 col-form-label text-right pr-4 pt-0 pb-0">
                     <label for="restrictions.refundAllowed" class="col-form-label text-right wl-label">Allow Refunds</label>
-                    <g:checkBox name="restrictions.refundAllowed" class="form-check-input wl-checkbox" checked="${isNewProduct || restrictions?.refundAllowed == null || restrictions?.refundAllowed}" />
+                    <g:checkBox name="restrictions.refundAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || restrictions?.refundAllowed == null || restrictions?.refundAllowed}" />
+                </div>
+            </div>
+            <div class="row form-group form-check pl-0">
+                <div class="col-4 col-form-label text-right pr-4 pt-0 pb-0">
+                    <label for="restrictions.excludedFromPromotion" class="col-form-label text-right wl-label">Exclude From Promotion</label>
+                    <g:checkBox name="restrictions.excludedFromPromotion" id="restrictions.excludedFromPromotion" class="col-1 form-check-input wl-checkbox" checked="${restrictions?.excludedFromPromotion}"/>
                 </div>
             </div>
         </div>
@@ -99,6 +105,12 @@
                     </div>
                 </div>
             </g:if>
+            <div class="row form-group form-check pl-0">
+                <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
+                    <label for="restrictions.alwaysOpenCashDrawer" class="col-form-label text-right wl-label">Always Open Cash Drawer</label>
+                    <g:checkBox name="restrictions.alwaysOpenCashDrawer" id="restrictions.alwaysOpenCashDrawer" class="col-1 form-check-input wl-checkbox" checked="${restrictions?.alwaysOpenCashDrawer}"/>
+                </div>
+            </div>
         </div>
     </div>
 </div>

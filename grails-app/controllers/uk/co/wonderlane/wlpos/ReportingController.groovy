@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import grails.plugin.springsecurity.annotation.Secured
 import groovy.json.JsonSlurper
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -7,22 +8,22 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
-import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.*
 
 import java.math.RoundingMode
-import java.util.stream.Collectors
 
 class ReportingController {
 
+    def springSecurityService
     def reportingService
     def supplierService
     def productListService
+    def locationService
     def storeService
-    def springSecurityService
+    def tenderTypeService
 
     private static final SALES_REPORT_CATEGORY_SORT_COLUMNS = ["description", "quantity", "avgCostPrice", "avgRetailPrice", "retailPrice", "vatAmount", "avgMargin"]
     private static final SALES_REPORT_PRODUCT_SORT_COLUMNS = ["usersName", "category", "description", "quantity", "costPrice", "netTotal", "vatAmount", "profit", "margin", "dateCreated"]
@@ -39,7 +40,6 @@ class ReportingController {
     private static final DELIVERY_PACK_REPORT_SORT_COLUMNS = ["description", "price", "packCost", "packSize", "deliveryQuantity", "totalQuantity", "totalSellValue"]
     private static final PRODUCT_LISTS_REPORT_SORT_COLUMNS = ["productListId", "storeId", "type", "status", "startDate", "numberOfItems"]
     private static final PRODUCT_LIST_REPORT_SORT_COLUMNS = ["sku", "description", "itemQuantity", "totalCost"]
-    private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["timestamp", "storeId", "fromLocation", "toLocation", "amount", "type", "reason", "userName"]
     private static final CHARITY_DONATION_REPORT_SORT_COLUMNS = ["storeNumber", "tillId", "transactionId", "basketTotal", "donationTotal", "dateCreated"]
 
     def index() {
@@ -1520,57 +1520,6 @@ class ReportingController {
         }
     }
 
-    def tenderMovements() {
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-
-        Integer storeId
-        if (springSecurityService.principal.storeId) {
-            storeId = springSecurityService.principal.storeId
-        } else {
-            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
-        }
-
-        def stores = storeService.getStores(springSecurityService.principal.retailerId)
-
-        def movementTypes = TenderMovementType.values().stream()
-                .sorted(Comparator.comparing(t -> t.toString()))
-                .collect(Collectors.toList())
-        [reportType: ReportType.TENDER_MOVEMENTS, tenderTypes: TenderType.values(), tenderMovementTypes: movementTypes, stores: stores, startDate: startDate, endDate: endDate, storeId: storeId, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS)]
-    }
-
-    def ajaxTenderMovements(SortParams sortParams) {
-        sortParams.validateParams(TENDER_MOVEMENT_REPORT_SORT_COLUMNS)
-
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-
-        TenderMovementType tenderMovementType = params.tenderMovementType ? TenderMovementType.valueOf(params.tenderMovementType) : null
-        TenderType tenderType = params.tenderType ? TenderType.valueOf(params.tenderType) : null
-        Integer storeId = params.storeFilter ? getIntegerParam(params.storeFilter) : null
-
-        def tenderMovements = reportingService.getTenderMovements(startDate, endDate.plusDays(1), tenderMovementType, tenderType, storeId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
-
-        if (params.csv != null && params.csv == "true") {
-            def fileName = "TenderMovements-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
-            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
-            response.setHeader("Content-Type", "text/csv;")
-            render getTenderMovementsCsv(tenderMovements?.tenderMovements?.toList())
-        } else {
-            render (template: "tenderMovementsResults", model: [tenderMovements: tenderMovements?.tenderMovements?.toList(),
-                                                                userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS),
-                                                                sortParams: sortParams,
-                                                                startDate: startDate,
-                                                                endDate: endDate,
-                                                                tenderMovementType: tenderMovementType,
-                                                                tenderType: tenderType,
-                                                                storeId: storeId,
-                                                                totalResults: tenderMovements?.totalCount])
-        }
-    }
-
     def ajaxSaveReportColumns() {
         try {
             if (params.reportColumns && params.reportType) {
@@ -1979,32 +1928,6 @@ class ReportingController {
             stringBuilder.append(it.amount != null ? "£" + it.amount : "N/A")
             stringBuilder.append("\n")
         }
-        return stringBuilder.toString()
-    }
-
-    private String getTenderMovementsCsv(List<TenderMovement> tenderMovementList) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Timestamp,Store,From Location,To Location,Amount,Type,Reason,User\n")
-
-        tenderMovementList?.each { item ->
-            stringBuilder.append(item?.timestamp)
-            stringBuilder.append(",")
-            stringBuilder.append(item?.storeId)
-            stringBuilder.append(",")
-            stringBuilder.append(item.fromLocation?.description)
-            stringBuilder.append(",")
-            stringBuilder.append(item.toLocation?.description)
-            stringBuilder.append(",")
-            stringBuilder.append(item.amount)
-            stringBuilder.append(",")
-            stringBuilder.append(item.type)
-            stringBuilder.append(",")
-            stringBuilder.append(item.reason)
-            stringBuilder.append(",")
-            stringBuilder.append(item.userName)
-            stringBuilder.append("\n")
-        }
-
         return stringBuilder.toString()
     }
 

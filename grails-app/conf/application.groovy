@@ -22,6 +22,7 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/productAttributes/**',	access: 'isAuthenticated()'],
 	[pattern: '/promotion/**',      	access: 'isAuthenticated()'],
 	[pattern: '/reporting/**',      	access: 'isAuthenticated()'],
+	[pattern: '/cashReporting/**',      access: 'isAuthenticated()'],
 	[pattern: '/user/**',           	access: 'isAuthenticated()'],
 	[pattern: '/productList/**',    	access: 'isAuthenticated()'],
 	[pattern: '/shift/**',          	access: 'isAuthenticated()'],
@@ -29,7 +30,7 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/monitoring/**',     	access: 'isAuthenticated()'],
 	[pattern: '/group/**',          	access: 'isAuthenticated()'],
 	[pattern: '/receipt/**',        	access: 'isAuthenticated()'],
-	[pattern: '/tag/**',            	access: 'isAuthenticated()'],
+    [pattern: '/productGroup/**', access: 'isAuthenticated()'],
 	[pattern: '/shelfEdgeLabel/**', 	access: 'isAuthenticated()'],
 	[pattern: '/order/**',  	    	access: 'isAuthenticated()'],
 	[pattern: '/hardwareImport/**', 	access: 'isAuthenticated()'],
@@ -41,7 +42,9 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/modal/**',          	access: 'isAuthenticated()'],
 	[pattern: '/safe/**',           	access: 'isAuthenticated()'],
 	[pattern: '/tenderMovement/**', 	access: 'isAuthenticated()'],
-	[pattern: '/safeManagement/**', 	access: 'isAuthenticated()']
+	[pattern: '/safeManagement/**', 	access: 'isAuthenticated()'],
+	[pattern: '/partnerCategoryManagement/**', 	access: 'isAuthenticated()'],
+	[pattern: '/multiSelectCategory/**', 	access: 'isAuthenticated()']
 ]
 
 grails.plugin.springsecurity.filterChain.chainMap = [

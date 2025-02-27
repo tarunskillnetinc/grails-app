@@ -66,9 +66,10 @@
 </script>
 <div id="bankReceipt" class="centered-content">
     <div class="form-container">
-        <section id="bank-receipt-details">
+        <section id="bank-receipt-details" class="container-fluid px-0">
             <div id="messages-container"></div>
         </section>
+
         <section class="mt-1">
             <g:form method="post" action="processBankReceipt" class="mt-1" name="processBankReceipt">
                 <div class="form-row">
@@ -81,12 +82,8 @@
                                       class="form-control select-border"/>
                         </div>
                         <div class="form-group">
-                            <label for="tender" class="col-form-label">Tender</label>
-                            <g:select name="tempTenderField" from="${tenders}"
-                                      disabled="disabled"
-                                      optionValue="${{ it.toString().toLowerCase().capitalize() }}"
-                                      class="form-control select-border"/>
-                            <g:hiddenField name="tender" value="${tenders.get(0).toString()}"/>
+                            <label for="tenderTypeId" class="col-form-label">Tender</label>
+                            <g:select name="tenderTypeId" from="${tenders}" optionKey="id" optionValue="name" class="form-control select-border" />
                         </div>
                     </div>
                     <div class="form-col">

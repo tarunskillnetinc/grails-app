@@ -51,7 +51,7 @@ class Category {
                 return ['category.shortDescription.ascii.error']
             }
         }
-        retailerCategoryCode nullable: true, validator: { val, obj ->
+        retailerCategoryCode nullable: false, blank: false, validator: { val, obj ->
             if (val == null) {
                 return true
             }

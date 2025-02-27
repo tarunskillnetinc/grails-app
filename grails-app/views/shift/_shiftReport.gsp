@@ -176,13 +176,13 @@
         </div>
     </div>
 
-    <g:each in="${shift.tenderTotals?.sort { it.tenderType.name() }}" var="tenderTotal">
+    <g:each in="${shift.tenderTotals?.sort { it.tenderTypeName }}" var="tenderTotal">
         <div class="row">
             <div class="col-2 text-right">
                 ${tenderTotal.quantity}
             </div>
             <div class="col-7">
-                <g:message code="TenderType.${tenderTotal.tenderType}" />
+                ${tenderTotal.tenderTypeName}
             </div>
             <div class="col-3 text-right">
                 <g:formatNumber number="${tenderTotal.value}" type="currency" />

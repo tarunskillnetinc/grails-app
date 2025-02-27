@@ -14,7 +14,7 @@ import uk.co.wonderlane.wlpos.helpers.HibernateTestMockCriteria
 class PromotionServiceSpec extends Specification implements ServiceUnitTest<PromotionService>, DataTest {
 
     Class<?>[] getDomainClassesToMock() {
-        [Promotion, Product, Category, ProductVariant, Tag] as Class<?>[]
+        [Promotion, Product, Category, ProductVariant, ProductGroup] as Class<?>[]
     }
 
     //-------------------------------savePromotion function Unit tests----------------------------//
@@ -63,16 +63,16 @@ class PromotionServiceSpec extends Specification implements ServiceUnitTest<Prom
         testPromotion.setId(100)
 
         PromotionGroup promotionGroupSkuMatch = new PromotionGroup(type: PromotionGroupType.OFFER, sku: 250,
-                categoryId: null, tagId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: null, productGroupId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroupSkuMatch)
 
         PromotionGroup promotionGroupCategoryMatch = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: null,
-                categoryId: 100, tagId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: 100, productGroupId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroupCategoryMatch)
 
-        PromotionGroup promotionGroupTagMatch = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: null,
-                categoryId: null, tagId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
-        testPromotion.groups.add(promotionGroupTagMatch)
+        PromotionGroup promotionGroupProductGroupMatch = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: null,
+                categoryId: null, productGroupId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+        testPromotion.groups.add(promotionGroupProductGroupMatch)
 
         testPromotion.save(flush: true, failOnError: true)
 
@@ -80,10 +80,10 @@ class PromotionServiceSpec extends Specification implements ServiceUnitTest<Prom
         category.setId(100)
         category.save(flush: true, failOnError: true)
 
-        Tag testTag = new Tag(description: "Test")
-        testTag.setId(150)
-        TagProduct tagProduct = new TagProduct(sku: 250, tag: testTag)
-        tagProduct.save(flush: true, failOnError: true)
+        ProductGroup productGroup = new ProductGroup(description: "Test")
+        productGroup.setId(150)
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 250, productGroupId: productGroup)
+        productGroupProduct.save(flush: true, failOnError: true)
 
         Product product = new Product(itemCode: "100", description: "Test", receiptDescription: "Test", retailerId: 9,
                 sku: 100, unitSize: "10", vatCode: new VatCode(), status: ProductStatus.ACTIVE, category: category,

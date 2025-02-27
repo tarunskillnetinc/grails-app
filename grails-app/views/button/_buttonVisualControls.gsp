@@ -42,7 +42,7 @@
             <g:else>
                 <img src="" hidden class="justify-content-center button-image"/>
             </g:else>
-            <p class="button-example-text" ${button?.textDisplay? "" : "hidden"}>Example</p>
+            <p id="example-text" class="button-example-text" ${button?.textDisplay? "" : "hidden"}>${button?.description ?: 'Example'}</p>
         </div>
     </div>
 </div>

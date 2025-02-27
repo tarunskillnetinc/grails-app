@@ -132,6 +132,7 @@ environments:
     development:
         dataSource:
             pooled: true
+            #logSql: true
             dbCreate: "validate"
             url: "jdbc:mysql://localhost:3306/wlpos"
             driverClassName: "com.mysql.cj.jdbc.Driver"

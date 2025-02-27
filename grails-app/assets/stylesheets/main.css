@@ -671,6 +671,10 @@ li.breadcrumb-item a {
     cursor: pointer;
 }
 
+.greyed-out {
+    color: #A9A9A9;
+}
+
 .breadcrumb {
     background: transparent;
     border: 1px solid #575756;
