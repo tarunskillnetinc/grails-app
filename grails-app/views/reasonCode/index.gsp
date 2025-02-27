@@ -349,12 +349,12 @@
                                     <option value="CUSTOMER_REFUSAL">Customer Refusal</option>
                                     <option value="LINE_VOID">Line Void</option>
                                     <option value="MARKDOWN">Markdown</option>
-                                    <option value="PAID_OUT">Paid Out</option>
                                     <option value="PAID_IN">Paid In</option>
+                                    <option value="PAID_OUT">Paid Out</option>
                                     <option value="PRODUCT_LIST">Product List</option>
                                     <option value="REFUND">Refund</option>
-                                    <option value="TENDER_RECONCILIATION_VARIANCE">Tender Reconciliation Variance</option>
-                                    <option value="TENDER_RECONCILIATION_SAFE_VARIANCE">Tender Reconciliation Safe Variance</option>
+                                    <option value="TENDER_RECONCILIATION_SAFE_VARIANCE">Safe Tender Reconcile</option>
+                                    <option value="TENDER_RECONCILIATION_VARIANCE">Tills Tender Reconcile</option>
                                 </select>
                             </div>
                         </div>
