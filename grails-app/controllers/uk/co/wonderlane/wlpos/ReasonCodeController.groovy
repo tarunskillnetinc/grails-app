@@ -206,36 +206,6 @@ class ReasonCodeController {
         render "OK"
     }
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def ajaxGetReasonCodeHistory() {
-        def reasonCodeHistoryMap = [:]
-        def reasonCodeHistoryList = reasonCodeHistoryService.getReasonCodeHistory()
-
-        reasonCodeHistoryList = reasonCodeHistoryList?.sort {
-            it?.effectiveDate
-        }
-
-        reasonCodeHistoryList = reasonCodeHistoryList?.reverse()
-
-        String nullString = "null"
-        reasonCodeHistoryList?.each { item ->
-            if (item?.fromValue == null || item?.fromValue == nullString) {
-                item?.fromValue = "unset"
-            }
-
-            if (item?.toValue == null || item?.toValue == nullString) {
-                item?.toValue = "unset"
-            }
-        }
-
-        reasonCodeHistoryMap = reasonCodeHistoryList?.groupBy {
-            it?.effectiveDate?.toDate()?.format('dd/MM/yyyy')
-        }
-
-
-        render(template: "reasonCodeHistory", model: [reasonCodeHistoryMap: reasonCodeHistoryMap])
-    }
-
     def sendSyncMessage(ReasonCode rc, boolean deleted) {
         SyncMessage msg = new SyncMessage(
                 SyncMessageType.REASON_CODE,

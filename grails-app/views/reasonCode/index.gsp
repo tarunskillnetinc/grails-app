@@ -60,10 +60,6 @@
 
             ajaxSearch();
             updateDirectionColumnVisibility();
-
-            $('#collapseReasonCodeHistory').on('show.bs.collapse', function () {
-                getReasonCodeHistory();
-            });
         });
 
         function ajaxSaveReorder() {
@@ -298,25 +294,6 @@
             $("#save-code-btn").show()
         }
 
-        function getReasonCodeHistory() {
-            $('#reasonCodeHistoryContainer').html("<div class=\"d-flex justify-content-center\">\n" +
-                "  <div class=\"spinner-border\" role=\"status\">\n" +
-                "    <span class=\"sr-only\">Loading...</span>\n" +
-                "  </div>\n" +
-                "</div>");
-
-            var getReasonCodeHistoryUrl = "${createLink(controller: 'reasonCode', action: 'ajaxGetReasonCodeHistory')}";
-
-            $.ajax({
-                url: getReasonCodeHistoryUrl,
-                method: "GET",
-                data: {},
-                success: function (resp) {
-                    $("#reasonCodeHistoryContainer").html(resp);
-                }
-            });
-        }
-
         $(function () {
             $("#sortable").sortable();
         });
@@ -421,32 +398,6 @@
                 </div>
             </div>
         </section>
-</section>
-<section id="accordion" class='container-fluid'>
-    <!-- ReasonCode History. -->
-    <div class="card bg-light border-wl accordion-card">
-        <div class="card-header pointer" id="reasonCodeHistory" data-toggle="collapse"
-             data-target="#collapseReasonCodeHistory" aria-expanded="true" aria-controls="collapseReasonCodeHistory">
-            <div class="row">
-                <div class="col-10"><strong>Reason Code History</strong></div>
-
-                <div class="col-2 text-right">
-                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right"
-                         fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-        <div id="collapseReasonCodeHistory" class="collapse collapsed" aria-labelledby="categoryReasonCodeHistory"
-             data-parent="#accordion">
-            <div class="card-body py-5">
-                <div id="reasonCodeHistoryContainer"
-                     style="max-height: 300px; overflow-x: auto; overflow-y: auto;"></div>
-            </div>
-        </div>
-    </div>
 </section>
 </body>
 </html>
