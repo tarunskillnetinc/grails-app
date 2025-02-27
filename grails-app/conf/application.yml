@@ -130,6 +130,13 @@ databaseDefaultProperties: &databaseDefaultProperties
 
 environments:
     development:
+        sns:
+            accessKey: "test"
+            secretKey: "test"
+            region: "eu-west-1"
+            endpoint: "http://localhost:4566"
+            accountId: "000000000000"
+            snsSupplierUpdateTopic: "supplier-update"
         dataSource:
             pooled: true
             #logSql: true
@@ -221,7 +228,7 @@ environments:
                 database: wlpos
             transactions:
                 host: localhost
-                port: 3308
+                port: 3306
                 username: root
                 password: Pa**W0rd01
                 #username: "wonderlane"
@@ -229,7 +236,7 @@ environments:
                 database: transactions
             loyalty:
                 host: localhost
-                port: 3308
+                port: 3306
                 username: root
                 password: Pa**W0rd01
                 #username: "wonderlane"
@@ -1082,4 +1089,5 @@ wlpos:
     loyaltyOfferAllocationService: "LoyaltyOfferAllocationService"
 
 sns:
+    region: "eu-west-1"
     snsSupplierUpdateTopic: "NewSuppliersTopic"

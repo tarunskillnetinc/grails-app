@@ -168,7 +168,7 @@ class BarcodeSignifierService extends MySqlDal {
 
             if (existingSignifier != null) {
                 // Deleting associated embedded data
-                String deleteEmbeddedDataHql = "SUPPLIER_DELETE FROM BarcodeSignifierEmbeddedData WHERE barcodeSignifierId = :signifierId"
+                String deleteEmbeddedDataHql = "DELETE FROM BarcodeSignifierEmbeddedData WHERE barcodeSignifierId = :signifierId"
                 session.createQuery(deleteEmbeddedDataHql)
                         .setParameter("signifierId", existingSignifier.id)
                         .executeUpdate()

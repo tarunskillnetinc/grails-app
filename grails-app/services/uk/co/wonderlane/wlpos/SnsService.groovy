@@ -3,28 +3,25 @@ package uk.co.wonderlane.wlpos
 import com.google.gson.Gson
 import grails.gorm.transactions.Transactional
 import software.amazon.awssdk.services.sns.SnsClient
+import software.amazon.awssdk.services.sns.model.CreateTopicRequest
+import software.amazon.awssdk.services.sns.model.CreateTopicResponse
 import software.amazon.awssdk.services.sns.model.PublishRequest
+import software.amazon.awssdk.services.sns.model.SnsException
 import uk.co.wonderlane.wlpos.entities.supplier.Supplier
 
 @Transactional
 class SnsService {
     private final SnsClient snsClient
-    private final String accountId
     private final String supplierUpdateTopic
-    private final String region
     private final Gson gson
 
     SnsService(
             SnsClient snsClient,
-            String accountId,
             String supplierUpdateTopic,
-            String region,
             GsonProvider gsonProvider
     ) {
         this.snsClient = snsClient
-        this.accountId = accountId
         this.supplierUpdateTopic = supplierUpdateTopic
-        this.region = region
         gson = gsonProvider.gson
     }
 
@@ -55,7 +52,18 @@ class SnsService {
     }
 
     private String generateTopicArn(String topicName) {
-        return "arn:aws:sns:${region}:${accountId}:${topicName}"
+        CreateTopicResponse result = null
+        try {
+            CreateTopicRequest request = CreateTopicRequest.builder()
+                    .name(topicName)
+                    .build()
+
+            result = snsClient.createTopic(request)
+            return result.topicArn()
+        } catch (SnsException e) {
+            logger.logException("Error creating SNS topic: ${topicName}", TAG, e)
+        }
+        return null
     }
 
     class SupplierRequest {
