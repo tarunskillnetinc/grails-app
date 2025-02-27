@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.entities.SnappyServiceMessage
 import uk.co.wonderlane.wlpos.entities.SymbolGroupMessage
 import uk.co.wonderlane.wlpos.enums.SnappyMessageType
@@ -16,18 +17,28 @@ class SupplierController {
     def rabbitService
     def gsonProvider
 
-    private static final SUPPLIER_SORT_COLUMNS = [ "name", "reference", "customerReference", "contactName", "email", "phoneNumber"]
+    private static final SUPPLIER_SORT_COLUMNS = [ "id", "name", "reference", "customerReference", "contactName", "email", "phoneNumber", "deleted" ]
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {}
 
     //This is for load symbol subscription (Affiliation) view initially
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def subscriptions() {}
 
     //search for suppliers
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGetSearchSupplier(SupplierSortParams sortParams) {
+        session.SUPPLIER_CUSTOMER_REFERENCE_SEARCH_TERM = params.customerReferenceTerm
+        session.SUPPLIER_REFERENCE_SEARCH_TERM = params.supplierReferenceTerm
+        session.SUPPLIER_NAME_SEARCH_TERM = params.supplierNameTerm
+        session.INCLUDE_DELETED_SUPPLIERS = params.includeDeletedSuppliers
+
         sortParams.validateParams(SUPPLIER_SORT_COLUMNS) //pre process supplier sorting column list
+
         def suppliers = [] //declare supplier list
-        def suppliersResponse = supplierService.getSuppliers(params.searchTerm, params.searchBy, sortParams.offset ? sortParams.offset : 0, sortParams.max ? sortParams.max : 50, sortParams.sortColumn, sortParams.getSortOrder())
+        def suppliersResponse = supplierService.getSuppliers(params.supplierNameTerm, params.supplierReferenceTerm, params.customerReferenceTerm, params.includeDeletedSuppliers,
+                sortParams.offset ? sortParams.offset : 0, sortParams.max ? sortParams.max : 50, sortParams.sortColumn, sortParams.getSortOrder())
         def returnedSuppliers = suppliersResponse?.suppliers
         def totalCount = suppliersResponse?.totalCount
         if (returnedSuppliers != null && returnedSuppliers.size() > 0){
@@ -36,7 +47,6 @@ class SupplierController {
         render(template: "supplierSearchResults",
                 model: [ suppliers: suppliers,
                          searchTerm: params.searchTerm,
-                         searchBy: params.searchBy,
                          max: sortParams.max ?: 50,
                          offset: sortParams.offset,
                          sortParams  : sortParams,
@@ -44,6 +54,7 @@ class SupplierController {
                 ])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGetSymbolGroupSubscriptions() {
         def symbolGroupSubscriptions = supplierService.getSymbolGroupSubscriptions()
         def symbolGroups = supplierService.getSymbolGroups()
@@ -55,11 +66,13 @@ class SupplierController {
     }
 
     //This will load save supplier view and initially pass enable save
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddSupplier() {
         render(template: "addSupplier", model: [enableSave : true])
     }
 
     //This will load edit supplier with supplier details
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxEditSupplier(int supplierId) {
         boolean enableSave = false; //Initially mark as disable edit
         def supplier = supplierService.getSupplier(supplierId) //Load supplier
@@ -73,6 +86,17 @@ class SupplierController {
         render(template: "addSupplier", model: [supplier: supplier, enableSave : enableSave])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxToggleSupplierDeletedFlag(int supplierId) {
+        def supplier = supplierService.getSupplier(supplierId) //Load supplier
+        if (supplier != null) {
+            supplier.deleted = !supplier.deleted;
+            supplierService.saveSupplier(supplier)
+            render "OK"
+        }
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveSupplier() {
         def supplier
         if (params.id && Integer.parseInt(params.id) > 0) {
@@ -91,6 +115,7 @@ class SupplierController {
         }
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddSymbolGroupSubscription() {
         def symbolGroups = supplierService.getSymbolGroups()
 
@@ -105,6 +130,7 @@ class SupplierController {
         render(template: "addSymbolGroupSubscription", model: [symbolGroups: symbolGroups])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxEditSymbolGroupSubscription(int symbolGroupSubscriptionId) {
         def symbolGroupSubscription = supplierService.getSymbolGroupSubscription(symbolGroupSubscriptionId)
 
@@ -121,6 +147,7 @@ class SupplierController {
         render(template: "addSymbolGroupSubscription", model: [symbolGroupSubscription: symbolGroupSubscription, symbolGroups: symbolGroups])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSymbolGroupAction() {
         switch (Integer.parseInt(params.symbolGroupId)) {
             case 4: // Snappy
@@ -134,6 +161,7 @@ class SupplierController {
         render status: 200, text: "Sync should begin shortly for Snappy Service in Store " + springSecurityService.principal.storeNumber + "."
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGetSymbolGroupForm(int symbolGroupId) {
         def symbolGroupSubscription = supplierService.getSymbolGroupSubscription(symbolGroupId)
         def symbolGroups = supplierService.getSymbolGroups()
@@ -158,6 +186,7 @@ class SupplierController {
         }
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveSymbolGroupSubscription() {
         def symbolGroupSubscription
 
