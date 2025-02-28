@@ -34,6 +34,10 @@
 
             if(sortParams != null){globalSortParams = sortParams}
             $.extend(params, globalSortParams);
+            if (globalSortParams != null && 'offset' in globalSortParams) {
+                globalSortParams.offset = 0;
+            }
+
             $.ajax({
                 url: getSuppliersUrl,
                 data: params,
@@ -77,7 +81,7 @@
             });
         }
 
-        function toggleSupplierDeleted(supplierId, currentlyDeleted) {
+        function toggleSupplierDeleted(supplierId, currentlyDeleted, sortParams) {
             let confirmationMessage = ""
 
             if (currentlyDeleted) {
@@ -95,10 +99,7 @@
                     success: function (resp) {
                         if (resp === "OK") {
                             $('#addSupplierModal').modal('hide')
-                            if (!currentlyDeleted) {
-                                offset = 0
-                            }
-                            searchSupplier();
+                            searchSupplier(sortParams);
                         } else {
                             $('#addSupplierModal').modal({show: true});
                             $("#addSupplierContent").html(resp);
