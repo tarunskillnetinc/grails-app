@@ -259,7 +259,7 @@ class ShiftController {
             if (shift != null && ((!saveShiftCommand.isRecount && !saveShiftCommand.isFinalise && shift.getShiftStatus() == ShiftStatus.UNRECONCILED) || ((saveShiftCommand.isRecount || saveShiftCommand.isFinalise) && shift.getShiftStatus() == ShiftStatus.RECONCILED))) {
                 shiftService.processShiftDataSave(saveShiftCommand, shift)
 
-                if (saveShiftCommand.isFinalise) { // Only update this if it is finalized.
+                if (saveShiftCommand.isFinalise) { // Only update this if it is finalised.
                     def safe = safeService.getSafeById(saveShiftCommand.safeId)
 
                     if (safe.active) {
@@ -281,7 +281,7 @@ class ShiftController {
 
                     } else {
                         // do not finalize against an inactive safe
-                        render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Safe is inactive.")
+                        render(status: 400, contentType: 'application/json', message: "Shift was not finalised as the selected safe is set to inactive.")
                     }
                 } else {
                     Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
