@@ -64,13 +64,13 @@
                 <div class="button-container d-flex justify-content-end align-items-center">
                     <g:if test="${supplier.deleted == true}">
                         <button id="toggle-supplier-deleted-button-${i+1}" class="btn btn-wl p-1 me-1" style="min-width: 80px; font-size: 0.9rem;"
-                                onclick="event.stopPropagation(); toggleSupplierDeleted(${supplier.id}, ${supplier.deleted})">
+                                onclick="event.stopPropagation(); toggleSupplierDeleted(${supplier.id}, ${supplier.deleted}, {offset: ${offset ?: 0}, sortColumn: '${sortParams?.sortColumn}'})">
                             Reinstate
                         </button>
                     </g:if>
                     <g:else>
                         <button id="toggle-supplier-deleted-button-${i+1}" class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem;"
-                                onclick="event.stopPropagation(); toggleSupplierDeleted(${supplier.id}, ${supplier.deleted})">
+                                onclick="event.stopPropagation(); toggleSupplierDeleted(${supplier.id}, ${supplier.deleted},{offset: 0, sortColumn: '${sortParams?.sortColumn}'})">
                             Delete
                         </button>
                     </g:else>
