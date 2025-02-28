@@ -39,7 +39,7 @@ class SupplierService extends MySqlDal {
     }
 
     def getSupplier(int id) {
-        return Supplier.findByIdAndRetailerIdAndDeleted(id, springSecurityService.principal.retailerId, false)
+        return Supplier.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
     }
 
     def saveSupplier(Supplier supplier) {
@@ -249,14 +249,9 @@ class SupplierService extends MySqlDal {
     }
 
     //This method will load suppliers based on provided arguments
-    def getSuppliers(String searchTerm, String searchBy, int offset, int max, String sortColumn, String sortOrder) {
-        String defaultSearchColumn = "name";
+    def getSuppliers(String supplierNameTerm, String supplierReferenceTerm, String customerReferenceTerm,String includeDeletedSuppliers, int offset, int max, String sortColumn, String sortOrder) {
         Integer storeId
-        if (searchBy != null) { //This can customize for any search field if added in future
-            if (searchBy.equals("Name")) {
-                defaultSearchColumn = "name";
-            }
-        }
+
         if (springSecurityService.principal.storeId) {
             storeId = springSecurityService.principal.storeId
         } //load store id if it exists
@@ -274,9 +269,19 @@ class SupplierService extends MySqlDal {
                 isNull("storeId")
             }
             or {
-                like(defaultSearchColumn, "%$searchTerm%")
+                and {
+                    if (supplierNameTerm && supplierNameTerm.trim()) {
+                        like("name", "%$supplierNameTerm%")
+                    }
+                    if (supplierReferenceTerm && supplierReferenceTerm.trim()) {
+                        like("reference", "%$supplierReferenceTerm%")
+                    }
+                    if (customerReferenceTerm && customerReferenceTerm.trim()) {
+                        like("customerReference", "%$customerReferenceTerm%")
+                    }
+                }
             }
-            and {
+            if (includeDeletedSuppliers != "true") {
                 eq("deleted", false)
             }
         }
