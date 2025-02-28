@@ -281,7 +281,7 @@ class ShiftController {
 
                     } else {
                         // do not finalize against an inactive safe
-                        render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Safe is inactive.")
+                        render(status: 400, contentType: 'application/json', message: "Shift was not finalised as the selected safe is set to inactive.")
                     }
                 } else {
                     Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
