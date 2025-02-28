@@ -259,7 +259,7 @@ class ShiftController {
             if (shift != null && ((!saveShiftCommand.isRecount && !saveShiftCommand.isFinalise && shift.getShiftStatus() == ShiftStatus.UNRECONCILED) || ((saveShiftCommand.isRecount || saveShiftCommand.isFinalise) && shift.getShiftStatus() == ShiftStatus.RECONCILED))) {
                 shiftService.processShiftDataSave(saveShiftCommand, shift)
 
-                if (saveShiftCommand.isFinalise) { // Only update this if it is finalized.
+                if (saveShiftCommand.isFinalise) { // Only update this if it is finalised.
                     def safe = safeService.getSafeById(saveShiftCommand.safeId)
 
                     if (safe.active) {

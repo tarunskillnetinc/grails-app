@@ -28,8 +28,8 @@
                 <% if (hasFinancialWeek) { %>
                     <th scope="col" class="border">Financial Week</th>
                 <% } %>
-                <th scope="col" class="border">Finalized by User name</th>
-                <th scope="col" class="border">Finalized by User ID</th>
+                <th scope="col" class="border">Finalised by User name</th>
+                <th scope="col" class="border">Finalised by User ID</th>
                 <th scope="col" class="border">Tender</th>
                 <th scope="col" class="border">Variance Amount</th>
                 <th scope="col" class="border">Reason code</th>
