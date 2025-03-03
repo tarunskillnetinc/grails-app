@@ -1,51 +1,37 @@
 package uk.co.wonderlane.wlpos
 
-import com.google.gson.Gson
+
 import grails.gorm.transactions.Transactional
-import software.amazon.awssdk.services.sns.SnsClient
 import software.amazon.awssdk.services.sns.model.CreateTopicRequest
 import software.amazon.awssdk.services.sns.model.CreateTopicResponse
 import software.amazon.awssdk.services.sns.model.PublishRequest
 import software.amazon.awssdk.services.sns.model.SnsException
+import uk.co.wonderlane.wlpos.entities.SnsNotification
 import uk.co.wonderlane.wlpos.entities.supplier.Supplier
+import uk.co.wonderlane.wlpos.enums.sns.SnsActionType
+import uk.co.wonderlane.wlpos.enums.sns.SnsNotificationType
 
 @Transactional
 class SnsService {
-    private final SnsClient snsClient
-    private final String supplierUpdateTopic
-    private final Gson gson
-
-    SnsService(
-            SnsClient snsClient,
-            String supplierUpdateTopic,
-            GsonProvider gsonProvider
-    ) {
-        this.snsClient = snsClient
-        this.supplierUpdateTopic = supplierUpdateTopic
-        gson = gsonProvider.gson
-    }
+    def snsClient
+    def supplierTopic
+    def gsonProvider
 
     def publishSupplierAdd(Supplier supplier) {
-        def supplierRequest = new SupplierRequest(
-                type: MessageType.SUPPLIER_ADD,
-                supplier: supplier
-        )
+        def notification = new SnsNotification(SnsNotificationType.SUPPLIER, SnsActionType.ADD, supplier)
         PublishRequest request = PublishRequest.builder()
-                .topicArn( generateTopicArn(supplierUpdateTopic))
-                .message(gson.toJson(supplierRequest))
+                .topicArn( generateTopicArn(supplierTopic))
+                .message(gsonProvider.getGson().toJson(notification))
                 .build()
 
         snsClient.publish(request)
     }
 
     def publishSupplierDelete(Supplier supplier) {
-        def supplierRequest = new SupplierRequest(
-                type: MessageType.SUPPLIER_DELETE,
-                supplier: supplier
-        )
+        def notification = new SnsNotification(SnsNotificationType.SUPPLIER, SnsActionType.DELETE, supplier)
         PublishRequest request = PublishRequest.builder()
-                .topicArn( generateTopicArn(supplierUpdateTopic))
-                .message(gson.toJson(supplierRequest))
+                .topicArn( generateTopicArn(supplierTopic))
+                .message(gsonProvider.getGson().toJson(notification))
                 .build()
 
         snsClient.publish(request)
@@ -61,17 +47,8 @@ class SnsService {
             result = snsClient.createTopic(request)
             return result.topicArn()
         } catch (SnsException e) {
-            logger.logException("Error creating SNS topic: ${topicName}", TAG, e)
+            log.error("Error creating SNS topic: ${topicName}", e)
         }
         return null
-    }
-
-    class SupplierRequest {
-        MessageType type
-        Supplier supplier
-    }
-
-    enum MessageType {
-        SUPPLIER_ADD, SUPPLIER_DELETE
     }
 }

@@ -298,7 +298,6 @@ beans = {
         sessionFactory = ref('sessionFactory')
     }
 
-
     gsonProvider(GsonProvider)
 
     Environment.executeForCurrentEnvironment {
@@ -418,11 +417,9 @@ beans = {
 
     multipartResolver(MaxFileUploadSizeResolver)
 
-    snsService(SnsService) { bean ->
-        bean.constructorArgs = [
-                ref('snsClient'),
-                grailsApplication.config.getProperty("sns.snsSupplierUpdateTopic"),
-                ref('gsonProvider')
-        ]
+    snsService(SnsService) {
+        snsClient = ref("snsClient")
+        gsonProvider = ref("gsonProvider")
+        supplierTopic = grailsApplication.config.getProperty("sns.snsSupplierTopic")
     }
 }
