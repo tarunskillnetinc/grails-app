@@ -44,72 +44,24 @@
 
             <div class="col-md-6">
                 <div class="form-group row">
+                    <label for="addressBuildingNumberOrName"
+                           class="col-3 offset-1 col-form-label text-right">Building Number or Name</label>
+
+                    <div class="input-group col-6">
+                        <g:textField name="addressBuildingNumberOrName" value="${supplier?.addressBuildingNumberOrName}"
+                                     class="form-control bottom-border"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group row">
                     <label for="reference" class="col-3 offset-1 col-form-label text-right">Supplier Reference</label>
 
                     <div class="input-group col-6">
                         <g:textField name="reference" value="${supplier?.reference}"
-                                     class="form-control bottom-border"/>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group row">
-                    <label for="contactName" class="col-3 offset-1 col-form-label text-right">Contact Name</label>
-
-                    <div class="input-group col-6">
-                        <g:textField name="contactName" value="${supplier?.contactName}"
-                                     class="form-control bottom-border"/>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="form-group row">
-                    <label for="phoneNumber" class="col-3 offset-1 col-form-label text-right">Contact Telephone</label>
-
-                    <div class="input-group col-6">
-                        <g:textField name="phoneNumber" value="${supplier?.phoneNumber}"
-                                     class="form-control bottom-border"/>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group row">
-                    <label for="email" class="col-3 offset-1 col-form-label text-right">Contact Email</label>
-
-                    <div class="input-group col-6">
-                        <g:textField name="email" value="${supplier?.email}" class="form-control bottom-border"/>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="form-group row">
-                    <label for="customerReference"
-                           class="col-3 offset-1 col-form-label text-right">Customer Reference</label>
-
-                    <div class="input-group col-6">
-                        <g:textField name="customerReference" value="${supplier?.customerReference}"
-                                     class="form-control bottom-border"/>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group row">
-                    <label for="addressBuildingNumberOrName"
-                           class="col-3 offset-1 col-form-label text-right">Address Building Number or Name</label>
-
-                    <div class="input-group col-6">
-                        <g:textField name="addressBuildingNumberOrName" value="${supplier?.addressBuildingNumberOrName}"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -130,6 +82,17 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group row">
+                    <label for="contactName" class="col-3 offset-1 col-form-label text-right">Contact Name</label>
+
+                    <div class="input-group col-6">
+                        <g:textField name="contactName" value="${supplier?.contactName}"
+                                     class="form-control bottom-border"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group row">
                     <label for="addressLine2" class="col-3 offset-1 col-form-label text-right">Address Line 2</label>
 
                     <div class="input-group col-6">
@@ -138,10 +101,23 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group row">
+                    <label for="phoneNumber" class="col-3 offset-1 col-form-label text-right">Contact Telephone</label>
+
+                    <div class="input-group col-6">
+                        <g:textField name="phoneNumber" value="${supplier?.phoneNumber}"
+                                     class="form-control bottom-border"/>
+                    </div>
+                </div>
+            </div>
 
             <div class="col-md-6">
                 <div class="form-group row">
-                    <label for="addressTown" class="col-3 offset-1 col-form-label text-right">Address Town</label>
+                    <label for="addressTown" class="col-3 offset-1 col-form-label text-right">Town</label>
 
                     <div class="input-group col-6">
                         <g:textField name="addressTown" value="${supplier?.addressTown}"
@@ -154,7 +130,17 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group row">
-                    <label for="addressCounty" class="col-3 offset-1 col-form-label text-right">Address County</label>
+                    <label for="email" class="col-3 offset-1 col-form-label text-right">Contact Email</label>
+
+                    <div class="input-group col-6">
+                        <g:textField name="email" value="${supplier?.email}" class="form-control bottom-border"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group row">
+                    <label for="addressCounty" class="col-3 offset-1 col-form-label text-right">County</label>
 
                     <div class="input-group col-6">
                         <g:textField name="addressCounty" value="${supplier?.addressCounty}"
@@ -163,9 +149,24 @@
                 </div>
             </div>
 
+        </div>
+
+        <div class="row">
             <div class="col-md-6">
                 <div class="form-group row">
-                    <label for="addressCountry" class="col-3 offset-1 col-form-label text-right">Address Country</label>
+                    <label for="customerReference"
+                           class="col-3 offset-1 col-form-label text-right">Customer Reference</label>
+
+                    <div class="input-group col-6">
+                        <g:textField name="customerReference" value="${supplier?.customerReference}"
+                                     class="form-control bottom-border"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group row">
+                    <label for="addressCountry" class="col-3 offset-1 col-form-label text-right">Country</label>
 
                     <div class="input-group col-6">
                         <g:textField name="addressCountry" value="${supplier?.addressCountry}"
@@ -178,8 +179,13 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group row">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group row">
                     <label for="addressPostCode"
-                           class="col-3 offset-1 col-form-label text-right">Address Postcode</label>
+                           class="col-3 offset-1 col-form-label text-right">Postcode</label>
 
                     <div class="input-group col-6">
                         <g:textField name="addressPostCode" value="${supplier?.addressPostCode}"
