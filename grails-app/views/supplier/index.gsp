@@ -5,6 +5,26 @@
 
     <title>Supplier Maintenance</title>
 
+    <style>
+    @media (min-width: 992px) {
+        .modal-xxl {
+            max-width: 800px;
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .modal-xxl {
+            max-width: 1140px;
+        }
+    }
+
+    @media (min-width: 1400px) {
+        .modal-xxl {
+            max-width: 1340px;
+        }
+    }
+    </style>
+
     <script type='text/javascript'>
         var globalSortParams = null;
         var getSuppliersUrl = "${createLink(controller: 'supplier', action: 'ajaxGetSearchSupplier')}";
@@ -211,7 +231,7 @@
     <!-- Add supplier modal -->
     <div class="modal fade" id="addSupplierModal" tabindex="-1" role="dialog" aria-labelledby="addSupplierModalLabel"
          aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xxl" role="document">
             <div id="addSupplierContent" class="modal-content"></div>
         </div>
     </div>

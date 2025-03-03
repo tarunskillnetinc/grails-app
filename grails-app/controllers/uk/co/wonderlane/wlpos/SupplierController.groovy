@@ -68,7 +68,7 @@ class SupplierController {
     //This will load save supplier view and initially pass enable save
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddSupplier() {
-        render(template: "addSupplier", model: [enableSave : true])
+        render(template: "addSupplier", model: [enableSave: true, isUpdate: false])
     }
 
     //This will load edit supplier with supplier details
@@ -83,7 +83,7 @@ class SupplierController {
                 enableSave = true
             }
         }
-        render(template: "addSupplier", model: [supplier: supplier, enableSave : enableSave])
+        render(template: "addSupplier", model: [supplier: supplier, enableSave: enableSave, isUpdate: supplier ? true : false])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -111,7 +111,7 @@ class SupplierController {
             supplierService.saveSupplier(supplier)
             render "OK"
         } else {
-            render(template: "addSupplier", model: [supplier: supplier, enableSave : true])
+            render(template: "addSupplier", model: [supplier: supplier, enableSave: true, isUpdate: supplier ? true : false])
         }
     }
 
