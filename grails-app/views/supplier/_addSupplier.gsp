@@ -194,7 +194,42 @@
                 </div>
             </div>
         </div>
+
+        <hr/>
+
+        <h3>Case Rates</h3>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group row">
+                    <label for="caserateeffectivedate"
+                           class="col-3 offset-1 col-form-label text-right">Effective Date</label>
+
+                    <div class="input-group col-6">
+                        <g:textField name="caserateeffectivedate" value="${supplier?.addressPostCode}"
+                                     class="form-control bottom-border"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group row">
+                    <label for="caserate"
+                           class="col-3 offset-1 col-form-label text-right">Case Rate</label>
+
+                    <div class="input-group col-6">
+                        <g:textField name="caserate" value="${supplier?.addressPostCode}"
+                                     class="form-control bottom-border"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </g:form>
+
+    <g:if test="${isUpdate}">
+        <div>scrollable area goes here</div>
+    </g:if>
 </div>
 
 <div class="modal-footer">
