@@ -3,9 +3,7 @@ package uk.co.wonderlane.wlpos.supplier
 class SupplierCaseRate {
     static belongsTo = [supplier: Supplier]
 
-    int id
     int retailerId;
-    int supplierId;
     BigDecimal caseRate;
     Date caseRateEffectiveDate;
 
@@ -15,7 +13,7 @@ class SupplierCaseRate {
 
         supplier column: "supplierId"
 
-        id column: "id"
+        id column: "id", sqlType: "int"
         retailerId column: "retailerId", sqlType: "tinyint"
         caseRate column: "caseRate"
         caseRateEffectiveDate column: "caseRateEffectiveDate"
@@ -23,7 +21,6 @@ class SupplierCaseRate {
 
     static constraints = {
         retailerId nullable: false
-        supplierId nullable: false
         caseRate nullable: false
         caseRateEffectiveDate nullable: false
     }
