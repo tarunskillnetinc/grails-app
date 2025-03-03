@@ -16,6 +16,8 @@ class CategoryController extends BaseController {
     def rabbitService
     def categoryHistoryService
     def pricingClassificationService
+    def productService
+    def storeService
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
@@ -23,6 +25,10 @@ class CategoryController extends BaseController {
             flash.error = "You do not have access to this page."
             redirect(uri: "/")
             return
+        }
+
+        if (session.CATEGORY_PRODUCT_LIST != null) {
+            session.setAttribute('CATEGORY_PRODUCT_LIST', null)
         }
 
         [userColumns: categoryService.getColumns()]
@@ -311,6 +317,145 @@ class CategoryController extends BaseController {
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ?true : false
 
         render(view: "maintenance", model: [category: category, addCategory: false, categoryList: categoryList, topLevelCategories: categoryService.getTopLevelCategories(), loyaltyEnabled: loyaltyEnabled, pricingClassifications: pricingClassifications])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxCategoryProductSearch() {
+        session.CATEGORY_PRODUCT_SEARCH_TERM = params.searchTerm
+        def categoryId = params.categoryId as int
+
+        def products = productService.searchProductsHql(params.searchTerm, params.searchBy, 
+                params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
+        
+        render(template: "categoryProductSearchResults", 
+            model: [products : products.products,
+                    category: categoryService.getCategory(categoryId),
+                    searchTerm : params.searchTerm,
+                    searchBy : params.searchBy,
+                    max : params.max ?: 50,
+                    offset : params.offset,
+                    totalResults : products.totalCount])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def categoryProductMapping() {
+        if (springSecurityService.principal.storeId) {
+            flash.error = "You do not have access to this page."
+            redirect(uri: "/")
+            return
+        }
+
+        def categoryId = params.id as int
+
+        [category: categoryService.getCategory(categoryId)]
+    }
+
+    def ajaxCategoryProductMapping() {
+        def category
+        def products
+        def totalResults
+        def categoryId = params.id as int
+        
+        category = categoryService.getCategory(categoryId)
+
+        if (session.CATEGORY_PRODUCT_LIST) {
+            products = Product.findAllByRetailerIdAndIdInList(springSecurityService.principal.retailerId, session.CATEGORY_PRODUCT_LIST,
+                    [max: params.max ? Integer.parseInt(params.max) : 50, sort: "itemCode", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
+            totalResults = Product.findAllByRetailerIdAndIdInList(springSecurityService.principal.retailerId, session.CATEGORY_PRODUCT_LIST).size()
+        } else {
+            products = Product.findAllByRetailerIdAndCategory(springSecurityService.principal.retailerId, category,
+                    [max: params.max ? Integer.parseInt(params.max) : 50, sort: "itemCode", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
+            totalResults = Product.findAllByRetailerIdAndCategory(springSecurityService.principal.retailerId, category).size()
+        }
+        
+        render(template: "categoryProductMappingResults",
+            model: [category : category,
+                    products : products,
+                    max : params.max ?: 50,
+                    offset : params.offset,
+                    totalResults : totalResults])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def addCategoryProduct() {
+        if (springSecurityService.principal.storeId) {
+            flash.error = "You do not have access to this page."
+            redirect(uri: "/")
+            return
+        }
+        
+        def categoryId = params.id as int
+        def category = categoryService.getCategory(categoryId)
+        
+        if (session.CATEGORY_PRODUCT_LIST == null) {
+            session.CATEGORY_PRODUCT_LIST = Product.findAllByRetailerIdAndCategory(springSecurityService.principal.retailerId, category).findAll{ it.category?.id == categoryId }*.id
+        }
+
+        [category: category]
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxToggleProductId() {
+        def productId = params.productId as Integer
+        
+        if (session.CATEGORY_PRODUCT_LIST?.contains(productId)) {
+            def index = session.CATEGORY_PRODUCT_LIST.indexOf(productId)
+            session.CATEGORY_PRODUCT_LIST.remove(index)
+        } else {
+            if (!session.CATEGORY_PRODUCT_LIST) {
+                session.CATEGORY_PRODUCT_LIST = []
+            }
+
+            session.CATEGORY_PRODUCT_LIST.add(productId)
+        }
+    
+        render(status: 200, text: "")
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSaveCategoryProducts() {
+        def categoryId = Integer.parseInt(params.id)
+        def updatedCategoryProducts = session.CATEGORY_PRODUCT_LIST
+
+        /* Get the category and the current products associated with it */
+        def category = categoryService.getCategory(categoryId)
+        def currentCategoryProducts = Product.findAllByRetailerIdAndCategory(springSecurityService.principal.retailerId, category).findAll{ it.category?.id == categoryId }*.id
+
+        /* Determine the new product ids associated with the category */
+        def addedProductIds = updatedCategoryProducts - currentCategoryProducts
+        def products = Product.findAllByRetailerIdAndIdInList(springSecurityService.principal.retailerId, addedProductIds)
+
+        try {
+            /* Update the selected products to this category */
+            for (Product product : products) {
+                product.setCategory(category)
+                productService.saveProduct(product)
+            }
+        } catch (Exception e) {
+            flash.error = "An error occured when attempting to save the updated products"
+            redirect(action: "index")
+            return
+        }
+
+        /* Get the updated products and sync them to the ranged POS */
+        products = Product.findAllByRetailerIdAndIdInList(springSecurityService.principal.retailerId, addedProductIds)
+
+        try {
+            for (Product product : products) {
+                def rangeProducts = RangeProduct.findAllByProductId(product.id)
+    
+                rangeProducts?.each { rangeProduct ->
+                    productService.sendProductUpdate([product], storeService.getStoresByRange(springSecurityService.principal.retailerId, rangeProduct.range))
+                }
+            }
+        } catch (Exception e) {
+            flash.error = "An error occured when attempting to sync the updated products"
+            redirect(action: "index")
+            return
+        }
+
+        flash.message = "Products added to category successfully"
+        redirect(action: "index")
     }
 
     private boolean isValidParentCategory(int childId, Category parentCategory) {
