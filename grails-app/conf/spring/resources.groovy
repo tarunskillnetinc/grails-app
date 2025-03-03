@@ -12,6 +12,8 @@ beans = {
     userDetailsService(WonderLaneUserDetailsService)
     retailerConfigService(RetailerConfigService)
 
+
+
     wonderLaneAuthenticationProvider(WonderLaneAuthenticationProvider) {
         storeNumberValidator = ref('storeNumberValidator')
         retailerProvider = ref('retailerProvider')
@@ -82,6 +84,7 @@ beans = {
 
         springSecurityService = ref('springSecurityService')
         sessionFactory = ref('sessionFactory')
+        snsService = ref('snsService')
     }
 
     shiftService(ShiftService,
@@ -323,6 +326,16 @@ beans = {
                             .build()
                     config = grailsApplication.config
                 }
+                snsClient(SnsClientFactoryBean) {
+                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
+                    credentialsProvider = StaticCredentialsProvider.create(
+                            AwsBasicCredentials.create(
+                                    grailsApplication.config.getProperty('sns.accessKey'),
+                                    grailsApplication.config.getProperty('sns.secretKey')
+                            )
+                    )
+                    endpoint = grailsApplication.config.getProperty('sns.endpoint')
+                }
             }
             hades {
                 imageService(AmazonImageService) {
@@ -331,6 +344,13 @@ beans = {
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')
+                }
+
+                snsClient(SnsClientFactoryBean) {
+                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
+                    credentialsProvider = StaticCredentialsProvider.create(
+                            AwsBasicCredentials.Builder.build()
+                    )
                 }
             }
             persephone {
@@ -341,6 +361,12 @@ beans = {
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')
                 }
+                snsClient(SnsClientFactoryBean) {
+                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
+                    credentialsProvider = StaticCredentialsProvider.create(
+                            AwsBasicCredentials.Builder.build()
+                    )
+                }
             }
             cerberus {
                 imageService(AmazonImageService) {
@@ -349,6 +375,12 @@ beans = {
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')
+                }
+                snsClient(SnsClientFactoryBean) {
+                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
+                    credentialsProvider = StaticCredentialsProvider.create(
+                            AwsBasicCredentials.Builder.build()
+                    )
                 }
             }
             preprod {
@@ -359,6 +391,12 @@ beans = {
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')
                 }
+                snsClient(SnsClientFactoryBean) {
+                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
+                    credentialsProvider = StaticCredentialsProvider.create(
+                            AwsBasicCredentials.Builder.build()
+                    )
+                }
             }
             production {
                 imageService(AmazonImageService) {
@@ -368,9 +406,23 @@ beans = {
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')
                 }
+                snsClient(SnsClientFactoryBean) {
+                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
+                    credentialsProvider = StaticCredentialsProvider.create(
+                            AwsBasicCredentials.Builder.build()
+                    )
+                }
             }
         }
     }
 
     multipartResolver(MaxFileUploadSizeResolver)
+
+    snsService(SnsService) { bean ->
+        bean.constructorArgs = [
+                ref('snsClient'),
+                grailsApplication.config.getProperty("sns.snsSupplierUpdateTopic"),
+                ref('gsonProvider')
+        ]
+    }
 }

@@ -119,6 +119,14 @@
                 <g:textField name="addressPostCode" value="${supplier?.addressPostCode}" class="form-control bottom-border" />
             </div>
         </div>
+
+        <div class="row form-group mb-4">
+            <label for="retailerSupplierId" class="col-3 offset-1 col-form-label text-right">Retailer Supplier ID</label>
+
+            <div class="input-group col-4">
+                <g:textField name="retailerSupplierId" id="retailerSupplierId" value="${supplier?.retailerSupplierId}" class="form-control bottom-border" />
+            </div>
+        </div>
     </g:form>
 </div>
 
