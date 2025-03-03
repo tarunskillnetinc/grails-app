@@ -16,6 +16,36 @@
 </div>
 "`
 <div class="modal-body">
+    <script>
+        $("#caserateeffectivedate").datepicker({
+            format: "dd/mm/yyyy",
+            weekStart: 1,
+            todayHighlight: true,
+            autoclose: true,
+            startDate: new Date(),
+            todayBtn: "linked",
+            orientation: "bottom auto"
+        }).on('changeDate', function (selected) {
+            let options = [{year: 'numeric'}, {month: '2-digit'}, {day: '2-digit'}];
+            let formatted = formatDate(selected.date, options, '-');
+
+            $("#caserateeffectivedate").val(formatted);
+        });
+
+        $(".mask-money").maskMoney({allowZero: true});
+        $(".mask-money").maskMoney('mask');
+        $(".denomination").focusout(function () {
+            if (!this.value || this.value < 0) {
+                this.value = 0;
+            }
+        })
+            .keypress(function (e) {
+                if (["e", "E", "+", "-"].includes(e.key)) {
+                    e.preventDefault();
+                }
+            });
+    </script>
+
     <g:if test="${!isUpdate}">
         <div class="text-center mt-4 mb-5">Please complete the following form to add a new supplier.</div>
     </g:if>
@@ -206,7 +236,7 @@
                            class="col-3 offset-1 col-form-label text-right">Effective Date</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="caserateeffectivedate" value="${supplier?.addressPostCode}"
+                        <g:textField name="caserateeffectivedate" value="" id="caserateeffectivedate"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -218,8 +248,11 @@
                            class="col-3 offset-1 col-form-label text-right">Case Rate</label>
 
                     <div class="input-group col-6">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">&pound;</span>
+                        </div>
                         <g:textField name="caserate" value="${supplier?.addressPostCode}"
-                                     class="form-control bottom-border"/>
+                                     class="form-control bottom-border mask-money"/>
                     </div>
                 </div>
             </div>
@@ -228,6 +261,7 @@
     </g:form>
 
     <g:if test="${isUpdate}">
+        <h3>Historical Case Rates</h3>
         <div>scrollable area goes here</div>
     </g:if>
 </div>

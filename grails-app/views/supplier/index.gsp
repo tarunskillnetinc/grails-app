@@ -4,6 +4,14 @@
     <meta name="layout" content="main"/>
 
     <title>Supplier Maintenance</title>
+    <asset:javascript src="jquery-ui.js"/>
+    <asset:stylesheet src="jquery-ui.css"/>
+
+    <asset:stylesheet src="bootstrap-datepicker3.min.css"/>
+    <asset:javascript src="bootstrap-datepicker.min.js"/>
+    <asset:javascript src="co-utils.js"/>
+    <asset:javascript src="validators/input-validator.js"/>
+    <asset:javascript src="money-mask.js"/>
 
     <style>
     @media (min-width: 992px) {
@@ -145,6 +153,15 @@
                     }
                 }
             });
+        }
+
+        function formatDate(date, options, separator) {
+            function format(option) {
+                let formatter = new Intl.DateTimeFormat('en', option);
+                return formatter.format(date);
+            }
+
+            return options.map(format).join(separator);
         }
     </script>
 </head>
