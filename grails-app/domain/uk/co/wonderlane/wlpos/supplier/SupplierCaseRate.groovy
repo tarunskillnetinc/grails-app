@@ -36,4 +36,10 @@ class SupplierCaseRate {
 
         return supplierCaseRate
     }
+
+    public static SupplierCaseRate[] getAllCaseRates(int retailerId, Supplier supplier) {
+        def caseRates = SupplierCaseRate.findAllByRetailerIdAndSupplier(retailerId, supplier, [offset: 0, max: 9999, sort: [caseRateEffectiveDate: 'desc']])
+
+        return caseRates
+    }
 }

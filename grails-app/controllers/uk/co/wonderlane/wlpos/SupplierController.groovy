@@ -7,6 +7,7 @@ import uk.co.wonderlane.wlpos.enums.SnappyMessageType
 import uk.co.wonderlane.wlpos.enums.SymbolGroupMessageType
 import uk.co.wonderlane.wlpos.enums.SymbolGroupSubscriptionStatus
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.supplier.SupplierCaseRate
 import uk.co.wonderlane.wlpos.supplier.SupplierSortParams
 import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
 
@@ -83,7 +84,10 @@ class SupplierController {
                 enableSave = true
             }
         }
-        render(template: "addSupplier", model: [supplier: supplier, enableSave: enableSave, isUpdate: supplier ? true : false])
+
+        SupplierCaseRate[] supplierCaseRates = SupplierCaseRate.getAllCaseRates(springSecurityService.principal.retailerId, supplier)
+
+        render(template: "addSupplier", model: [supplier: supplier, supplierCaseRates: supplierCaseRates, enableSave: enableSave, isUpdate: supplier ? true : false])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -111,7 +115,9 @@ class SupplierController {
             supplierService.saveSupplier(supplier)
             render "OK"
         } else {
-            render(template: "addSupplier", model: [supplier: supplier, enableSave: true, isUpdate: supplier ? true : false])
+            SupplierCaseRate[] supplierCaseRates = SupplierCaseRate.getAllCaseRates(springSecurityService.principal.retailerId, supplier)
+
+            render(template: "addSupplier", model: [supplier: supplier, supplierCaseRates: supplierCaseRates, enableSave: true, isUpdate: supplier ? true : false])
         }
     }
 

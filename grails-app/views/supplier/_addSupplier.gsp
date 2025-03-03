@@ -235,7 +235,9 @@
                            class="col-3 offset-1 col-form-label text-right">Effective Date</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="caserateeffectivedate" value="" id="caserateeffectivedate"
+                        <g:textField name="caserateeffectivedate"
+                                     value="${supplierCaseRates?.first()?.caseRateEffectiveDate?.format("yyyy-MM-dd")}"
+                                     id="caserateeffectivedate"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -250,7 +252,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text">&pound;</span>
                         </div>
-                        <g:textField name="caserate" value="${supplier?.addressPostCode}"
+                        <g:textField name="caserate" value="${supplierCaseRates?.first()?.caseRate}"
                                      class="form-control bottom-border mask-money"/>
                     </div>
                 </div>
@@ -279,10 +281,40 @@
 
                 <div id="collapseHistoricalCaseRates" class="collapse" aria-labelledby="historicalCaseRates"
                      data-parent="#accordion" style="">
-                    <div class="card-body py-5">
-                        <div class="col-12">
+                    <div class="col-12">
+                        <g:if test="${supplierCaseRates == null || supplierCaseRates.first() == null || supplierCaseRates.size() == 1}">
+                            No supplier case rates found.
+                        </g:if>
+                        <g:else>
+                            <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+                                <div class=" col-md-6 font-weight-bold">
+                                    Effective Date
+                                </div>
 
-                        </div>
+                                <div class="col-md-6 font-weight-bold">
+                                    Case Rate
+                                </div>
+                            </div>
+
+                            <g:each in="${supplierCaseRates}" var="supplierCaseRate" status="index">
+                                <g:if test="${index > 0}">
+                                    <div id="suppliercaserate-${index - 1}"
+                                         class="row ml-0 mr-0 pt-2 pb-2 wl-striped${index - 1}">
+                                        <div class="col-md-6">
+                                            ${supplierCaseRate?.caseRateEffectiveDate?.format("yyyy-MM-dd")}
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group row">
+                                                <div class="input-group col-6 text-right">
+                                                    &pound;${String.format("%.2f", supplierCaseRate?.caseRate)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </g:if>
+                            </g:each>
+                        </g:else>
                     </div>
                 </div>
             </div>
