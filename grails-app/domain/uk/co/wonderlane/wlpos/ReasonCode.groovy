@@ -39,6 +39,7 @@ class ReasonCode {
         code maxSize: 20, nullable: true, blank: true
         description maxSize: 100, nullable: false, blank: false
         retailerId nullable: true, blank: true
+        priority nullable: true;
     }
 
     uk.co.wonderlane.wlpos.entities.ReasonCode getReasonCode() {
