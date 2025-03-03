@@ -227,6 +227,7 @@
         <hr/>
 
         <h3>Case Rates</h3>
+        <g:set var="firstCaseRate" value="${supplierCaseRates?.size() > 0 ? supplierCaseRates.first() : null}"/>
 
         <div class="row">
             <div class="col-md-6">
@@ -236,7 +237,7 @@
 
                     <div class="input-group col-6">
                         <g:textField name="caserateeffectivedate"
-                                     value="${supplierCaseRates?.first()?.caseRateEffectiveDate?.format("yyyy-MM-dd")}"
+                                     value="${firstCaseRate?.caseRateEffectiveDate?.format("dd/MM/yyyy")}"
                                      id="caserateeffectivedate"
                                      class="form-control bottom-border"/>
                     </div>
@@ -252,7 +253,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text">&pound;</span>
                         </div>
-                        <g:textField name="caserate" value="${supplierCaseRates?.first()?.caseRate}"
+                        <g:textField name="caserate" value="${firstCaseRate?.caseRate}"
                                      class="form-control bottom-border mask-money"/>
                     </div>
                 </div>
@@ -282,8 +283,8 @@
                 <div id="collapseHistoricalCaseRates" class="collapse" aria-labelledby="historicalCaseRates"
                      data-parent="#accordion" style="">
                     <div class="col-12">
-                        <g:if test="${supplierCaseRates == null || supplierCaseRates.first() == null || supplierCaseRates.size() == 1}">
-                            No supplier case rates found.
+                        <g:if test="${supplierCaseRates == null || supplierCaseRates?.size() == 0 || supplierCaseRates?.first() == null || supplierCaseRates?.size() == 1}">
+                            <div class="m-5">No supplier case rates found.</div>
                         </g:if>
                         <g:else>
                             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
@@ -301,7 +302,7 @@
                                     <div id="suppliercaserate-${index - 1}"
                                          class="row ml-0 mr-0 pt-2 pb-2 wl-striped${index - 1}">
                                         <div class="col-md-6">
-                                            ${supplierCaseRate?.caseRateEffectiveDate?.format("yyyy-MM-dd")}
+                                            ${supplierCaseRate?.caseRateEffectiveDate?.format("dd/MM/yyyy")}
                                         </div>
 
                                         <div class="col-md-6">
