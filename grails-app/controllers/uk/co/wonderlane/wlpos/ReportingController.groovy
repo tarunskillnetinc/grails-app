@@ -12,6 +12,7 @@ import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.*
+import uk.co.wonderlane.wlpos.supplier.Supplier
 
 import java.math.RoundingMode
 
@@ -1073,10 +1074,28 @@ class ReportingController {
         } else {
             def dels = sortParams.offset < totalDeliveries.size() ? totalDeliveries.subList(sortParams.offset, (sortParams.offset + sortParams.max < totalDeliveries.size() ? sortParams.offset + sortParams.max : totalDeliveries.size())) : []
 
+            def suppliers
+            // If supplier Id is passed no need to get all suppliers, just the one supplier with the id
+            if (supplierId) {
+                suppliers = supplierService.getSupplier(supplierId)
+            } else {
+                 suppliers = supplierService.getSuppliers()
+            }
+
+            // Loop over deliveries and attach the supplierName to each of the deliveries
+            dels.each {del ->
+                if (del.supplierId) {
+                    del.metaClass.supplierName = suppliers.find { it.id == del?.supplierId.toInteger() || it.reference == del?.supplierReference}.name
+                } else {
+                    del.metaClass.supplierName = ""
+                }
+            }
+
             render(template: "deliveriesResults", model: [deliveries : dels,
                                                           userColumns : reportingService.getReportColumns(ReportType.DELIVERIES),
                                                           storeId : storeId,
                                                           supplierId : supplierId,
+                                                          suppliers : suppliers,
                                                           startDate : startDate,
                                                           endDate : endDate,
                                                           sortParams : sortParams,
