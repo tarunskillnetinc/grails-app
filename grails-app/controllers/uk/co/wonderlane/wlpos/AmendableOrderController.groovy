@@ -1,6 +1,9 @@
 package uk.co.wonderlane.wlpos
 
+import grails.validation.Validateable
 import org.apache.logging.log4j.core.util.Integers
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
 class AmendableOrderController extends BaseController {
@@ -105,14 +108,16 @@ class AmendableOrderController extends BaseController {
     def save(SaveAmendedLinesCommand saveCommand) {
         bindData(saveCommand, params)
 
-        saveCommand.amendedLines.forEach {
-            if (it.amendedOrderQuantity) {
-                amendableOrderService.saveAmendedQuantity(it)
+        if (saveCommand.validate()) {
+            saveCommand.amendedLines.forEach {
+                if (it.amendedOrderQuantity) {
+                    amendableOrderService.saveAmendedQuantity(it)
+                }
             }
-        }
 
-        flash.message = "Order amended successfully"
-        redirect("controller": "amendableOrder", action:"index")
+            flash.message = "Order amended successfully"
+            redirect("controller": "amendableOrder", action: "index")
+        }
     }
 
     class GroupedLine {
@@ -126,7 +131,7 @@ class AmendableOrderController extends BaseController {
     }
 }
 
-class SaveAmendedLinesCommand {
+class SaveAmendedLinesCommand implements Validateable  {
     List<AmendableOrderService.AmendedLine> amendedLines = [].withLazyDefault { new AmendableOrderService.AmendedLine(null)}
 }
 
