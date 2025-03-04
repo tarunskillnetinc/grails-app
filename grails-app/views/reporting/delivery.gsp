@@ -145,7 +145,7 @@
 
             <div class="col-lg-3 offset-lg-2 col-md-3 text-right" style="margin-top: 8px;">
                 <g:if test="${showAcceptDeliveryButton}">
-                    <button id="acceptDelivery" class="btn btn-warning" onclick="acceptDeliveryButtonPressed();">Accept Delivery</button>
+                    <button id="acceptDelivery" class="btn btn-warning" onclick="acceptDeliveryButtonPressed();">Receipt Delivery</button>
                 </g:if>
 
                 <button class="btn btn-wl" onclick="exportToCsv();">Export to CSV</button>
@@ -215,10 +215,10 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h2 id="confirmModalHeader">Accept Delivery</h2>
+                        <h2 id="confirmModalHeader">Receipt Delivery</h2>
                     </div>
 
-                    <div class="modal-body" id="confirmModalContent">Are you sure you wish to accept this delivery?</div>
+                    <div class="modal-body" id="confirmModalContent">Are you sure you wish to receipt this delivery?</div>
 
                     <div class="modal-footer">
                         <button type="button" id="confirmModalNoButton" class="btn btn-wl" data-dismiss="modal">No</button>
@@ -238,7 +238,7 @@
                         <h2>Success</h2>
                     </div>
 
-                    <div class="modal-body">Delivery accepted.</div>
+                    <div class="modal-body">Delivery receipted.</div>
 
                     <div class="modal-footer">
                         <button type="button" id="closeSuccessModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
