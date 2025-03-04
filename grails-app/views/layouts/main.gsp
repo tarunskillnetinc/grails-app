@@ -288,9 +288,12 @@
                             </sec:ifAnyGranted>
 
                             <sec:ifAnyGranted roles='ROLE_ENGINEER'>
-
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                     <g:link elementId="financial-week-dropdown" controller="financialWeek" class="dropdown-item">Financial Weeks</g:link>
+
+                                    <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.charityEnabled').toBoolean()}">
+                                        <g:link elementId="charity-organisations-dropdown" class="dropdown-item disabled">Charity Organisations</g:link>
+                                    </g:if>
                                 </g:if>
                             </sec:ifAnyGranted>
 

@@ -180,6 +180,8 @@ class RetailerController {
             bindData(functionConfig, retailerCommand.retailerFunctionConfig)
             bindData(retailerConfig, retailerCommand)
             bindData(loyaltyRetailerConfig, retailerCommand.loyaltyConfig)
+            
+            retailerConfig.charityEnabled = retailerCommand.charityEnabled
 
             // Set those objects to the retailer config object
             terminologyConfig.locationsTableConfig = locationsTableConfig
@@ -243,6 +245,7 @@ class RetailerCommand implements Validateable {
     Integer cfdMaxProfiles
     Integer cfdProfileImageCount
     Integer alcoholMinimumPriceMultiplier
+    boolean charityEnabled
 
     MultipartFile brandLogo
 
