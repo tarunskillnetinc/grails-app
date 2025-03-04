@@ -55,7 +55,7 @@
                     <div id="supplier-result-${i+1}-email"><b>Email:</b> ${supplier.email}</div>
                 </g:if>
                 <g:if test="${supplier.phoneNumber && supplier.phoneNumber.trim()}">
-                    <div id="supplier-result-${i+1}-telephone"><b>Telephone:</b> ${supplier.phoneNumber}</div>
+                    <div id="supplier-result-${i+1}-telephone"><b>Tel:</b> ${supplier.phoneNumber}</div>
                 </g:if>
             </div>
             <div id="supplier-result-${i+1}-deleted" class="col-1 my-auto" style='word-break: break-all; word-wrap: break-word;'>
