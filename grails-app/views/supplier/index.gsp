@@ -163,19 +163,19 @@
 
             if ($('#suppliername').val() === "") {
                 error = true;
-                errorString = errorString.concat("\n<li>The Supplier Name must be set.</li>");
+                errorString = errorString.concat("\n<li>The Supplier Name cannot be blank.</li>");
             }
 
             if ($('#supplierreference').val() === "") {
                 error = true;
-                errorString = errorString.concat("\n<li>The Supplier Reference must be set.</li>");
+                errorString = errorString.concat("\n<li>The Supplier Reference cannot be blank.</li>");
             }
 
             let email = $('#email').val();
 
             if (!validateEmail(email)) {
                 error = true;
-                errorString = errorString.concat("\n<li>Please enter a valid email address</li>");
+                errorString = errorString.concat("\n<li>The email address must be valid.</li>");
             }
 
             if ($('#phoneNumber').val() !== "") {
@@ -183,7 +183,7 @@
 
                 if (!validatePhoneNumber(telephone)) {
                     error = true;
-                    errorString = errorString.concat("\n<li>Please enter a valid telephone number</li>");
+                    errorString = errorString.concat("\n<li>The telephone number must be valid.</li>");
                 }
             }
 
