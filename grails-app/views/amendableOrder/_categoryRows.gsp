@@ -45,7 +45,10 @@
         </g:if>
         <div id="amend-result-${i+1}-amendedOrder" class="col-1">
             <g:each in="${skuGrouping.value}" var="amendedLine" >
-                <g:textField id="amendedLines[${counter}].lines[amendedOrderQuantity" name="amendedLines[${counter}].amendedOrderQuantity" maxlength="100" value="${amendedLine.amendedOrderQuantity}" class="form-control" onfocusout="enforceDecimalLimit(this, 3);" style="margin-bottom:5px"/>
+                <g:textField id="amendedLines[${counter}].lines[amendedOrderQuantity" name="amendedLines[${counter}].amendedOrderQuantity" maxlength="100" value="${amendedLine.amendedOrderQuantity}" class="form-control"
+                             onfocusout="enforceDecimalLimit(this, 3);" style="margin-bottom:5px"
+                             onkeydown="acceptFloat(event)"
+                             onkeyup="validateFloatQuantity(this, 0, 999.99, 3)"/>
                 <g:hiddenField name="amendedLines[${counter}].originalOrderQuantity" value="${amendedLine.originalOrderQuantity}" />
                 <g:hiddenField name="amendedLines[${counter}].productListItemId" value="${amendedLine.productListItemId}" />
                 <g:set var="counter" value="${counter + 1}" />

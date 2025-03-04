@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
 import grails.orm.HibernateCriteriaBuilder
+import grails.validation.Validateable
 import org.hibernate.Criteria
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
@@ -14,6 +15,7 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlPoolDal
 import uk.co.wonderlane.wlpos.entities.StoreConfig
+import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
@@ -244,7 +246,7 @@ class AmendableOrderService extends MySqlPoolDal {
         Integer storeId
     }
 
-    class AmendedLine {
+    class AmendedLine implements Validateable {
         Integer productListItemId
         String sku
         String productDescription
@@ -259,6 +261,10 @@ class AmendableOrderService extends MySqlPoolDal {
         void convertQuantitiesToPackNumbers() {
             demand = demand?.divide(packQuantity, 3 , RoundingMode.HALF_UP)
             available = available?.divide(packQuantity, 3, RoundingMode.HALF_UP)
+        }
+
+        static constraints = {
+            amendedOrderQuantity nullable: false, min: 0.001, max:9999.999, scale: 3
         }
     }
 }

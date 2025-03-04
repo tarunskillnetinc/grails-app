@@ -12,6 +12,7 @@
     <asset:javascript src="bootstrap-datepicker.min.js" />
     <asset:javascript src="moment-with-locales.min.js"/>
     <asset:javascript src="numberHelper.js" />
+    <asset:javascript src="validators/input-validator.js" />
 
     <script type="application/javascript">
         $(document).ready(function() {
