@@ -122,6 +122,7 @@
                             <g:hiddenField name="endDate" value="${endDate?.toString("dd/MM/yyyy")}" />
                             <g:hiddenField name="supplierId" value="${supplierId}" />
                             <g:hiddenField name="storeId" value="${storeId}" />
+                            <g:hiddenField name="caged" value="${caged}" />
 
                             <div class="form-group row">
                                 <label for="descriptionFilter" class="col-2 col-form-label-sm text-right">Description</label>
@@ -205,7 +206,6 @@
         </div>
 
         <div id="results-container" class="align-content-center">
-            <g:render template="deliveryResults" />
         </div>
     </section>
 

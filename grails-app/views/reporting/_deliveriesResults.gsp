@@ -1,3 +1,8 @@
+<script>
+    $(document).ready(function () {
+        $('label[for="descriptionFilter"]').text("Description")
+    })
+</script>
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "deliveryId" }?.enabled}">
         <div class="col-1 font-weight-bold"><a id="delivery-id" href="#" onclick="getReportData({
@@ -104,7 +109,13 @@
 
     <g:each in="${deliveries}" var="delivery" status="i">
         <div id="delivery-search-results-${i + 1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" style="cursor: pointer;" title="Click to view"
-                onclick="document.location.href = '${createLink(action:'delivery', params: [productListId: delivery.id, storeId: storeId, supplierId: supplierId, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy")])}';">
+            <g:if test="${delivery?.productListItemGroups?.size() <= 0}">
+                onclick="document.location.href = '${createLink(action:'delivery', params: [productListId: delivery.id, storeId: storeId, supplierId: supplierId, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy"), caged: false])}';"
+            </g:if>
+            <g:else>
+                 onclick="document.location.href = '${createLink(action:'delivery', params: [productListId: delivery.id, storeId: storeId, supplierId: supplierId, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy"), caged: true])}';"
+            </g:else>
+        >
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "deliveryId" }?.enabled}">
                 <div id="delivery-id-${i + 1}" class="col-1 my-auto">${delivery?.orderId}</div>
             </g:if>
