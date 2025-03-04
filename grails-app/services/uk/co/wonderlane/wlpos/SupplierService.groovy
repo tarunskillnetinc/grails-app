@@ -12,6 +12,7 @@ import uk.co.wonderlane.wlpos.supplier.*
 
 import java.sql.CallableStatement
 import java.sql.Connection
+import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Types
 
@@ -48,6 +49,27 @@ class SupplierService extends MySqlDal {
 
     def deleteSupplier(Supplier supplier) {
         supplier.delete()
+    }
+
+    void saveSupplierCaseRate(SupplierCaseRate supplierCaseRate) {
+        // This isnt a standard save as we need to delete any future suppliercaserates.
+        try (Connection conn = getConnection(); CallableStatement cstmt = conn.prepareCall("{ call upsertCaseRate(?, ?, ?, ?) }")) {
+            try {
+                cstmt.setInt(1, springSecurityService.principal.retailerId)
+                cstmt.setInt(2, supplierCaseRate.supplier.id)
+                cstmt.setBigDecimal(3, supplierCaseRate.caseRate)
+                cstmt.setDate(4, supplierCaseRate.caseRateEffectiveDate as Date)
+
+                cstmt.executeUpdate()
+            }
+            catch (Exception ex) {
+                ex.printStackTrace()
+            }
+            finally {
+                cstmt.close()
+                conn.close()
+            }
+        }
     }
 
     def getSymbolGroupSubscriptions() {
