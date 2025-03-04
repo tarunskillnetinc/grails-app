@@ -270,9 +270,10 @@
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
                             <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
                                 <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                    <g:link elementId="product-groups-dropdown" controller="productGroup"
-                                            class="dropdown-item">Product Groups</g:link>
+                                    <g:link elementId="product-groups-dropdown" controller="productGroup" class="dropdown-item">Product Groups</g:link>
                                 </g:if>
+
+                                <g:link elementId="delivery-dropdown" controller="delivery" class="dropdown-item">Deliveries</g:link>
                             </sec:ifAnyGranted>
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>
