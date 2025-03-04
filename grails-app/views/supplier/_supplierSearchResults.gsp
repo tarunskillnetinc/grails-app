@@ -48,9 +48,15 @@
             <div id="supplier-result-${i+1}-name" class="col-2 my-auto" style='word-break: break-all; word-wrap: break-word;'>${supplier.name}</div>
             <div id="supplier-result-${i+1}-customer-reference" class="col-2 my-auto" style='word-break: break-all; word-wrap: break-word;'>${supplier.customerReference}</div>
             <div id="supplier-result-${i+1}-contact-details" class="col-3 my-auto" style='word-break: break-all; word-wrap: break-word;'>
-                <div id="supplier-result-${i+1}-contact-name"><b>Name:</b>${supplier.contactName}</div>
-                <div id="supplier-result-${i+1}-email"><b>Email:</b>${supplier.email}</div>
-                <div id="supplier-result-${i+1}-telephone"><b>Telephone:</b>${supplier.phoneNumber}</div>
+                <g:if test="${supplier.contactName && supplier.contactName.trim()}">
+                    <div id="supplier-result-${i+1}-contact-name"><b>Name:</b> ${supplier.contactName}</div>
+                </g:if>
+                <g:if test="${supplier.email && supplier.email.trim()}">
+                    <div id="supplier-result-${i+1}-email"><b>Email:</b> ${supplier.email}</div>
+                </g:if>
+                <g:if test="${supplier.phoneNumber && supplier.phoneNumber.trim()}">
+                    <div id="supplier-result-${i+1}-telephone"><b>Tel:</b> ${supplier.phoneNumber}</div>
+                </g:if>
             </div>
             <div id="supplier-result-${i+1}-deleted" class="col-1 my-auto" style='word-break: break-all; word-wrap: break-word;'>
                 <g:if test="${supplier.deleted == true}">
