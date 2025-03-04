@@ -62,6 +62,10 @@
 
             if(sortParams != null){globalSortParams = sortParams}
             $.extend(params, globalSortParams);
+            if (globalSortParams != null && 'offset' in globalSortParams) {
+                globalSortParams.offset = 0;
+            }
+
             $.ajax({
                 url: getSuppliersUrl,
                 data: params,
@@ -105,7 +109,7 @@
             });
         }
 
-        function toggleSupplierDeleted(supplierId, currentlyDeleted) {
+        function toggleSupplierDeleted(supplierId, currentlyDeleted, sortParams) {
             let confirmationMessage = ""
 
             if (currentlyDeleted) {
@@ -123,10 +127,7 @@
                     success: function (resp) {
                         if (resp === "OK") {
                             $('#addSupplierModal').modal('hide')
-                            if (!currentlyDeleted) {
-                                offset = 0
-                            }
-                            searchSupplier();
+                            searchSupplier(sortParams);
                         } else {
                             $('#addSupplierModal').modal({show: true});
                             $("#addSupplierContent").html(resp);
@@ -257,7 +258,7 @@
     </div>
 
     <div class="row mt-4">
-        <div class="col-12">
+        <div class="col-7">
             <div class="card bg-light border-wl">
                 <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                     <div class="row">
@@ -277,13 +278,13 @@
                         <div class="col-4 input-group">
                             <g:textField id="supplierNameTerm" name="supplierNameTerm" maxlength="100" value="${session.SUPPLIER_NAME_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
                         </div>
-                        <label for="supplierReferenceTerm" class="col-2 col-form-label-sm text-right">Supplier Reference</label>
+                        <label for="supplierReferenceTerm" class="col-2 col-form-label-sm text-right">Supplier Ref.</label>
                         <div class="col-4 input-group">
                             <g:textField id="supplierReferenceTerm" name="supplierReferenceTerm" maxlength="100" value="${session.SUPPLIER_REFERENCE_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="customerReferenceTerm" class="col-2 col-form-label-sm text-right">Customer Reference</label>
+                        <label for="customerReferenceTerm" class="col-2 col-form-label-sm text-right">Customer Ref.</label>
                         <div class="col-4 input-group">
                             <g:textField id="customerReferenceTerm" name="customerReferenceTerm" maxlength="100" value="${session.SUPPLIER_CUSTOMER_REFERENCE_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
                         </div>

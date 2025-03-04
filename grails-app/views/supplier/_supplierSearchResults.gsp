@@ -48,9 +48,15 @@
             <div id="supplier-result-${i+1}-name" class="col-2 my-auto" style='word-break: break-all; word-wrap: break-word;'>${supplier.name}</div>
             <div id="supplier-result-${i+1}-customer-reference" class="col-2 my-auto" style='word-break: break-all; word-wrap: break-word;'>${supplier.customerReference}</div>
             <div id="supplier-result-${i+1}-contact-details" class="col-3 my-auto" style='word-break: break-all; word-wrap: break-word;'>
-                <div id="supplier-result-${i+1}-contact-name"><b>Name:</b>${supplier.contactName}</div>
-                <div id="supplier-result-${i+1}-email"><b>Email:</b>${supplier.email}</div>
-                <div id="supplier-result-${i+1}-telephone"><b>Telephone:</b>${supplier.phoneNumber}</div>
+                <g:if test="${supplier.contactName && supplier.contactName.trim()}">
+                    <div id="supplier-result-${i+1}-contact-name"><b>Name:</b> ${supplier.contactName}</div>
+                </g:if>
+                <g:if test="${supplier.email && supplier.email.trim()}">
+                    <div id="supplier-result-${i+1}-email"><b>Email:</b> ${supplier.email}</div>
+                </g:if>
+                <g:if test="${supplier.phoneNumber && supplier.phoneNumber.trim()}">
+                    <div id="supplier-result-${i+1}-telephone"><b>Tel:</b> ${supplier.phoneNumber}</div>
+                </g:if>
             </div>
             <div id="supplier-result-${i+1}-deleted" class="col-1 my-auto" style='word-break: break-all; word-wrap: break-word;'>
                 <g:if test="${supplier.deleted == true}">
@@ -64,13 +70,13 @@
                 <div class="button-container d-flex justify-content-end align-items-center">
                     <g:if test="${supplier.deleted == true}">
                         <button id="toggle-supplier-deleted-button-${i+1}" class="btn btn-wl p-1 me-1" style="min-width: 80px; font-size: 0.9rem;"
-                                onclick="event.stopPropagation(); toggleSupplierDeleted(${supplier.id}, ${supplier.deleted})">
+                                onclick="event.stopPropagation(); toggleSupplierDeleted(${supplier.id}, ${supplier.deleted}, {offset: ${offset ?: 0}, sortColumn: '${sortParams?.sortColumn}'})">
                             Reinstate
                         </button>
                     </g:if>
                     <g:else>
                         <button id="toggle-supplier-deleted-button-${i+1}" class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem;"
-                                onclick="event.stopPropagation(); toggleSupplierDeleted(${supplier.id}, ${supplier.deleted})">
+                                onclick="event.stopPropagation(); toggleSupplierDeleted(${supplier.id}, ${supplier.deleted},{offset: 0, sortColumn: '${sortParams?.sortColumn}'})">
                             Delete
                         </button>
                     </g:else>
