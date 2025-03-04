@@ -11,6 +11,8 @@ import uk.co.wonderlane.wlpos.supplier.SupplierCaseRate
 import uk.co.wonderlane.wlpos.supplier.SupplierSortParams
 import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
 
+import java.text.SimpleDateFormat
+
 class SupplierController {
 
     def springSecurityService
@@ -110,9 +112,29 @@ class SupplierController {
             supplier.retailerId = springSecurityService.principal.retailerId
             supplier.storeId = springSecurityService.principal.storeId
         }
+
+        def newSupplierCaseRate
+        if (!params.caserateeffectivedate?.empty || !params.caserate?.empty) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+            newSupplierCaseRate = new SupplierCaseRate()
+            newSupplierCaseRate.supplier = supplier
+            try {
+                newSupplierCaseRate.caseRateEffectiveDate = dateFormat.parse(params.caserateeffectivedate)
+            }
+            finally {
+                newSupplierCaseRate.errors.reject("supplier.suppliercaserate.date.invalid")
+            }
+            newSupplierCaseRate.caseRate = params.caserate
+        }
+
         bindData(supplier, params)
-        if (supplier.validate()) {
+        if (supplier.validate() && (newSupplierCaseRate == null || newSupplierCaseRate.validate())) {
             supplierService.saveSupplier(supplier)
+
+            if (newSupplierCaseRate != null) {
+                supplierService.saveSupplierCaseRate(newSupplierCaseRate)
+            }
             render "OK"
         } else {
             SupplierCaseRate[] supplierCaseRates = SupplierCaseRate.getAllCaseRates(springSecurityService.principal.retailerId, supplier)
