@@ -136,8 +136,73 @@
             }
         }
 
+        function validatePhoneNumber(number) {
+            const regex = /^(\d{12})$/;
+
+            if (regex.test(number)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function validateEmail(email) {
+            const regex = /^(?!.*\.\.)(?!.*\.$)(?!^\.)[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/;
+
+            if (regex.test(email)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function validateUpdates() {
+            let error = false;
+            let errorString = "";
+
+            if ($('#suppliername').val() === "") {
+                error = true;
+                errorString = errorString.concat("\n<li>The Supplier Name must be set.</li>");
+            }
+
+            if ($('#supplierreference').val() === "") {
+                error = true;
+                errorString = errorString.concat("\n<li>The Supplier Reference must be set.</li>");
+            }
+
+            let email = $('#email').val();
+
+            if (!validateEmail(email)) {
+                error = true;
+                errorString = errorString.concat("\n<li>Please enter a valid email address</li>");
+            }
+
+            if ($('#phoneNumber').val() !== "") {
+                let telephone = $('#phoneNumber').val();
+
+                if (!validatePhoneNumber(telephone)) {
+                    error = true;
+                    errorString = errorString.concat("\n<li>Please enter a valid telephone number</li>");
+                }
+            }
+
+            if (!error) {
+                $('#validation-errors').html("");
+                $('#js-errors-container').prop("hidden", true);
+            } else {
+                $('#validation-errors').html("<ul>" + errorString + "\n</ul>");
+                $('#js-errors-container').prop("hidden", false);
+            }
+
+            return !error;
+        }
+
         //Save newly added supplier
         function saveSupplier() {
+            if (!validateUpdates()) {
+                return;
+            }
+
             var formValues = $("#addSupplierForm").serialize();
             $("#addSupplierContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>");
             $.ajax({

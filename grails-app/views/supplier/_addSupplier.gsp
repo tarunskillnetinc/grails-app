@@ -53,6 +53,12 @@
         </section>
     </g:hasErrors>
 
+    <div id="js-errors-container" class="container-fluid" hidden>
+        <div class="alert alert-danger alert-wl mx-0" role="alert">
+            <div id="validation-errors"></div>
+        </div>
+    </div>
+
     <g:form name="addSupplierForm">
         <g:hiddenField name="id" value="${supplier?.id}" />
 
@@ -62,7 +68,8 @@
                     <label for="name" class="col-3 offset-1 col-form-label text-right">Supplier Name</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="name" value="${supplier?.name}" class="form-control bottom-border"
+                        <g:textField id="suppliername" name="name" value="${supplier?.name}"
+                                     class="form-control bottom-border"
                                      maxlen="60"/>
                     </div>
                 </div>
@@ -88,7 +95,7 @@
                     <label for="reference" class="col-3 offset-1 col-form-label text-right">Supplier Reference</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="reference" value="${supplier?.reference}" maxlen="20"
+                        <g:textField id="supplierreference" name="reference" value="${supplier?.reference}" maxlen="20"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -136,7 +143,7 @@
                     <label for="phoneNumber" class="col-3 offset-1 col-form-label text-right">Contact Telephone</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="phoneNumber" value="${supplier?.phoneNumber}" maxlen="12"
+                        <g:textField name="phoneNumber" id="phoneNumber" value="${supplier?.phoneNumber}" maxlen="12"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -160,7 +167,7 @@
                     <label for="email" class="col-3 offset-1 col-form-label text-right">Contact Email</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="email" type="email" value="${supplier?.email}"
+                        <g:textField id="email" name="email" type="email" value="${supplier?.email}"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
