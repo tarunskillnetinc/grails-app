@@ -1156,7 +1156,8 @@ class ReportingController {
             handleCagedDelivery(descriptionFilter, delivery, sortParams, startDate, endDate, storeId, supplierId, productListId)
         }
     }
-    private void handleCagedDelivery(String cageBarcodeFilter, ProductList delivery, SortParams sortParams, DateTime startDate, DateTime endDate, int storeId, int supplierId, int productListId) {
+
+    private void handleCagedDelivery(String cageBarcodeFilter = null, ProductList delivery, SortParams sortParams, DateTime startDate, DateTime endDate, int storeId, int supplierId, int productListId) {
         def cages = []
 
         if (cageBarcodeFilter) {
@@ -1176,7 +1177,7 @@ class ReportingController {
                     cages = cages.sort { it.effectiveDate}
                     break
                 case "cases":
-                    cages = cages.sort { it.quantity } // TODO fix this
+                    cages = cages.sort { it.totalCases }
                     break
             }
 
