@@ -51,14 +51,14 @@ class SupplierService extends MySqlDal {
         supplier.delete()
     }
 
-    void saveSupplierCaseRate(SupplierCaseRate supplierCaseRate) {
+    def saveSupplierCaseRate(SupplierCaseRate supplierCaseRate) {
         // This isnt a standard save as we need to delete any future suppliercaserates.
         try (Connection conn = getConnection(); CallableStatement cstmt = conn.prepareCall("{ call upsertCaseRate(?, ?, ?, ?) }")) {
             try {
                 cstmt.setInt(1, springSecurityService.principal.retailerId)
                 cstmt.setInt(2, supplierCaseRate.supplier.id)
                 cstmt.setBigDecimal(3, supplierCaseRate.caseRate)
-                cstmt.setDate(4, supplierCaseRate.caseRateEffectiveDate as Date)
+                cstmt.setDate(4, new java.sql.Date(supplierCaseRate.caseRateEffectiveDate.getTime()))
 
                 cstmt.executeUpdate()
             }

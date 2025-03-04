@@ -122,17 +122,23 @@ class SupplierController {
             try {
                 newSupplierCaseRate.caseRateEffectiveDate = dateFormat.parse(params.caserateeffectivedate)
             }
-            finally {
+            catch (Exception ignored) {
                 newSupplierCaseRate.errors.reject("supplier.suppliercaserate.date.invalid")
             }
-            newSupplierCaseRate.caseRate = params.caserate
+            try {
+                newSupplierCaseRate.caseRate = new BigDecimal(params.caserate)
+            }
+            catch (Exception ignored) {
+                newSupplierCaseRate.errors.reject("supplier.suppliercaserate.caserate.invalid")
+            }
         }
 
         bindData(supplier, params)
         if (supplier.validate() && (newSupplierCaseRate == null || newSupplierCaseRate.validate())) {
-            supplierService.saveSupplier(supplier)
+            supplier = supplierService.saveSupplier(supplier)
 
             if (newSupplierCaseRate != null) {
+                newSupplierCaseRate.supplier = supplier
                 supplierService.saveSupplierCaseRate(newSupplierCaseRate)
             }
             render "OK"
