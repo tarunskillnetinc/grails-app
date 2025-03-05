@@ -7,8 +7,11 @@ import uk.co.wonderlane.wlpos.enums.SnappyMessageType
 import uk.co.wonderlane.wlpos.enums.SymbolGroupMessageType
 import uk.co.wonderlane.wlpos.enums.SymbolGroupSubscriptionStatus
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.supplier.SupplierCaseRate
 import uk.co.wonderlane.wlpos.supplier.SupplierSortParams
 import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
+
+import java.text.SimpleDateFormat
 
 class SupplierController {
 
@@ -68,7 +71,7 @@ class SupplierController {
     //This will load save supplier view and initially pass enable save
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddSupplier() {
-        render(template: "addSupplier", model: [enableSave : true])
+        render(template: "addSupplier", model: [enableSave: true, isUpdate: false])
     }
 
     //This will load edit supplier with supplier details
@@ -83,7 +86,10 @@ class SupplierController {
                 enableSave = true
             }
         }
-        render(template: "addSupplier", model: [supplier: supplier, enableSave : enableSave])
+
+        SupplierCaseRate[] supplierCaseRates = SupplierCaseRate.getAllCaseRates(springSecurityService.principal.retailerId, supplier)
+
+        render(template: "addSupplier", model: [supplier: supplier, supplierCaseRates: supplierCaseRates, enableSave: enableSave, isUpdate: supplier ? true : false])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -106,12 +112,43 @@ class SupplierController {
             supplier.retailerId = springSecurityService.principal.retailerId
             supplier.storeId = springSecurityService.principal.storeId
         }
+
+        def newSupplierCaseRate
+
+        if (!(params.caserateeffectivedate?.empty && (params.caserate == null || params.caserate?.empty || params.caserate == "0.00"))) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+            newSupplierCaseRate = new SupplierCaseRate()
+            newSupplierCaseRate.supplier = supplier
+            try {
+                newSupplierCaseRate.caseRateEffectiveDate = dateFormat.parse(params.caserateeffectivedate)
+            }
+            catch (Exception ignored) {
+                newSupplierCaseRate.errors.reject("supplier.suppliercaserate.date.invalid")
+            }
+            try {
+                newSupplierCaseRate.caseRate = new BigDecimal(params.caserate)
+
+                if (newSupplierCaseRate.caseRate == BigDecimal.ZERO) {
+                    newSupplierCaseRate.errors.reject("supplier.suppliercaserate.caserate.must.be.not.zero")
+                }
+            }
+            catch (Exception ignored) {
+                newSupplierCaseRate.errors.reject("supplier.suppliercaserate.caserate.invalid")
+            }
+        }
+
         bindData(supplier, params)
-        if (supplier.validate()) {
-            supplierService.saveSupplier(supplier)
+        if (supplier.validate() && (newSupplierCaseRate == null || !newSupplierCaseRate.hasErrors())) {
+            supplier = supplierService.saveSupplier(supplier)
+
+            if (newSupplierCaseRate != null) {
+                newSupplierCaseRate.supplier = supplier
+                supplierService.saveSupplierCaseRate(newSupplierCaseRate)
+            }
             render "OK"
         } else {
-            render(template: "addSupplier", model: [supplier: supplier, enableSave : true])
+            render(template: "addSupplier", model: [supplier: supplier, supplierCaseRate: newSupplierCaseRate, enableSave: true, isUpdate: supplier ? true : false])
         }
     }
 

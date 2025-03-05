@@ -4,6 +4,34 @@
     <meta name="layout" content="main"/>
 
     <title>Supplier Maintenance</title>
+    <asset:javascript src="jquery-ui.js"/>
+    <asset:stylesheet src="jquery-ui.css"/>
+
+    <asset:stylesheet src="bootstrap-datepicker3.min.css"/>
+    <asset:javascript src="bootstrap-datepicker.min.js"/>
+    <asset:javascript src="co-utils.js"/>
+    <asset:javascript src="validators/input-validator.js"/>
+    <asset:javascript src="money-mask.js"/>
+
+    <style>
+    @media (min-width: 992px) {
+        .modal-xxl {
+            max-width: 800px;
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .modal-xxl {
+            max-width: 1140px;
+        }
+    }
+
+    @media (min-width: 1400px) {
+        .modal-xxl {
+            max-width: 1340px;
+        }
+    }
+    </style>
 
     <script type='text/javascript'>
         var globalSortParams = null;
@@ -109,8 +137,73 @@
             }
         }
 
+        function validatePhoneNumber(number) {
+            const regex = /^(\d{4,12})$/;
+
+            if (regex.test(number)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function validateEmail(email) {
+            const regex = /^(?!.*\.\.)(?!.*\.$)(?!^\.)[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/;
+
+            if (regex.test(email)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function validateUpdates() {
+            let error = false;
+            let errorString = "";
+
+            if ($('#suppliername').val() === "") {
+                error = true;
+                errorString = errorString.concat("\n<li>The Supplier Name cannot be blank.</li>");
+            }
+
+            if ($('#supplierreference').val() === "") {
+                error = true;
+                errorString = errorString.concat("\n<li>The Supplier Reference cannot be blank.</li>");
+            }
+
+            let email = $('#email').val();
+
+            if (!validateEmail(email)) {
+                error = true;
+                errorString = errorString.concat("\n<li>The email address must be valid.</li>");
+            }
+
+            if ($('#phoneNumber').val() !== "") {
+                let telephone = $('#phoneNumber').val();
+
+                if (!validatePhoneNumber(telephone)) {
+                    error = true;
+                    errorString = errorString.concat("\n<li>The telephone number must be valid.</li>");
+                }
+            }
+
+            if (!error) {
+                $('#validation-errors').html("");
+                $('#js-errors-container').prop("hidden", true);
+            } else {
+                $('#validation-errors').html("<ul>" + errorString + "\n</ul>");
+                $('#js-errors-container').prop("hidden", false);
+            }
+
+            return !error;
+        }
+
         //Save newly added supplier
         function saveSupplier() {
+            if (!validateUpdates()) {
+                return;
+            }
+
             var formValues = $("#addSupplierForm").serialize();
             $("#addSupplierContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>");
             $.ajax({
@@ -126,6 +219,15 @@
                     }
                 }
             });
+        }
+
+        function formatDate(date, options, separator) {
+            function format(option) {
+                let formatter = new Intl.DateTimeFormat('en', option);
+                return formatter.format(date);
+            }
+
+            return options.map(format).join(separator);
         }
     </script>
 </head>
@@ -212,7 +314,7 @@
     <!-- Add supplier modal -->
     <div class="modal fade" id="addSupplierModal" tabindex="-1" role="dialog" aria-labelledby="addSupplierModalLabel"
          aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xxl" role="document">
             <div id="addSupplierContent" class="modal-content"></div>
         </div>
     </div>
