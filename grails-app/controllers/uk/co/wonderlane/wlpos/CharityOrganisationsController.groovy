@@ -14,7 +14,7 @@ class CharityOrganisationsController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddCharity() {
-        render(template: "addCharity", model: [enableSave : true])
+        render(template: "addCharity", model: [enableSave: true, isUpdate: false, charity: null])
     }
 
 }
