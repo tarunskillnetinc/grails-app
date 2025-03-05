@@ -8,7 +8,6 @@ import uk.co.wonderlane.wlpos.charity.CharitySortParams
 @Secured(['ROLE_ENGINEER'])
 class CharityOrganisationsController {
     def springSecurityService
-    def financialWeekService
     def charityService
 
     private static final CHARITY_SORT_COLUMNS = [ "id", "organisationName" , "type", "memberNumber" , "active" ]
@@ -31,15 +30,15 @@ class CharityOrganisationsController {
         sortParams.validateParams(CHARITY_SORT_COLUMNS) //pre process supplier sorting column list
 
         def charities = [] //declare charity list
-        def suppliersResponse = supplierService.getSuppliers(params.supplierNameTerm, params.supplierReferenceTerm, params.customerReferenceTerm, params.includeDeletedSuppliers,
+        def charitiesResponse = charityService.getCharities(params.organisationTypeTerm, params.charityMemberNumberTerm, params.charityGroupDescriptionTerm, params.includeDeletedCharitiesTerm,
                 sortParams.offset ? sortParams.offset : 0, sortParams.max ? sortParams.max : 50, sortParams.sortColumn, sortParams.getSortOrder())
-        def returnedSuppliers = suppliersResponse?.suppliers
-        def totalCount = suppliersResponse?.totalCount
-        if (returnedSuppliers != null && returnedSuppliers.size() > 0){
-            suppliers = returnedSuppliers
+        def returnedCharities = charitiesResponse?.charities
+        def totalCount = charitiesResponse?.totalCount
+        if (returnedCharities != null && returnedCharities.size() > 0){
+            charities = returnedCharities
         }
-        render(template: "supplierSearchResults",
-                model: [ suppliers: suppliers,
+        render(template: "charitySearchResults",
+                model: [ charities: charities,
                          searchTerm: params.searchTerm,
                          max: sortParams.max ?: 50,
                          offset: sortParams.offset,
@@ -47,33 +46,5 @@ class CharityOrganisationsController {
                          totalCount : totalCount
                 ])
     }
-
-/*
-    def ajaxGetSearchSupplier(SupplierSortParams sortParams) {
-        session.SUPPLIER_CUSTOMER_REFERENCE_SEARCH_TERM = params.customerReferenceTerm
-        session.SUPPLIER_REFERENCE_SEARCH_TERM = params.supplierReferenceTerm
-        session.SUPPLIER_NAME_SEARCH_TERM = params.supplierNameTerm
-        session.INCLUDE_DELETED_SUPPLIERS = params.includeDeletedSuppliers
-
-        sortParams.validateParams(SUPPLIER_SORT_COLUMNS) //pre process supplier sorting column list
-
-        def suppliers = [] //declare supplier list
-        def suppliersResponse = supplierService.getSuppliers(params.supplierNameTerm, params.supplierReferenceTerm, params.customerReferenceTerm, params.includeDeletedSuppliers,
-                sortParams.offset ? sortParams.offset : 0, sortParams.max ? sortParams.max : 50, sortParams.sortColumn, sortParams.getSortOrder())
-        def returnedSuppliers = suppliersResponse?.suppliers
-        def totalCount = suppliersResponse?.totalCount
-        if (returnedSuppliers != null && returnedSuppliers.size() > 0){
-            suppliers = returnedSuppliers
-        }
-        render(template: "supplierSearchResults",
-                model: [ suppliers: suppliers,
-                         searchTerm: params.searchTerm,
-                         max: sortParams.max ?: 50,
-                         offset: sortParams.offset,
-                         sortParams  : sortParams,
-                         totalCount : totalCount
-                ])
-    }
-    */
 
 }

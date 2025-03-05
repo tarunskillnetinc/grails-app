@@ -12,8 +12,9 @@ class CharityGroup {
 
     static mapping = {
         table 'charitygroup'
-        id column: 'id', generator: 'native'
-        retailerId column: 'retailerId'
+        version false
+        id column: 'id'
+        retailerId column: 'retailerId', sqlType: "tinyint"
         organisationName column: 'organisationName'
         memberNumber column: 'memberNumber'
         type column: 'type'
@@ -32,5 +33,4 @@ class CharityGroup {
         specialAppeals nullable: false
     }
 
-    static belongsTo = [retailer: Retailer]
 }
