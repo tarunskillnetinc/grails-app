@@ -128,19 +128,19 @@ class ShiftController {
                 render(template: "cashUpModal", model: [shift: shift, tenderTypes: applicableTenderTypes])
             } else if (shift != null && !isRecount && !isFinalise && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
-                render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Already reconciled.")
+                render(status: 400, text: "Failed to reconcile shift. Already reconciled.")
             } else if (shift != null && isRecount && shift.getShiftStatus() != ShiftStatus.RECONCILED) {
                 // Request is for recount but already recounted
-                render(status: 400, contentType: 'application/json', message: "Failed to recount shift. Already recounted.")
+                render(status: 400, text: "Failed to recount shift. Already recounted.")
             } else if (shift != null && isFinalise && shift.getShiftStatus() != ShiftStatus.RECONCILED) {
                 // Request is for finalise but already finalised
-                render(status: 400, contentType: 'application/json', message: "Failed to finalise shift. Already finalised.")
+                render(status: 400, text: "Failed to finalise shift. Already finalised.")
             } else {
-                render(status: 400, contentType: 'application/json', message: "Action failed.")
+                render(status: 400, text: "Action failed.")
             }
         } catch (Exception ex) {
             log.error(String.format("Shift cash detail loading error for shift id: %d error: %s", shiftId, ex.getMessage()), ex)
-            render(status: 400, contentType: 'application/json', message: "Action failed.")
+            render(status: 400, text: "Action failed.")
         }
     }
 
@@ -233,16 +233,16 @@ class ShiftController {
                                                                tenderTypes: applicableTenderTypes])
             } else if (shift != null && !cashUpCommand.isRecount && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
-                render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Already reconciled.")
+                render(status: 400, text: "Failed to reconcile shift. Already reconciled.")
             } else if (shift != null && cashUpCommand.isRecount && shift.getShiftStatus() != ShiftStatus.RECONCILED) {
                 // Request is for recount but already recounted
-                render(status: 400, contentType: 'application/json', message: "Failed to recount shift. Already recounted.")
+                render(status: 400, text: "Failed to recount shift. Already recounted.")
             } else {
-                render(status: 400, contentType: 'application/json', message: "Action failed for shift.")
+                render(status: 400, text: "Action failed for shift.")
             }
         } catch (Exception ex) {
             log.error(String.format("Shift cash save error for shift id: %d error: %s", cashUpCommand.shiftId, ex.getMessage()), ex)
-            render(status: 400, contentType: 'application/json', message: "Action failed for shift.")
+            render(status: 400, text: "Action failed for shift.")
         }
     }
 
@@ -281,7 +281,7 @@ class ShiftController {
 
                     } else {
                         // do not finalize against an inactive safe
-                        render(status: 400, contentType: 'application/json', message: "Shift was not finalised as the selected safe is set to inactive.")
+                        render(status: 400, text: "Shift was not finalised as the selected safe is set to inactive.")
                     }
                 } else {
                     Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
@@ -290,19 +290,19 @@ class ShiftController {
                 }
             } else if (shift != null && !saveShiftCommand.isRecount && !saveShiftCommand.isFinalise && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
-                render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Already reconciled.")
+                render(status: 400, text: "Failed to reconcile shift. Already reconciled.")
             } else if (shift != null && saveShiftCommand.isRecount && shift.getShiftStatus() != ShiftStatus.RECONCILED) {
                 // Request is for recount but already recounted
-                render(status: 400, contentType: 'application/json', message: "Failed to recount shift. Already recounted.")
+                render(status: 400, text: "Failed to recount shift. Already recounted.")
             } else if (shift != null && saveShiftCommand.isFinalise && shift.getShiftStatus() != ShiftStatus.RECONCILED) {
                 // Request is for finalise but already finalised
-                render(status: 400, contentType: 'application/json', message: "Failed to finalise shift. Already finalised.")
+                render(status: 400, text: "Failed to finalise shift. Already finalised.")
             } else {
-                render(status: 400, contentType: 'application/json', message: "Action failed for shift.")
+                render(status: 400, text: "Action failed for shift.")
             }
         } catch (Exception ex) {
             log.error(String.format("Shift reconciliation error for shift id: %d error: %s", saveShiftCommand.shiftId, ex.getMessage()), ex)
-            render(status: 400, contentType: 'application/json', message: "Action failed for shift.")
+            render(status: 400, text: "Action failed for shift.")
         }
     }
 
@@ -427,11 +427,11 @@ class ShiftController {
                 shiftService.addSpotCheckAudit(shift) // Add audit for spot check
                 render(template: "spotCheck", model: [shift: shift, fetchTime: new DateTime()]) //Load spot check template
             } else {
-                render(status: 400, contentType: 'application/json', message: String.format("Spot check action failed. Shift not available anymore for till id: %d ", tillId))
+                render(status: 400, text: String.format("Spot check action failed. Shift not available anymore for till id: %d ", tillId))
             }
         } catch (Exception ex) {
             log.error(String.format("Spot check error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
-            render(status: 400, contentType: 'application/json', message: String.format("Action failed for spot check for till id: %d ", tillId))
+            render(status: 400, text: String.format("Action failed for spot check for till id: %d ", tillId))
         }
     }
 
@@ -471,7 +471,7 @@ class ShiftController {
             if (flash.error) {
                 error = error + flash.error
             }
-            render(status: 400, contentType: 'application/json', message: error)
+            render(status: 400, text: error)
         }
     }
 

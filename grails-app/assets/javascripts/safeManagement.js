@@ -44,9 +44,7 @@ function showSafeSessionReconcileModal(sessionId, versionId, isRecount, isFinal,
                     });
             },
             error: function (resp){
-                var errorMessage = resp.responseJSON && resp.responseJSON.message ?
-                    resp.responseJSON.message : "Action failed for safe: " + safeDescription;
-                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
             }
         });
     }
@@ -83,9 +81,8 @@ function saveSafeSessionCashUrl(safeSessionId, versionId, isRecount, safeDescrip
                 $('.modal-backdrop').remove();
             }
             $('body').removeClass('modal-open');
-            var errorMessage = resp.responseJSON && resp.responseJSON.message ?
-                resp.responseJSON.message : "Action failed for safe: " + safeDescription;
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
         }
     });
 }
@@ -125,9 +122,8 @@ function submitSafeSession(safeSessionId, versionId, isRecount, isFinalise, safe
                     $('.modal-backdrop').remove();
                 }
                 $('body').removeClass('modal-open');
-                var errorMessage = resp.responseJSON && resp.responseJSON.message ?
-                    resp.responseJSON.message : "Action failed for safe " + safeDescription;
-                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+
+                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
             }
         });
     }
@@ -144,8 +140,7 @@ function safeSpotCheck(safeSessionId) {
         },
         error: function(resp) {
             $("#search-results").show();
-            var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
         },
     });
 }

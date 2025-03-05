@@ -74,7 +74,7 @@ class SafeManagementController {
             def safeSession = safeManagementService.getSafeSession(sessionId)
 
             if (safeSession == null) {
-                render(status: 400, contentType: 'application/json', message: "Safe session not found for ${safeDescription}.")
+                render(status: 400, text: "Safe session not found for ${safeDescription}.")
                 return
             }
 
@@ -114,11 +114,11 @@ class SafeManagementController {
                     errorMsg = "Failed to finalise safe ${safeDescription}. Already finalised."
                 }
 
-                render(status: 400, contentType: 'application/json', message: errorMsg)
+                render(status: 400, text: errorMsg)
             }
         } catch (Exception ex) {
             log.error("Safe session cash detail loading error for safe session id: ${sessionId} error: ${ex.getMessage()}",  ex)
-            render(status: 400, contentType: 'application/json', message: "Action failed for safe ${safeDescription}.")
+            render(status: 400, text: "Action failed for safe ${safeDescription}.")
         }
     }
 
@@ -155,10 +155,10 @@ class SafeManagementController {
             }
         } catch (SafeSessionUpdateException ex) {
             log.info("Safe sessions reconciliation save error for safe session id: ${safeSessionCashUpCommand.safeSessionId} error: ${ex.getMessage()}", ex)
-            render(status: 400, contentType: 'application/json', message: ex.getMessage())
+            render(status: 400, text: ex.getMessage())
         } catch (Exception ex) {
             log.error("Safe sessions reconciliation save error for safe session id: ${safeSessionCashUpCommand.safeSessionId} error: ${ex.getMessage()}", ex)
-            render(status: 400, contentType: 'application/json', message: "Action failed for safe ${safeSessionCashUpCommand.safeDescription}.")
+            render(status: 400, text: "Action failed for safe ${safeSessionCashUpCommand.safeDescription}.")
         }
     }
 
@@ -170,7 +170,7 @@ class SafeManagementController {
             def safeSession = safeManagementService.getSafeSession(safeSessionSaveCommand.safeSessionId)
 
             if (safeSession == null) {
-                render(status: 400, contentType: 'application/json', message: "Safe session not found for ${safeDescription}.")
+                render(status: 400, text: "Safe session not found for ${safeSessionSaveCommand.safeDescription}.")
                 return
             }
 
@@ -208,14 +208,14 @@ class SafeManagementController {
                 } else if (safeSessionSaveCommand.isFinalise) {
                     errorMsg = "Failed to finalise safe ${safeSessionSaveCommand.safeDescription}. Already finalised."
                 }
-                render(status: 400, contentType: 'application/json', message: errorMsg)
+                render(status: 400, text: errorMsg)
             }
         } catch (SafeSessionUpdateException ex) {
             log.info("Safe session reconciliation error for session id: ${safeSessionSaveCommand.safeSessionId} error: ${ex.getMessage()}", ex)
-            render(status: 400, contentType: 'application/json', message: ex.getMessage())
+            render(status: 400, text: ex.getMessage())
         } catch (Exception ex) {
             log.error("Safe session reconciliation error for session id: ${safeSessionSaveCommand.safeSessionId} error: ${ex.getMessage()}", ex)
-            render(status: 400, contentType: 'application/json', message: "Action failed for safe ${safeSessionSaveCommand.safeDescription}.")
+            render(status: 400, text: "Action failed for safe ${safeSessionSaveCommand.safeDescription}.")
         }
     }
 
@@ -233,11 +233,11 @@ class SafeManagementController {
 
                 render(template: "spotCheck", model: [safeSession: safeSession, fetchTime: new DateTime()]) //Load spot check template
             } else {
-                render(status: 400, contentType: 'application/json', message: String.format("Spot check action failed. Safe Session not available for safe session id %d", safeSessionId))
+                render(status: 400, text: String.format("Spot check action failed. Safe Session not available for safe session id %d", safeSessionId))
             }
         } catch (Exception ex) {
             log.error(String.format("Spot check error for Safe Session id: %d error: %s", safeSessionId, ex.getMessage()), ex)
-            render(status: 400, contentType: 'application/json', message: String.format("Action failed for spot check for safe session id: %d ", safeSessionId))
+            render(status: 400, text: String.format("Action failed for spot check for safe session id: %d ", safeSessionId))
         }
     }
 

@@ -46,9 +46,7 @@ function showCashModal(shiftId, isRecount, isFinalise) {
             });
         },
         error: function (resp){
-            var errorMessage = resp.responseJSON && resp.responseJSON.message ?
-                resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
         }
     });
 }
@@ -132,9 +130,8 @@ function changeCashUpType(type) {
                 $('.modal-backdrop').remove();
             }
             $('body').removeClass('modal-open');
-            var errorMessage = resp.responseJSON && resp.responseJSON.message ?
-                resp.responseJSON.message : "Cash up type change failed";
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
         }
     });
 }
@@ -170,9 +167,8 @@ function submitCash(shiftId, isRecount) {
                 $('.modal-backdrop').remove();
             }
             $('body').removeClass('modal-open');
-            var errorMessage = resp.responseJSON && resp.responseJSON.message ?
-                resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
         }
     });
 }
@@ -209,9 +205,8 @@ function submitShift(shiftId, isRecount, isFinalise) {
                     $('.modal-backdrop').remove();
                 }
                 $('body').removeClass('modal-open');
-                var errorMessage = resp.responseJSON && resp.responseJSON.message ?
-                    resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
-                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+
+                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
             }
         });
     }
@@ -272,9 +267,8 @@ function spotCheck(retailerId, storeId, tillId, shiftId) {
             $("#modal-content").html(resp);
         },
         error: function(resp) {
-             $("#search-results").show();
-            var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+            $("#search-results").show();
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
         },
     });
 }
