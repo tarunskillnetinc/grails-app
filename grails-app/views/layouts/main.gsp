@@ -292,7 +292,7 @@
                                     <g:link elementId="financial-week-dropdown" controller="financialWeek" class="dropdown-item">Financial Weeks</g:link>
 
                                     <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.charityEnabled').toBoolean()}">
-                                        <g:link elementId="charity-organisations-dropdown" class="dropdown-item disabled">Charity Organisations</g:link>
+                                        <g:link elementId="charity-organisations-dropdown" controller="charityOrganisations" class="dropdown-item">Charity Organisations</g:link>
                                     </g:if>
                                 </g:if>
                             </sec:ifAnyGranted>
