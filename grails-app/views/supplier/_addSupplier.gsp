@@ -45,13 +45,18 @@
             });
     </script>
 
-    <g:hasErrors bean="${supplier}">
-        <section id="errors-container" class="container-fluid">
+    <section id="errors-container" class="container-fluid">
+        <g:hasErrors bean="${supplier}">
             <div class="alert alert-danger alert-wl mx-0" role="alert">
-                <g:renderErrors bean="${supplier}" as="list" />
+                <g:renderErrors bean="${supplier}" as="list"/>
             </div>
-        </section>
-    </g:hasErrors>
+        </g:hasErrors>
+        <g:hasErrors bean="${supplierCaseRate}">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <g:renderErrors bean="${supplierCaseRate}" as="list"/>
+            </div>
+        </g:hasErrors>
+    </section>
 
     <div id="js-errors-container" class="container-fluid" hidden>
         <div class="alert alert-danger alert-wl mx-0" role="alert">

@@ -114,7 +114,8 @@ class SupplierController {
         }
 
         def newSupplierCaseRate
-        if (!params.caserateeffectivedate?.empty || !params.caserate?.empty) {
+
+        if (!(params.caserateeffectivedate?.empty && (params.caserate == null || params.caserate?.empty || params.caserate == "0.00"))) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
             newSupplierCaseRate = new SupplierCaseRate()
@@ -127,6 +128,10 @@ class SupplierController {
             }
             try {
                 newSupplierCaseRate.caseRate = new BigDecimal(params.caserate)
+
+                if (newSupplierCaseRate.caseRate == BigDecimal.ZERO) {
+                    newSupplierCaseRate.errors.reject("supplier.suppliercaserate.caserate.must.be.not.zero")
+                }
             }
             catch (Exception ignored) {
                 newSupplierCaseRate.errors.reject("supplier.suppliercaserate.caserate.invalid")
@@ -134,7 +139,7 @@ class SupplierController {
         }
 
         bindData(supplier, params)
-        if (supplier.validate() && (newSupplierCaseRate == null || newSupplierCaseRate.validate())) {
+        if (supplier.validate() && (newSupplierCaseRate == null || !newSupplierCaseRate.hasErrors())) {
             supplier = supplierService.saveSupplier(supplier)
 
             if (newSupplierCaseRate != null) {
@@ -143,9 +148,7 @@ class SupplierController {
             }
             render "OK"
         } else {
-            SupplierCaseRate[] supplierCaseRates = SupplierCaseRate.getAllCaseRates(springSecurityService.principal.retailerId, supplier)
-
-            render(template: "addSupplier", model: [supplier: supplier, supplierCaseRates: supplierCaseRates, enableSave: true, isUpdate: supplier ? true : false])
+            render(template: "addSupplier", model: [supplier: supplier, supplierCaseRate: newSupplierCaseRate, enableSave: true, isUpdate: supplier ? true : false])
         }
     }
 
