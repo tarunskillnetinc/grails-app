@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.Transactional
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.enums.CharityGroupType
 
 @Transactional
 class CharityService extends MySqlDal {
@@ -15,7 +16,7 @@ class CharityService extends MySqlDal {
     }
 
     def getCharities() {
-        def charities = CharityGroup.findAllByRetailerId(springSecurityService.principal.retailerId, false, [sort: "name", order: "asc"])
+        def charities = CharityGroup.findAllByRetailerId(springSecurityService.principal.retailerId, false, [sort: "organisationName", order: "asc"])
         return charities
     }
 
@@ -38,7 +39,8 @@ class CharityService extends MySqlDal {
 
             and {
                 if (organisationTypeTerm && organisationTypeTerm.trim()) {
-                    like("type", "%$organisationTypeTerm%")
+                    CharityGroupType charityGroupType = CharityGroupType.valueOf(organisationTypeTerm);
+                    eq("type", charityGroupType)
                 }
                 if (charityMemberNumberTerm && charityMemberNumberTerm.trim()) {
                     like("memberNumber", "%$charityMemberNumberTerm%")
@@ -47,12 +49,13 @@ class CharityService extends MySqlDal {
                     like("organisationName", "%$charityGroupDescriptionTerm%")
                 }
             }
-            if (includeDeletedCharitiesTerm == "true") {
-                eq("active", false)
+
+            if (includeDeletedCharitiesTerm != "true") {
+                eq("active", true)
             }
         }
         def results = [:]
-        results.charities = result //Add to supplier
+        results.charities = result //Add to charity
         results.totalCount = result?.totalCount >= 0 ? result.totalCount : 0 //Add to total count
         return results
     }

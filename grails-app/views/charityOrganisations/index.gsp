@@ -11,11 +11,11 @@
         var addCharityUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxAddCharity')}";
         var editCharityUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxEditCharity')}";
         var saveCharityUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxSaveCharity')}";
-        var toggleCharityDeletedUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxToggleSupplierDeletedFlag')}";
+        var toggleCharityDeletedUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxToggleCharityDeletedFlag')}";
 
         $(function () {searchCharity();}); //As soon as page open call this method
 
-        //This will call supplier search method in supplier controller
+        //This will call charity search method in charity controller
         function searchCharity(sortParams) {
             var organisationTypeTerm = $('#organisationTypeTerm').val();
             var charityMemberNumberTerm = $('#charityMemberNumberTerm').val();
@@ -48,13 +48,13 @@
         }
 
         function resetForm() {
-            document.getElementById('organisationTypeTerm').value = null;
+            document.getElementById('organisationTypeTerm').value = "";
             document.getElementById('charityMemberNumberTerm').value = null;
             document.getElementById('charityGroupDescriptionTerm').value = null;
             document.getElementById('includeDeletedCharities').checked = false;
         }
 
-        //Popup supplier adding window
+        //Popup charity adding window
         function showAddCharityModal() {
             $("#addCharityContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
             $('#addCharityModal').modal({show: true});
@@ -81,7 +81,7 @@
             });
         }
 
-        //Save newly added supplier
+        //Save newly added charity
         function saveCharity() {
             var formValues = $("#addCharityForm").serialize();
             $("#addCharityContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>");
@@ -100,61 +100,34 @@
             });
         }
 
-/*        //Popup supplier adding window
-        function showAddSupplierModal() {
-            $("#addSupplierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-            $('#addSupplierModal').modal({show: true});
-            $.ajax({
-                url: addSupplierUrl,
-                method: "GET",
-                success: function (resp) {
-                    $("#addSupplierContent").html(resp);
-                }
-            });
-        }
-
-        //Edit existing supplier
-        function editSupplier(supplierId) {
-            $("#addSupplierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-            $('#addSupplierModal').modal({show: true});
-            $.ajax({
-                url: editSupplierUrl,
-                method: "GET",
-                data: {supplierId: supplierId},
-                success: function (resp) {
-                    $("#addSupplierContent").html(resp);
-                }
-            });
-        }
-
-        function toggleSupplierDeleted(supplierId, currentlyDeleted, sortParams) {
+        function toggleCharityDeleted(charityId, currentlyActive, sortParams) {
             let confirmationMessage = ""
 
-            if (currentlyDeleted) {
-                confirmationMessage = "Are you sure you want to reinstate the supplier?"
+            if (currentlyActive) {
+                confirmationMessage = "Are you sure you want to delete the charity?"
             } else {
-                confirmationMessage = "Are you sure you want to delete the supplier?"
+                confirmationMessage =  "Are you sure you want to reinstate the charity?"
             }
 
             if (confirm(confirmationMessage)) {
-                $("#addSupplierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                $("#addCharityContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
                 $.ajax({
-                    url: toggleSupplierDeletedUrl,
+                    url: toggleCharityDeletedUrl,
                     method: "GET",
-                    data: {supplierId: supplierId},
+                    data: {charityId: charityId},
                     success: function (resp) {
                         if (resp === "OK") {
-                            $('#addSupplierModal').modal('hide')
-                            searchSupplier(sortParams);
+                            $('#addCharityModal').modal('hide')
+                            searchCharity(sortParams);
                         } else {
-                            $('#addSupplierModal').modal({show: true});
-                            $("#addSupplierContent").html(resp);
+                            $('#addCharityModal').modal({show: true});
+                            $("#addCharityContent").html(resp);
                         }
                     }
                 });
             }
         }
-        }*/
+
     </script>
 </head>
 
@@ -201,7 +174,13 @@
                     <div class="form-group row">
                         <label for="organisationTypeTerm" class="col-2 col-form-label-sm text-right">Organisation Type:</label>
                         <div class="col-4 input-group">
-                            <g:textField id="organisationTypeTerm" name="organisationTypeTerm" maxlength="100" value="${session.CHARITY_TYPE_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
+                            <g:select id="organisationTypeTerm" name="organisationTypeTerm"
+                                      class="col-12 form-control"
+                                      from="${typeOptions}"
+                                      optionKey="key"
+                                      optionValue="value"
+                                      value="${session.CHARITY_TYPE_SEARCH_TERM}"
+                                      noSelection="['': '']"/>
                         </div>
                         <label for="charityMemberNumberTerm" class="col-2 col-form-label-sm text-right">Charity Member Number:</label>
                         <div class="col-4 input-group">
@@ -210,7 +189,7 @@
                     </div>
 
                     <div class="form-group row">
-                        <label for="charityGroupDescriptionTerm" class="col-2 col-form-label-sm text-right">Charity / Group Description</label>
+                        <label for="charityGroupDescriptionTerm" class="col-2 col-form-label-sm text-right">Charity / Group Description:</label>
                         <div class="col-4 input-group">
                             <g:textField id="charityGroupDescriptionTerm" name="charityGroupDescriptionTerm" maxlength="100" value="${session.CHARITY_DESCRIPTION_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
                         </div>
@@ -218,6 +197,12 @@
                         <label for="includeDeletedCharities" class="col-2 col-form-label-sm text-right">Include Deleted Charity / Group</label>
                         <div class="col-4 input-group-append">
                             <g:checkBox id="includeDeletedCharities" name="includeDeletedCharities" checked="${session.INCLUDE_DELETED_CHARITIES}" class="col-1 form-check-input wl-checkbox ml-0" />
+                        </div>
+                    </div>
+                    <div class="form-group row ">
+                        <div class="col-12 text-right ">
+                            <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                            <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchCharity()">Search</button>
                         </div>
                     </div>
                 </div>
