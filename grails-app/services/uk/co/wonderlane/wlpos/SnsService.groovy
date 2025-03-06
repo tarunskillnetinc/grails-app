@@ -7,6 +7,7 @@ import software.amazon.awssdk.services.sns.model.CreateTopicResponse
 import software.amazon.awssdk.services.sns.model.MessageAttributeValue
 import software.amazon.awssdk.services.sns.model.PublishRequest
 import software.amazon.awssdk.services.sns.model.SnsException
+import uk.co.wonderlane.wlpos.entities.sns.SnsNotification
 import uk.co.wonderlane.wlpos.entities.sns.SupplierSnsNotification
 import uk.co.wonderlane.wlpos.entities.supplier.Supplier
 import uk.co.wonderlane.wlpos.enums.sns.SnsActionType
@@ -22,7 +23,7 @@ class SnsService {
         def notification = new SupplierSnsNotification(SnsActionType.ADD, supplier)
         PublishRequest request = PublishRequest.builder()
                 .topicArn( generateTopicArn(supplierTopic))
-                .message(gsonProvider.getGson().toJson(notification))
+                .message(gsonProvider.getGson().toJson(notification, SnsNotification.class))
                 .messageAttributes(Map.of("retailerId", MessageAttributeValue.builder().dataType("Number").stringValue((String) springSecurityService.principal.retailerId).build()))
                 .build()
 
@@ -33,7 +34,7 @@ class SnsService {
         def notification = new SupplierSnsNotification(SnsActionType.DELETE, supplier)
         PublishRequest request = PublishRequest.builder()
                 .topicArn( generateTopicArn(supplierTopic))
-                .message(gsonProvider.getGson().toJson(notification))
+                .message(gsonProvider.getGson().toJson(notification, SnsNotification.class))
                 .messageAttributes(Map.of("retailerId", MessageAttributeValue.builder().dataType("Number").stringValue((String) springSecurityService.principal.retailerId).build()))
                 .build()
 
