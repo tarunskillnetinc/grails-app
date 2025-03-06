@@ -4,6 +4,92 @@
     <meta name="layout" content="main"/>
 
     <title>Deliveries</title>
+
+    <script type="text/javascript">
+        const urlFileReader = new FileReader()
+        $(function ($) {
+            urlFileReader.onload = onFileRead
+            $("#image").on("change", onFileUpload)
+        })
+
+        function onFileUpload() {
+            const fileType = this.files[0].type
+            if (fileType !== "text/csv" && fileType !== "application/vnd.ms-excel") {
+                alert('${message(code:'button.error.incompatible.message', args:['.csv'], default:"Incorrect file type. Please use .csv")}')
+                return
+            }
+
+            const fileData = this.files[0];
+            if (!FileReader || !fileData) {
+                // fallback?
+                return
+            }
+
+            urlFileReader.readAsText(fileData)
+        }
+
+        function onFileRead() {
+            const csv = urlFileReader.result
+            console.log(csv) // TODO: Remove debug logging
+
+            const rowsArray = csv.split("\n")
+            const csvArray = []
+
+            for (const row of rowsArray) {
+                const rowValues = row.split(",")
+
+                csvArray.push({
+                    "supplierReference": rowValues[0],
+                    "bool": rowValues[1]
+                })
+            }
+
+            for (const entry of csvArray) {
+                checkCSVEntry(entry)
+                break // TODO: Temporary debug break
+            }
+        }
+
+        function checkCSVEntry(entry) {
+            $.ajax({
+                url: "${createLink(controller: 'delivery', action: 'ajaxCheckValidDelivery')}",
+                method: "POST",
+                data: entry,
+                statusCode: {
+                    500: function (response) {
+                        console.log(response.error)
+                        /*var errorList = response.responseJSON.error;
+
+                        if (errorList && errorList.length > 0) {
+                            let errorHeader = "An error occured when attempting to save the offer."
+                            let errorString = "";
+
+                            errorList.forEach(function(errorMessage) {
+                                errorString = errorString.concat("<li>" + errorMessage + "</li>");
+                            });
+
+                            $('#validation-errors').html("<ul class='no-bullets'>" + errorHeader + errorString + "\n</ul>");
+                            $('#validation-errors').prop("hidden", false);
+                        }*/
+                    },
+                    200: function (response) {
+                        console.log(response.success)
+                        if (response.success) {
+                            for (const order in response.orderList) {
+                                console.log(order)
+                            }
+                        }
+                        /*var successMessage = "Loyalty Offer Saved Successfully";
+                        var redirectUrl = '${createLink(controller: 'loyalty', action:'loyaltyOffers')}';
+                        // Append success message as a query parameter
+                        redirectUrl += '?successMessage=' + encodeURIComponent(successMessage);
+                        // Redirect to the loyaltyOffers page with the success message
+                        window.location.href = redirectUrl;*/
+                    }
+                }
+            });
+        }
+    </script>
 </head>
 
 <body>
@@ -31,7 +117,7 @@
                 <div class="row justify-content-md-center float-right w-100">
                     <div class="col-md-auto w-100">
                         <button id="uploadDelivery" type="button" class="btn btn-wl mt-1 w-100"
-                                onclick="window.location.href = '/store/add/addStoreButton'">Upload Delivery</button>
+                                onclick="$('#image').click();">Upload Delivery</button>
                     </div>
                 </div>
 
@@ -59,9 +145,10 @@
 
 <section id="addProduct-section" class="container-fluid mt-4">
     <div class="col-12">
-        <g:uploadForm name="submission-form" action="save" params="[id: button?.id, buttonGridId: button?.buttonGrid?.id, row: button?.row, column: button?.column]">
+        <g:uploadForm name="submission-form" action="save"
+                      params="[id: button?.id, buttonGridId: button?.buttonGrid?.id, row: button?.row, column: button?.column]">
 
-            <input id="image" name="image" type="file" accept="image/png" hidden/>
+            <input id="image" name="image" type="file" accept="text/csv,application/vnd.ms-excel" hidden/>
         </g:uploadForm>
     </div>
 </section>
