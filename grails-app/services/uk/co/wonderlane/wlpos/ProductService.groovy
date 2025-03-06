@@ -330,32 +330,6 @@ class ProductService extends MySqlDal {
         saveOrDeleteRangeProducts(rangeProducts, false, true)
     }
 
-    def updateProductAllergens(int productId, List<Integer> allergenIds, ProductHistoryBuilder builder) {
-        def current = ProductAllergen.getExistingProductAllergens(productId)
-
-        def removed = new ArrayList<>(current)
-        removed.removeAll(allergenIds)
-        def added = new ArrayList<>(allergenIds)
-        added.removeAll(current)
-
-        if (removed.isEmpty() && added.isEmpty()) {
-            return
-        }
-
-        Session session = sessionFactory.openSession()
-        Transaction transaction = session.beginTransaction()
-        for (Integer id : removed) {
-            session.delete(new ProductAllergen(productId: productId, allergenId: id))
-            builder?.compare("productAllergen", Allergen.findById(id)?.name, null, ProductHistoryType.ALLERGEN)
-        }
-        for (Integer id : added) {
-            session.save(new ProductAllergen(productId: productId, allergenId: id))
-            builder?.compare("productAllergen", null, Allergen.findById(id)?.name, ProductHistoryType.ALLERGEN)
-        }
-        transaction.commit()
-        session.close()
-    }
-
     def saveProductHistories(List<ProductHistory> productHistories) {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()

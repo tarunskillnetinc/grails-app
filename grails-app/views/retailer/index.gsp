@@ -972,6 +972,13 @@
                                 </div>
                             </div>
 
+                            <div class="form-group row">
+                                <label for="enableCharityOrganisationFlag" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Enable Charity Organisation</label>
+                                <div class="col-7 col-lg-4">
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" id="enableCharityOrganisationFlag" name="charityEnabled"  ${retailer?.config?.charityEnabled ? "checked" : ""} />
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>

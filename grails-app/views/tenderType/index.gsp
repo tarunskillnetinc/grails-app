@@ -146,10 +146,19 @@
                 $("#eligibleForFloat").attr("disabled", true);
                 $("#eligibleForCashLift").prop("checked", false);
                 $("#eligibleForCashLift").attr("disabled", true);
+                $("#cashTender").prop("checked", false);
+                $("#cashTender").attr("disabled", true);
             } else {
                 $("#eligibleForBanking").attr("disabled", false);
                 $("#eligibleForFloat").attr("disabled", false);
                 $("#eligibleForCashLift").attr("disabled", false);
+
+                var cardPaymentChecked = $("#cardPayment").prop("checked");
+                var voucherType = $("#voucherType").val();
+
+                if (!cardPaymentChecked && voucherType === "") {
+                    $("#cashTender").attr("disabled", false);
+                }
             }
         }
 
@@ -157,8 +166,9 @@
             var bankingChecked = $("#eligibleForBanking").prop("checked");
             var floatChecked = $("#eligibleForFloat").prop("checked");
             var cashLiftChecked = $("#eligibleForCashLift").prop("checked");
+            var cashTenderChecked = $("#cashTender").prop("checked");
 
-            if (bankingChecked || floatChecked || cashLiftChecked) {
+            if (bankingChecked || floatChecked || cashLiftChecked || cashTenderChecked) {
                 $("#autoReconcile").prop("checked", false);
                 $("#autoReconcile").attr("disabled", true);
             } else {
@@ -176,17 +186,24 @@
                 $("#cardPayment").attr("disabled", false);
                 $("#voucherType").attr("disabled", false);
             }
+
+            eligibleOptionChanged();
         }
 
         function cardPaymentChanged(checkbox) {
+            var autoReconcileChecked = $("#autoReconcile").prop("checked");
+
             if (checkbox.checked === true) {
                 $("#cashTender").prop("checked", false);
                 $("#cashTender").attr("disabled", true);
                 $("#voucherType").val("");
                 $("#voucherType").attr("disabled", true);
             } else {
-                $("#cashTender").attr("disabled", false);
                 $("#voucherType").attr("disabled", false);
+
+                if (!autoReconcileChecked) {
+                    $("#cashTender").attr("disabled", false);
+                }
             }
         }
 

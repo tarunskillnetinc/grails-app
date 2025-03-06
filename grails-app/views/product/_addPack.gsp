@@ -155,7 +155,7 @@
         <div class="input-group col-4 my-auto">
             <input id="addPack[${packIndex}].lengthCm" value="${pack?.lengthCm}" type="text"
                          class="form-control text-right" maxlength="7"
-                   onkeydown="acceptFloat(event)" onkeyup="validateFloatQuantity(this, 0, 9999.99, 2)"/>
+                   onkeydown="acceptFloat(event)" onkeyup="validateFloatQuantity(this, 0, 999.99, 2)"/>
             <div class="input-group-append">
                 <span class="input-group-text" id="lengthCmSymbolSuffix${packIndex}">
                     Cm
@@ -165,7 +165,7 @@
         <div class="input-group col-4 my-auto">
             <input id="addPack[${packIndex}].widthCm" value="${pack?.widthCm}" type="text"
                    class="form-control text-right" maxlength="7"
-                   onkeydown="acceptFloat(event)" onkeyup="validateFloatQuantity(this, 0, 9999.99, 2)"/>
+                   onkeydown="acceptFloat(event)" onkeyup="validateFloatQuantity(this, 0, 999.99, 2)"/>
             <div class="input-group-append">
                 <span class="input-group-text" id="widthCmSymbolSuffix${packIndex}">
                     Cm
@@ -175,7 +175,7 @@
         <div class="input-group col-4 my-auto">
             <input id="addPack[${packIndex}].heightCm" value="${pack?.heightCm}" type="text"
                    class="form-control text-right" maxlength="7"
-                   onkeydown="acceptFloat(event)" onkeyup="validateFloatQuantity(this, 0, 9999.99, 2)"/>
+                   onkeydown="acceptFloat(event)" onkeyup="validateFloatQuantity(this, 0, 999.99, 2)"/>
             <div class="input-group-append">
                 <span class="input-group-text" id="heightCmSymbolSuffix${packIndex}">
                     Cm

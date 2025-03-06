@@ -344,11 +344,6 @@ class EposTagLib {
                         ${productHistory?.field} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
-            case ProductHistoryType.ALLERGEN:
-                out << """${userText} ${(productHistory?.toValue) == "unset" ? "removed" : "added"} 
-                        ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
-                            ${(productHistory?.toValue) == "unset" ? productHistory?.fromValue : productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
-                break
             default:
                 out << """${userText} changed 
                         ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
