@@ -301,16 +301,20 @@ class ProductVariant implements Serializable {
     }
 
     String getSelUnitSize() {
-        if (unitSize == null) {
-            return null
+        if (unitOfMeasure == null) {
+            return "EACH"
         }
 
         String exponent = ""
-        if(itemsInUnit?:1 > 1) {
+        if( (itemsInUnit?:1) > 1) {
             exponent = itemsInUnit + "x"
         }
 
-        Integer perUnit = unitSize * itemsInUnit?:1
-        return exponent + perUnit + unitOfMeasure?.symbol?:"EACH"
+        BigDecimal perUnit = null
+        if (unitSize != null) {
+            perUnit = unitSize.divide(itemsInUnit?:1, 3, RoundingMode.HALF_UP)
+        }
+
+        return exponent + (perUnit?:"") + unitOfMeasure?.symbol?:"EACH"
     }
 }

@@ -1,6 +1,19 @@
 <%@ page import="uk.co.wonderlane.wlpos.enums.StockClassification" %>
 
 <div class="row">
+    <div class="form-group row col-5 offset-lg-1">
+        <label for="varianceQuantity" class="col-5 col-form-label text-right pr-4 pl-1">Variance Quantity Threshold:</label>
+        <g:field type="number" min="1" max="1000" step="1" name="varianceQuantity" value="${category?.varianceQuantity}" class="col-4 form-control" oninput="validateNumericInputField(this, 1, 1000, 1, false)" />
+        <small id="varianceQuantityHelp" class="col-8 text-right form-text text-muted">Adjustments of this quantity will trigger a variance report.</small>
+    </div>
+    <div class="form-group row col-5">
+        <label for="varianceValue" class="col-5 col-form-label text-right pr-4">Variance Value Threshold:</label>
+        <g:field type="number" min="1" max="9999999.99" step=".01" name="varianceValue" value="${category?.varianceValue}" class="col-4 form-control" />
+        <small id="varianceValueHelp" class="col-8 text-right form-text text-muted">Adjustments of this value will trigger a variance report.</small>
+    </div>
+</div>
+
+<div class="row">
     <div class="form-group row col-5 offset-lg-1 form-check"">
         <div class="col-5 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.saleAllowed" class="col-form-label text-right wl-label">Prohibit From Sale:</label>
@@ -21,14 +34,14 @@
         <div class="input-group-prepend">
             <span class="input-group-text">&pound;</span>
         </div>
-        <g:textField name="restrictions.minOpenPrice" class="col-5 form-control mask-money" value="${category?.restrictions?.minOpenPrice ?: '0.01'}" />
+        <g:textField name="restrictions.minOpenPrice" class="col-5 form-control mask-money" maxlength="9" value="${category?.restrictions?.minOpenPrice ?: '0.01'}" />
     </div>
     <div class="form-group row col-5">
         <label for="restrictions.maxOpenPrice" class="col-5 col-form-label text-right pr-4">Maximum Open Price:</label>
         <div class="input-group-prepend">
             <span class="input-group-text">&pound;</span>
         </div>
-        <g:textField name="restrictions.maxOpenPrice" class="col-5 form-control mask-money" value="${category?.restrictions?.maxOpenPrice ?: '99999.99'}" />
+        <g:textField name="restrictions.maxOpenPrice" class="col-5 form-control mask-money" maxlength="9" value="${category?.restrictions?.maxOpenPrice ?: '99999.99'}" />
     </div>
 </div>
 
@@ -50,18 +63,18 @@
 <div class="row">
     <div class="form-group row col-5 offset-lg-1">
         <label for="restrictions.buyerAgeRestriction" class="col-5 col-form-label text-right pr-4">Customer Age Restriction:</label>
-        <g:textField name="restrictions.buyerAgeRestriction" class="col-5 form-control" required="true" value="${category?.restrictions?.buyerAgeRestriction}" readonly="${!category?.restrictions?.buyerIdRequired}"/>
+        <g:textField name="restrictions.buyerAgeRestriction" class="col-5 form-control numberField" maxlength="2" required="true" value="${category?.restrictions?.buyerAgeRestriction}" readonly="${!category?.restrictions?.buyerIdRequired}"/>
     </div>
     <div class="form-group row col-5">
         <label for="restrictions.buyerChallengeAge" class="col-5 col-form-label text-right pr-4">Customer Challenge Age:</label>
-        <g:textField name="restrictions.buyerChallengeAge" class="col-5 form-control" required="true" value="${category?.restrictions?.buyerChallengeAge}" readonly="${!category?.restrictions?.buyerIdRequired}"/>
+        <g:textField name="restrictions.buyerChallengeAge" class="col-5 form-control numberField" maxlength="2" required="true" value="${category?.restrictions?.buyerChallengeAge}" readonly="${!category?.restrictions?.buyerIdRequired}"/>
     </div>
 </div>
 
 <div class="row">
     <div class="form-group row col-5 offset-lg-1">
         <label for="restrictions.sellerAgeRestriction" class="col-5 col-form-label text-right pr-4">Operator Age Restriction:</label>
-        <g:textField name="restrictions.sellerAgeRestriction" class="col-5 form-control" required="true" value="${category?.restrictions?.sellerAgeRestriction}" readonly="${!category?.restrictions?.buyerIdRequired}"/>
+        <g:textField name="restrictions.sellerAgeRestriction" class="col-5 form-control numberField" maxlength="2" required="true" value="${category?.restrictions?.sellerAgeRestriction}" readonly="${!category?.restrictions?.buyerIdRequired}"/>
     </div>
     <div class="form-group row col-5">
         <label for="restrictions.dividendRate" class="col-5 col-form-label text-right pr-4">Dividend Rate:</label>
@@ -110,7 +123,7 @@
     </div>
     <div class="form-group row col-5">
         <label for="restrictions.maximumMarkdownPercentage" class="col-5 col-form-label text-right pr-4">Maximum Markdown:</label>
-        <g:textField name="restrictions.maximumMarkdownPercentage" class="col-5 form-control" value="${category?.restrictions?.maximumMarkdownPercentage}" readonly="${!category?.restrictions?.markdownAllowed}"  />
+        <g:textField  name="restrictions.maximumMarkdownPercentage" class="col-5 form-control" maxlength="3" value="${category?.restrictions?.maximumMarkdownPercentage?.intValue()}" readonly="${!category?.restrictions?.markdownAllowed}" oninput="validatePercentageInput(this)" />
         <div class="input-group-postpend">
             <span class="input-group-text">%</span>
         </div>
@@ -150,7 +163,7 @@
 <div class="row">
     <div class="form-group row col-5 offset-lg-1">
         <label for="restrictions.quantityChangeRestriction" class="col-5 col-form-label text-right pr-4">Quantity Change Restriction:</label>
-        <g:textField name="restrictions.quantityChangeRestriction" class="col-5 form-control" required="true" value="${category?.restrictions?.quantityChangeRestriction}" readonly="${!category?.restrictions?.quantityChangeAllowed}" />
+        <g:textField name="restrictions.quantityChangeRestriction" class="col-5 form-control numberField" maxlength="2" required="true" value="${category?.restrictions?.quantityChangeRestriction}" readonly="${!category?.restrictions?.quantityChangeAllowed}" />
     </div>
     <div class="form-group row col-5 form-check">
         <div class="col-5 col-form-label text-right pr-4 pt-0 pb-0">
@@ -171,8 +184,8 @@
         </div>
     </div>
     <div class="form-group row col-5">
-        <label for="restrictions.promptedDaysFrom" class="col-5 col-form-label text-right pr-4">Prompt Days From:</label>
-        <g:textField name="restrictions.promptedDaysFrom" class="col-5 form-control" required="true" value="${category?.restrictions?.promptedDaysFrom}" />
+        <label for="restrictions.promptedDaysFrom" class="col-5 col-form-label text-right pr-4">Prompted Days From:</label>
+        <g:textField name="restrictions.promptedDaysFrom" class="col-5 form-control numberField" maxlength="2" required="true" value="${category?.restrictions?.promptedDaysFrom}" />
     </div>
 </div>
 

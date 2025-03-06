@@ -243,6 +243,7 @@ class RetailerCommand implements Validateable {
     Integer cfdMaxProfiles
     Integer cfdProfileImageCount
     Integer alcoholMinimumPriceMultiplier
+    boolean charityEnabled
 
     MultipartFile brandLogo
 

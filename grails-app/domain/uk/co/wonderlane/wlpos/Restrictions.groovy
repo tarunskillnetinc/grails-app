@@ -1,6 +1,5 @@
 package uk.co.wonderlane.wlpos
 
-import uk.co.wonderlane.wlpos.PricingClassification
 import uk.co.wonderlane.wlpos.enums.StockClassification
 
 class Restrictions {

@@ -112,8 +112,6 @@
                     <div class="col-1 font-weight-bold">Product ID</div>
                     <div class="col-2 font-weight-bold">Item Code</div>
                     <div class="col font-weight-bold">Description</div>
-                    <div class="col-1 font-weight-bold">Colour</div>
-                    <div class="col-1 font-weight-bold">Size</div>
                     <div class="col-1 font-weight-bold">&nbsp;</div>
                 </div>
 

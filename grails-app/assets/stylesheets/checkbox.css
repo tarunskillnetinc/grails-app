@@ -75,21 +75,47 @@
 }
 
 .checkbox-container.level-2 {
-    margin-left: 38px;
+    margin-left: 30px;
 }
 
 .checkbox-container.level-3 {
-    margin-left: 76px;
+    margin-left: 60px;
 }
 
 .checkbox-container.level-4 {
-    margin-left: 114px;
+    margin-left: 90px;
+}
+
+.checkbox-container.level-5 {
+    margin-left: 120px;
+}
+
+.checkbox-container.level-6 {
+    margin-left: 150px;
+}
+
+.checkbox-container.level-7 {
+    margin-left: 180px;
+}
+
+.checkbox-container.level-8 {
+    margin-left: 210px;
+}
+
+.checkbox-container.level-9 {
+    margin-left: 240px;
+}
+
+.checkbox-container.level-10 {
+    margin-left: 270px;
 }
 
 .category-select {
     max-height: 300px;
     min-height: 150px;
     overflow-y: scroll;
+    overflow-x: scroll;
+    white-space: nowrap;
 }
 
 .category-select .search {

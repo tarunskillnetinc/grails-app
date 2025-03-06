@@ -95,7 +95,13 @@ class Product {
         vatPercentageOverride min:0 as BigDecimal, max: 100 as BigDecimal, blank: true, nullable: true, scale: 2
         vatCode nullable: false
         status nullable: false
-        category nullable: false
+        category nullable: false, validator: {val, obj ->
+            if (val?.retailerCategoryCode == null) {
+                return ["error.Product.retailerCategoryCode"]
+            }
+
+            return val?.validate()
+        }
         retailerProductId nullable: true
         restrictions validator: {val, obj ->
             return val?.validate() ? true : ["error.Product.badRestrictions"]
@@ -249,7 +255,7 @@ class Product {
         product.setDescription(description)
         product.setReceiptDescription(receiptDescription)
         product.setCategory(category.getCategory())
-        product.setUnitSize(variants?.get(0)?.getSelUnitSize())
+        product.setUnitSize(variants?.sort {a,b -> -(a.getEffectiveDate() <=> b.getEffectiveDate())}?.find {it.storeId == storeId || it.storeId == null}?.getSelUnitSize()?: "EACH")
         product.setWeightedItem(weightedItem)
         product.setPricePerKg(pricePerKg)
         product.setOpenPrice(openPrice)

@@ -20,17 +20,59 @@
             $(".mask-money").maskMoney({ allowZero: true, allowEmpty: true });
             $(".mask-money").maskMoney('mask');
 
-            intListener("restrictions.buyerAgeRestriction", 2, 99, true)
-            intListener("restrictions.buyerChallengeAge", 2, 99, true)
-            intListener("restrictions.sellerAgeRestriction", 2, 99, true)
-            intListener("restrictions.maximumMarkdownPercentage", 3, 100, true)
-            intListener("restrictions.quantityChangeRestriction", 2, 99, true)
-            intListener("restrictions.promptedDaysFrom", 2, 99, true)
+            $('.numberField').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                let maxLength = parseInt(this.getAttribute('maxlength'), 10);
+
+                if (!isNaN(maxLength) && this.value.length > maxLength) {
+                    this.value = this.value.slice(0, maxLength);
+                }
+            });
 
             $('#collapseCategoryHistory').on('show.bs.collapse', function () {
                 getCategoryHistory(${category?.id});
             });
         });
+
+        function validateNumericInputField(input, min, max, step, allowDecimal) {
+            const regex = allowDecimal ? /[^0-9.]/g : /[^0-9]/g;
+            input.value = input.value.replace(regex, '');
+
+            if (allowDecimal) {
+                const parts = input.value.split('.');
+                if (parts.length > 2) {
+                    input.value = parts[0] + '.' + parts.slice(1).join('');
+                }
+            }
+
+            const numericValue = parseFloat(input.value);
+            if (!isNaN(numericValue)) {
+                if (numericValue < min) {
+                    input.value = min;
+                } else if (numericValue > max) {
+                    input.value = input.value.slice(0, -1);
+                } else {
+                    input.value = allowDecimal ? Math.round(numericValue / step) * step : numericValue;
+                    if (allowDecimal && input.value.includes('.')) {
+                        input.value = parseFloat(input.value).toFixed(2);
+                    }
+                }
+            }
+        }
+
+        function validatePercentageInput(input) {
+            const regex = /[^0-9]/g;
+            input.value = input.value.replace(regex, '');
+
+            const numericValue = parseInt(input.value, 10);
+            if (!isNaN(numericValue)) {
+                if (numericValue < 0) {
+                    input.value = '0';
+                } else if (numericValue > 100) {
+                    input.value = '100';
+                }
+            }
+        }
 
         function onCategoryChanged(selectedCategoryId) {
             let getInheritanceUrl = "${createLink(controller: 'category', action: 'ajaxGetInheritance')}";
@@ -41,7 +83,7 @@
                     selectedCategoryId: selectedCategoryId,
                 },
                 success: function (resp) {
-                    $("#categoryInheritance").html(resp);
+                    $("#restrictions").html(resp);
                     $(".mask-money").maskMoney({ allowZero: true });
                     $(".mask-money").maskMoney('mask');
                     setFieldActivity()
@@ -152,7 +194,7 @@
     <section id="maintenance-section" class="container-fluid">
         <div class="row header-wl mt-3">
             <div class="col-8 offset-2">
-                <h2 class="mx-auto my-auto">Category Management</h2>
+                <h2 id="page-title" class="mx-auto my-auto">Category Management</h2>
             </div>
 
             <div class="col-2 text-right">

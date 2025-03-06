@@ -36,7 +36,7 @@ class ButtonController {
 
         [button: button,
          buttonImage: buttonImage,
-         availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type),
+         availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type).sort { message(code: "ProcessType.${it.name()}" ) },
          availableSubPages: buttonService.getOtherButtonGrids(),
          availableTenderTypes: availableTenderTypes,
          productSku: productVariant?.sku,
@@ -271,7 +271,7 @@ class ButtonController {
                 render (view: "edit", model: [
                         button: button,
                         buttonImage: buttonImage,
-                        availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type),
+                        availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type).sort { message(code: "ProcessType.${it.name()}" ) },
                         availableSubPages: buttonService.getOtherButtonGrids(),
                         availableTenderTypes: availableTenderTypes,
                         productSku: productVariant?.sku,
@@ -306,7 +306,7 @@ class ButtonController {
         render (view: "edit", model: [
                 button: button,
                 buttonImage: buttonImage,
-                availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type),
+                availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type).sort { message(code: "ProcessType.${it.name()}" ) },
                 availableSubPages: buttonService.getOtherButtonGrids(),
                 availableTenderTypes: availableTenderTypes,
                 productSku: productVariant?.sku,
