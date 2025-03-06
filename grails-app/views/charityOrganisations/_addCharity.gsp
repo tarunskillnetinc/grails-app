@@ -6,11 +6,11 @@
                 data-dismiss="modal">Cancel</button>
         <g:if test="${enableSave}">
             <button type="button" id="saveSupplierButton" class="btn btn-success"
-                    onclick="saveSupplier();">Save</button>
+                    onclick="saveCharity();">Save</button>
         </g:if>
         <g:else>
             <button type="button" id="saveSupplierButton" class="btn btn-success" disabled
-                    onclick="saveSupplier();">Save</button>
+                    onclick="saveCharity();">Save</button>
         </g:else>
     </div>
 </div>
@@ -36,6 +36,7 @@
                           from="${typeOptions}"
                           optionKey="key"
                           optionValue="value"
+                          value="${charity?.type}"
                           noSelection="['': 'Select Charity Organisation']"/>
             </div>
         </div>

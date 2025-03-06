@@ -81,6 +81,25 @@
             });
         }
 
+        //Save newly added supplier
+        function saveCharity() {
+            var formValues = $("#addCharityForm").serialize();
+            $("#addCharityContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>");
+            $.ajax({
+                url: saveCharityUrl,
+                method: "POST",
+                data: formValues,
+                success: function (resp) {
+                    if (resp === "OK") {
+                        $('#addCharityModal').modal('hide')
+                        searchCharity();
+                    } else {
+                        $("#addCharityContent").html(resp);
+                    }
+                }
+            });
+        }
+
 /*        //Popup supplier adding window
         function showAddSupplierModal() {
             $("#addSupplierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
@@ -135,24 +154,6 @@
                 });
             }
         }
-
-        //Save newly added supplier
-        function saveSupplier() {
-            var formValues = $("#addSupplierForm").serialize();
-            $("#addSupplierContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>");
-            $.ajax({
-                url: saveSupplierUrl,
-                method: "POST",
-                data: formValues,
-                success: function (resp) {
-                    if (resp === "OK") {
-                        $('#addSupplierModal').modal('hide')
-                        searchSupplier();
-                    } else {
-                        $("#addSupplierContent").html(resp);
-                    }
-                }
-            });
         }*/
     </script>
 </head>

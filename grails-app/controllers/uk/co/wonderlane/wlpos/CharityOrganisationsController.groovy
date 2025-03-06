@@ -28,6 +28,26 @@ class CharityOrganisationsController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSaveCharity() {
+        def charity
+        if (params.id && Integer.parseInt(params.id) > 0) {
+            charity = supplierService.getSupplier(Integer.parseInt(params.id))
+        } else {
+            charity = new CharityGroup()
+            charity.retailerId = springSecurityService.principal.retailerId
+        }
+
+        bindData(charity, params)
+        if (charity.validate()) {
+            charityService.saveSupplier(charity)
+
+            render "OK"
+        } else {
+            render(template: "addCharity", model: [enableSave: true, isUpdate: charity ? true : false, charity: charity, typeOptions: charityService.getTypeOptions()])
+        }
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGetSearchCharity(CharitySortParams sortParams) {
         session.CHARITY_TYPE_SEARCH_TERM = params.organisationTypeTerm
         session.CHARITY_MEMBER_NUMBER_SEARCH_TERM = params.charityMemberNumberTerm

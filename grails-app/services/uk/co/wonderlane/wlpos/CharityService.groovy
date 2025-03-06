@@ -57,4 +57,7 @@ class CharityService extends MySqlDal {
         return results
     }
 
+    void saveSupplier(CharityGroup charityGroup) {
+        charityGroup.save()
+    }
 }
