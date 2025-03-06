@@ -1331,15 +1331,14 @@ class ReportingController {
 
        ProductListItemGroup cage = ProductListItemGroup.findById(params.cageId)
 
-        render(template: "deliveryResults", model:  [reportType : ReportType.DELIVERY,
-                                                     items : cage.productListItems,
-                                                     startDate : startDate,
-                                                     endDate : endDate,
-                                                     supplierId : supplierId,
-                                                     storeId : storeId,
-                                                     descriptionFilter: descriptionFilter,
-                                                     userColumns : reportingService.getReportColumns(ReportType.DELIVERY),
-                                                     showAcceptDeliveryButton : false])
+
+        render(template: "deliveryResults", model: [items            : cage.productListItems,
+                                                    userColumns      : reportingService.getReportColumns(ReportType.DELIVERY),
+                                                    startDate        : startDate,
+                                                    endDate          : endDate,
+                                                    storeId          : storeId,
+                                                    supplierId       : supplierId,
+                                                    descriptionFilter: descriptionFilter])
     }
 
     // The bottom level of the main delivery report with the packs for an item in a delivery.
