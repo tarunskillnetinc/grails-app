@@ -24,7 +24,7 @@ class CharityGroup {
     }
 
     static constraints = {
-        retailerId nullable: true
+        retailerId nullable: false
         organisationName nullable: false, maxSize: 60
         memberNumber nullable: false, maxSize: 60
         type nullable: false, maxSize: 10, inList: ['CHARITY', 'GROUP']

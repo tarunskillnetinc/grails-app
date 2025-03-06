@@ -36,7 +36,7 @@ class CharityService extends MySqlDal {
                     like("organisationName", "%$charityGroupDescriptionTerm%")
                 }
             }
-            if (includeDeletedCharitiesTerm != "true") {
+            if (includeDeletedCharitiesTerm == "true") {
                 eq("active", false)
             }
         }
