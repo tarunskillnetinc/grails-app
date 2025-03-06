@@ -7,7 +7,7 @@
 
     <script type='text/javascript'>
         var globalSortParams = null;
-        var getCharityUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxGetCharity')}";
+        var getCharityUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxGetSearchCharity')}";
         var addCharityUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxAddCharity')}";
         var editCharityUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxEditCharity')}";
         var saveCharityUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxSaveCharity')}";
@@ -17,10 +17,10 @@
 
         //This will call supplier search method in supplier controller
         function searchCharity(sortParams) {
-/*            var supplierNameTerm = $('#supplierNameTerm').val();
-            var supplierReferenceTerm = $('#supplierReferenceTerm').val();
-            var customerReferenceTerm = $('#customerReferenceTerm').val();
-            var includeDeletedSuppliers = $('#includeDeletedSuppliers').prop('checked');
+            var organisationTypeTerm = $('#organisationTypeTerm').val();
+            var charityMemberNumberTerm = $('#charityMemberNumberTerm').val();
+            var charityGroupDescriptionTerm = $('#charityGroupDescriptionTerm').val();
+            var includeDeletedCharitiesTerm = $('#includeDeletedCharities').prop('checked');
 
             $('#results-container').html("<div class=\"d-flex justify-content-center\">\n" +
                 "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -28,8 +28,8 @@
                 "  </div>\n" +
                 "</div>");
 
-            var params = {supplierNameTerm: supplierNameTerm,
-                supplierReferenceTerm: supplierReferenceTerm,customerReferenceTerm: customerReferenceTerm, includeDeletedSuppliers: includeDeletedSuppliers,
+            var params = {organisationTypeTerm: organisationTypeTerm,
+                charityMemberNumberTerm: charityMemberNumberTerm, charityGroupDescriptionTerm: charityGroupDescriptionTerm, includeDeletedCharitiesTerm: includeDeletedCharitiesTerm,
                 offset: 0, max: 50};
 
             if(sortParams != null){globalSortParams = sortParams}
@@ -39,19 +39,19 @@
             }
 
             $.ajax({
-                url: getSuppliersUrl,
+                url: getCharityUrl,
                 data: params,
                 success: function (resp) {
                     $('#results-container').html(resp);
                 }
-            })*/
+            })
         }
 
         function resetForm() {
-/*            document.getElementById('supplierNameTerm').value = null;
-            document.getElementById('supplierReferenceTerm').value = null;
-            document.getElementById('customerReferenceTerm').value = null;
-            document.getElementById('includeDeletedSuppliers').checked = false;*/
+            document.getElementById('organisationTypeTerm').value = null;
+            document.getElementById('charityMemberNumberTerm').value = null;
+            document.getElementById('charityGroupDescriptionTerm').value = null;
+            document.getElementById('includeDeletedCharities').checked = false;
         }
 
         //Popup supplier adding window
@@ -201,9 +201,9 @@
                             <g:textField id="charityGroupDescriptionTerm" name="charityGroupDescriptionTerm" maxlength="100" value="${session.CHARITY_DESCRIPTION_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
                         </div>
 
-                        <label for="includeDeletedCharitiesTerm" class="col-2 col-form-label-sm text-right">Include Deleted Charity / Group</label>
+                        <label for="includeDeletedCharities" class="col-2 col-form-label-sm text-right">Include Deleted Charity / Group</label>
                         <div class="col-4 input-group-append">
-                            <g:checkBox id="includeDeletedCharitiesTerm" name="includeDeletedCharitiesTerm" checked="${session.INCLUDE_DELETED_CHARITIES_SEARCH_TERM}" class="col-1 form-check-input wl-checkbox ml-0" />
+                            <g:checkBox id="includeDeletedCharities" name="includeDeletedCharities" checked="${session.INCLUDE_DELETED_CHARITIES}" class="col-1 form-check-input wl-checkbox ml-0" />
                         </div>
                     </div>
                 </div>
