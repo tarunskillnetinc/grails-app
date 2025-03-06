@@ -433,6 +433,7 @@ beans = {
     multipartResolver(MaxFileUploadSizeResolver)
 
     snsService(SnsService) {
+        springSecurityService = ref('springSecurityService')
         snsClient = ref("snsClient")
         gsonProvider = ref("gsonProvider")
         supplierTopic = grailsApplication.config.getProperty("sns.snsSupplierTopic")
