@@ -45,7 +45,7 @@ class AmendableOrderController extends BaseController {
 
     def ajaxSearchOrders() {
         int offset = params.offset ? Integer.parseInt((String)params.offset) : 0
-        int max = params.max ? Integer.parseInt((String)params.max) : 50
+        int max = params.max ? Integer.parseInt((String)params.max) : 2
 
         def storeIdToSearchBy
         if (params.storeId) {
@@ -55,6 +55,8 @@ class AmendableOrderController extends BaseController {
         }
 
         def productListItems = amendableOrderService.search(params.category, storeIdToSearchBy)
+        def totalResults = productListItems.size()
+        productListItems = productListItems.drop(offset)?.take(max)
         def stores = storeService.getStores((int)springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
 
         render(template: "orderSearchResults", model: [     storeId: springSecurityService.principal.storeId != null ? springSecurityService.principal.storeId: params.storeId,
@@ -63,7 +65,8 @@ class AmendableOrderController extends BaseController {
                                                             stores: stores,
                                                             userColumns : getColumns(),
                                                             max         : max,
-                                                            offset      : offset])
+                                                            offset      : offset,
+                                                            totalResults: totalResults])
     }
 
     def viewCategory(int categoryId, int storeId) {
@@ -75,7 +78,7 @@ class AmendableOrderController extends BaseController {
 
     def ajaxViewCategoryOrders() {
         int offset = params.offset ? Integer.parseInt((String)params.offset) : 0
-        int max = params.max ? Integer.parseInt((String)params.max) : 50
+        int max = params.max ? Integer.parseInt((String)params.max) : 1
 
         def amendedLines = amendableOrderService.getOrdersForCategory(
                 Integers.parseInt((String)params.categoryId),
@@ -93,6 +96,9 @@ class AmendableOrderController extends BaseController {
                 available: value[0].available
         ), value.sort { it.deliveryDate} ]}
 
+        def totalResults = groupedLines.size()
+        groupedLines = groupedLines.drop(offset)?.take(max)
+
         render(template: "categoryResults", model: [
                 amendedLines: groupedLines,
                 categoryId: params.categoryId,
@@ -102,7 +108,8 @@ class AmendableOrderController extends BaseController {
                 storeId: params.storeId,
                 userColumns : getCategoryViewColumns(),
                 max: max,
-                offset: offset])
+                offset: offset,
+                totalResults: totalResults])
     }
 
     def save(SaveAmendedLinesCommand saveCommand) {
