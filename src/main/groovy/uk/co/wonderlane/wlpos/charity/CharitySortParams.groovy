@@ -6,7 +6,7 @@ class CharitySortParams implements Validateable {
 
     int max = 50
     int offset = 0
-    String sortColumn = "name"
+    String sortColumn = "organisationName"
     String sortOrder = "asc"
 
     void validateParams(def availableSortColumns) {

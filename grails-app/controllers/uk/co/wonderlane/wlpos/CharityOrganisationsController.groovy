@@ -1,7 +1,5 @@
 package uk.co.wonderlane.wlpos
 
-
-import groovy.json.JsonOutput
 import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.charity.CharitySortParams
 
@@ -13,11 +11,24 @@ class CharityOrganisationsController {
     private static final CHARITY_SORT_COLUMNS = [ "id", "organisationName" , "type", "memberNumber" , "active" ]
 
     @Secured(['ROLE_ENGINEER'])
-    def index() {}
+    def index() {
+        [typeOptions: charityService.getTypeOptions()]
+    }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddCharity() {
         render(template: "addCharity", model: [enableSave : true])
+    }
+
+    def getTypeOptions() {
+        [
+                [key: 'CHARITY', value: 'Charity'],
+                [key: 'GROUP', value: 'Group']
+        ]
+    }
+
+    def getCharity(int charityId) {
+        CharityGroup.findByRetailerIdAndId(springSecurityService.principal.retailerId, charityId)
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -45,6 +56,16 @@ class CharityOrganisationsController {
                          sortParams  : sortParams,
                          totalCount : totalCount
                 ])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxToggleCharityDeletedFlag(int charityId) {
+        def charity = charityService.getCharity(charityId) //Load charity
+        if (charity != null) {
+            charity.active = !charity.active;
+            charityService.saveCharity(charity)
+            render "OK"
+        }
     }
 
 }
