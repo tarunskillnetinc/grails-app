@@ -67,6 +67,19 @@
             });
         }
 
+        //Edit existing charity
+        function editCharity(charityId) {
+            $("#addCharityContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+            $('#addCharityModal').modal({show: true});
+            $.ajax({
+                url: editCharityUrl,
+                method: "GET",
+                data: {charityId: charityId},
+                success: function (resp) {
+                    $("#addCharityContent").html(resp);
+                }
+            });
+        }
 
 /*        //Popup supplier adding window
         function showAddSupplierModal() {

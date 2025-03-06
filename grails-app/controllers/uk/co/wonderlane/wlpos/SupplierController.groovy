@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat
 class SupplierController {
 
     def springSecurityService
-    def charityService
+    def supplierService
     def rabbitService
     def gsonProvider
 
@@ -40,7 +40,7 @@ class SupplierController {
         sortParams.validateParams(SUPPLIER_SORT_COLUMNS) //pre process supplier sorting column list
 
         def suppliers = [] //declare supplier list
-        def suppliersResponse = charityService.getSuppliers(params.supplierNameTerm, params.supplierReferenceTerm, params.customerReferenceTerm, params.includeDeletedSuppliers,
+        def suppliersResponse = supplierService.getSuppliers(params.supplierNameTerm, params.supplierReferenceTerm, params.customerReferenceTerm, params.includeDeletedSuppliers,
                 sortParams.offset ? sortParams.offset : 0, sortParams.max ? sortParams.max : 50, sortParams.sortColumn, sortParams.getSortOrder())
         def returnedSuppliers = suppliersResponse?.suppliers
         def totalCount = suppliersResponse?.totalCount
