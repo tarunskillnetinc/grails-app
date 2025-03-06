@@ -2,12 +2,12 @@
 <g:each in="${amendedLines?.entrySet()}" var="skuGrouping" status="i">
     <div id="amend-result-${counter+1}" class="row ml-0 mr-0 px-0 pt-2 pb-2 wl-striped${row++%2}">
         <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "sku" }?.enabled}">
-            <div id="amend-result-${i+1}-sku" class="col-2">
+            <div id="amend-result-${i+1}-sku" class="col-1">
                 ${skuGrouping.key.sku}
             </div>
         </g:if>
         <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "productDescription" }?.enabled}">
-            <div id="amend-result-${i+1}-productDescription" class="col-1">
+            <div id="amend-result-${i+1}-productDescription" class="col-2">
                 ${skuGrouping.key.productDescription}
             </div>
         </g:if>
