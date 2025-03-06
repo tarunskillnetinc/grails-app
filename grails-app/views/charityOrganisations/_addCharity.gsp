@@ -61,7 +61,7 @@
 
         <div class="row form-group mb-4">
             <label for="active" class="col-5 offset-1 col-form-label text-right pr-4">Active</label>
-            <g:checkBox id="active" name="status" checked="${charity?.active}"/>
+            <g:checkBox id="active" name="status" checked="${isUpdate ? charity?.active : true}"/>
         </div>
 
         <div class="row form-group mb-4">

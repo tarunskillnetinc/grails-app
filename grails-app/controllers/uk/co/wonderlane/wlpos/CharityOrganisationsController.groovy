@@ -11,6 +11,7 @@ import uk.co.wonderlane.wlpos.enums.SyncMessageType
 class CharityOrganisationsController {
     def springSecurityService
     def charityService
+    def rabbitService
 
     private static final CHARITY_SORT_COLUMNS = [ "id", "organisationName" , "type", "memberNumber" , "active" ]
 
@@ -61,7 +62,7 @@ class CharityOrganisationsController {
 
         msg.setDelete(deleted)
         msg.setInsert(!deleted)
-        msg.setCharity(charityGroup)
+        msg.setCharityGroup(charityGroup.getCharityGroup())
 
         rabbitService.sendMessage(msg)
     }

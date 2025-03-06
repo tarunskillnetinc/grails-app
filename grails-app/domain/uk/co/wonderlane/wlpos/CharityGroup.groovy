@@ -29,7 +29,7 @@ class CharityGroup {
     static constraints = {
         retailerId nullable: false
         organisationName nullable: false, maxSize: 60
-        memberNumber nullable: false, maxSize: 60
+        memberNumber nullable: false, maxSize: 60, unique: ['retailerId']
         type nullable: false, maxSize: 10
         active nullable: false
         isDefault nullable: false
