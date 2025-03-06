@@ -45,7 +45,7 @@ class AmendableOrderController extends BaseController {
 
     def ajaxSearchOrders() {
         int offset = params.offset ? Integer.parseInt((String)params.offset) : 0
-        int max = params.max ? Integer.parseInt((String)params.max) : 2
+        int max = params.max ? Integer.parseInt((String)params.max) : 50
 
         def storeIdToSearchBy
         if (params.storeId) {
@@ -78,7 +78,7 @@ class AmendableOrderController extends BaseController {
 
     def ajaxViewCategoryOrders() {
         int offset = params.offset ? Integer.parseInt((String)params.offset) : 0
-        int max = params.max ? Integer.parseInt((String)params.max) : 1
+        int max = params.max ? Integer.parseInt((String)params.max) : 50
 
         def amendedLines = amendableOrderService.getOrdersForCategory(
                 Integers.parseInt((String)params.categoryId),
