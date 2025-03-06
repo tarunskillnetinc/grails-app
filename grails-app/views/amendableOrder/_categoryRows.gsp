@@ -54,5 +54,10 @@
                 <g:set var="counter" value="${counter + 1}" />
             </g:each>
         </div>
+        <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "messages" }?.enabled}">
+            <div id="amend-result-${i+1}-messages" class="col-1">
+                ${skuGrouping.key.messages}
+            </div>
+        </g:if>
     </div>
 </g:each>

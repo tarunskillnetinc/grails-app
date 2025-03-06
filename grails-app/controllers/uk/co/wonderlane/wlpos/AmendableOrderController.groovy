@@ -2,13 +2,9 @@ package uk.co.wonderlane.wlpos
 
 import grails.validation.Validateable
 import org.apache.logging.log4j.core.util.Integers
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
 class AmendableOrderController extends BaseController {
-    // TODO - What security do we want to put on all of this
-
     def springSecurityService
     def storeService
     def categoryService
@@ -93,7 +89,8 @@ class AmendableOrderController extends BaseController {
                 price: value[0].price,
                 packQuantity: value[0].packQuantity,
                 demand: value[0].demand,
-                available: value[0].available
+                available: value[0].available,
+                messages: value[0].messages
         ), value.sort { it.deliveryDate} ]}
 
         def totalResults = groupedLines.size()
@@ -134,6 +131,7 @@ class AmendableOrderController extends BaseController {
         BigDecimal packQuantity
         BigDecimal demand
         BigDecimal available
+        String messages
         List<AmendableOrderService.AmendedLine> lines
     }
 }

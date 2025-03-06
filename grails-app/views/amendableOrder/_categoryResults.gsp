@@ -34,6 +34,9 @@
             <div class="col-1 font-weight-bold">Order Quantity</div>
         </g:if>
         <div class="col-1 font-weight-bold">Amend Qty</div>
+        <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "messages" }?.enabled}">
+            <div class="col-1 font-weight-bold">Messages</div>
+        </g:if>
 
     </div>
 
