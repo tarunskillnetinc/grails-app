@@ -28,8 +28,21 @@
         <g:hiddenField name="id" value="${charity?.id}"/>
 
         <div class="row form-group mb-4">
+            <label for="type"
+                   class="col-5 offset-1 col-form-label text-right">Organisation Type</label>
+
+            <div class="input-group col-4">
+                <g:select name="type"
+                          from="${typeOptions}"
+                          optionKey="key"
+                          optionValue="value"
+                          noSelection="['': 'Select Charity Organisation']"/>
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
             <label for="organisationName"
-                   class="col-3 offset-1 col-form-label text-right">Charity / Group Description</label>
+                   class="col-5 offset-1 col-form-label text-right">Charity / Group Description</label>
 
             <div class="input-group col-4">
                 <g:textField name="organisationName" value="${charity?.organisationName}"
@@ -38,7 +51,7 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="memberNumber" class="col-3 offset-1 col-form-label text-right">Member Number</label>
+            <label for="memberNumber" class="col-5 offset-1 col-form-label text-right">Member Number</label>
 
             <div class="input-group col-4">
                 <g:textField name="memberNumber" value="${charity?.memberNumber}" class="form-control bottom-border"/>
@@ -46,18 +59,18 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="active" class="col-5 col-form-label text-right pr-4">Active</label>
+            <label for="active" class="col-5 offset-1 col-form-label text-right pr-4">Active</label>
             <g:checkBox id="active" name="status" checked="${charity?.active}"/>
         </div>
 
         <div class="row form-group mb-4">
             <label for="defaultCharityGroup"
-                   class="col-5 col-form-label text-right pr-4">Default Charity Organisation</label>
+                   class="col-5 offset-1 col-form-label text-right pr-4">Default Charity Organisation</label>
             <g:checkBox id="defaultCharityGroup" name="defaultCharityGroup" checked="${charity?.isDefault}"/>
         </div>
 
         <div class="row form-group mb-4">
-            <label for="specialAppeals" class="col-5 col-form-label text-right pr-4">Special Appeals</label>
+            <label for="specialAppeals" class="col-5 offset-1 col-form-label text-right pr-4">Special Appeals</label>
             <g:checkBox id="specialAppeals" name="specialAppeals" checked="${charity?.specialAppeals}"/>
         </div>
     </g:form>

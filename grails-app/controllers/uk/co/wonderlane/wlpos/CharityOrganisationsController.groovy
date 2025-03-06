@@ -17,7 +17,14 @@ class CharityOrganisationsController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddCharity() {
-        render(template: "addCharity", model: [enableSave: true, isUpdate: false, charity: null])
+        render(template: "addCharity", model: [enableSave: true, isUpdate: false, charity: null, typeOptions: charityService.getTypeOptions()])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxEditCharity() {
+        int charityId = params.charityId ? Integer.parseInt(params.charityId) : 0
+
+        render(template: "addCharity", model: [enableSave: true, isUpdate: true, charity: charityService.getCharity(charityId), typeOptions: charityService.getTypeOptions()])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
