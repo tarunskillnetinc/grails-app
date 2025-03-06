@@ -13,6 +13,7 @@ class CharityGroup {
     static mapping = {
         table 'charitygroup'
         version false
+
         id column: 'id'
         retailerId column: 'retailerId', sqlType: "tinyint"
         organisationName column: 'organisationName'
