@@ -55,6 +55,8 @@ class AmendableOrderController extends BaseController {
         }
 
         def productListItems = amendableOrderService.search(params.category, storeIdToSearchBy)
+        def totalResults = productListItems.size()
+        productListItems = productListItems.drop(offset)?.take(max)
         def stores = storeService.getStores((int)springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
 
         render(template: "orderSearchResults", model: [     storeId: springSecurityService.principal.storeId != null ? springSecurityService.principal.storeId: params.storeId,
@@ -63,7 +65,8 @@ class AmendableOrderController extends BaseController {
                                                             stores: stores,
                                                             userColumns : getColumns(),
                                                             max         : max,
-                                                            offset      : offset])
+                                                            offset      : offset,
+                                                            totalResults: totalResults])
     }
 
     def viewCategory(int categoryId, int storeId) {
@@ -93,6 +96,9 @@ class AmendableOrderController extends BaseController {
                 available: value[0].available
         ), value.sort { it.deliveryDate} ]}
 
+        def totalResults = groupedLines.size()
+        groupedLines = groupedLines.drop(offset)?.take(max)
+
         render(template: "categoryResults", model: [
                 amendedLines: groupedLines,
                 categoryId: params.categoryId,
@@ -102,7 +108,8 @@ class AmendableOrderController extends BaseController {
                 storeId: params.storeId,
                 userColumns : getCategoryViewColumns(),
                 max: max,
-                offset: offset])
+                offset: offset,
+                totalResults: totalResults])
     }
 
     def save(SaveAmendedLinesCommand saveCommand) {
