@@ -4,6 +4,8 @@ package uk.co.wonderlane.wlpos
 import groovy.json.JsonOutput
 import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.charity.CharitySortParams
+import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 @Secured(['ROLE_ENGINEER'])
 class CharityOrganisationsController {
@@ -31,7 +33,7 @@ class CharityOrganisationsController {
     def ajaxSaveCharity() {
         def charity
         if (params.id && Integer.parseInt(params.id) > 0) {
-            charity = supplierService.getSupplier(Integer.parseInt(params.id))
+            charity = charityService.getCharity(Integer.parseInt(params.id))
         } else {
             charity = new CharityGroup()
             charity.retailerId = springSecurityService.principal.retailerId
@@ -40,11 +42,28 @@ class CharityOrganisationsController {
         bindData(charity, params)
         if (charity.validate()) {
             charityService.saveSupplier(charity)
+            sendSyncMessage(charity, !charity.active)
 
             render "OK"
         } else {
             render(template: "addCharity", model: [enableSave: true, isUpdate: charity ? true : false, charity: charity, typeOptions: charityService.getTypeOptions()])
         }
+    }
+
+    def sendSyncMessage(CharityGroup charityGroup, boolean deleted) {
+        SyncMessage msg = new SyncMessage(
+                SyncMessageType.CHARITY_GROUP,
+                springSecurityService.principal.retailerId,
+                springSecurityService.principal.storeNumber,
+                springSecurityService.principal.storeId,
+                null
+        )
+
+        msg.setDelete(deleted)
+        msg.setInsert(!deleted)
+        msg.setCharity(charityGroup)
+
+        rabbitService.sendMessage(msg)
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])

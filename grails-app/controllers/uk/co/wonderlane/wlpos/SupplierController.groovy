@@ -146,6 +146,7 @@ class SupplierController {
                 newSupplierCaseRate.supplier = supplier
                 supplierService.saveSupplierCaseRate(newSupplierCaseRate)
             }
+
             render "OK"
         } else {
             render(template: "addSupplier", model: [supplier: supplier, supplierCaseRate: newSupplierCaseRate, enableSave: true, isUpdate: supplier ? true : false])
