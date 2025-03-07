@@ -43,13 +43,40 @@ class CharityOrganisationsController {
 
         bindData(charity, params)
         if (charity.validate()) {
-            charityService.saveSupplier(charity)
-            sendSyncMessage(charity, !charity.active)
+            // Need to clear out all the other CharityGroups if special appeals or isdefault is set.
+            if (charityGroup.specialAppeals && charityGroup.isDefault) {
+                CharityGroup.findAllByRetailerId(springSecurityService.principal.retailerId).each { charityUpdate ->
+                    charityUpdate.isDefault = false
+                    charityUpdate.specialAppeals = false
+
+                    saveCharityAndSendSync(charityUpdate) // if both are set, then only loop this once.
+                }
+            } else if (charityGroup.specialAppeals) {
+                CharityGroup.findAllByRetailerId(springSecurityService.principal.retailerId).each { charityUpdate ->
+                    charityUpdate.specialAppeals = false
+
+                    saveCharityAndSendSync(charityUpdate)
+                }
+            } else if (charityGroup.isDefault) {
+                CharityGroup.findAllByRetailerId(springSecurityService.principal.retailerId).each { charityUpdate ->
+                    charityUpdate.isDefault = false
+                    saveCharityAndSendSync(charityUpdate)
+
+                    saveCharityAndSendSync(charityUpdate)
+                }
+            }
+
+            saveCharityAndSendSync(charity)
 
             render "OK"
         } else {
             render(template: "addCharity", model: [enableSave: true, isUpdate: charity ? true : false, charity: charity, typeOptions: CharityGroupType.values()])
         }
+    }
+
+    private void saveCharityAndSendSync(CharityGroup charity) {
+        charityService.saveCharity(charity)
+        sendSyncMessage(charity, !charity.active)
     }
 
     def sendSyncMessage(CharityGroup charityGroup, boolean deleted) {
