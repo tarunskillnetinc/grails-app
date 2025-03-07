@@ -44,20 +44,20 @@ class CharityOrganisationsController {
         bindData(charity, params)
         if (charity.validate()) {
             // Need to clear out all the other CharityGroups if special appeals or isdefault is set.
-            if (charityGroup.specialAppeals && charityGroup.isDefault) {
+            if (charity.specialAppeals && charity.isDefault) {
                 CharityGroup.findAllByRetailerId(springSecurityService.principal.retailerId).each { charityUpdate ->
                     charityUpdate.isDefault = false
                     charityUpdate.specialAppeals = false
 
                     saveCharityAndSendSync(charityUpdate) // if both are set, then only loop this once.
                 }
-            } else if (charityGroup.specialAppeals) {
+            } else if (charity.specialAppeals) {
                 CharityGroup.findAllByRetailerId(springSecurityService.principal.retailerId).each { charityUpdate ->
                     charityUpdate.specialAppeals = false
 
                     saveCharityAndSendSync(charityUpdate)
                 }
-            } else if (charityGroup.isDefault) {
+            } else if (charity.isDefault) {
                 CharityGroup.findAllByRetailerId(springSecurityService.principal.retailerId).each { charityUpdate ->
                     charityUpdate.isDefault = false
                     saveCharityAndSendSync(charityUpdate)
