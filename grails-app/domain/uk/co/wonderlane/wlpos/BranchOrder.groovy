@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
-import org.joda.time.DateTime
+
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
 class BranchOrder {
 
@@ -16,7 +17,7 @@ class BranchOrder {
         version false
 
         supplierReference column: "supplierReference"
-        type column: "type"
+        type column: "`type`"
     }
 
     static constraints = {

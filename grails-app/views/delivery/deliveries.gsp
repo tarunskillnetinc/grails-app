@@ -6,6 +6,7 @@
     <title>Deliveries</title>
 
     <script type="text/javascript">
+        let orders = []
         const urlFileReader = new FileReader()
         $(function ($) {
             urlFileReader.onload = onFileRead
@@ -13,6 +14,8 @@
         })
 
         function onFileUpload() {
+            orders = []
+
             const fileType = this.files[0].type
             if (fileType !== "text/csv" && fileType !== "application/vnd.ms-excel") {
                 alert('${message(code:'button.error.incompatible.message', args:['.csv'], default:"Incorrect file type. Please use .csv")}')
@@ -34,6 +37,7 @@
 
             const rowsArray = csv.split("\n")
             const csvArray = []
+            const supplierReferences = []
 
             for (const row of rowsArray) {
                 const rowValues = row.split(",")
@@ -42,52 +46,28 @@
                     "supplierReference": rowValues[0],
                     "bool": rowValues[1]
                 })
+
+                supplierReferences.push(rowValues[0])
             }
 
-            for (const entry of csvArray) {
-                checkCSVEntry(entry)
-                break // TODO: Temporary debug break
-            }
-        }
-
-        function checkCSVEntry(entry) {
             $.ajax({
-                url: "${createLink(controller: 'delivery', action: 'ajaxCheckValidDelivery')}",
+                url: "${createLink(controller: 'delivery', action: 'ajaxCheckValidDeliveries')}",
                 method: "POST",
-                data: entry,
+                data: supplierReferences,
                 statusCode: {
                     500: function (response) {
                         console.log(response.error)
-                        /*var errorList = response.responseJSON.error;
-
-                        if (errorList && errorList.length > 0) {
-                            let errorHeader = "An error occured when attempting to save the offer."
-                            let errorString = "";
-
-                            errorList.forEach(function(errorMessage) {
-                                errorString = errorString.concat("<li>" + errorMessage + "</li>");
-                            });
-
-                            $('#validation-errors').html("<ul class='no-bullets'>" + errorHeader + errorString + "\n</ul>");
-                            $('#validation-errors').prop("hidden", false);
-                        }*/
                     },
                     200: function (response) {
                         console.log(response.success)
                         if (response.success) {
-                            for (const order in response.orderList) {
-                                console.log(order)
-                            }
+                            console.log(response.order)
                         }
-                        /*var successMessage = "Loyalty Offer Saved Successfully";
-                        var redirectUrl = '${createLink(controller: 'loyalty', action:'loyaltyOffers')}';
-                        // Append success message as a query parameter
-                        redirectUrl += '?successMessage=' + encodeURIComponent(successMessage);
-                        // Redirect to the loyaltyOffers page with the success message
-                        window.location.href = redirectUrl;*/
                     }
                 }
             });
+
+            //render (template: "availableStores", model: [groupId: groupId, stores: storeSettings])
         }
     </script>
 </head>
@@ -140,9 +120,7 @@
 
 <section id="addProduct-section" class="container-fluid mt-4">
     <div class="col-12">
-        <g:uploadForm name="submission-form" action="save"
-                      params="[id: button?.id, buttonGridId: button?.buttonGrid?.id, row: button?.row, column: button?.column]">
-
+        <g:uploadForm name="submission-form" action="save">
             <input id="image" name="image" type="file" accept="text/csv,application/vnd.ms-excel" hidden/>
         </g:uploadForm>
     </div>

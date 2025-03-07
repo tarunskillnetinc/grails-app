@@ -23,16 +23,25 @@ class DeliveryController {
     def deliveries() {
     }
 
-    def ajaxCheckValidDelivery(BranchOrderValidCommand command) {
-        ArrayList<BranchOrder> branchOrder = branchOrderService.getBranchOrderBySupplierReference(command.supplierReference)
-        if (branchOrder == null) {
+    def ajaxCheckValidDeliveries(BranchOrderValidCommand command) {
+        log.println(command.supplierReference)
+        ArrayList<BranchOrder> branchOrderList = branchOrderService.getBranchOrderBySupplierReference(command.supplierReference)
+
+        log.println(branchOrderList)
+        if (branchOrderList == null || branchOrderList.isEmpty()) {
             response.setStatus(500)
             render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: "No branch order"])
             return
         }
 
+        for (BranchOrder order : branchOrderList) {
+            log.println(order)
+            log.println(order.supplierReference)
+            log.println(order.type)
+        }
         response.setStatus(200)
-        render status: 200, contentType: 'application/json', text: JsonOutput.toJson([success: true, orderList: branchOrder.toList()])
+        BranchOrder first = branchOrderList.first()
+        render status: 200, contentType: 'application/json', text: JsonOutput.toJson([success: true, order: [supplierReference: first.supplierReference, type: first.type]])
 
         /*Offer updatedLoyaltyOffer
         List<String> errorList = new ArrayList<>()

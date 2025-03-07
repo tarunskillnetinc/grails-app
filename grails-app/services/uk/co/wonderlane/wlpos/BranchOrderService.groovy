@@ -5,6 +5,7 @@ import org.hibernate.Session
 import org.hibernate.Transaction
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
 @Transactional
 class BranchOrderService extends MySqlDal {
