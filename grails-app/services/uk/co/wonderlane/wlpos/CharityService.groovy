@@ -20,13 +20,6 @@ class CharityService extends MySqlDal {
         return charities
     }
 
-    def getTypeOptions() {
-        [
-                [key: 'CHARITY', value: 'Charity'],
-                [key: 'GROUP', value: 'Group']
-        ]
-    }
-
     def getCharity(int charityId) {
         CharityGroup.findByRetailerIdAndId(springSecurityService.principal.retailerId, charityId)
     }

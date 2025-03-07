@@ -4,23 +4,23 @@ import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.charity.CharitySortParams
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
+import uk.co.wonderlane.wlpos.enums.CharityGroupType
 
-@Secured(['ROLE_ENGINEER'])
+@Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
 class CharityOrganisationsController {
     def springSecurityService
     def charityService
-    def rabbitService
 
     private static final CHARITY_SORT_COLUMNS = [ "id", "organisationName" , "type", "memberNumber" , "active" ]
 
-    @Secured(['ROLE_ENGINEER'])
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
-        [typeOptions: charityService.getTypeOptions()]
+        [typeOptions: CharityGroupType.values()]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddCharity() {
-        render(template: "addCharity", model: [enableSave: true, isUpdate: false, charity: null, typeOptions: charityService.getTypeOptions()])
+        render(template: "addCharity", model: [enableSave: true, isUpdate: false, charity: null, typeOptions: CharityGroupType.values()])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -85,7 +85,7 @@ class CharityOrganisationsController {
         session.CHARITY_DESCRIPTION_SEARCH_TERM = params.charityGroupDescriptionTerm
         session.INCLUDE_DELETED_CHARITIES = params.includeDeletedCharitiesTerm
 
-        sortParams.validateParams(CHARITY_SORT_COLUMNS) //pre process supplier sorting column list
+        sortParams.validateParams(CHARITY_SORT_COLUMNS) //pre process charity sorting column list
 
         def charities = [] //declare charity list
         def charitiesResponse = charityService.getCharities(params.organisationTypeTerm, params.charityMemberNumberTerm, params.charityGroupDescriptionTerm, params.includeDeletedCharitiesTerm,
@@ -106,10 +106,10 @@ class CharityOrganisationsController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def ajaxToggleCharityDeletedFlag(int charityId) {
+    def ajaxSetCharityEnabledFlag(int charityId, boolean charityEnabledFlag) {
         def charity = charityService.getCharity(charityId) //Load charity
         if (charity != null) {
-            charity.active = !charity.active;
+            charity.active = charityEnabledFlag;
             charityService.saveCharity(charity)
             render "OK"
         }

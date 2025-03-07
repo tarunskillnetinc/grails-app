@@ -11,7 +11,7 @@
         var addCharityUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxAddCharity')}";
         var editCharityUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxEditCharity')}";
         var saveCharityUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxSaveCharity')}";
-        var toggleCharityDeletedUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxToggleCharityDeletedFlag')}";
+        var setCharityEnabledFlagUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxSetCharityEnabledFlag')}";
 
         $(function () {searchCharity();}); //As soon as page open call this method
 
@@ -102,19 +102,22 @@
 
         function toggleCharityDeleted(charityId, currentlyActive, sortParams) {
             let confirmationMessage = ""
+            let charityEnabledFlag;
 
             if (currentlyActive) {
                 confirmationMessage = "Are you sure you want to delete the charity?"
+                charityEnabledFlag = false;
             } else {
                 confirmationMessage =  "Are you sure you want to reinstate the charity?"
+                charityEnabledFlag = true;
             }
 
             if (confirm(confirmationMessage)) {
                 $("#addCharityContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
                 $.ajax({
-                    url: toggleCharityDeletedUrl,
+                    url: setCharityEnabledFlagUrl,
                     method: "GET",
-                    data: {charityId: charityId},
+                    data: {charityId: charityId, charityEnabledFlag: charityEnabledFlag},
                     success: function (resp) {
                         if (resp === "OK") {
                             $('#addCharityModal').modal('hide')
@@ -145,14 +148,15 @@
     </nav>
 </section>
 
-<section id="suppliers-container" class="container-fluid">
+<section id="charities-container" class="container-fluid">
     <div class="row header-wl mt-3">
         <div class="col-8 offset-2">
             <h2 id="charity-organisations-page-title" class="mx-auto my-auto">Charity Organisations</h2>
         </div>
 
         <div class="col-2 text-right ">
-            <a id="add-new-charity-btn" href="#" class="btn btn-wl" onclick="showAddCharityModal();">Add Charity/Group</a>
+            <a id="add-new-charity-btn" href="#" class="btn btn-wl"
+               onclick="showAddCharityModal();">Add Charity / Group</a>
         </div>
     </div>
 
@@ -172,30 +176,41 @@
 
                 <div class="card-body collapse show" id="filterCollapse">
                     <div class="form-group row">
-                        <label for="organisationTypeTerm" class="col-2 col-form-label-sm text-right">Organisation Type:</label>
-                        <div class="col-4 input-group">
+                        <label for="organisationTypeTerm"
+                               class="col-3 col-form-label-sm text-right">Organisation Type:</label>
+
+                        <div class="col-3 input-group">
                             <g:select id="organisationTypeTerm" name="organisationTypeTerm"
                                       class="col-12 form-control"
+                                      valueMessagePrefix="CharityType"
                                       from="${typeOptions}"
-                                      optionKey="key"
-                                      optionValue="value"
                                       value="${session.CHARITY_TYPE_SEARCH_TERM}"
                                       noSelection="['': '']"/>
                         </div>
-                        <label for="charityMemberNumberTerm" class="col-2 col-form-label-sm text-right">Charity Member Number:</label>
-                        <div class="col-4 input-group">
-                            <g:textField id="charityMemberNumberTerm" name="charityMemberNumberTerm" maxlength="100" value="${session.CHARITY_MEMBER_NUMBER_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
+                        <label for="charityMemberNumberTerm"
+                               class="col-3 col-form-label-sm text-right">Charity Member Number:</label>
+
+                        <div class="col-3 input-group">
+                            <g:textField id="charityMemberNumberTerm" name="charityMemberNumberTerm" maxlength="60"
+                                         value="${session.CHARITY_MEMBER_NUMBER_SEARCH_TERM}" class="form-control"
+                                         aria-describedby="select-addon2"/>
                         </div>
                     </div>
 
                     <div class="form-group row">
-                        <label for="charityGroupDescriptionTerm" class="col-2 col-form-label-sm text-right">Charity / Group Description:</label>
-                        <div class="col-4 input-group">
-                            <g:textField id="charityGroupDescriptionTerm" name="charityGroupDescriptionTerm" maxlength="100" value="${session.CHARITY_DESCRIPTION_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
+                        <label for="charityGroupDescriptionTerm"
+                               class="col-3 col-form-label-sm text-right">Charity / Group Description:</label>
+
+                        <div class="col-3 input-group">
+                            <g:textField id="charityGroupDescriptionTerm" name="charityGroupDescriptionTerm"
+                                         maxlength="60" value="${session.CHARITY_DESCRIPTION_SEARCH_TERM}"
+                                         class="form-control" aria-describedby="select-addon2"/>
                         </div>
 
-                        <label for="includeDeletedCharities" class="col-2 col-form-label-sm text-right">Include Deleted Charity / Group</label>
-                        <div class="col-4 input-group-append">
+                        <label for="includeDeletedCharities"
+                               class="col-3 col-form-label-sm text-right">Include Deleted:</label>
+
+                        <div class="col-3 input-group-append">
                             <g:checkBox id="includeDeletedCharities" name="includeDeletedCharities" checked="${session.INCLUDE_DELETED_CHARITIES}" class="col-1 form-check-input wl-checkbox ml-0" />
                         </div>
                     </div>
