@@ -10,6 +10,7 @@ import uk.co.wonderlane.wlpos.enums.CharityGroupType
 class CharityOrganisationsController {
     def springSecurityService
     def charityService
+    def rabbitService
 
     private static final CHARITY_SORT_COLUMNS = [ "id", "organisationName" , "type", "memberNumber" , "active" ]
 
@@ -27,7 +28,7 @@ class CharityOrganisationsController {
     def ajaxEditCharity() {
         int charityId = params.charityId ? Integer.parseInt(params.charityId) : 0
 
-        render(template: "addCharity", model: [enableSave: true, isUpdate: true, charity: charityService.getCharity(charityId), typeOptions: charityService.getTypeOptions()])
+        render(template: "addCharity", model: [enableSave: true, isUpdate: true, charity: charityService.getCharity(charityId), typeOptions: CharityGroupType.values()])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -47,7 +48,7 @@ class CharityOrganisationsController {
 
             render "OK"
         } else {
-            render(template: "addCharity", model: [enableSave: true, isUpdate: charity ? true : false, charity: charity, typeOptions: charityService.getTypeOptions()])
+            render(template: "addCharity", model: [enableSave: true, isUpdate: charity ? true : false, charity: charity, typeOptions: CharityGroupType.values()])
         }
     }
 

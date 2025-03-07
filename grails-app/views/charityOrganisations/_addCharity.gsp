@@ -32,10 +32,9 @@
                    class="col-5 offset-1 col-form-label text-right">Organisation Type</label>
 
             <div class="input-group col-4">
-                <g:select name="type"
+                <g:select id="organisationType" name="type"
+                          valueMessagePrefix="CharityType"
                           from="${typeOptions}"
-                          optionKey="key"
-                          optionValue="value"
                           value="${charity?.type}"
                           noSelection="['': 'Select Charity Organisation']"/>
             </div>
