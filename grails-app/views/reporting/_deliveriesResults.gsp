@@ -1,8 +1,3 @@
-<script>
-    $(document).ready(function () {
-        $('label[for="descriptionFilter"]').text("Description")
-    })
-</script>
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "deliveryId" }?.enabled}">
         <div class="col-1 font-weight-bold"><a id="delivery-id" href="#" onclick="getReportData({

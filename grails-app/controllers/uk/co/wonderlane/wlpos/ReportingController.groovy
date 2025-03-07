@@ -1126,7 +1126,8 @@ class ReportingController {
          descriptionFilter: descriptionFilter,
          userColumns : reportingService.getReportColumns(ReportType.DELIVERY),
          showAcceptDeliveryButton : [ProductListStatus.PENDING, ProductListStatus.IN_PROGRESS].contains(delivery.status),
-         caged: params.caged]
+         caged: params.caged,
+        retailer: Retailer.get(springSecurityService.principal.retailerId)]
     }
 
     // The mid level of the main delivery report.
@@ -1199,7 +1200,7 @@ class ReportingController {
         }
 
         if (params.csv != null && params.csv == "true") {
-            // TODO handle cage csv
+            handleCSV(cages, true)
         } else {
             render(template: "deliveryCageResults", model: [cages            : cages,
                                                             userColumns      : reportingService.getReportColumns(ReportType.DELIVERY),
@@ -1250,7 +1251,7 @@ class ReportingController {
         items = sortParams.offset < items.size() ? items.subList(sortParams.offset, (sortParams.offset + sortParams.max < items.size() ? sortParams.offset + sortParams.max : items.size())) : []
 
         if (params.csv != null && params.csv == "true") {
-            handleCSV(items)
+            handleCSV(items, false)
         } else {
             render(template: "deliveryResults", model: [items            : items,
                                                         userColumns      : reportingService.getReportColumns(ReportType.DELIVERY),
@@ -1265,11 +1266,15 @@ class ReportingController {
         }
     }
 
-    private void handleCSV(List<Object> items) {
+    private void handleCSV(List<Object> items, boolean caged) {
         def fileName = "delivery-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
         response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
         response.setHeader("Content-Type", "text/csv;")
-        render getDeliveryCsv(items)
+        if (caged) {
+            render getCagedDeliveryCsv(items)
+        } else {
+            render getDeliveryCsv(items)
+        }
     }
 
     def ajaxAcceptDelivery() {
@@ -1314,6 +1319,26 @@ class ReportingController {
          storeId : storeId,
          supplierId : supplierId,
          descriptionFilter : descriptionFilter]
+    }
+
+    def deliveryCage() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        Integer supplierId = params.supplierId ? getIntegerParam(params.supplierId) : null
+        Integer storeId = params.storeId ? getIntegerParam(params.storeId) : null
+        String descriptionFilter = params.descriptionFilter
+
+       ProductListItemGroup cage = ProductListItemGroup.findById(params.cageId)
+
+
+        render(template: "deliveryResults", model: [items            : cage.productListItems,
+                                                    userColumns      : reportingService.getReportColumns(ReportType.DELIVERY),
+                                                    startDate        : startDate,
+                                                    endDate          : endDate,
+                                                    storeId          : storeId,
+                                                    supplierId       : supplierId,
+                                                    descriptionFilter: descriptionFilter])
     }
 
     // The bottom level of the main delivery report with the packs for an item in a delivery.
@@ -1937,6 +1962,21 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(item.totalCost)
             stringBuilder.append("\n")
+        }
+
+        return stringBuilder.toString()
+    }
+
+    private String getCagedDeliveryCsv(List<ProductListItemGroup> delivery) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Cage Barcode,Processing Date,Cases in Cage\n")
+
+        delivery?.each { group ->
+            stringBuilder.append(group?.uniqueIdentifier)
+            stringBuilder.append(",")
+            stringBuilder.append(group?.effectiveDate)
+            stringBuilder.append(",")
+            stringBuilder.append((int)group?.totalCases)
         }
 
         return stringBuilder.toString()

@@ -169,32 +169,58 @@
 
                     <div class="card-body collapse" id="columnsCollapse">
                         <g:form name="reportColumnsForm" id="reportColumnsForm">
-                            <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsSku" class="form-check-input"
-                                            value="sku"
-                                            checked="${!userColumns || userColumns?.columns?.find { it.column == 'sku' }?.enabled}"/>
-                                <label class="form-check-label" for="columnsSku">Product SKU</label>
+                            <div id="directDeliveryFilter">
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsSku" class="form-check-input"
+                                                value="sku"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'sku' }?.enabled}"/>
+                                    <label class="form-check-label" for="columnsSku">Product SKU</label>
+                                </div>
+
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsDescription" class="form-check-input"
+                                                value="description"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'description' }?.enabled}"/>
+                                    <label class="form-check-label" for="columnsDescription">Product Description</label>
+                                </div>
+
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsItemQuantity" class="form-check-input"
+                                                value="itemQuantity"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'itemQuantity' }?.enabled}"/>
+                                    <label class="form-check-label" for="columnsItemQuantity">Items Delivered</label>
+                                </div>
+
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsLineValue" class="form-check-input"
+                                                value="totalCost"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'totalCost' }?.enabled}"/>
+                                    <label class="form-check-label" for="columnsLineValue">Total Cost</label>
+                                </div>
                             </div>
 
-                            <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsDescription" class="form-check-input"
-                                            value="description"
-                                            checked="${!userColumns || userColumns?.columns?.find { it.column == 'description' }?.enabled}"/>
-                                <label class="form-check-label" for="columnsDescription">Product Description</label>
-                            </div>
+                            <div id="cageDeliveryFilter">
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsCageBarcode" class="form-check-input"
+                                                value="cageBarcode"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'cageBarcode' }?.enabled}"/>
+                                    <label class="form-check-label" for="cageBarcode">Cage Barcode</label>
+                                </div>
 
-                            <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsItemQuantity" class="form-check-input"
-                                            value="itemQuantity"
-                                            checked="${!userColumns || userColumns?.columns?.find { it.column == 'itemQuantity' }?.enabled}"/>
-                                <label class="form-check-label" for="columnsItemQuantity">Items Delivered</label>
-                            </div>
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsProcessingDate" class="form-check-input"
+                                                value="processingDate"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'processingDate' }?.enabled}"/>
+                                    <label class="form-check-label" for="columnsProcessingDate">Processing Date</label>
+                                </div>
 
-                            <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsLineValue" class="form-check-input"
-                                            value="totalCost"
-                                            checked="${!userColumns || userColumns?.columns?.find { it.column == 'totalCost' }?.enabled}"/>
-                                <label class="form-check-label" for="columnsLineValue">Total Cost</label>
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsCases" class="form-check-input"
+                                                value="cases"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'cases' }?.enabled}"/>
+                                    <label class="form-check-label"
+                                           for="columnsCases">${retailer?.config?.retailerTerminologyConfig?.packTerm}s in the Cage</label>
+                                </div>
                             </div>
 
                             <button id="columns-submit-button" type="button" class="btn btn-wl"

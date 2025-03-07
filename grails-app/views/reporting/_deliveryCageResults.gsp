@@ -1,7 +1,30 @@
 <script>
     $(document).ready(function () {
         $('label[for="descriptionFilter"]').text("Cage Barcode")
+        $('#cageDeliveryFilter').show()
+        $('#directDeliveryFilter').hide()
     })
+
+    function loadDeliveryCage(cageId) {
+        $.ajax({
+            url: '${createLink(action:'deliveryCage')}',
+            method: 'GET',
+            data: {
+                cageId: cageId,
+                storeId: ${storeId},
+                supplierId: ${supplierId},
+                startDate: '${startDate?.toString("dd/MM/yyyy")}',
+                endDate: '${endDate?.toString("dd/MM/yyyy")}',
+                descriptionFilter: '${descriptionFilter}'
+            },
+            success: function(response) {
+                $("#results-container").html(response);
+            },
+            error: function(xhr, status, error) {
+                console.error("An error occurred: " + error);
+            }
+        });
+    }
 </script>
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "cageBarcode" }?.enabled}">
@@ -26,7 +49,7 @@
             offset: ${sortParams?.offset},
             sortColumn: 'cases',
             sortOrder: ${sortParams?.sortColumn == 'cases' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">${retailer?.config?.retailerTerminologyConfig?.packTerm} in the Cage</a></div>
+        });">${retailer?.config?.retailerTerminologyConfig?.packTerm}s in the Cage</a></div>
     </g:if>
 </div>
 
@@ -41,17 +64,17 @@
         <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
     </g:if>
 
-    <g:each in="${cages}" var="item" status="i">
+    <g:each in="${cages}" var="cage" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" style="cursor: pointer;" title="Click to view"
-             onclick="document.location.href='${createLink(action:'deliveryResults', params: [productListId: item.productList.id, productListItemId: item.id, storeId: storeId, supplierId: supplierId, descriptionFilter: descriptionFilter, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy")])}';">
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "cageBarcode" }?.enabled}">
-                <div id="cageBarcode-${i + 1}" class="col-2 my-auto">${item?.uniqueIdentifier}</div>
+             onclick="loadDeliveryCage(${cage.id})">
+        <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "cageBarcode" }?.enabled}">
+                <div id="cageBarcode-${i + 1}" class="col-2 my-auto">${cage?.uniqueIdentifier}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "processingDate" }?.enabled}">
-                <div id="processingDate-${i + 1}" class="col-6 my-auto">${item?.effectiveDate}</div>
+                <div id="processingDate-${i + 1}" class="col-6 my-auto">${cage?.effectiveDate}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "cases" }?.enabled}">
-                <div id="cases-${i + 1}" class="col-2 my-auto">${item?.totalCases}</div>
+                <div id="cases-${i + 1}" class="col-2 my-auto">${cage?.totalCases}</div>
             </g:if>
         </div>
     </g:each>

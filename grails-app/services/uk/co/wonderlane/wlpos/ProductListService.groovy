@@ -512,6 +512,7 @@ class ProductListService extends MySqlDal {
         productListItemGroup.setId(rs.getInt("id"))
         productListItemGroup.setProductListId(rs.getInt("productListId"))
         productListItemGroup.setUniqueIdentifier(rs.getString("uniqueIdentifier"))
+        productListItemGroup.setEffectiveDate(new DateTime(rs.getDate("effectiveDate")))
         return productListItemGroup
     }
 
@@ -599,15 +600,12 @@ class ProductListService extends MySqlDal {
         }
     }
 
-    private List<uk.co.wonderlane.wlpos.entities.wlim.ProductListItem> addUnitSizeToProduct(int storeId, List<uk.co.wonderlane.wlpos.entities.wlim.ProductListItem> items) throws SQLException {
+    private static List<uk.co.wonderlane.wlpos.entities.wlim.ProductListItem> addUnitSizeToProduct(int storeId, List<uk.co.wonderlane.wlpos.entities.wlim.ProductListItem> items) throws SQLException {
         for (uk.co.wonderlane.wlpos.entities.wlim.ProductListItem item : items) {
             if (item.getUnitSize() == null) {
-                uk.co.wonderlane.wlpos.entities.ProductVariant variant = productService.getProductVariant(storeId, item.getProductVariantId())
+                ProductVariant variant = ProductVariant.findByIdAndStoreId(item.getProductVariantId(), storeId)
                 if (variant != null) {
-                    Product product = productService.getProduct(variant.getProductId())
-                    if (product != null) {
-                        item.setUnitSize(product.getUnitSize())
-                    }
+                    item.setUnitSize(String.valueOf(variant.getUnitSize()))
                 }
             }
         }
