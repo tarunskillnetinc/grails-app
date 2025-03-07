@@ -49,7 +49,7 @@
             offset: ${sortParams?.offset},
             sortColumn: 'cases',
             sortOrder: ${sortParams?.sortColumn == 'cases' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">${retailer?.config?.retailerTerminologyConfig?.packTerm} in the Cage</a></div>
+        });">${retailer?.config?.retailerTerminologyConfig?.packTerm}s in the Cage</a></div>
     </g:if>
 </div>
 

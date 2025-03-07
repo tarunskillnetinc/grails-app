@@ -219,7 +219,7 @@
                                                 value="cases"
                                                 checked="${!userColumns || userColumns?.columns?.find { it.column == 'cases' }?.enabled}"/>
                                     <label class="form-check-label"
-                                           for="columnsCases">${retailer?.config?.retailerTerminologyConfig?.packTerm} in the Cage</label>
+                                           for="columnsCases">${retailer?.config?.retailerTerminologyConfig?.packTerm}s in the Cage</label>
                                 </div>
                             </div>
 
