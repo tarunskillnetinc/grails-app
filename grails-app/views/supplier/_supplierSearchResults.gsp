@@ -71,13 +71,13 @@
                 <div class="button-container d-flex justify-content-end align-items-center">
                     <g:if test="${supplier.deleted == true}">
                         <button id="toggle-supplier-deleted-button-${i+1}" class="btn btn-wl p-1 me-1" style="min-width: 80px; font-size: 0.9rem;"
-                                onclick="event.stopPropagation(); toggleSupplierDeleted(${supplier.id}, ${supplier.deleted}, {offset: ${offset ?: 0}, sortColumn: '${sortParams?.sortColumn}'})">
+                                onclick="event.stopPropagation(); toggleSupplierDeleted(${supplier.id}, ${supplier.deleted}, {offset: ${offset ?: 0}, sortColumn: '${sortParams?.sortColumn}', sortOrder: '${sortParams?.sortOrder}'})">
                             Reinstate
                         </button>
                     </g:if>
                     <g:else>
                         <button id="toggle-supplier-deleted-button-${i+1}" class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem;"
-                                onclick="event.stopPropagation(); toggleSupplierDeleted(${supplier.id}, ${supplier.deleted},{offset: 0, sortColumn: '${sortParams?.sortColumn}'})">
+                                onclick="event.stopPropagation(); toggleSupplierDeleted(${supplier.id}, ${supplier.deleted},{offset: 0, sortColumn: '${sortParams?.sortColumn}', sortOrder: '${sortParams?.sortOrder}'})">
                             Delete
                         </button>
                     </g:else>
@@ -91,7 +91,7 @@
     <div class="my-3 text-right">
         <util:remotePaginate action="ajaxGetSearchSupplier" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[
                 supplierNameTerm: params.supplierNameTerm, supplierReferenceTerm: params.supplierReferenceTerm, customerReferenceTerm: params.customerReferenceTerm, includeDeletedSuppliers: params.includeDeletedSuppliers,
-                sortColumn: sortParams?.sortColumn,  sortParams: sortParams]" />
+                sortColumn: sortParams?.sortColumn, sortOrder: sortParams?.sortOrder, sortParams: sortParams]" />
     </div>
 </g:if>
 

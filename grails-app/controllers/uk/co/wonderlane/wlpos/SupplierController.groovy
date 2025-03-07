@@ -26,7 +26,6 @@ class SupplierController {
     def index() {}
 
     //This is for load symbol subscription (Affiliation) view initially
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def subscriptions() {}
 
     //search for suppliers
@@ -57,7 +56,6 @@ class SupplierController {
                 ])
     }
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGetSymbolGroupSubscriptions() {
         def symbolGroupSubscriptions = supplierService.getSymbolGroupSubscriptions()
         def symbolGroups = supplierService.getSymbolGroups()
@@ -93,10 +91,10 @@ class SupplierController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def ajaxToggleSupplierDeletedFlag(int supplierId) {
+    def ajaxSetSupplierDeletedFlag(int supplierId, boolean supplierDeletedFlag) {
         def supplier = supplierService.getSupplier(supplierId) //Load supplier
         if (supplier != null) {
-            supplier.deleted = !supplier.deleted;
+            supplier.deleted = supplierDeletedFlag;
             supplierService.saveSupplier(supplier)
             render "OK"
         }
@@ -153,7 +151,6 @@ class SupplierController {
         }
     }
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddSymbolGroupSubscription() {
         def symbolGroups = supplierService.getSymbolGroups()
 
@@ -168,7 +165,6 @@ class SupplierController {
         render(template: "addSymbolGroupSubscription", model: [symbolGroups: symbolGroups])
     }
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxEditSymbolGroupSubscription(int symbolGroupSubscriptionId) {
         def symbolGroupSubscription = supplierService.getSymbolGroupSubscription(symbolGroupSubscriptionId)
 
@@ -185,7 +181,6 @@ class SupplierController {
         render(template: "addSymbolGroupSubscription", model: [symbolGroupSubscription: symbolGroupSubscription, symbolGroups: symbolGroups])
     }
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSymbolGroupAction() {
         switch (Integer.parseInt(params.symbolGroupId)) {
             case 4: // Snappy
@@ -199,7 +194,6 @@ class SupplierController {
         render status: 200, text: "Sync should begin shortly for Snappy Service in Store " + springSecurityService.principal.storeNumber + "."
     }
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGetSymbolGroupForm(int symbolGroupId) {
         def symbolGroupSubscription = supplierService.getSymbolGroupSubscription(symbolGroupId)
         def symbolGroups = supplierService.getSymbolGroups()
@@ -224,7 +218,6 @@ class SupplierController {
         }
     }
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveSymbolGroupSubscription() {
         def symbolGroupSubscription
 
