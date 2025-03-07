@@ -45,8 +45,10 @@
     <g:each in="${charities}" var="charity" status="i">
         <div id="charity-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="editCharity(${charity.id});">
             <div id="charity-result-${i+1}-name" class="col-3 my-auto" style='word-break: break-all; word-wrap: break-word;'>${charity.organisationName}</div>
-            <div id="charity-result-${i+1}-type" class="col-3 my-auto" style='word-break: break-all; word-wrap: break-word;'>
-                <g:message code="CharityType.${charity.type}" />
+
+            <div id="charity-result-${i + 1}-type" class="col-3 my-auto"
+                 style='word-break: break-all; word-wrap: break-word;'>
+                <g:message code="CharityType.${charity.type}"/>
             </div>
             <div id="charity-result-${i+1}-member-number" class="col-3 my-auto" style='word-break: break-all; word-wrap: break-word;'>${charity.memberNumber}</div>
             <div id="charity-result-${i+1}-active" class="col-2 my-auto" style='word-break: break-all; word-wrap: break-word;'>
@@ -61,13 +63,23 @@
                 <div class="button-container d-flex justify-content-end align-items-center">
                     <g:if test="${charity.active != true}">
                         <button id="toggle-charity-deleted-button-${i+1}" class="btn btn-wl p-1 me-1" style="min-width: 80px; font-size: 0.9rem;"
-                                onclick="event.stopPropagation(); toggleCharityDeleted(${charity.id}, ${charity.active}, {offset: ${offset ?: 0}, sortColumn: '${sortParams?.sortColumn}', sortOrder: '${sortParams?.sortOrder}'})">
+                                onclick="event.stopPropagation();
+                                toggleCharityDeleted(${charity.id}, ${charity.active}, {
+                                    offset: ${offset ?: 0},
+                                    sortColumn: '${sortParams?.sortColumn}',
+                                    sortOrder: '${sortParams?.sortOrder}'
+                                })">
                             Reinstate
                         </button>
                     </g:if>
                     <g:else>
                         <button id="toggle-charity-deleted-button-${i+1}" class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem;"
-                                onclick="event.stopPropagation(); toggleCharityDeleted(${charity.id}, ${charity.active}, {offset: 0, sortColumn: '${sortParams?.sortColumn}', sortOrder: '${sortParams?.sortOrder}'})">
+                                onclick="event.stopPropagation();
+                                toggleCharityDeleted(${charity.id}, ${charity.active}, {
+                                    offset: 0,
+                                    sortColumn: '${sortParams?.sortColumn}',
+                                    sortOrder: '${sortParams?.sortOrder}'
+                                })">
                             Delete
                         </button>
                     </g:else>
@@ -83,7 +95,7 @@
         <util:remotePaginate action="ajaxGetSearchCharity" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[
                 organisationTypeTerm: params.organisationTypeTerm,
                 charityMemberNumberTerm: params.charityMemberNumberTerm, charityGroupDescriptionTerm: params.charityGroupDescriptionTerm, includeDeletedCharitiesTerm: params.includeDeletedCharitiesTerm,
-                sortColumn: sortParams?.sortColumn, sortOrder: sortParams?.sortOrder, sortParams: sortParams]" />
+                sortColumn: sortParams?.sortColumn, sortOrder: sortParams?.sortOrder, sortParams: sortParams]"/>
     </div>
 </g:if>
 

@@ -81,6 +81,25 @@
             });
         }
 
+        //Save newly added charity
+        function saveCharity() {
+            var formValues = $("#addCharityForm").serialize();
+            $("#addCharityContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>");
+            $.ajax({
+                url: saveCharityUrl,
+                method: "POST",
+                data: formValues,
+                success: function (resp) {
+                    if (resp === "OK") {
+                        $('#addCharityModal').modal('hide')
+                        searchCharity();
+                    } else {
+                        $("#addCharityContent").html(resp);
+                    }
+                }
+            });
+        }
+
         function toggleCharityDeleted(charityId, currentlyActive, sortParams) {
             let confirmationMessage = ""
             let charityEnabledFlag;
@@ -136,7 +155,8 @@
         </div>
 
         <div class="col-2 text-right ">
-            <a id="add-new-charity-btn" href="#" class="btn btn-wl" onclick="showAddCharityModal();">Add Charity / Group</a>
+            <a id="add-new-charity-btn" href="#" class="btn btn-wl"
+               onclick="showAddCharityModal();">Add Charity / Group</a>
         </div>
     </div>
 
@@ -156,7 +176,9 @@
 
                 <div class="card-body collapse show" id="filterCollapse">
                     <div class="form-group row">
-                        <label for="organisationTypeTerm" class="col-3 col-form-label-sm text-right">Organisation Type:</label>
+                        <label for="organisationTypeTerm"
+                               class="col-3 col-form-label-sm text-right">Organisation Type:</label>
+
                         <div class="col-3 input-group">
                             <g:select id="organisationTypeTerm" name="organisationTypeTerm"
                                       class="col-12 form-control"
@@ -165,19 +187,29 @@
                                       value="${session.CHARITY_TYPE_SEARCH_TERM}"
                                       noSelection="['': '']"/>
                         </div>
-                        <label for="charityMemberNumberTerm" class="col-3 col-form-label-sm text-right">Charity Member Number:</label>
+                        <label for="charityMemberNumberTerm"
+                               class="col-3 col-form-label-sm text-right">Charity Member Number:</label>
+
                         <div class="col-3 input-group">
-                            <g:textField id="charityMemberNumberTerm" name="charityMemberNumberTerm" maxlength="60" value="${session.CHARITY_MEMBER_NUMBER_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
+                            <g:textField id="charityMemberNumberTerm" name="charityMemberNumberTerm" maxlength="60"
+                                         value="${session.CHARITY_MEMBER_NUMBER_SEARCH_TERM}" class="form-control"
+                                         aria-describedby="select-addon2"/>
                         </div>
                     </div>
 
                     <div class="form-group row">
-                        <label for="charityGroupDescriptionTerm" class="col-3 col-form-label-sm text-right">Charity / Group Description:</label>
+                        <label for="charityGroupDescriptionTerm"
+                               class="col-3 col-form-label-sm text-right">Charity / Group Description:</label>
+
                         <div class="col-3 input-group">
-                            <g:textField id="charityGroupDescriptionTerm" name="charityGroupDescriptionTerm" maxlength="60" value="${session.CHARITY_DESCRIPTION_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
+                            <g:textField id="charityGroupDescriptionTerm" name="charityGroupDescriptionTerm"
+                                         maxlength="60" value="${session.CHARITY_DESCRIPTION_SEARCH_TERM}"
+                                         class="form-control" aria-describedby="select-addon2"/>
                         </div>
 
-                        <label for="includeDeletedCharities" class="col-3 col-form-label-sm text-right">Include Deleted:</label>
+                        <label for="includeDeletedCharities"
+                               class="col-3 col-form-label-sm text-right">Include Deleted:</label>
+
                         <div class="col-3 input-group-append">
                             <g:checkBox id="includeDeletedCharities" name="includeDeletedCharities" checked="${session.INCLUDE_DELETED_CHARITIES}" class="col-1 form-check-input wl-checkbox ml-0" />
                         </div>

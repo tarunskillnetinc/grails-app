@@ -66,7 +66,8 @@
                     Active
                 </g:else>
             </div>
-            <div id="supplier-result-${i+1}-delete-toggle" class="col-1 my-auto">
+
+            <div id="supplier-result-${i + 1}-delete-toggle" class="col-1 my-auto">
                 <div class="button-container d-flex justify-content-end align-items-center">
                     <g:if test="${supplier.deleted == true}">
                         <button id="toggle-supplier-deleted-button-${i+1}" class="btn btn-wl p-1 me-1" style="min-width: 80px; font-size: 0.9rem;"

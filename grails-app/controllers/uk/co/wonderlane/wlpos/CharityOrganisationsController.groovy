@@ -2,12 +2,15 @@ package uk.co.wonderlane.wlpos
 
 import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.charity.CharitySortParams
+import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.enums.CharityGroupType
 
 @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
 class CharityOrganisationsController {
     def springSecurityService
     def charityService
+    def rabbitService
 
     private static final CHARITY_SORT_COLUMNS = [ "id", "organisationName" , "type", "memberNumber" , "active" ]
 
@@ -18,10 +21,53 @@ class CharityOrganisationsController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddCharity() {
-        render(template: "addCharity", model: [enableSave : true])
+        render(template: "addCharity", model: [enableSave: true, isUpdate: false, charity: null, typeOptions: CharityGroupType.values()])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxEditCharity() {
+        int charityId = params.charityId ? Integer.parseInt(params.charityId) : 0
+
+        render(template: "addCharity", model: [enableSave: true, isUpdate: true, charity: charityService.getCharity(charityId), typeOptions: CharityGroupType.values()])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSaveCharity() {
+        def charity
+        if (params.id && Integer.parseInt(params.id) > 0) {
+            charity = charityService.getCharity(Integer.parseInt(params.id))
+        } else {
+            charity = new CharityGroup()
+            charity.retailerId = springSecurityService.principal.retailerId
+        }
+
+        bindData(charity, params)
+        if (charity.validate()) {
+            charityService.saveSupplier(charity)
+            sendSyncMessage(charity, !charity.active)
+
+            render "OK"
+        } else {
+            render(template: "addCharity", model: [enableSave: true, isUpdate: charity ? true : false, charity: charity, typeOptions: CharityGroupType.values()])
+        }
+    }
+
+    def sendSyncMessage(CharityGroup charityGroup, boolean deleted) {
+        SyncMessage msg = new SyncMessage(
+                SyncMessageType.CHARITY_GROUP,
+                springSecurityService.principal.retailerId,
+                springSecurityService.principal.storeNumber,
+                springSecurityService.principal.storeId,
+                null
+        )
+
+        msg.setDelete(deleted)
+        msg.setInsert(!deleted)
+        msg.setCharityGroup(charityGroup.getCharityGroup())
+
+        rabbitService.sendMessage(msg)
+    }
+
     def getCharity(int charityId) {
         CharityGroup.findByRetailerIdAndId(springSecurityService.principal.retailerId, charityId)
     }

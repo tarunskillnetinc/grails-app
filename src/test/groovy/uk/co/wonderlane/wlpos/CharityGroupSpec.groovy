@@ -11,4 +11,8 @@ class CharityGroupSpec extends Specification implements DomainUnitTest<CharityGr
     def cleanup() {
     }
 
+    void "test something"() {
+        expect:"fix me"
+            true == false
+    }
 }

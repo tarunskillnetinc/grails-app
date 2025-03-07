@@ -20,6 +20,10 @@ class CharityService extends MySqlDal {
         return charities
     }
 
+    def getCharity(int charityId) {
+        CharityGroup.findByRetailerIdAndId(springSecurityService.principal.retailerId, charityId)
+    }
+
     //This method will load charities  based on provided arguments
     def getCharities(String organisationTypeTerm, String charityMemberNumberTerm, String charityGroupDescriptionTerm,String includeDeletedCharitiesTerm, int offset, int max, String sortColumn, String sortOrder) {
         //Load charities by db
@@ -49,19 +53,7 @@ class CharityService extends MySqlDal {
         return results
     }
 
-    def getTypeOptions() {
-        [
-                [key: 'CHARITY', value: 'Charity'],
-                [key: 'GROUP', value: 'Group']
-        ]
-    }
-
-    void saveCharity(CharityGroup charityGroup) {
+    void saveSupplier(CharityGroup charityGroup) {
         charityGroup.save()
     }
-
-    def getCharity(int id) {
-        return CharityGroup.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
-    }
-
 }
