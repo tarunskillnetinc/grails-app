@@ -50,24 +50,23 @@
                 supplierReferences.push(rowValues[0])
             }
 
+            console.log(supplierReferences)
+
             $.ajax({
                 url: "${createLink(controller: 'delivery', action: 'ajaxCheckValidDeliveries')}",
                 method: "POST",
-                data: supplierReferences,
+                data: {"supplierReferences": JSON.stringify(supplierReferences)},
                 statusCode: {
                     500: function (response) {
+                        console.log("500")
                         console.log(response.error)
                     },
                     200: function (response) {
-                        console.log(response.success)
-                        if (response.success) {
-                            console.log(response.order)
-                        }
+                        console.log("200")
+                        $('#results-container').html(response);
                     }
                 }
             });
-
-            //render (template: "availableStores", model: [groupId: groupId, stores: storeSettings])
         }
     </script>
 </head>
