@@ -69,7 +69,9 @@ class AmendableOrderService extends MySqlPoolDal {
         criteria.setProjection(getOrderSearchProjections())
         criteria.setResultTransformer(getOrderSearchResultTransformer())
 
-        return criteria.list()
+        return criteria.list().unique {
+            a, b -> a.categoryId <=> b.categoryId
+        }
     }
 
     def getOrdersForCategory(categoryId, sku, productDescription, deliveryDate, storeId) {
