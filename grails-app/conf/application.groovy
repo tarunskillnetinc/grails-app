@@ -3,64 +3,65 @@ grails.plugin.springsecurity.password.bcrypt.logrounds = 8
 
 // Added by the Spring Security Core plugin:
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
-	[pattern: '/',                  	access: ['permitAll']],
-	[pattern: '/actuator/health',   	access: ['permitAll']],
-	[pattern: '/error',             	access: ['permitAll']],
-	[pattern: '/index',             	access: ['isAuthenticated()']],
-	[pattern: '/index.gsp',         	access: ['permitAll']],
-	[pattern: '/shutdown',          	access: ['permitAll']],
-	[pattern: '/assets/**',         	access: ['permitAll']],
-	[pattern: '/**/js/**',          	access: ['permitAll']],
-	[pattern: '/**/css/**',         	access: ['permitAll']],
-	[pattern: '/**/images/**',      	access: ['permitAll']],
-	[pattern: '/**/favicon.ico',    	access: ['permitAll']],
-	[pattern: '/retailer/**',       	access: 'isAuthenticated()'],
-	[pattern: '/store/**',          	access: 'isAuthenticated()'],
-	[pattern: '/button/**',         	access: 'isAuthenticated()'],
-	[pattern: '/buttonGrid/**',     	access: 'isAuthenticated()'],
-	[pattern: '/product/**',        	access: 'isAuthenticated()'],
-	[pattern: '/productAttributes/**',	access: 'isAuthenticated()'],
-	[pattern: '/promotion/**',      	access: 'isAuthenticated()'],
-	[pattern: '/reporting/**',      	access: 'isAuthenticated()'],
-	[pattern: '/cashReporting/**',      access: 'isAuthenticated()'],
-	[pattern: '/user/**',           	access: 'isAuthenticated()'],
-	[pattern: '/productList/**',    	access: 'isAuthenticated()'],
-	[pattern: '/shift/**',          	access: 'isAuthenticated()'],
-	[pattern: '/supplier/**',       	access: 'isAuthenticated()'],
-	[pattern: '/monitoring/**',     	access: 'isAuthenticated()'],
-	[pattern: '/group/**',          	access: 'isAuthenticated()'],
-	[pattern: '/receipt/**',        	access: 'isAuthenticated()'],
-    [pattern: '/productGroup/**', access: 'isAuthenticated()'],
-	[pattern: '/shelfEdgeLabel/**', 	access: 'isAuthenticated()'],
-	[pattern: '/order/**',  	    	access: 'isAuthenticated()'],
-	[pattern: '/hardwareImport/**', 	access: 'isAuthenticated()'],
-	[pattern: '/tillAssignment/**', 	access: 'isAuthenticated()'],
-	[pattern: '/category/**',	    	access: 'isAuthenticated()'],
-    [pattern: '/loyalty/**',	    	access: 'isAuthenticated()'],
-	[pattern: '/barcodeConfig/**',  	access: 'isAuthenticated()'],
-	[pattern: '/cashManagement/**', 	access: 'isAuthenticated()'],
-	[pattern: '/modal/**',          	access: 'isAuthenticated()'],
-	[pattern: '/safe/**',           	access: 'isAuthenticated()'],
-	[pattern: '/tenderMovement/**', 	access: 'isAuthenticated()'],
-	[pattern: '/safeManagement/**', 	access: 'isAuthenticated()'],
-	[pattern: '/partnerCategoryManagement/**', 	access: 'isAuthenticated()'],
-	[pattern: '/multiSelectCategory/**', 	access: 'isAuthenticated()'],
-	[pattern: '/amendableOrder/**', 	access: 'isAuthenticated()']
+        [pattern: '/', access: ['permitAll']],
+        [pattern: '/actuator/health', access: ['permitAll']],
+        [pattern: '/error', access: ['permitAll']],
+        [pattern: '/index', access: ['isAuthenticated()']],
+        [pattern: '/index.gsp', access: ['permitAll']],
+        [pattern: '/shutdown', access: ['permitAll']],
+        [pattern: '/assets/**', access: ['permitAll']],
+        [pattern: '/**/js/**', access: ['permitAll']],
+        [pattern: '/**/css/**', access: ['permitAll']],
+        [pattern: '/**/images/**', access: ['permitAll']],
+        [pattern: '/**/favicon.ico', access: ['permitAll']],
+        [pattern: '/retailer/**', access: 'isAuthenticated()'],
+        [pattern: '/store/**', access: 'isAuthenticated()'],
+        [pattern: '/button/**', access: 'isAuthenticated()'],
+        [pattern: '/buttonGrid/**', access: 'isAuthenticated()'],
+        [pattern: '/product/**', access: 'isAuthenticated()'],
+        [pattern: '/productAttributes/**', access: 'isAuthenticated()'],
+        [pattern: '/promotion/**', access: 'isAuthenticated()'],
+        [pattern: '/reporting/**', access: 'isAuthenticated()'],
+        [pattern: '/cashReporting/**', access: 'isAuthenticated()'],
+        [pattern: '/user/**', access: 'isAuthenticated()'],
+        [pattern: '/productList/**', access: 'isAuthenticated()'],
+        [pattern: '/shift/**', access: 'isAuthenticated()'],
+        [pattern: '/supplier/**', access: 'isAuthenticated()'],
+        [pattern: '/monitoring/**', access: 'isAuthenticated()'],
+        [pattern: '/group/**', access: 'isAuthenticated()'],
+        [pattern: '/receipt/**', access: 'isAuthenticated()'],
+        [pattern: '/productGroup/**', access: 'isAuthenticated()'],
+        [pattern: '/shelfEdgeLabel/**', access: 'isAuthenticated()'],
+        [pattern: '/order/**', access: 'isAuthenticated()'],
+        [pattern: '/hardwareImport/**', access: 'isAuthenticated()'],
+        [pattern: '/tillAssignment/**', access: 'isAuthenticated()'],
+        [pattern: '/category/**', access: 'isAuthenticated()'],
+        [pattern: '/loyalty/**', access: 'isAuthenticated()'],
+        [pattern: '/barcodeConfig/**', access: 'isAuthenticated()'],
+        [pattern: '/cashManagement/**', access: 'isAuthenticated()'],
+        [pattern: '/modal/**', access: 'isAuthenticated()'],
+        [pattern: '/safe/**', access: 'isAuthenticated()'],
+        [pattern: '/tenderMovement/**', access: 'isAuthenticated()'],
+        [pattern: '/safeManagement/**', access: 'isAuthenticated()'],
+        [pattern: '/partnerCategoryManagement/**', access: 'isAuthenticated()'],
+        [pattern: '/multiSelectCategory/**', access: 'isAuthenticated()'],
+        [pattern: '/amendableOrder/**', access: 'isAuthenticated()'],
+        [pattern: '/delivery/**', access: 'isAuthenticated()']
 ]
 
 grails.plugin.springsecurity.filterChain.chainMap = [
-	[pattern: '/assets/**',      filters: 'none'],
-	[pattern: '/**/js/**',       filters: 'none'],
-	[pattern: '/**/css/**',      filters: 'none'],
-	[pattern: '/**/images/**',   filters: 'none'],
-	[pattern: '/**/favicon.ico', filters: 'none'],
-	[pattern: '/**',             filters: 'JOINED_FILTERS']
+        [pattern: '/assets/**', filters: 'none'],
+        [pattern: '/**/js/**', filters: 'none'],
+        [pattern: '/**/css/**', filters: 'none'],
+        [pattern: '/**/images/**', filters: 'none'],
+        [pattern: '/**/favicon.ico', filters: 'none'],
+        [pattern: '/**', filters: 'JOINED_FILTERS']
 ]
 
 grails.plugin.springsecurity.providerNames = [
-	'wonderLaneAuthenticationProvider',
-	'anonymousAuthenticationProvider',
-	'rememberMeAuthenticationProvider'
+        'wonderLaneAuthenticationProvider',
+        'anonymousAuthenticationProvider',
+        'rememberMeAuthenticationProvider'
 ]
 
 /*grails.plugin.springsecurity.filterChain.filterNames = [
@@ -75,6 +76,6 @@ grails.plugin.springsecurity.providerNames = [
 ]*/
 
 grails.gorm.default.mapping = {
-	"user-type" type: org.jadira.usertype.dateandtime.joda.PersistentDateTime, class: org.joda.time.DateTime
-	"user-type" type: org.jadira.usertype.dateandtime.joda.PersistentLocalDate, class: org.joda.time.LocalDate
+    "user-type" type: org.jadira.usertype.dateandtime.joda.PersistentDateTime, class: org.joda.time.DateTime
+    "user-type" type: org.jadira.usertype.dateandtime.joda.PersistentLocalDate, class: org.joda.time.LocalDate
 }

@@ -12,6 +12,7 @@
     <asset:javascript src="bootstrap-datepicker.min.js" />
     <asset:javascript src="moment-with-locales.min.js"/>
     <asset:javascript src="numberHelper.js" />
+    <asset:javascript src="validators/input-validator.js" />
 
     <script type="application/javascript">
         $(document).ready(function() {
@@ -200,6 +201,10 @@
                         <div class="form-group form-check">
                             <g:checkBox name="columns" id="columnsOrderQuantity" class="form-check-input" value="orderQuantity" checked="${!userColumns || userColumns?.columns?.find { it.column == 'orderQuantity' }?.enabled}" />
                             <label class="form-check-label" for="columnsOrderQuantity">Order Quantity</label>
+                        </div>
+                        <div class="form-group form-check">
+                            <g:checkBox name="columns" id="columnsMessages" class="form-check-input" value="messages" checked="${!userColumns || userColumns?.columns?.find { it.column == 'messages' }?.enabled}" />
+                            <label class="form-check-label" for="columnsMessages">Messages</label>
                         </div>
 
                         <button id="columns-submit-button" type="button" class="btn btn-wl" onclick="saveViewCategoryColumns();">Apply</button>

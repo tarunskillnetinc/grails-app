@@ -10,10 +10,10 @@
 <g:form method="post" action="save" class="mt-5" name="saveAmendedOrderForm">
     <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
         <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "sku" }?.enabled}">
-            <div class="col-2 font-weight-bold">Line Number</div>
+            <div class="col-1 font-weight-bold">Line Number</div>
         </g:if>
         <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "productDescription" }?.enabled}">
-            <div class="col-1 font-weight-bold">Description</div>
+            <div class="col-2 font-weight-bold">Description</div>
         </g:if>
         <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "price" }?.enabled}">
             <div class="col-1 font-weight-bold">Price</div>
@@ -34,6 +34,9 @@
             <div class="col-1 font-weight-bold">Order Quantity</div>
         </g:if>
         <div class="col-1 font-weight-bold">Amend Qty</div>
+        <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "messages" }?.enabled}">
+            <div class="col-1 font-weight-bold">Messages</div>
+        </g:if>
 
     </div>
 
@@ -56,7 +59,7 @@
     </div>
 
     <div class="my-3 text-right">
-        <util:remotePaginate controller="amendableOrder" action="viewCategory" total="${totalResults ?: 0}" update="results-container"
+        <util:remotePaginate controller="amendableOrder" action="ajaxViewCategoryOrders" total="${totalResults ?: 0}" update="results-container"
                              offset="${offset ?: 0}" max="${max ?: 50}"
                              params="[categoryId: categoryId, sku:  sku, productDescription:  productDescription, deliveryDate:  deliveryDate, storeId: storeId]" />
     </div>

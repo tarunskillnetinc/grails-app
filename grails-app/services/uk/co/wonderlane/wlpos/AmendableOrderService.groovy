@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
 import grails.orm.HibernateCriteriaBuilder
+import grails.validation.Validateable
 import org.hibernate.Criteria
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
@@ -14,6 +15,7 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlPoolDal
 import uk.co.wonderlane.wlpos.entities.StoreConfig
+import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
@@ -27,6 +29,7 @@ class AmendableOrderService extends MySqlPoolDal {
     def sessionFactory
     def gsonProvider
     def productListService
+    def promotionService
 
     AmendableOrderService(DatabaseCredentials databaseCredentials) {
         super(databaseCredentials)
@@ -155,7 +158,6 @@ class AmendableOrderService extends MySqlPoolDal {
                 .add(Projections.property("quantity"))
                 .add(Projections.property("pl.store"))
                 .add(Projections.property("fillQuantity"))
-
     }
 
     private ResultTransformer getCategoryResultsTransform() {
@@ -166,18 +168,20 @@ class AmendableOrderService extends MySqlPoolDal {
                     String[] aliases) {
                 def store = ((Store)tuple[8])
                 ProductStock productStock = ProductStock.findBySkuAndStoreId((long)tuple[1], store.id)
+                def productProxy = Product.load(tuple[2])
 
                 def amendedLine = new AmendedLine(
                         productListItemId: tuple[0],
                         sku: tuple[1],
-                        demand: CurrentSalesForecast.findByProduct(Product.load(tuple[2]))?.currentForecast,
+                        demand: CurrentSalesForecast.findByProduct(productProxy)?.currentForecast,
                         available: productStock == null ? BigDecimal.ZERO : productStock.quantityDelivered.add(productStock.quantityInStock),
                         productDescription: tuple[3],
                         price: ((ProductVariant)tuple[4]).getCurrentPrice(store.priceBand),
                         packQuantity: tuple[5],
                         deliveryDate: tuple[6],
                         originalOrderQuantity: tuple[9],
-                        amendedOrderQuantity: tuple[7]
+                        amendedOrderQuantity: tuple[7],
+                        messages: getMessageForAmendedLine(productProxy)
                 )
 
                 amendedLine.convertQuantitiesToPackNumbers()
@@ -190,6 +194,10 @@ class AmendableOrderService extends MySqlPoolDal {
                 return tuples
             }
         }
+    }
+
+    private String getMessageForAmendedLine(Product product) {
+        return promotionService.getPromotionsForProduct(product.id).any() ? "ON PROMOTION" : null
     }
 
     private ResultTransformer getOrderSearchResultTransformer() {
@@ -244,7 +252,7 @@ class AmendableOrderService extends MySqlPoolDal {
         Integer storeId
     }
 
-    class AmendedLine {
+    class AmendedLine implements Validateable {
         Integer productListItemId
         String sku
         String productDescription
@@ -255,10 +263,15 @@ class AmendableOrderService extends MySqlPoolDal {
         BigDecimal amendedOrderQuantity
         BigDecimal demand
         BigDecimal available
+        String messages
 
         void convertQuantitiesToPackNumbers() {
             demand = demand?.divide(packQuantity, 3 , RoundingMode.HALF_UP)
             available = available?.divide(packQuantity, 3, RoundingMode.HALF_UP)
+        }
+
+        static constraints = {
+            amendedOrderQuantity nullable: false, min: 0.001, max:9999.999, scale: 3
         }
     }
 }

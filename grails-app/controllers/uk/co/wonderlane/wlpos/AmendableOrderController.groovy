@@ -1,11 +1,10 @@
 package uk.co.wonderlane.wlpos
 
+import grails.validation.Validateable
 import org.apache.logging.log4j.core.util.Integers
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
 class AmendableOrderController extends BaseController {
-    // TODO - What security do we want to put on all of this
-
     def springSecurityService
     def storeService
     def categoryService
@@ -52,6 +51,8 @@ class AmendableOrderController extends BaseController {
         }
 
         def productListItems = amendableOrderService.search(params.category, storeIdToSearchBy)
+        def totalResults = productListItems.size()
+        productListItems = productListItems.drop(offset)?.take(max)
         def stores = storeService.getStores((int)springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
 
         render(template: "orderSearchResults", model: [     storeId: springSecurityService.principal.storeId != null ? springSecurityService.principal.storeId: params.storeId,
@@ -60,7 +61,8 @@ class AmendableOrderController extends BaseController {
                                                             stores: stores,
                                                             userColumns : getColumns(),
                                                             max         : max,
-                                                            offset      : offset])
+                                                            offset      : offset,
+                                                            totalResults: totalResults])
     }
 
     def viewCategory(int categoryId, int storeId) {
@@ -87,8 +89,12 @@ class AmendableOrderController extends BaseController {
                 price: value[0].price,
                 packQuantity: value[0].packQuantity,
                 demand: value[0].demand,
-                available: value[0].available
+                available: value[0].available,
+                messages: value[0].messages
         ), value.sort { it.deliveryDate} ]}
+
+        def totalResults = groupedLines.size()
+        groupedLines = groupedLines.drop(offset)?.take(max)
 
         render(template: "categoryResults", model: [
                 amendedLines: groupedLines,
@@ -99,20 +105,23 @@ class AmendableOrderController extends BaseController {
                 storeId: params.storeId,
                 userColumns : getCategoryViewColumns(),
                 max: max,
-                offset: offset])
+                offset: offset,
+                totalResults: totalResults])
     }
 
     def save(SaveAmendedLinesCommand saveCommand) {
         bindData(saveCommand, params)
 
-        saveCommand.amendedLines.forEach {
-            if (it.amendedOrderQuantity) {
-                amendableOrderService.saveAmendedQuantity(it)
+        if (saveCommand.validate()) {
+            saveCommand.amendedLines.forEach {
+                if (it.amendedOrderQuantity) {
+                    amendableOrderService.saveAmendedQuantity(it)
+                }
             }
-        }
 
-        flash.message = "Order amended successfully"
-        redirect("controller": "amendableOrder", action:"index")
+            flash.message = "Order amended successfully"
+            redirect("controller": "amendableOrder", action: "index")
+        }
     }
 
     class GroupedLine {
@@ -122,11 +131,12 @@ class AmendableOrderController extends BaseController {
         BigDecimal packQuantity
         BigDecimal demand
         BigDecimal available
+        String messages
         List<AmendableOrderService.AmendedLine> lines
     }
 }
 
-class SaveAmendedLinesCommand {
+class SaveAmendedLinesCommand implements Validateable  {
     List<AmendableOrderService.AmendedLine> amendedLines = [].withLazyDefault { new AmendableOrderService.AmendedLine(null)}
 }
 
