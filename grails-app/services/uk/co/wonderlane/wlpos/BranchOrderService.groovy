@@ -45,6 +45,7 @@ class BranchOrderService extends MySqlDal {
     def getBranchOrderBySupplierReference(String supplierReference) {
         return BranchOrder.withCriteria {
             eq("supplierReference", supplierReference)
+            eq("type", "BRANCH_ORDER")
         } ?: null
     }
 }

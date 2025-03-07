@@ -113,24 +113,19 @@
         </div>
 
         <div class="col-3">
-            <div class="container col-5 float-right">
-                <div class="row justify-content-md-center float-right w-100">
-                    <div class="col-md-auto w-100">
-                        <button id="uploadDelivery" type="button" class="btn btn-wl mt-1 w-100"
-                                onclick="$('#image').click();">Upload Delivery</button>
-                    </div>
+            <div class="row justify-content-end">
+                <div class="col-md-auto">
+                    <button id="uploadDelivery" type="button" class="btn btn-wl mt-1"
+                            onclick="$('#image').click();">Upload Delivery</button>
                 </div>
+            </div>
 
-                <div class="row float-right w-100">
-                    <div class="col-md-auto w-50">
-                        <button id="uploadDelivery1" type="button" class="btn btn-wl mt-1 green"
-                                onclick="window.location.href = '/store/add/addStoreButton'">Import</button>
-                    </div>
-
-                    <div class="col-md-auto w-50">
-                        <button id="uploadDelivery2" type="button" class="btn btn-wl mt-1 red"
-                                onclick="window.location.href = '/store/add/addStoreButton'">Cancel</button>
-                    </div>
+            <div class="row justify-content-end">
+                <div class="col-md-auto">
+                    <button id="uploadDelivery1" type="button" class="btn btn-wl mt-1 green"
+                            onclick="window.location.href = '/store/add/addStoreButton'">Import</button>
+                    <button id="uploadDelivery2" type="button" class="btn btn-wl mt-1 red"
+                            onclick="window.location.href = '/store/add/addStoreButton'">Cancel</button>
                 </div>
             </div>
         </div>
