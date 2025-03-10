@@ -64,9 +64,9 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="defaultCharityGroup"
+            <label for="isDefault"
                    class="col-5 offset-1 col-form-label text-right pr-4">Default Charity Organisation</label>
-            <g:checkBox id="defaultCharityGroup" name="defaultCharityGroup" checked="${charity?.isDefault}"/>
+            <g:checkBox id="isDefault" name="isDefault" checked="${charity?.isDefault}"/>
         </div>
 
         <div class="row form-group mb-4">
