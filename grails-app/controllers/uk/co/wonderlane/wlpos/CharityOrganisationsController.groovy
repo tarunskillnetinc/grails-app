@@ -123,7 +123,7 @@ class CharityOrganisationsController {
         def charity = charityService.getCharity(charityId) //Load charity
         if (charity != null) {
             charity.active = charityEnabledFlag;
-            charityService.saveCharity(charity)
+            saveCharityAndSendSync(charity)
             render "OK"
         }
     }
