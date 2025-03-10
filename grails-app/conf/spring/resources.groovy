@@ -315,6 +315,7 @@ beans = {
         sessionFactory = ref('sessionFactory')
         gsonProvider = ref("gsonProvider")
         productListService = ref("productListService")
+        promotionService = ref("promotionService")
     }
 
 
