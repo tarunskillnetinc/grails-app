@@ -22,7 +22,7 @@
                 return
             }
 
-            const fileData = this.files[0];
+            const fileData = this.files[0]
             if (!FileReader || !fileData) {
                 // fallback?
                 return
@@ -55,7 +55,7 @@
                         $('#results-container').html(response)
                     }
                 }
-            });
+            })
         }
 
         function onCancel() {
@@ -70,10 +70,16 @@
                         $('#results-container').html(response)
                     }
                 }
-            });
+            })
         }
 
         function onImport() {
+            if (document.getElementById("invalid-test") != null) {
+                if (!confirm("There are some invalid deliveries, do you still want to import?")) {
+                    return
+                }
+            }
+
             $.ajax({
                 url: "${createLink(controller: 'delivery', action: 'ajaxImportDeliveries')}",
                 method: "POST",
@@ -85,7 +91,7 @@
                         alert("Deliveries successfully imported")
                     }
                 }
-            });
+            })
         }
     </script>
 </head>
@@ -114,7 +120,7 @@
             <div class="row justify-content-end">
                 <div class="col-md-auto">
                     <button id="delivery-upload-button" type="button" class="btn btn-wl mt-1"
-                            onclick="$('#deliveries-file').click();">Upload Delivery</button>
+                            onclick="$('#deliveries-file').click()">Upload Delivery</button>
                 </div>
             </div>
 

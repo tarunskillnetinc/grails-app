@@ -1,5 +1,6 @@
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <div class="col-8 font-weight-bold">Order No. / Supplier Reference</div>
+
     <div class="col-2 font-weight-bold">File Status</div>
 </div>
 
@@ -14,9 +15,14 @@
     </g:if>
 
     <g:each in="${deliveries}" var="delivery" status="i">
-        <div id="delivery-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
+        <div id="delivery-result-${i + 1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2}">
             <div id="delivery-supplier-reference-${i + 1}" class="col-8 my-auto">${delivery.supplierReference}</div>
-            <div id="delivery-valid-${i + 1}" class="col-2 my-auto">${delivery.valid}</div>
+
+            <div id="delivery-valid-${i + 1}" class="col-2 my-auto"><g:if
+                    test="${delivery.valid}">Valid</g:if><g:else>Invalid</g:else></div>
         </div>
     </g:each>
+    <g:if test="${deliveries.any {delivery -> !delivery.valid}}">
+        <div id="invalid-test" hidden></div>
+    </g:if>
 </div>
