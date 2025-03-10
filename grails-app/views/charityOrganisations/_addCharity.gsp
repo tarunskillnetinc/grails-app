@@ -46,7 +46,7 @@
 
             <div class="input-group col-4">
                 <g:textField name="organisationName" value="${charity?.organisationName}"
-                             class="form-control bottom-border"/>
+                             class="form-control bottom-border" maxlength="60"/>
             </div>
         </div>
 
@@ -54,7 +54,8 @@
             <label for="memberNumber" class="col-5 offset-1 col-form-label text-right">Member Number</label>
 
             <div class="input-group col-4">
-                <g:textField name="memberNumber" value="${charity?.memberNumber}" class="form-control bottom-border"/>
+                <g:textField name="memberNumber" value="${charity?.memberNumber}" class="form-control bottom-border"
+                             maxlength="20"/>
             </div>
         </div>
 
