@@ -1,5 +1,6 @@
 import grails.util.Environment
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
@@ -326,16 +327,6 @@ beans = {
                             .build()
                     config = grailsApplication.config
                 }
-                snsClient(SnsClientFactoryBean) {
-                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
-                    credentialsProvider = StaticCredentialsProvider.create(
-                            AwsBasicCredentials.create(
-                                    grailsApplication.config.getProperty('sns.accessKey'),
-                                    grailsApplication.config.getProperty('sns.secretKey')
-                            )
-                    )
-                    endpoint = grailsApplication.config.getProperty('sns.endpoint')
-                }
             }
             hades {
                 imageService(AmazonImageService) {
@@ -346,13 +337,6 @@ beans = {
                     s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
-
-                snsClient(SnsClientFactoryBean) {
-                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
-                    credentialsProvider = StaticCredentialsProvider.create(
-                            AwsBasicCredentials.Builder.build()
-                    )
-                }
             }
             persephone {
                 imageService(AmazonImageService) {
@@ -362,12 +346,6 @@ beans = {
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
-                }
-                snsClient(SnsClientFactoryBean) {
-                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
-                    credentialsProvider = StaticCredentialsProvider.create(
-                            AwsBasicCredentials.Builder.build()
-                    )
                 }
             }
             cerberus {
@@ -389,12 +367,6 @@ beans = {
                     s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
-                snsClient(SnsClientFactoryBean) {
-                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
-                    credentialsProvider = StaticCredentialsProvider.create(
-                            AwsBasicCredentials.Builder.build()
-                    )
-                }
             }
             preprod {
                 imageService(AmazonImageService) {
@@ -404,12 +376,6 @@ beans = {
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
-                }
-                snsClient(SnsClientFactoryBean) {
-                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
-                    credentialsProvider = StaticCredentialsProvider.create(
-                            AwsBasicCredentials.Builder.build()
-                    )
                 }
             }
             production {
@@ -421,17 +387,16 @@ beans = {
                     s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
-                snsClient(SnsClientFactoryBean) {
-                    region = Region.of(grailsApplication.config.getProperty('sns.region'))
-                    credentialsProvider = StaticCredentialsProvider.create(
-                            AwsBasicCredentials.Builder.build()
-                    )
-                }
             }
         }
     }
 
     multipartResolver(MaxFileUploadSizeResolver)
+
+    snsClient(SnsClientFactoryBean) {
+        region = Region.of(grailsApplication.config.getProperty('sns.region'))
+        credentialsProvider = DefaultCredentialsProvider.create()
+    }
 
     snsService(SnsService) { bean ->
         bean.constructorArgs = [

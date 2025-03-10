@@ -61,7 +61,7 @@ class SnsService {
             result = snsClient.createTopic(request)
             return result.topicArn()
         } catch (SnsException e) {
-            logger.logException("Error creating SNS topic: ${topicName}", TAG, e)
+            log.error("Error creating SNS topic: ${topicName} with exception " + e.getMessage())
         }
         return null
     }
