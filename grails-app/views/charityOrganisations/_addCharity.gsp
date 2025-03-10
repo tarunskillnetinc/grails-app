@@ -60,18 +60,25 @@
 
         <div class="row form-group mb-4">
             <label for="active" class="col-5 offset-1 col-form-label text-right pr-4">Active</label>
-            <g:checkBox id="active" name="status" checked="${isUpdate ? charity?.active : true}"/>
+            <g:checkBox id="active" name="status" checked="${isUpdate ? charity?.active : true}"
+                        disabled="${charity?.isDefault || charity?.specialAppeals}"
+                        title="Active cannot be disabled unless Default and Special Appeals are both cleared. "/>
         </div>
 
         <div class="row form-group mb-4">
-            <label for="defaultCharityGroup"
+            <label for="isDefault"
                    class="col-5 offset-1 col-form-label text-right pr-4">Default Charity Organisation</label>
-            <g:checkBox id="defaultCharityGroup" name="defaultCharityGroup" checked="${charity?.isDefault}"/>
+            <g:checkBox name="isDefault" name="isDefault" checked="${charity?.isDefault}"
+                        disabled="${charity?.isDefault}"
+                        title="Default cannot be disabled unless another Organisation is made default."/>
         </div>
 
         <div class="row form-group mb-4">
             <label for="specialAppeals" class="col-5 offset-1 col-form-label text-right pr-4">Special Appeals</label>
-            <g:checkBox id="specialAppeals" name="specialAppeals" checked="${charity?.specialAppeals}"/>
+            <g:checkBox name="specialAppeals" name="specialAppeals" checked="${charity?.specialAppeals}"
+                        disabled="${charity?.specialAppeals}"
+                        title="Special Appeals cannot be disabled unless another Organisation is made Special Appeal."/>
         </div>
+
     </g:form>
 </div>

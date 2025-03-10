@@ -29,11 +29,25 @@ class CharityGroup {
     static constraints = {
         retailerId nullable: false
         organisationName nullable: false, maxSize: 60
-        memberNumber nullable: false, maxSize: 60, unique: ['retailerId']
+        memberNumber nullable: false, maxSize: 60, validator: { val, obj ->
+            if (val) {
+                def existing = CharityGroup.findByMemberNumberLike(val) // case insensitive
+                if (existing && existing.id != obj.id) {
+                    return ['unique']
+                }
+            }
+            return true
+        }
         type nullable: false, maxSize: 10
         active nullable: false
         isDefault nullable: false
         specialAppeals nullable: false
+    }
+
+    static namedQueries = {
+        caseInsensitiveUnique { value ->
+            eq('memberNumber', value.toLowerCase())
+        }
     }
 
     public uk.co.wonderlane.wlpos.entities.CharityGroup getCharityGroup() {
