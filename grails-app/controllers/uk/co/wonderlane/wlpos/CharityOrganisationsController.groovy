@@ -47,18 +47,18 @@ class CharityOrganisationsController {
                 CharityGroup.findAllByRetailerIdAndIdNotEqualAndSpecialAppeals(springSecurityService.principal.retailerId, charity.id, true).each { charityUpdate ->
                     charityUpdate.specialAppeals = false
 
-                    saveCharityAndSendSync(charityUpdate)
+                    saveCharityAndSendToTills(charityUpdate)
                 }
             }
             if (charity.isDefault) {
                 CharityGroup.findAllByRetailerIdAndIdNotEqualAndIsDefault(springSecurityService.principal.retailerId, charity.id, true).each { charityUpdate ->
                     charityUpdate.isDefault = false
 
-                    saveCharityAndSendSync(charityUpdate)
+                    saveCharityAndSendToTills(charityUpdate)
                 }
             }
 
-            saveCharityAndSendSync(charity)
+            saveCharityAndSendToTills(charity)
 
             render "OK"
         } else {
@@ -66,7 +66,7 @@ class CharityOrganisationsController {
         }
     }
 
-    private void saveCharityAndSendSync(CharityGroup charity) {
+    private void saveCharityAndSendToTills(CharityGroup charity) {
         charityService.saveCharity(charity)
         sendSyncMessage(charity, !charity.active)
     }
@@ -123,7 +123,7 @@ class CharityOrganisationsController {
         def charity = charityService.getCharity(charityId) //Load charity
         if (charity != null) {
             charity.active = charityEnabledFlag;
-            saveCharityAndSendSync(charity)
+            saveCharityAndSendToTills(charity)
             render "OK"
         }
     }
