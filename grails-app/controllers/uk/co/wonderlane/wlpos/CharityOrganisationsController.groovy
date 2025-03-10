@@ -43,7 +43,6 @@ class CharityOrganisationsController {
 
         bindData(charity, params)
         if (charity.validate()) {
-            // Need to clear out all the other CharityGroups if special appeals or isdefault is set.
             if (charity.specialAppeals) {
                 CharityGroup.findAllByRetailerIdAndIdNotEqualAndSpecialAppeals(springSecurityService.principal.retailerId, charity.id, true).each { charityUpdate ->
                     charityUpdate.specialAppeals = false
