@@ -66,12 +66,15 @@
         <div class="row form-group mb-4">
             <label for="isDefault"
                    class="col-5 offset-1 col-form-label text-right pr-4">Default Charity Organisation</label>
-            <g:checkBox id="isDefault" name="isDefault" checked="${charity?.isDefault}"/>
+            <g:checkBox name="isDefault" name="isDefault" checked="${charity?.isDefault}"
+                        disabled="${charity?.isDefault}"/>
         </div>
 
         <div class="row form-group mb-4">
             <label for="specialAppeals" class="col-5 offset-1 col-form-label text-right pr-4">Special Appeals</label>
-            <g:checkBox id="specialAppeals" name="specialAppeals" checked="${charity?.specialAppeals}"/>
+            <g:checkBox name="specialAppeals" name="specialAppeals" checked="${charity?.specialAppeals}"
+                        disabled="${charity?.specialAppeals}"/>
         </div>
+
     </g:form>
 </div>
