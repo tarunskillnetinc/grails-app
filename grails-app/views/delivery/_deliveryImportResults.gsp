@@ -9,7 +9,7 @@
     </div>
 </div>
 
-<div id="search-results">
+<div id="validation-results">
     <g:if test="${!deliveries || deliveries?.size() == 0}">
     </g:if>
 

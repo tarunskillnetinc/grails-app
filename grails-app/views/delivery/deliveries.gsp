@@ -10,15 +10,15 @@
         const urlFileReader = new FileReader()
         $(function ($) {
             urlFileReader.onload = onFileRead
-            $("#image").on("change", onFileUpload)
+            $("#deliveries-file").on("change", onFileUpload)
         })
 
         function onFileUpload() {
             orders = []
 
             const fileType = this.files[0].type
-            if (fileType !== "text/csv" && fileType !== "application/vnd.ms-excel") {
-                alert('${message(code:'button.error.incompatible.message', args:['.csv'], default:"Incorrect file type. Please use .csv")}')
+            if (fileType !== "text/csv" && fileType !== "application/vnd.ms-excel") { // types here must match ones defined in the deliveries-file accept field below
+                alert('${message(code:'button.error.incompatible.message', args:['.csv',''], default:"Incorrect file type. Please use .csv")}')
                 return
             }
 
@@ -33,24 +33,15 @@
 
         function onFileRead() {
             const csv = urlFileReader.result
-            console.log(csv) // TODO: Remove debug logging
 
             const rowsArray = csv.split("\n")
-            const csvArray = []
             const supplierReferences = []
 
             for (const row of rowsArray) {
                 const rowValues = row.split(",")
 
-                csvArray.push({
-                    "supplierReference": rowValues[0],
-                    "bool": rowValues[1]
-                })
-
                 supplierReferences.push(rowValues[0])
             }
-
-            console.log(supplierReferences)
 
             $.ajax({
                 url: "${createLink(controller: 'delivery', action: 'ajaxCheckValidDeliveries')}",
@@ -58,12 +49,40 @@
                 data: {"supplierReferences": JSON.stringify(supplierReferences)},
                 statusCode: {
                     500: function (response) {
-                        console.log("500")
-                        console.log(response.error)
+                        alert("Unable to validate uploaded deliveries, please try again later.")
                     },
                     200: function (response) {
-                        console.log("200")
-                        $('#results-container').html(response);
+                        $('#results-container').html(response)
+                    }
+                }
+            });
+        }
+
+        function onCancel() {
+            $.ajax({
+                url: "${createLink(controller: 'delivery', action: 'ajaxCancelDeliveries')}",
+                method: "POST",
+                statusCode: {
+                    500: function (response) {
+                        alert("Unable to cancel uploaded deliveries, please try again later.")
+                    },
+                    200: function (response) {
+                        $('#results-container').html(response)
+                    }
+                }
+            });
+        }
+
+        function onImport() {
+            $.ajax({
+                url: "${createLink(controller: 'delivery', action: 'ajaxImportDeliveries')}",
+                method: "POST",
+                statusCode: {
+                    500: function (response) {
+                        alert("Unable to import uploaded deliveries, please try again later.")
+                    },
+                    200: function (response) {
+                        alert("Deliveries successfully imported")
                     }
                 }
             });
@@ -72,7 +91,7 @@
 </head>
 
 <body>
-<section id="breadcrumb-container" class="container-fluid">
+<section id="breadcrumb-section" class="container-fluid">
     <nav aria-label="breadcrumb">
         <div class="row mt-4">
             <div class="col">
@@ -85,7 +104,7 @@
     </nav>
 </section>
 
-<section id="central-count-search" class="container-fluid">
+<section id="title-section" class="container-fluid">
     <div class="row header-wl mt-3">
         <div class="col-6 offset-3">
             <h2 id="page-title" class="mx-auto my-auto">Deliveries</h2>
@@ -94,33 +113,35 @@
         <div class="col-3">
             <div class="row justify-content-end">
                 <div class="col-md-auto">
-                    <button id="uploadDelivery" type="button" class="btn btn-wl mt-1"
-                            onclick="$('#image').click();">Upload Delivery</button>
+                    <button id="delivery-upload-button" type="button" class="btn btn-wl mt-1"
+                            onclick="$('#deliveries-file').click();">Upload Delivery</button>
                 </div>
             </div>
 
             <div class="row justify-content-end">
                 <div class="col-md-auto">
-                    <button id="uploadDelivery1" type="button" class="btn btn-wl mt-1 green"
-                            onclick="window.location.href = '/store/add/addStoreButton'">Import</button>
-                    <button id="uploadDelivery2" type="button" class="btn btn-wl mt-1 red"
-                            onclick="window.location.href = '/store/add/addStoreButton'">Cancel</button>
+                    <button id="delivery-import-button" type="button" class="btn btn-wl mt-1 green"
+                            onclick="onImport()">Import</button>
+                    <button id="delivery-cancel-button" type="button" class="btn btn-wl mt-1 red"
+                            onclick="onCancel()">Cancel</button>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section id="tills-container" class="container-fluid mb-3">
+<section id="results-section" class="container-fluid mb-3">
     <div id="results-container">
-        <g:render template="deliveryImportResults"/>
+        <g:render template="deliveryImportResults" model="[deliveries: deliveries]"/>
     </div>
 </section>
 
-<section id="addProduct-section" class="container-fluid mt-4">
+<section id="upload-section" class="container-fluid mt-4">
     <div class="col-12">
-        <g:uploadForm name="submission-form" action="save">
-            <input id="image" name="image" type="file" accept="text/csv,application/vnd.ms-excel" hidden/>
+        <g:uploadForm>
+            <!-- accept field types here must match ones defined in the onFileUpload function above -->
+            <input id="deliveries-file" name="deliveries-file" type="file" accept="text/csv,application/vnd.ms-excel"
+                   hidden/>
         </g:uploadForm>
     </div>
 </section>

@@ -14,7 +14,7 @@
                 return '${message(code:'retailer.logo.maxsize', default:"Image file size too large")}'
             }
             if (input.files[0].type !== "image/png") {
-                return '${message(code:'button.error.incompatible.message', args:['.png'], default:"Image incorrect file type. Please use .png.")}'
+                return '${message(code:'button.error.incompatible.message', args:['.png','image '], default:"Image incorrect file type. Please use .png.")}'
             }
         }
 

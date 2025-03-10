@@ -3,8 +3,10 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.Transactional
 import org.hibernate.Session
 import org.hibernate.Transaction
+import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
 @Transactional
@@ -17,36 +19,24 @@ class BranchOrderService extends MySqlDal {
         super(databaseCredentials)
     }
 
-    /*def saveBranchOrder(TillStock hardware) {
-        hardware.setStoreId(springSecurityService.principal.storeId)
-        hardware.setRetailerId(springSecurityService.principal.retailerId)
-        hardware.save(flush: true)
+    def getBranchOrderBySupplierReference(String supplierReference) {
+        return BranchOrder.withCriteria {
+            eq("supplierReference", supplierReference)
+            eq("type", ProductListType.BRANCH_ORDER)
+        } ?: null
     }
 
-    def saveBranchOrder(List<TillStock> tillStocks) {
+    def setBranchOrdersScheduled(List<BranchOrder> branchOrders) {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
 
-        tillStocks.eachWithIndex { tillStock, index ->
-            tillStock.setStoreId(springSecurityService.principal.storeId)
-            tillStock.setRetailerId(springSecurityService.principal.retailerId)
-            session.saveOrUpdate(tillStock)
-
-            // Clear the session for speed purposes.
-            if (index.mod(500) == 0) {
-                session.flush()
-                session.clear()
-            }
+        branchOrders.each { branchOrder ->
+            branchOrder.endDate = DateTime.now()
+            branchOrder.status = ProductListStatus.SCHEDULED
+            session.update(branchOrder)
         }
 
         transaction.commit()
         session.close()
-    }*/
-
-    def getBranchOrderBySupplierReference(String supplierReference) {
-        return BranchOrder.withCriteria {
-            eq("supplierReference", supplierReference)
-            eq("type", "BRANCH_ORDER")
-        } ?: null
     }
 }

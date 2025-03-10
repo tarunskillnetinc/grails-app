@@ -61,7 +61,7 @@
                             // fallback?
                         }
                     } else {
-                        alert('${message(code:'button.error.incompatible.message', args:['.png'], default:"Image incorrect file type. Please use .png.")}')
+                        alert('${message(code:'button.error.incompatible.message', args:['.png','image '], default:"Image incorrect file type. Please use .png.")}')
                     }
                 } else {
                     alert('${message(code:'button.error.fileSize.message', default:"Image file size too large")}')
