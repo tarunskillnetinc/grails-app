@@ -29,7 +29,7 @@ class CharityGroup {
     static constraints = {
         retailerId nullable: false
         organisationName nullable: false, maxSize: 60
-        memberNumber nullable: false, maxSize: 60, validator: { val, obj ->
+        memberNumber nullable: false, maxSize: 20, validator: { val, obj ->
             if (val) {
                 def existing = CharityGroup.findByMemberNumberLike(val) // case insensitive
                 if (existing && existing.id != obj.id) {
