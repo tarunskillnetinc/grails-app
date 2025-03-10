@@ -1086,4 +1086,4 @@ wlpos:
 
 sns:
     region: "eu-west-1"
-    snsSupplierTopic: "SupplierTopic"
+    snsSupplierTopic: "NewSuppliersTopic"

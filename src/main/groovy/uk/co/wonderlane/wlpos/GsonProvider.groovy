@@ -30,7 +30,6 @@ class GsonProvider {
                     }
                 })
                 .registerTypeAdapter(StockTransaction.class, new PropertyBasedInterfaceMarshal())
-                .registerTypeAdapter(SnsNotification.class, new PropertyBasedInterfaceMarshal())
                 .create()
     }
 
