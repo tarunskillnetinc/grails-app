@@ -6,6 +6,7 @@ import org.springframework.security.access.annotation.Secured
 class DeliveryController {
     private static final String VALID = "Valid"
     private static final String INVALID_NO_MATCHING_PRODUCT_LIST = "Invalid - No matching delivery"
+    private static final String INVALID_MULTIPLE_MATCHES = "Invalid - Multiple deliveries with this supplier reference"
     private static final String INVALID_DUPLICATE = "Invalid - Duplicate supplier reference"
 
     def branchOrderService
@@ -44,7 +45,9 @@ class DeliveryController {
         def supplierReferenceAlreadyExists = session.VALIDDELIVERIES.any { delivery -> delivery.supplierReference == supplierReference }
 
         def validationResult = VALID
-        if (hasValidBranchOrders && !supplierReferenceAlreadyExists) {
+        if (hasValidBranchOrders && branchOrderList.size() > 1) {
+            validationResult = INVALID_MULTIPLE_MATCHES
+        } else if (hasValidBranchOrders && !supplierReferenceAlreadyExists) {
             session.VALIDDELIVERIES.add(branchOrderList.first())
         } else if (supplierReferenceAlreadyExists) {
             validationResult = INVALID_DUPLICATE
