@@ -109,12 +109,15 @@ class SupplierController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveSupplier() {
         def supplier
+        def isUpdate
         if (params.id && Integer.parseInt(params.id) > 0) {
             supplier = supplierService.getSupplier(Integer.parseInt(params.id))
+            isUpdate = true
         } else {
             supplier = new Supplier()
             supplier.retailerId = springSecurityService.principal.retailerId
             supplier.storeId = springSecurityService.principal.storeId
+            isUpdate = false
         }
 
         def newSupplierCaseRate
@@ -153,7 +156,7 @@ class SupplierController {
 
             render "OK"
         } else {
-            render(template: "addSupplier", model: [supplier: supplier, supplierCaseRate: newSupplierCaseRate, enableSave: true, isUpdate: supplier ? true : false])
+            render(template: "addSupplier", model: [supplier: supplier, supplierCaseRate: newSupplierCaseRate, enableSave: true, isUpdate: isUpdate])
         }
     }
 

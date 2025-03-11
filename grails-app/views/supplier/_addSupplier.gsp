@@ -245,7 +245,7 @@
             <div class="col-md-6">
                 <div class="form-group row">
                     <label for="caserateeffectivedate"
-                           class="col-3 offset-1 col-form-label text-right">Effective Date</label>
+                           class="col-3 offset-1 col-form-label text-right">Case Rate Effective Date</label>
 
                     <div class="input-group col-6">
                         <g:textField name="caserateeffectivedate"
@@ -296,12 +296,12 @@
                      data-parent="#accordion" style="">
                     <div class="col-12">
                         <g:if test="${supplierCaseRates == null || supplierCaseRates?.size() == 0 || supplierCaseRates?.first() == null || supplierCaseRates?.size() == 1}">
-                            <div class="m-5">No supplier case rates found.</div>
+                            <div class="m-5">No supplier historical case rates found.</div>
                         </g:if>
                         <g:else>
                             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
                                 <div class=" col-md-6 font-weight-bold">
-                                    Effective Date
+                                    Case Rate Effective Date
                                 </div>
 
                                 <div class="col-md-6 font-weight-bold">

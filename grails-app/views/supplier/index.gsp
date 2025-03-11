@@ -176,7 +176,7 @@
 
             let email = $('#email').val();
 
-            if (!validateEmail(email)) {
+            if (email !== "" && !validateEmail(email)) {
                 error = true;
                 errorString = errorString.concat("\n<li>The email address must be valid.</li>");
             }
