@@ -18,8 +18,7 @@
         <div id="delivery-result-${i + 1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2}">
             <div id="delivery-supplier-reference-${i + 1}" class="col-8 my-auto">${delivery.supplierReference}</div>
 
-            <div id="delivery-valid-${i + 1}" class="col-2 my-auto"><g:if
-                    test="${delivery.valid}">Valid</g:if><g:else>Invalid</g:else></div>
+            <div id="delivery-valid-${i + 1}" class="col-2 my-auto">${delivery.validationMessage}</div>
         </div>
     </g:each>
     <g:if test="${deliveries.any {delivery -> !delivery.valid}}">
