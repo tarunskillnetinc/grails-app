@@ -184,7 +184,6 @@
                                       class="col-12 form-control"
                                       valueMessagePrefix="CharityType"
                                       from="${typeOptions}"
-                                      value="${session.CHARITY_TYPE_SEARCH_TERM}"
                                       noSelection="['': '']"/>
                         </div>
                         <label for="charityMemberNumberTerm"
@@ -192,7 +191,7 @@
 
                         <div class="col-3 input-group">
                             <g:textField id="charityMemberNumberTerm" name="charityMemberNumberTerm" maxlength="60"
-                                         value="${session.CHARITY_MEMBER_NUMBER_SEARCH_TERM}" class="form-control"
+                                         value="" class="form-control"
                                          aria-describedby="select-addon2"/>
                         </div>
                     </div>
@@ -203,7 +202,7 @@
 
                         <div class="col-3 input-group">
                             <g:textField id="charityGroupDescriptionTerm" name="charityGroupDescriptionTerm"
-                                         maxlength="60" value="${session.CHARITY_DESCRIPTION_SEARCH_TERM}"
+                                         maxlength="60" value=""
                                          class="form-control" aria-describedby="select-addon2"/>
                         </div>
 
@@ -211,7 +210,8 @@
                                class="col-3 col-form-label-sm text-right">Include Deleted:</label>
 
                         <div class="col-3 input-group-append">
-                            <g:checkBox id="includeDeletedCharities" name="includeDeletedCharities" checked="${session.INCLUDE_DELETED_CHARITIES}" class="col-1 form-check-input wl-checkbox ml-0" />
+                            <g:checkBox id="includeDeletedCharities" name="includeDeletedCharities"
+                                        class="col-1 form-check-input wl-checkbox ml-0"/>
                         </div>
                     </div>
                     <div class="form-group row ">
