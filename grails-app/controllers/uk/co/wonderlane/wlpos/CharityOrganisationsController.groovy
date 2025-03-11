@@ -16,6 +16,11 @@ class CharityOrganisationsController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
+        session.CHARITY_TYPE_SEARCH_TERM = null
+        session.CHARITY_MEMBER_NUMBER_SEARCH_TERM = null
+        session.CHARITY_DESCRIPTION_SEARCH_TERM = null
+        session.INCLUDE_DELETED_CHARITIES = null
+
         [typeOptions: CharityGroupType.values()]
     }
 
