@@ -219,7 +219,6 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group row">
-                    <g:textField name="retailerSupplierId" id="retailerSupplierId" value="${supplier?.retailerSupplierId}" class="form-control bottom-border" />
                 </div>
             </div>
 
