@@ -130,13 +130,6 @@ databaseDefaultProperties: &databaseDefaultProperties
 
 environments:
     development:
-        sns:
-            accessKey: "test"
-            secretKey: "test"
-            region: "eu-west-1"
-            endpoint: "http://localhost:4566"
-            accountId: "000000000000"
-            snsSupplierUpdateTopic: "supplier-update"
         dataSource:
             pooled: true
             #logSql: true
@@ -1090,4 +1083,4 @@ wlpos:
 
 sns:
     region: "eu-west-1"
-    snsSupplierUpdateTopic: "NewSuppliersTopic"
+    snsSupplierTopic: "SupplierTopic"

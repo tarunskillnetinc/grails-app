@@ -49,7 +49,10 @@ class SupplierService extends MySqlDal {
         supplier.save()
         if (id == 0) {
             snsService.publishSupplierAdd(supplier.getSupplier())
+        } else if (supplier.deleted) {
+            snsService.publishSupplierDelete(supplier.getSupplier())
         }
+        return supplier
     }
 
     def deleteSupplier(Supplier supplier) {
