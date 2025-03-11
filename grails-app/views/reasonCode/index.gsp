@@ -70,7 +70,7 @@
                 type: "POST",
                 data: {order: reasonCodeNewOrders},
                 success: function (response) {
-                    showSuccessMsg('Order saved.');
+                    showSuccessMsg('Priority changed successfully.');
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     showErrorMsg('Error updating reason code details.');
