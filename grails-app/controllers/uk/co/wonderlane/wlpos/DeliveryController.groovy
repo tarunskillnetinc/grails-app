@@ -5,18 +5,18 @@ import org.springframework.security.access.annotation.Secured
 
 class DeliveryController {
     def branchOrderService
-    List<BranchOrderResult> deliveryValidationResults = []
-    List<BranchOrder> validDeliveries = []
+    //List<BranchOrderResult> deliveryValidationResults = []
+    //List<BranchOrder> validDeliveries = []
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
-        deliveryValidationResults = []
-        validDeliveries = []
-        redirect(action: "deliveries", model: [deliveries: deliveryValidationResults])
+        session.VALIDATIONRESULTS = []
+        session.VALIDDELIVERIES = []
+        redirect(action: "deliveries", model: [deliveries: session.VALIDATIONRESULTS])
     }
 
     def deliveries() {
-        render(view: "deliveries", model: [deliveries: deliveryValidationResults])
+        render(view: "deliveries", model: [deliveries: session.VALIDATIONRESULTS])
     }
 
     def ajaxCheckValidDeliveries(BranchOrderValidCommand command) {
@@ -25,7 +25,7 @@ class DeliveryController {
             checkValidDelivery(supplierReference)
         }
 
-        render(template: "deliveryImportResults", model: [deliveries: deliveryValidationResults])
+        render(template: "deliveryImportResults", model: [deliveries: session.VALIDATIONRESULTS])
     }
 
     def checkValidDelivery(String supplierReference) {
@@ -36,21 +36,27 @@ class DeliveryController {
                 valid            : hasValidBranchOrders
         ])
         if (hasValidBranchOrders) {
-            validDeliveries.add(branchOrderList.first())
+            if (session.VALIDDELIVERIES == null) {
+                session.VALIDDELIVERIES = []
+            }
+            session.VALIDDELIVERIES.add(branchOrderList.first())
         }
 
-        deliveryValidationResults.add(result)
+        if (session.VALIDATIONRESULTS == null) {
+            session.VALIDATIONRESULTS = []
+        }
+        session.VALIDATIONRESULTS.add(result)
     }
 
     def ajaxCancelDeliveries() {
-        deliveryValidationResults = []
-        validDeliveries = []
+        session.VALIDATIONRESULTS = []
+        session.VALIDDELIVERIES = []
 
-        render(template: "deliveryImportResults", model: [deliveries: deliveryValidationResults])
+        render(template: "deliveryImportResults", model: [deliveries: session.VALIDATIONRESULTS])
     }
 
     def ajaxImportDeliveries() {
-        branchOrderService.setBranchOrdersScheduled(validDeliveries)
+        branchOrderService.setBranchOrdersScheduled(session.VALIDDELIVERIES)
 
         response.setStatus(200)
         render status: 200
@@ -61,7 +67,7 @@ class BranchOrderValidCommand {
     String supplierReferences
 }
 
-class BranchOrderResult {
+class BranchOrderResult implements Serializable {
     String supplierReference
     boolean valid
 }

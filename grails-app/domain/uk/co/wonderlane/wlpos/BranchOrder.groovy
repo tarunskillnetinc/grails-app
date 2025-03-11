@@ -4,7 +4,7 @@ import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
-class BranchOrder {
+class BranchOrder implements Serializable {
 
     String supplierReference
     ProductListType type
