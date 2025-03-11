@@ -1162,7 +1162,7 @@ class ReportingController {
         def cages = []
 
         if (cageBarcodeFilter) {
-            cages.addAll(delivery?.productListItemGroups?.findAll { it.uniqueIdentifier.toLowerCase().contains(cageBarcodeFilter.toLowerCase()) })
+            cages.addAll(delivery?.productListItemGroups?.findAll { it.uniqueIdentifier?.toLowerCase()?.contains(cageBarcodeFilter.toLowerCase()) })
         } else {
             cages.addAll(delivery?.productListItemGroups)
         }
@@ -1967,7 +1967,7 @@ class ReportingController {
         return stringBuilder.toString()
     }
 
-    private String getCagedDeliveryCsv(List<ProductListItemGroup> delivery) {
+    private static String getCagedDeliveryCsv(List<ProductListItemGroup> delivery) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Cage Barcode,Processing Date,Cases in Cage\n")
 
@@ -1976,7 +1976,7 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(group?.effectiveDate)
             stringBuilder.append(",")
-            stringBuilder.append((int)group?.totalCases)
+            stringBuilder.append((BigDecimal)group?.totalCases)
         }
 
         return stringBuilder.toString()
