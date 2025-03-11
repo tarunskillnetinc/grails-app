@@ -39,7 +39,7 @@
         var addSupplierUrl = "${createLink(controller: 'supplier', action: 'ajaxAddSupplier')}";
         var editSupplierUrl = "${createLink(controller: 'supplier', action: 'ajaxEditSupplier')}";
         var saveSupplierUrl = "${createLink(controller: 'supplier', action: 'ajaxSaveSupplier')}";
-        var toggleSupplierDeletedUrl = "${createLink(controller: 'supplier', action: 'ajaxToggleSupplierDeletedFlag')}";
+        var setSupplierDeletedFlagUrl = "${createLink(controller: 'supplier', action: 'ajaxSetSupplierDeletedFlag')}";
 
         $(function () {searchSupplier();}); //As soon as page open call this method
 
@@ -111,19 +111,22 @@
 
         function toggleSupplierDeleted(supplierId, currentlyDeleted, sortParams) {
             let confirmationMessage = ""
+            let supplierDeletedFlag
 
             if (currentlyDeleted) {
                 confirmationMessage = "Are you sure you want to reinstate the supplier?"
+                supplierDeletedFlag = false
             } else {
                 confirmationMessage = "Are you sure you want to delete the supplier?"
+                supplierDeletedFlag = true
             }
 
             if (confirm(confirmationMessage)) {
                 $("#addSupplierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
                 $.ajax({
-                    url: toggleSupplierDeletedUrl,
+                    url: setSupplierDeletedFlagUrl,
                     method: "GET",
-                    data: {supplierId: supplierId},
+                    data: {supplierId: supplierId, supplierDeletedFlag: supplierDeletedFlag},
                     success: function (resp) {
                         if (resp === "OK") {
                             $('#addSupplierModal').modal('hide')
