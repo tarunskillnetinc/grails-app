@@ -433,6 +433,10 @@ a.no-underline:hover {
     background-color: #E6283B;
 }
 
+.btn-wl.green {
+    background-color: #28a745;
+}
+
 .btn {
     border-radius: 4px !important;
 }
