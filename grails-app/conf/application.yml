@@ -130,9 +130,6 @@ databaseDefaultProperties: &databaseDefaultProperties
 
 environments:
     development:
-        sns:
-            region: "eu-west-1"
-            snsSupplierUpdateTopic: "NewSuppliersTopic"
         dataSource:
             pooled: true
             #logSql: true
@@ -1086,4 +1083,4 @@ wlpos:
 
 sns:
     region: "eu-west-1"
-    snsSupplierTopic: "NewSuppliersTopic"
+    snsSupplierTopic: "SupplierTopic"
