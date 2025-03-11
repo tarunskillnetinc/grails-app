@@ -93,11 +93,6 @@ class CharityOrganisationsController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGetSearchCharity(CharitySortParams sortParams) {
-        session.CHARITY_TYPE_SEARCH_TERM = params.organisationTypeTerm
-        session.CHARITY_MEMBER_NUMBER_SEARCH_TERM = params.charityMemberNumberTerm
-        session.CHARITY_DESCRIPTION_SEARCH_TERM = params.charityGroupDescriptionTerm
-        session.INCLUDE_DELETED_CHARITIES = params.includeDeletedCharitiesTerm
-
         sortParams.validateParams(CHARITY_SORT_COLUMNS) //pre process charity sorting column list
 
         def charities = [] //declare charity list
