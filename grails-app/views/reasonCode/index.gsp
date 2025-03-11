@@ -56,7 +56,7 @@
             modalContents = $('#edit-code-content');
             modal = $('#edit-code-modal');
             errorMsg = $('#error-message');
-            successMsg = $('success-message');
+            successMsg = $('#success-message');
 
             ajaxSearch();
             updateDirectionColumnVisibility();
