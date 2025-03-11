@@ -152,6 +152,8 @@ class SupplierController {
             if (newSupplierCaseRate != null) {
                 newSupplierCaseRate.supplier = supplier
                 supplierService.saveSupplierCaseRate(newSupplierCaseRate)
+            } else {
+                supplierService.clearCurrentAndFutureSupplierCaseRates(supplier.id)
             }
 
             render "OK"
