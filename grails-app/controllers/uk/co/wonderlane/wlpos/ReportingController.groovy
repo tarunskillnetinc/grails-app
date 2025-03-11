@@ -1075,18 +1075,13 @@ class ReportingController {
         } else {
             def dels = sortParams.offset < totalDeliveries.size() ? totalDeliveries.subList(sortParams.offset, (sortParams.offset + sortParams.max < totalDeliveries.size() ? sortParams.offset + sortParams.max : totalDeliveries.size())) : []
 
-            def suppliers
             // If supplier Id is passed no need to get all suppliers, just the one supplier with the id
-            if (supplierId) {
-                suppliers = supplierService.getSupplier(supplierId)
-            } else {
-                 suppliers = supplierService.getSuppliers()
-            }
+            def suppliers = supplierId ? supplierService.getSupplier(supplierId) : supplierService.getSuppliers()
 
             // Loop over deliveries and attach the supplierName to each of the deliveries
-            dels.each {del ->
+            dels.each { del ->
                 if (del.supplierId) {
-                    del.metaClass.supplierName = suppliers.find { it.id == del?.supplierId.toInteger() || it.reference == del?.supplierReference}.name
+                    del.metaClass.supplierName = suppliers.find { it.id == del?.supplierId.toInteger() || it.reference == del?.supplierReference }.name
                 } else {
                     del.metaClass.supplierName = ""
                 }
