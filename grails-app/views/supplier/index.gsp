@@ -13,26 +13,6 @@
     <asset:javascript src="validators/input-validator.js"/>
     <asset:javascript src="money-mask.js"/>
 
-    <style>
-    @media (min-width: 992px) {
-        .modal-xxl {
-            max-width: 800px;
-        }
-    }
-
-    @media (min-width: 1200px) {
-        .modal-xxl {
-            max-width: 1140px;
-        }
-    }
-
-    @media (min-width: 1400px) {
-        .modal-xxl {
-            max-width: 1340px;
-        }
-    }
-    </style>
-
     <script type='text/javascript'>
         var globalSortParams = null;
         var getSuppliersUrl = "${createLink(controller: 'supplier', action: 'ajaxGetSearchSupplier')}";
@@ -160,6 +140,10 @@
             }
         }
 
+        function validateCaseRate(caseRate) {
+            return !isNaN(caseRate) && !isNaN(parseFloat(caseRate));
+        }
+
         function validateUpdates() {
             let error = false;
             let errorString = "";
@@ -175,18 +159,33 @@
             }
 
             let email = $('#email').val();
-
             if (email !== "" && !validateEmail(email)) {
                 error = true;
                 errorString = errorString.concat("\n<li>The email address must be valid.</li>");
             }
 
-            if ($('#phoneNumber').val() !== "") {
-                let telephone = $('#phoneNumber').val();
-
+            let telephone = $('#phoneNumber').val();
+            if (telephone !== "") {
                 if (!validatePhoneNumber(telephone)) {
                     error = true;
                     errorString = errorString.concat("\n<li>The telephone number must be valid.</li>");
+                }
+            }
+
+            let caserate = $('#caserate').val().replaceAll(",", "");
+
+            if (caserate !== "0.00" && validateCaseRate(caserate)) {
+                if ($('#caserateeffectivedate').val() === "") {
+                    error = true;
+                    errorString = errorString.concat("\n<li>The Case Rate Effective Date must be set if the case rate is not zero.</li>")
+                }
+            } else if (caserate !== "0.00") {
+                error = true;
+                errorString = errorString.concat("\n<li>The Case Rate must be a valid number or zero.</li>")
+            } else { // case rate is exactly zero here.
+                if ($('#caserateeffectivedate').val() !== "") {
+                    error = true;
+                    errorString = errorString.concat("\n<li>The Case Rate must not be zero if the effective date is set.</li>")
                 }
             }
 
@@ -317,7 +316,7 @@
     <!-- Add supplier modal -->
     <div class="modal fade" id="addSupplierModal" tabindex="-1" role="dialog" aria-labelledby="addSupplierModalLabel"
          aria-hidden="true">
-    <div class="modal-dialog modal-xxl" role="document">
+    <div class="modal-dialog modal-xl" role="document">
             <div id="addSupplierContent" class="modal-content"></div>
         </div>
     </div>
