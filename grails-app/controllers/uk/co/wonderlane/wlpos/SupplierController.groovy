@@ -102,7 +102,7 @@ class SupplierController {
         }
     }
 
-    def parseAmount(String value) {
+    def parseAmount(String value) throws Exception {
         new BigDecimal(NumberFormat.getInstance(Locale.UK).parse(value)?.toString())
     }
 
