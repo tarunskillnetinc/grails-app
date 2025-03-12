@@ -1,17 +1,21 @@
 <script>
     $('#isDefault').on('click', function (event) {
-        event.preventDefault(); // Prevent the checkbox from being checked immediately
-
-        if (confirm('Are you sure you want to set this Charity Organisation as the default? This action will replace the existing default Charity Organisation.')) {
-            $(this).prop('checked', !$(this).prop('checked')); // Toggle the checkbox state
+        if ($(this).is(":checked")) {
+            if (confirm('Are you sure you want to set this Charity Organisation as the default? This action will replace the existing default Charity Organisation.')) {
+                $(this).prop('checked', true);
+            } else {
+                event.preventDefault();
+            }
         }
     });
 
     $('#specialAppeals').on('click', function (event) {
-        event.preventDefault(); // Prevent the checkbox from being checked immediately
-
-        if (confirm('Are you sure you want to set this Charity Organisation as the special appeal? This action will replace the existing special appeal Charity Organisation.')) {
-            $(this).prop('checked', !$(this).prop('checked')); // Toggle the checkbox state
+        if ($(this).is(":checked")) {
+            if (confirm('Are you sure you want to set this Charity Organisation as the special appeal? This action will replace the existing special appeal Charity Organisation.')) {
+                $(this).prop('checked', true);
+            } else {
+                event.preventDefault();
+            }
         }
     });
 </script>
