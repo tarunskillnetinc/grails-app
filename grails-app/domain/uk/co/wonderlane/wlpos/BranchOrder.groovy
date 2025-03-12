@@ -6,6 +6,7 @@ import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
 class BranchOrder implements Serializable {
 
+    int id
     String supplierReference
     ProductListType type
     DateTime endDate

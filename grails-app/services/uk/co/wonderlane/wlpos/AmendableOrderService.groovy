@@ -70,7 +70,7 @@ class AmendableOrderService extends MySqlPoolDal {
         criteria.setResultTransformer(getOrderSearchResultTransformer())
 
         return criteria.list().unique {
-            a, b -> a.categoryId <=> b.categoryId
+            a, b -> a.categoryId <=> b.categoryId ?: a.storeId <=> b.storeId
         }
     }
 
