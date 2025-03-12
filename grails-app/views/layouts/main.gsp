@@ -314,6 +314,7 @@
 
                                     <g:link elementId="retailer-settings-dropdown" controller="retailer" class="dropdown-item">Retailer Configuration</g:link>
                                     <g:link elementId="hardware-import-dropdown" controller="hardwareImport" class="dropdown-item">Hardware Import</g:link>
+                                    <g:link elementId="physical-inventory-count-exclusion-dropdown" controller="physicalInventoryCountExclusion" class="dropdown-item">Physical Inventory Count Exclusion</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
                         </div>
