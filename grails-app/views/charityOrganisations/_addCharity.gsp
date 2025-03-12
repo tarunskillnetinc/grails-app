@@ -18,6 +18,12 @@
             }
         }
     });
+
+    $('#addCharityForm .readonly-checkbox').each(function () {
+        $(this).on('click', function (event) {
+            event.preventDefault();
+        });
+    });
 </script>
 
 <div class="modal-header">
@@ -33,7 +39,7 @@
         </section>
     </g:hasErrors>
 
-    <g:form name="addCharityForm">
+    <g:form name="addCharityForm" id="addCharityForm">
         <g:hiddenField name="id" value="${charity?.id}"/>
 
         <div class="row form-group mb-4">
@@ -71,7 +77,8 @@
         <div class="row form-group mb-4">
             <label for="active" class="col-5 offset-1 col-form-label text-right pr-4">Active</label>
             <g:checkBox id="active" name="active" checked="${isUpdate ? charity?.active : true}"
-                        disabled="${charity?.isDefault || charity?.specialAppeals}"
+                        readonly="${charity?.isDefault || charity?.specialAppeals}"
+                        class="${charity?.isDefault || charity?.specialAppeals ? 'readonly-checkbox' : ''}"
                         title="Active cannot be disabled unless Default and Special Appeals are both cleared. "/>
         </div>
 
@@ -79,14 +86,15 @@
             <label for="isDefault"
                    class="col-5 offset-1 col-form-label text-right pr-4">Default Charity Organisation</label>
             <g:checkBox name="isDefault" id="isDefault" checked="${charity?.isDefault}"
-                        disabled="${charity?.isDefault}"
+                        readonly="${charity?.isDefault}" class="${charity?.isDefault ? 'readonly-checkbox' : ''}"
                         title="Default cannot be disabled unless another Organisation is made default."/>
         </div>
 
         <div class="row form-group mb-4">
             <label for="specialAppeals" class="col-5 offset-1 col-form-label text-right pr-4">Special Appeals</label>
             <g:checkBox name="specialAppeals" id="specialAppeals" checked="${charity?.specialAppeals}"
-                        disabled="${charity?.specialAppeals}"
+                        readonly="${charity?.specialAppeals}"
+                        class="${charity?.specialAppeals ? 'readonly-checkbox' : ''}"
                         title="Special Appeals cannot be disabled unless another Organisation is made Special Appeal."/>
         </div>
 
