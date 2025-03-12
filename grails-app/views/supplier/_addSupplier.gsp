@@ -10,7 +10,7 @@
             autoclose: true,
             startDate: new Date(),
             todayBtn: "linked",
-            orientation: "bottom auto"
+            orientation: "top auto"
         }).on('changeDate', function (selected) {
             let options = [{year: 'numeric'}, {month: '2-digit'}, {day: '2-digit'}];
             let formatted = formatDate(selected.date, options, '-');
