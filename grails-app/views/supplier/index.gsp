@@ -160,6 +160,10 @@
             }
         }
 
+        function validateCaseRate(caseRate) {
+            return !isNaN(caseRate) && !isNaN(parseFloat(caseRate));
+        }
+
         function validateUpdates() {
             let error = false;
             let errorString = "";
@@ -175,18 +179,32 @@
             }
 
             let email = $('#email').val();
-
             if (email !== "" && !validateEmail(email)) {
                 error = true;
                 errorString = errorString.concat("\n<li>The email address must be valid.</li>");
             }
 
-            if ($('#phoneNumber').val() !== "") {
-                let telephone = $('#phoneNumber').val();
-
+            let telephone = $('#phoneNumber').val();
+            if (telephone !== "") {
                 if (!validatePhoneNumber(telephone)) {
                     error = true;
                     errorString = errorString.concat("\n<li>The telephone number must be valid.</li>");
+                }
+            }
+
+            let caserate = $('#caserate').val();
+            if (caserate !== "0.00" && validateCaseRate(caserate)) {
+                if ($('#caserateeffectivedate').val() !== "") {
+                    error = true;
+                    errorString = errorString.concat("\n<li>The case rate must be a valid number and more than zero.</li>")
+                } else {
+                    error = true;
+                    errorString = errorString.concat("\n<li>The case rate must be zero if the Case Rate Effective Date isn't set.</li>")
+                }
+            } else {
+                if ($('#caserateeffectivedate').val() === "") {
+                    error = true;
+                    errorString = errorString.concat("\n<li>The Case Rate Effective Date must be set if the case rate is not zero.</li>")
                 }
             }
 
