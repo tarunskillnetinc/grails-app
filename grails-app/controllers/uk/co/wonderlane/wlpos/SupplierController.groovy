@@ -11,6 +11,7 @@ import uk.co.wonderlane.wlpos.supplier.SupplierCaseRate
 import uk.co.wonderlane.wlpos.supplier.SupplierSortParams
 import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
 
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 
 class SupplierController {
@@ -27,6 +28,7 @@ class SupplierController {
 
     //This is for load symbol subscription (Affiliation) view initially
     def subscriptions() {}
+
 
     //search for suppliers
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -100,15 +102,22 @@ class SupplierController {
         }
     }
 
+    def parseAmount(String value) throws Exception {
+        new BigDecimal(NumberFormat.getInstance(Locale.UK).parse(value)?.toString())
+    }
+
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveSupplier() {
         def supplier
+        def isUpdate
         if (params.id && Integer.parseInt(params.id) > 0) {
             supplier = supplierService.getSupplier(Integer.parseInt(params.id))
+            isUpdate = true
         } else {
             supplier = new Supplier()
             supplier.retailerId = springSecurityService.principal.retailerId
             supplier.storeId = springSecurityService.principal.storeId
+            isUpdate = false
         }
 
         def newSupplierCaseRate
@@ -125,7 +134,7 @@ class SupplierController {
                 newSupplierCaseRate.errors.reject("supplier.suppliercaserate.date.invalid")
             }
             try {
-                newSupplierCaseRate.caseRate = new BigDecimal(params.caserate)
+                newSupplierCaseRate.caseRate = parseAmount(params.caserate)
 
                 if (newSupplierCaseRate.caseRate == BigDecimal.ZERO) {
                     newSupplierCaseRate.errors.reject("supplier.suppliercaserate.caserate.must.be.not.zero")
@@ -147,7 +156,7 @@ class SupplierController {
 
             render "OK"
         } else {
-            render(template: "addSupplier", model: [supplier: supplier, supplierCaseRate: newSupplierCaseRate, enableSave: true, isUpdate: supplier ? true : false])
+            render(template: "addSupplier", model: [supplier: supplier, supplierCaseRate: newSupplierCaseRate, enableSave: true, isUpdate: isUpdate])
         }
     }
 
