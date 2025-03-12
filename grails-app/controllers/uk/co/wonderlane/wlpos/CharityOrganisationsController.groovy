@@ -34,11 +34,14 @@ class CharityOrganisationsController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveCharity() {
         def charity
+        def isUpdate
         if (params.id && Integer.parseInt(params.id) > 0) {
             charity = charityService.getCharity(Integer.parseInt(params.id))
+            isUpdate = true
         } else {
             charity = new CharityGroup()
             charity.retailerId = springSecurityService.principal.retailerId
+            isUpdate = false
         }
 
         bindData(charity, params)
@@ -62,7 +65,7 @@ class CharityOrganisationsController {
 
             render "OK"
         } else {
-            render(template: "addCharity", model: [enableSave: true, isUpdate: charity ? true : false, charity: charity, typeOptions: CharityGroupType.values()])
+            render(template: "addCharity", model: [enableSave: true, isUpdate: isUpdate, charity: charity, typeOptions: CharityGroupType.values()])
         }
     }
 

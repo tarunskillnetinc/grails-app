@@ -2,9 +2,9 @@
 <html>
 <head>
     <meta name="layout" content="main"/>
+    <asset:stylesheet href="checkbox.css"/>
 
     <title>Charity Organisations</title>
-
     <script type='text/javascript'>
         var globalSortParams = null;
         var getCharityUrl = "${createLink(controller: 'charityOrganisations', action: 'ajaxGetSearchCharity')}";
