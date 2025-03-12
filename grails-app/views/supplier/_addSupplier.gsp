@@ -1,18 +1,5 @@
 <div class="modal-header">
     <h2>${isUpdate ? "Edit Supplier" : "Add Supplier"}</h2>
-
-    <div>
-        <button type="button" id="cancelAddSupplierButton" class="btn btn-secondary"
-                data-dismiss="modal">Cancel</button>
-        <g:if test="${enableSave}">
-            <button type="button" id="saveSupplierButton" class="btn btn-success"
-                    onclick="saveSupplier();">Save</button>
-        </g:if>
-        <g:else>
-            <button type="button" id="saveSupplierButton" class="btn btn-success" disabled
-                    onclick="saveSupplier();">Save</button>
-        </g:else>
-    </div>
 </div>
 <div class="modal-body">
     <script>
@@ -335,5 +322,14 @@
 </div>
 
 <div class="modal-footer">
-
+    <button type="button" id="cancelAddSupplierButton" class="btn btn-secondary"
+            data-dismiss="modal">Cancel</button>
+    <g:if test="${enableSave}">
+        <button type="button" id="saveSupplierButton" class="btn btn-success"
+                onclick="saveSupplier();">Save</button>
+    </g:if>
+    <g:else>
+        <button type="button" id="saveSupplierButton" class="btn btn-success" disabled
+                onclick="saveSupplier();">Save</button>
+    </g:else>
 </div>
