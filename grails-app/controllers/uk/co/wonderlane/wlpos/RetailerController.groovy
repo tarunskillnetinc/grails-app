@@ -231,6 +231,7 @@ class RetailerCommand implements Validateable {
     boolean sendStockUpdates
     String rabbitMqUrl
     boolean rabbitMqSslEnabled
+    String phyCountCutOffTime
     int rabbitMqPort
     String rabbitMqVirtualHost
     String rabbitMqUsername
