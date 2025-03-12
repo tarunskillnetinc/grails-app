@@ -192,19 +192,20 @@
                 }
             }
 
-            let caserate = $('#caserate').val();
+            let caserate = $('#caserate').val().replaceAll(",", "");
+
             if (caserate !== "0.00" && validateCaseRate(caserate)) {
-                if ($('#caserateeffectivedate').val() !== "") {
-                    error = true;
-                    errorString = errorString.concat("\n<li>The case rate must be a valid number and more than zero.</li>")
-                } else {
-                    error = true;
-                    errorString = errorString.concat("\n<li>The case rate must be zero if the Case Rate Effective Date isn't set.</li>")
-                }
-            } else {
                 if ($('#caserateeffectivedate').val() === "") {
                     error = true;
                     errorString = errorString.concat("\n<li>The Case Rate Effective Date must be set if the case rate is not zero.</li>")
+                }
+            } else if (caserate !== "0.00") {
+                error = true;
+                errorString = errorString.concat("\n<li>The Case Rate must be a valid number or zero.</li>")
+            } else { // case rate is exactly zero here.
+                if ($('#caserateeffectivedate').val() !== "") {
+                    error = true;
+                    errorString = errorString.concat("\n<li>The Case Rate must not be zero if the effective date is set.</li>")
                 }
             }
 
