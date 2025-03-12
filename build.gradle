@@ -68,7 +68,7 @@ dependencies {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
 
-    implementation 'uk.co.wonderlane.wlpos:Common:1.17.2-SNAPSHOT'
+    implementation 'uk.co.wonderlane.wlpos:Common:1.17.4-SNAPSHOT'
 
     implementation "org.grails:grails-core"
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
@@ -98,7 +98,7 @@ dependencies {
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
     runtimeOnly 'com.bertramlabs.plugins:asset-pipeline-grails:3.4.7'
     runtimeOnly 'org.codehaus.groovy:groovy-dateutil'
-    implementation 'mysql:mysql-connector-java:8.0.32'
+    implementation 'com.mysql:mysql-connector-j:8.2.0'
     implementation 'joda-time:joda-time:2.12.2'
     implementation group: 'org.jadira.usertype', name: 'usertype.core', version: '6.0.1.GA' // Mappings for Joda time to Hibernate.
     implementation 'org.grails.plugins:remote-pagination:0.5.0'
