@@ -51,7 +51,7 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="memberNumber" class="col-5 offset-1 col-form-label text-right">Member Number</label>
+            <label for="memberNumber" class="col-5 offset-1 col-form-label text-right">Charity Member Number</label>
 
             <div class="input-group col-4">
                 <g:textField name="memberNumber" value="${charity?.memberNumber}" class="form-control bottom-border"
