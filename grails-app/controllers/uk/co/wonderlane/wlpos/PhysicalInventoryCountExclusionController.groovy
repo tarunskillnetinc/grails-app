@@ -79,7 +79,7 @@ class PhysicalInventoryCountExclusionController {
         render(template: "importResults", model: [successful: !importError, importError: importError, results: results])
     }
 
-    private String validateImport(file) {
+    private static String validateImport(file) {
         if (file == null || file.empty) {
             return "No file selected or file is empty"
         }
