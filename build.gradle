@@ -72,7 +72,7 @@ dependencies {
 
     implementation "org.grails:grails-core:6.1.2"
     implementation ("org.springframework.boot:spring-boot-starter-actuator:2.7.18")
-    implementation ("org.springframework.boot:spring-boot-starter-tomcat")
+    implementation ("org.springframework.boot:spring-boot-starter-tomcat:2.7.18")
     implementation "org.grails:grails-web-boot"
     implementation "org.grails:grails-logging"
     implementation "org.grails:grails-plugin-rest"
