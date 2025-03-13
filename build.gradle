@@ -70,7 +70,7 @@ dependencies {
 
     implementation 'uk.co.wonderlane.wlpos:Common:1.17.5.TECH-SNAPSHOT'
 
-    implementation "org.grails:grails-core"
+    implementation "org.grails:grails-core:6.1.2"
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
     implementation ("org.springframework.boot:spring-boot-starter-tomcat")
     implementation "org.grails:grails-web-boot"
