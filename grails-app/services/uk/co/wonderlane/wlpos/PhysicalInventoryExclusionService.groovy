@@ -31,7 +31,6 @@ class PhysicalInventoryExclusionService {
                 def productVariant = productService.getProductVariant(sku.toLong())
                 // Check if the product variant belongs to the current user's retailer
                 if (productVariant) {
-                    log.println("true")
                     productVariant.excludeFromInventoryCount = true
                     productVariant.save(flush: true)
                 } else {
