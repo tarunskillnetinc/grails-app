@@ -92,7 +92,7 @@ dependencies {
     console "org.grails:grails-console"
     profile "org.grails.profiles:web"
     runtimeOnly 'org.glassfish.web:el-impl:2.2.1-b05'
-    implementation "org.grails.plugins:spring-security-core:5.2.1"
+    implementation "org.grails.plugins:spring-security-core:6.1.1"
     implementation group: "com.rabbitmq", name: "amqp-client", version: "5.21.0"
     implementation group: "com.google.code.gson", name: "gson", version: "2.10.1"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
