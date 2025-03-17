@@ -191,6 +191,11 @@
                                 <div class="dropdown-divider"></div>
                             </sec:ifAnyGranted>
 
+                            <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.amendableOrdersEnabled').toBoolean()}">
+                                <g:link elementId="amendable-order-dropdown" controller="amendableOrder" action="index" class="dropdown-item">Order Amendments</g:link>
+                                <div class="dropdown-divider"></div>
+                            </g:if>
+
                             <span id="other-reports" class="dropdown-header">Inventory Management Reports</span>
 
                             <g:link elementId="product-lists-report-dropdown" controller="reporting" action="productLists" class="dropdown-item">Product Lists</g:link>
@@ -266,9 +271,10 @@
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
                             <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
                                 <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                    <g:link elementId="product-groups-dropdown" controller="productGroup"
-                                            class="dropdown-item">Product Groups</g:link>
+                                    <g:link elementId="product-groups-dropdown" controller="productGroup" class="dropdown-item">Product Groups</g:link>
                                 </g:if>
+
+                                <g:link elementId="delivery-dropdown" controller="delivery" class="dropdown-item">Deliveries</g:link>
                             </sec:ifAnyGranted>
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>

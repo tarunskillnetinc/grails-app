@@ -6,12 +6,14 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import uk.co.wonderlane.wlpos.entities.supplier.Pack
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.*
+import uk.co.wonderlane.wlpos.supplier.Supplier
 
 import java.math.RoundingMode
 
@@ -1073,10 +1075,23 @@ class ReportingController {
         } else {
             def dels = sortParams.offset < totalDeliveries.size() ? totalDeliveries.subList(sortParams.offset, (sortParams.offset + sortParams.max < totalDeliveries.size() ? sortParams.offset + sortParams.max : totalDeliveries.size())) : []
 
+            // If supplier Id is passed no need to get all suppliers, just the one supplier with the id
+            def suppliers = supplierId ? supplierService.getSupplier(supplierId) : supplierService.getSuppliers()
+
+            // Loop over deliveries and attach the supplierName to each of the deliveries
+            dels.each { del ->
+                if (del.supplierId) {
+                    del.metaClass.supplierName = suppliers.find { it.id == del?.supplierId.toInteger() || it.reference == del?.supplierReference }.name
+                } else {
+                    del.metaClass.supplierName = ""
+                }
+            }
+
             render(template: "deliveriesResults", model: [deliveries : dels,
                                                           userColumns : reportingService.getReportColumns(ReportType.DELIVERIES),
                                                           storeId : storeId,
                                                           supplierId : supplierId,
+                                                          suppliers : suppliers,
                                                           startDate : startDate,
                                                           endDate : endDate,
                                                           sortParams : sortParams,
@@ -1105,7 +1120,9 @@ class ReportingController {
          storeId : storeId,
          descriptionFilter: descriptionFilter,
          userColumns : reportingService.getReportColumns(ReportType.DELIVERY),
-         showAcceptDeliveryButton : [ProductListStatus.PENDING, ProductListStatus.IN_PROGRESS].contains(delivery.status)]
+         showAcceptDeliveryButton : [ProductListStatus.PENDING, ProductListStatus.IN_PROGRESS].contains(delivery.status),
+         caged: params.caged,
+        retailer: Retailer.get(springSecurityService.principal.retailerId)]
     }
 
     // The mid level of the main delivery report.
@@ -1113,24 +1130,92 @@ class ReportingController {
         sortParams.validateParams(DELIVERY_REPORT_SORT_COLUMNS)
 
         Integer productListId = getIntegerParam(params.productListId)
-        Integer supplierId = params.supplierId ? getIntegerParam(params.supplierId) : null
-        Integer storeId = params.storeId ? getIntegerParam(params.storeId) : null
+        Integer supplierId = params.supplierId ? getIntegerParam(params.supplierId) : 0
+        Integer storeId = params.storeId ? getIntegerParam(params.storeId) : 0
+
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        boolean caged = params.boolean('caged')
+
+        def delivery = productListService.getProductList(productListId)
 
         String descriptionFilter = null
         if (params.descriptionFilter && !params.descriptionFilter.isEmpty()) {
             descriptionFilter = params.descriptionFilter
         }
 
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        if (!caged) {
+            handleDirectDelivery(descriptionFilter, delivery, sortParams, startDate, endDate, storeId, supplierId, productListId)
+        } else {
+            handleCagedDelivery(descriptionFilter, delivery, sortParams, startDate, endDate, storeId, supplierId, productListId)
+        }
+    }
 
-        def delivery = productListService.getProductList(productListId)
+    private void handleCagedDelivery(String cageBarcodeFilter = null, ProductList delivery, SortParams sortParams, DateTime startDate, DateTime endDate, int storeId, int supplierId, int productListId) {
+        def cages = []
 
+        if (cageBarcodeFilter) {
+            cages.addAll(delivery?.productListItemGroups?.findAll { it.uniqueIdentifier?.toLowerCase()?.contains(cageBarcodeFilter.toLowerCase()) })
+        } else {
+            cages.addAll(delivery?.productListItemGroups)
+        }
+
+        int totalResults = cages.size()
+
+        if (delivery) {
+            switch (sortParams.sortColumn) {
+                case "cageBarcode":
+                    cages = cages.sort { it.uniqueIdentifier }
+                    break
+                case "processingDate":
+                    cages = cages.sort { it.effectiveDate}
+                    break
+                case "cases":
+                    cages = cages.sort { it.totalCases }
+                    break
+            }
+
+            if (sortParams.sortOrder.equalsIgnoreCase("desc")) {
+                cages = cages.reverse()
+            }
+        }
+
+        cages = sortParams.offset < cages.size() ? cages.subList(sortParams.offset, (sortParams.offset + sortParams.max < cages.size() ? sortParams.offset + sortParams.max : cages.size())) : []
+
+        BigDecimal totalCasesQuantity = BigDecimal.ZERO
+        cages.each { cage ->
+            cage.productListItems.each { item ->
+                item.packLines.each { line ->
+                    totalCasesQuantity = totalCasesQuantity.add( (BigDecimal) line.quantity)
+                }
+            }
+            cage.metaClass.totalCases = totalCasesQuantity
+        }
+
+        if (params.csv != null && params.csv == "true") {
+            handleCSV(cages, true)
+        } else {
+            render(template: "deliveryCageResults", model: [cages            : cages,
+                                                            userColumns      : reportingService.getReportColumns(ReportType.DELIVERY),
+                                                            startDate        : startDate,
+                                                            endDate          : endDate,
+                                                            storeId          : storeId,
+                                                            supplierId       : supplierId,
+                                                            productListId    : productListId,
+                                                            descriptionFilter: cageBarcodeFilter,
+                                                            sortParams       : sortParams,
+                                                            totalResults     : totalResults,
+                                                            retailer: Retailer.get(springSecurityService.principal.retailerId)])
+        }
+    }
+
+    private void handleDirectDelivery(String descriptionFilter = null, ProductList delivery, SortParams sortParams, DateTime startDate, DateTime endDate, int storeId, int supplierId, int productListId) {
         def items = []
 
         if (descriptionFilter) {
-            items.addAll(delivery?.productListItems?.findAll{ it.productVariant.product.description.toLowerCase().contains(descriptionFilter.toLowerCase()) })
+            items.addAll(delivery?.productListItems?.findAll { it.productVariant.product.description.toLowerCase().contains(descriptionFilter.toLowerCase()) })
         } else {
             items.addAll(delivery?.productListItems)
         }
@@ -1161,21 +1246,29 @@ class ReportingController {
         items = sortParams.offset < items.size() ? items.subList(sortParams.offset, (sortParams.offset + sortParams.max < items.size() ? sortParams.offset + sortParams.max : items.size())) : []
 
         if (params.csv != null && params.csv == "true") {
-            def fileName = "delivery-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
-            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
-            response.setHeader("Content-Type", "text/csv;")
-            render getDeliveryCsv(items)
+            handleCSV(items, false)
         } else {
-            render(template: "deliveryResults", model: [items : items,
-                                                        userColumns : reportingService.getReportColumns(ReportType.DELIVERY),
-                                                        startDate : startDate,
-                                                        endDate : endDate,
-                                                        storeId : storeId,
-                                                        supplierId : supplierId,
-                                                        productListId : productListId,
-                                                        descriptionFilter : descriptionFilter,
-                                                        sortParams : sortParams,
-                                                        totalResults : totalResults])
+            render(template: "deliveryResults", model: [items            : items,
+                                                        userColumns      : reportingService.getReportColumns(ReportType.DELIVERY),
+                                                        startDate        : startDate,
+                                                        endDate          : endDate,
+                                                        storeId          : storeId,
+                                                        supplierId       : supplierId,
+                                                        productListId    : productListId,
+                                                        descriptionFilter: descriptionFilter,
+                                                        sortParams       : sortParams,
+                                                        totalResults     : totalResults])
+        }
+    }
+
+    private void handleCSV(List<Object> items, boolean caged) {
+        def fileName = "delivery-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+        response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+        response.setHeader("Content-Type", "text/csv;")
+        if (caged) {
+            render getCagedDeliveryCsv(items)
+        } else {
+            render getDeliveryCsv(items)
         }
     }
 
@@ -1221,6 +1314,26 @@ class ReportingController {
          storeId : storeId,
          supplierId : supplierId,
          descriptionFilter : descriptionFilter]
+    }
+
+    def deliveryCage() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        Integer supplierId = params.supplierId ? getIntegerParam(params.supplierId) : null
+        Integer storeId = params.storeId ? getIntegerParam(params.storeId) : null
+        String descriptionFilter = params.descriptionFilter
+
+       ProductListItemGroup cage = ProductListItemGroup.findById(params.cageId)
+
+
+        render(template: "deliveryResults", model: [items            : cage.productListItems,
+                                                    userColumns      : reportingService.getReportColumns(ReportType.DELIVERY),
+                                                    startDate        : startDate,
+                                                    endDate          : endDate,
+                                                    storeId          : storeId,
+                                                    supplierId       : supplierId,
+                                                    descriptionFilter: descriptionFilter])
     }
 
     // The bottom level of the main delivery report with the packs for an item in a delivery.
@@ -1844,6 +1957,21 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(item.totalCost)
             stringBuilder.append("\n")
+        }
+
+        return stringBuilder.toString()
+    }
+
+    private static String getCagedDeliveryCsv(List<ProductListItemGroup> delivery) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Cage Barcode,Processing Date,Cases in Cage\n")
+
+        delivery?.each { group ->
+            stringBuilder.append(group?.uniqueIdentifier)
+            stringBuilder.append(",")
+            stringBuilder.append(group?.effectiveDate)
+            stringBuilder.append(",")
+            stringBuilder.append((BigDecimal)group?.totalCases)
         }
 
         return stringBuilder.toString()
