@@ -1080,3 +1080,7 @@ wlpos:
     loyaltyTransactionService: "LoyaltyTransactionService"
     loyaltyOfferService: "LoyaltyOfferService"
     loyaltyOfferAllocationService: "LoyaltyOfferAllocationService"
+
+sns:
+    region: "eu-west-1"
+    supplierTopic: "SupplierTopic"

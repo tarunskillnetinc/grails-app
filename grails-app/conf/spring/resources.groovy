@@ -1,5 +1,6 @@
 import grails.util.Environment
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
@@ -82,6 +83,7 @@ beans = {
 
         springSecurityService = ref('springSecurityService')
         sessionFactory = ref('sessionFactory')
+        snsService = ref('snsService')
     }
 
     charityService(CharityService,
@@ -306,7 +308,6 @@ beans = {
         sessionFactory = ref('sessionFactory')
     }
 
-
     gsonProvider(GsonProvider)
 
     Environment.executeForCurrentEnvironment {
@@ -399,4 +400,16 @@ beans = {
     }
 
     multipartResolver(MaxFileUploadSizeResolver)
+
+    snsClient(SnsClientFactoryBean) {
+        region = Region.of(grailsApplication.config.getProperty('sns.region'))
+        credentialsProvider = DefaultCredentialsProvider.create()
+    }
+
+    snsService(SnsService) {
+        springSecurityService = ref('springSecurityService')
+        snsClient = ref("snsClient")
+        gsonProvider = ref("gsonProvider")
+        supplierTopic = grailsApplication.config.getProperty("sns.supplierTopic")
+    }
 }

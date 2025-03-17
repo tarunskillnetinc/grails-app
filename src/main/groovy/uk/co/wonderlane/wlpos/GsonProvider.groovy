@@ -4,6 +4,7 @@ import com.google.gson.*
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.ISODateTimeFormat
+import uk.co.wonderlane.wlpos.entities.sns.SnsNotification
 import uk.co.wonderlane.wlpos.requests.clientexport.StockTransaction
 import uk.co.wonderlane.wlpos.utils.PropertyBasedInterfaceMarshal
 
@@ -29,6 +30,7 @@ class GsonProvider {
                     }
                 })
                 .registerTypeAdapter(StockTransaction.class, new PropertyBasedInterfaceMarshal())
+                .registerTypeAdapter(SnsNotification.class, new PropertyBasedInterfaceMarshal())
                 .create()
     }
 
