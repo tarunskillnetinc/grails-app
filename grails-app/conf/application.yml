@@ -412,7 +412,7 @@ environments:
             password: twP0KDKRsXJt6eQ7F8vy
             useSsl: true
             senderExchange: Processing
-            exportExchange: Trigger
+            exportExchange: Waitrose_exchange_poc
 
         mysql:
             wlpos:
@@ -924,7 +924,7 @@ environments:
             password: BIirEAt0dC89whYZgJZE
             useSsl: true
             senderExchange: Processing
-            exportExchange: Trigger
+            exportExchange: Waitrose_Exchange
 
         mysql:
             wlpos:

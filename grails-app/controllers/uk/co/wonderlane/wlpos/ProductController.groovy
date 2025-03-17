@@ -1244,6 +1244,8 @@ class ProductController extends BaseController {
 
         List<Integer> newPacksIds = new ArrayList<>()
 
+        editedVariant.packs?.removeIf({ it == null })
+                
         editedVariant.packs?.each { editedPack ->
             def existingPack = existingVariant.packs?.find { existingPack -> existingPack != null && existingPack.id != 0 && existingPack.id == editedPack.id }
 
