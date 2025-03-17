@@ -28,6 +28,14 @@ class LocationService {
         }
     }
 
+    def getLocationsByRetailerId() {
+        return Location.findAllByRetailerId(springSecurityService.principal.retailerId)
+    }
+
+    def getLocationsByStoreId(Integer storeId) {
+        return Location.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, storeId)
+    }
+
     def getOrCreateLocationForSafe(int safeId) {
         /* Get the location from the safe id */
         def location = getLocationBySafeId(safeId)

@@ -25,12 +25,15 @@ class ProductList {
     Integer orderId
     String supplierId
     String supplierReference
+    String shipmentReference
     boolean stockAdjustedOnCompletion
     Integer destinationStoreId
+    String retailerListId
 
     Collection<ProductListItem> productListItems = new ArrayList<>()
+    Collection<ProductListItemGroup> productListItemGroups = new ArrayList<>()
 
-    static hasMany = [ productListItems: ProductListItem ]
+    static hasMany = [ productListItems: ProductListItem, productListItemGroups: ProductListItemGroup ]
 
     static transients = [ 'totalQuantity', 'totalValue', 'totalPackLines', 'totalCost']
 
@@ -56,8 +59,10 @@ class ProductList {
         orderId column: "orderId"
         supplierId column: "supplierId"
         supplierReference column: "supplierReference"
+        shipmentReference column: "shipmentReference"
         stockAdjustedOnCompletion column: "stockAdjustedOnCompletion"
         destinationStoreId column: "destinationStoreId", sqlType: "smallint"
+        retailerListId column: "retailerListId"
     }
 
     static constraints = {
@@ -79,8 +84,10 @@ class ProductList {
         orderId nullable: true
         supplierId nullable: true
         supplierReference nullable: true
+        shipmentReference nullable: true
         stockAdjustedOnCompletion nullable: false
         destinationStoreId nullable: true
+        retailerListId nullable: true
     }
 
     def getTotalValue() {

@@ -433,6 +433,10 @@ a.no-underline:hover {
     background-color: #E6283B;
 }
 
+.btn-wl.green {
+    background-color: #28a745;
+}
+
 .btn {
     border-radius: 4px !important;
 }
@@ -669,6 +673,10 @@ li.breadcrumb-item a {
 
 .pointer {
     cursor: pointer;
+}
+
+.greyed-out {
+    color: #A9A9A9;
 }
 
 .breadcrumb {

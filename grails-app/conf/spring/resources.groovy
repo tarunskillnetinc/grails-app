@@ -44,6 +44,7 @@ beans = {
         sessionFactory = ref('sessionFactory')
         gsonProvider = ref("gsonProvider")
         rabbitService = ref('rabbitService')
+        pricingClassificationService = ref('pricingClassificationService')
     }
 
     productListService(ProductListService,
@@ -83,6 +84,17 @@ beans = {
         sessionFactory = ref('sessionFactory')
     }
 
+    charityService(CharityService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+                    grailsApplication.config.getProperty('mysql.wlpos.username'),
+                    grailsApplication.config.getProperty('mysql.wlpos.password'),
+                    grailsApplication.config.getProperty('mysql.wlpos.database'))) {
+
+        springSecurityService = ref('springSecurityService')
+        sessionFactory = ref('sessionFactory')
+    }
+
     shiftService(ShiftService,
             new DatabaseCredentials(grailsApplication.config.getProperty('mysql.transactions.host'),
                     Integer.parseInt(grailsApplication.config.getProperty('mysql.transactions.port')),
@@ -96,11 +108,12 @@ beans = {
         userService = ref('userService')
         cashManagementService = ref('cashManagementService')
         locationService = ref('locationService')
-        reportingService = ref('reportingService')
+        cashReportingService = ref('cashReportingService')
         safeService = ref('safeService')
         safeManagementService = ref("safeManagementService")
         commonService = ref("commonService")
         financialWeekService = ref("financialWeekService")
+        tenderTypeService = ref("tenderTypeService")
     }
 
     rabbitService(BackOfficeRabbitService,
@@ -111,7 +124,8 @@ beans = {
             grailsApplication.config.getProperty('rabbitmq.username'),
             grailsApplication.config.getProperty('rabbitmq.password'),
             Boolean.parseBoolean(grailsApplication.config.getProperty('rabbitmq.useSsl')),
-            grailsApplication.config.getProperty('rabbitmq.senderExchange')
+            grailsApplication.config.getProperty('rabbitmq.senderExchange'),
+            grailsApplication.config.getProperty('rabbitmq.exportExchange')
             ) {
 
         springSecurityService = ref('springSecurityService')
@@ -141,6 +155,14 @@ beans = {
     }
 
     groupService(GroupService) {
+        springSecurityService = ref('springSecurityService')
+    }
+
+    pricingClassificationService(PricingClassificationService) {
+        springSecurityService = ref('springSecurityService')
+    }
+
+    categoryHistoryService(CategoryHistoryService) {
         springSecurityService = ref('springSecurityService')
     }
 
@@ -176,6 +198,16 @@ beans = {
         sessionFactory = ref('sessionFactory')
     }
 
+    branchOrderService(BranchOrderService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+                    grailsApplication.config.getProperty('mysql.wlpos.username'),
+                    grailsApplication.config.getProperty('mysql.wlpos.password'),
+                    grailsApplication.config.getProperty('mysql.wlpos.database'))) {
+        springSecurityService = ref('springSecurityService')
+        sessionFactory = ref('sessionFactory')
+    }
+
     barcodeSignifierService(BarcodeSignifierService,
             new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
                     Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
@@ -191,6 +223,7 @@ beans = {
         springSecurityService = ref('springSecurityService')
         sessionFactory = ref('sessionFactory')
     }
+
     financialWeekService(FinancialWeekService,
             new DatabaseCredentials(grailsApplication.config.getProperty('mysql.transactions.host'),
                     Integer.parseInt(grailsApplication.config.getProperty('mysql.transactions.port')),
@@ -201,6 +234,7 @@ beans = {
         sessionFactory = ref('sessionFactory')
         commonService = ref("commonService")
     }
+
     cashManagementService(CashManagementService, new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
             Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
             grailsApplication.config.getProperty('mysql.wlpos.username'),
@@ -208,6 +242,15 @@ beans = {
             grailsApplication.config.getProperty('mysql.wlpos.database'))) {
         springSecurityService = ref('springSecurityService')
         gsonProvider = ref("gsonProvider")
+    }
+
+    safeSessionService(SafeSessionService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.transactions.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.transactions.port')),
+                    grailsApplication.config.getProperty('mysql.transactions.username'),
+                    grailsApplication.config.getProperty('mysql.transactions.password'),
+                    grailsApplication.config.getProperty('mysql.transactions.database'))) {
+        springSecurityService = ref('springSecurityService')
     }
 
     loyaltyService(LoyaltyService,
@@ -227,8 +270,8 @@ beans = {
         messageSource = ref('messageSource')
         rabbitService = ref('rabbitService')
         locationService = ref('locationService')
+        storeService = ref('storeService')
     }
-
 
     safeManagementService(SafeManagementService,
             new DatabaseCredentials(grailsApplication.config.getProperty('mysql.transactions.host'),
@@ -244,13 +287,13 @@ beans = {
         financialWeekService = ref("financialWeekService")
         cashManagementService = ref("cashManagementService")
         safeService = ref("safeService")
-
+        tenderTypeService = ref("tenderTypeService")
     }
 
     tenderMovementService(TenderMovementService) {
         springSecurityService = ref('springSecurityService')
         storeService = ref('storeService')
-        reportingService = ref('reportingService')
+        cashReportingService = ref('cashReportingService')
         locationService = ref('locationService')
         safeManagementService = ref('safeManagementService')
         shiftService = ref('shiftService')
@@ -266,6 +309,24 @@ beans = {
         springSecurityService = ref('springSecurityService')
         messageSource = ref('messageSource')
         gsonProvider = ref('gsonProvider')
+    }
+
+    partnerCategoryManagementService(PartnerCategoryManagementService) {
+        springSecurityService = ref('springSecurityService')
+        categoryService = ref('categoryService')
+        sessionFactory = ref('sessionFactory')
+    }
+
+    amendableOrderService(AmendableOrderService, new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+            Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+            grailsApplication.config.getProperty('mysql.wlpos.username'),
+            grailsApplication.config.getProperty('mysql.wlpos.password'),
+            grailsApplication.config.getProperty('mysql.wlpos.database'))) {
+        springSecurityService = ref('springSecurityService')
+        sessionFactory = ref('sessionFactory')
+        gsonProvider = ref("gsonProvider")
+        productListService = ref("productListService")
+        promotionService = ref("promotionService")
     }
 
 
@@ -287,6 +348,14 @@ beans = {
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')
+                    s3Client = S3Client.builder()
+                            .region(Region.US_EAST_1)
+                            .endpointOverride(URI.create("http://localhost:" + grailsApplication.config.getProperty('wlpos.localeS3Port')))
+                            .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(grailsApplication.config.getProperty('wlpos.localeS3AccessKey'),
+                                    grailsApplication.config.getProperty('wlpos.localeS3SecretKey'))))
+                            .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
+                            .build()
+                    config = grailsApplication.config
                 }
             }
             hades {
@@ -295,6 +364,7 @@ beans = {
                     config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
             }
@@ -304,6 +374,7 @@ beans = {
                     config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
             }
@@ -313,6 +384,17 @@ beans = {
                     config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
+                    springSecurityService = ref('springSecurityService')
+                }
+            }
+            zagreus {
+                imageService(AmazonImageService) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
+                    config = grailsApplication.config
+                }
+                brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
             }
@@ -322,6 +404,7 @@ beans = {
                     config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
             }
@@ -331,6 +414,7 @@ beans = {
                     config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
                     springSecurityService = ref('springSecurityService')
                 }
             }

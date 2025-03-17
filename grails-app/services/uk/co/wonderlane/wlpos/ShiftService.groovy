@@ -27,11 +27,12 @@ class ShiftService extends MySqlPoolDal {
     def userService
     def cashManagementService
     def locationService
-    def reportingService
+    def cashReportingService
     def safeService
     def safeManagementService
     def financialWeekService
     def commonService
+    def tenderTypeService
 
     ShiftService(DatabaseCredentials databaseCredentials) {
         super(databaseCredentials)
@@ -54,50 +55,91 @@ class ShiftService extends MySqlPoolDal {
             User loggedInUser = loadLoggedInUser()
             populateShiftCloseFields(shift, loggedInUser) //Update status of current shift if
             saveShift(shift) //This will called shift save method to process close
-            addAudit(shift, ShiftAction.CLOSE, false, loggedInUser, null) //Add shift audit for shift close
+            addAudit(shift, ShiftAction.CLOSE, false, loggedInUser, null, null, null) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error closing shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error creating shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
     }
 
-    void processShiftCashSave(CashUpCommand cashUpCommand, Shift shift){
+    void processShiftCashSave(CashUpCommand cashUpCommand, Shift shift) {
         try {
-            updatePendingCashTotal(cashUpCommand, shift) //This will update pending cash attribute on shift object for temporary
-            updatePendingVoucherTotal(cashUpCommand, shift) //This will update pending voucher attribute on shift object for temporary
-            saveShift(shift) //This will called shift save method to process on hold cash and voucher values
+            def applicableTenderTypes = tenderTypeService.getApplicableTenderTypes()
+
+            updatePendingCashTotal(cashUpCommand, shift, applicableTenderTypes?.find { it.cashTender }) // Update the pending cash totals with what we've counted vs what was expected.
+
+            // Remove any tender types which do not need to be cashed up manually.
+            applicableTenderTypes?.removeAll { it.cashTender } // Cash is handled separately above.
+            applicableTenderTypes?.removeAll { it.autoReconcile } // Auto-reconciled, so not cashed up.
+
+            applicableTenderTypes?.each {
+                updatePendingTenderTotal(cashUpCommand, shift, it) // Update the pending tender totals with what we've counted vs what was expected.
+            }
+
+            saveShift(shift) // This will called shift save method to process on hold cash and voucher values
         } catch (Exception ex) {
             log.error(String.format("Error closing shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error creating shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
     }
 
-    void processShiftDataSave(SaveShiftCommand saveShiftCommand, Shift shift){
+    private List<TenderTotal> getTenderTotalList(Shift shift) {
+        List<TenderTotal> tenderTotalList = new ArrayList<>()
+
+        for (ReconciliationTotal reconciliationTotal : shift.getReconciliationTotals()) {
+            if (reconciliationTotal.value != BigDecimal.ZERO) {
+                TenderTotal tenderTotal = new TenderTotal(reconciliationTotal.tenderTypeId, reconciliationTotal.tenderTypeName, reconciliationTotal.cashTender)
+                tenderTotal.setValue(reconciliationTotal.getValue())
+                tenderTotal.setQuantity(1)
+
+                tenderTotalList.add(tenderTotal)
+            }
+        }
+
+        return tenderTotalList;
+    }
+
+    void processShiftDataSave(SaveShiftCommand saveShiftCommand, Shift shift) {
         try {
             User loggedInUser = loadLoggedInUser()
+
             // This method will populate shift data corresponding at action requested
             // Based on request (reconcile, recount or finalise) shift object is populated differently
             updateShiftSaveFields(saveShiftCommand, shift, loggedInUser)
+
             saveShift(shift) //This will called shift save method to process close
+
             ShiftAction auditShiftAction = saveShiftCommand.isFinalise ? ShiftAction.FINALISE : saveShiftCommand.isRecount ? ShiftAction.RECOUNT : ShiftAction.RECONCILE
-            addAudit(shift, auditShiftAction, false, loggedInUser, null) //Add shift audit for shift close
+
+            Safe safe = null;
+            List<TenderTotal> tenderTotalList = new ArrayList<>()
+            if (auditShiftAction == ShiftAction.FINALISE) {
+                tenderTotalList = getTenderTotalList(shift)
+                safe = safeService.getSafeById(saveShiftCommand.safeId)
+            }
+
+            addAudit(shift, auditShiftAction, false, loggedInUser, null, safe, tenderTotalList) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error processing shift summary for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error processing shift summary for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
     }
 
-    void updateFinaliseShiftToSafeSessionMovements(Shift shift, int safeId){
-        Map<TenderType, BigDecimal> addedTenderAmounts = new HashMap<>()
-        if (shift.reconciliationTotals) {
-            for (tender in shift.reconciliationTotals) {
-                def value = tender.value
-                if (tender.tenderType != null && value != null && value != BigDecimal.ZERO) {
-                    addedTenderAmounts.put(tender.tenderType, value)
-                }
+    void updateFinaliseShiftToSafeSessionMovements(Shift shift, int safeId) {
+        List<ReconciliationTotal> addedTenderAmounts = new ArrayList<>()
+
+        shift?.reconciliationTotals?.each { ReconciliationTotal reconciliationTotal ->
+            if (reconciliationTotal.tenderTypeId && reconciliationTotal.value && reconciliationTotal.value != BigDecimal.ZERO) {
+                addedTenderAmounts.add(reconciliationTotal)
             }
         }
-        safeManagementService.addTenderToSafe(safeId, addedTenderAmounts)
+
+        SafeSession safeSession = safeManagementService.addTenderToSafe(safeId, addedTenderAmounts)
+
+        List<TenderTotal> tenderTotalList = getTenderTotalList(shift)
+        User loggedInUser = loadLoggedInUser()
+
+        safeManagementService.addAudit(safeSession, SafeSessionAction.CASH_LIFT, true, loggedInUser, null, tenderTotalList)
     }
 
     void updateFinaliseTenderMovement(Shift shift, int safeId){
@@ -106,7 +148,7 @@ class ShiftService extends MySqlPoolDal {
             Location safeLocation = locationService.getLocationBySafeId(safeId) as Location
 
             shift.reconciliationTotals.each {
-                createNewTenderMovement(tillLocation, safeLocation, TenderMovementType.CASH_UP, it.tenderType, it.value)
+                createNewTenderMovement(tillLocation, safeLocation, TenderMovementType.CASH_UP, it.tenderTypeId, it.tenderTypeName, it.value)
             }
         } catch (Exception ex) {
             log.error(String.format("Error shift tender movement for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -116,7 +158,7 @@ class ShiftService extends MySqlPoolDal {
     boolean isShiftRecountAmountNotExceed(Shift shift){
         try {
             int configuredRecountAttempts = getConfiguredRecountAttempts(shift.getRetailerId(), shift.getStoreId())
-            if(shift.getShiftStatus() == ShiftStatus.RECONCILED) {
+            if (shift.getShiftStatus() == ShiftStatus.RECONCILED) {
                 int currentTotalRecountAttempts = shift.getTotalRecountAttempts() != null ? shift.getTotalRecountAttempts() : 0
                 if (configuredRecountAttempts > 0 && currentTotalRecountAttempts < configuredRecountAttempts) {
                     return true
@@ -362,7 +404,7 @@ class ShiftService extends MySqlPoolDal {
     void addSpotCheckAudit(Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
-            addAudit(shift, ShiftAction.SPOT_CHECK, false, loggedInUser, null) //Add shift audit for shift close
+            addAudit(shift, ShiftAction.SPOT_CHECK, false, loggedInUser, null, null, null) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error adding spot check audit for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
@@ -373,7 +415,7 @@ class ShiftService extends MySqlPoolDal {
         try {
             User loggedInUser = loadLoggedInUser()
             updateAutoShiftDataFields(shift, loggedInUser, false)
-            addAudit(shift, ShiftAction.RECONCILE, false, loggedInUser, null) //Add shift audit for shift close
+            addAudit(shift, ShiftAction.RECONCILE, false, loggedInUser, null, null, null) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()) , ex);
@@ -386,8 +428,12 @@ class ShiftService extends MySqlPoolDal {
             User loggedInUser = loadLoggedInUser()
             updateAutoShiftDataFields(shift, loggedInUser, true);
             updateFinaliseTenderMovement(shift, primarySafeId)
-            updateFinaliseShiftToSafeSessionMovements(shift, primarySafeId)
-            addAudit(shift, ShiftAction.FINALISE, false, loggedInUser, null) //Add shift audit for shift close
+            SafeSession safeSession = updateFinaliseShiftToSafeSessionMovements(shift, primarySafeId)
+
+            Safe safe = safeService.getSafeById(primarySafeId)
+            List<TenderTotal> tenderTotalList = getTenderTotalList(shift)
+
+            addAudit(shift, ShiftAction.FINALISE, false, loggedInUser, null, safe, tenderTotalList) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()) , ex);
@@ -402,10 +448,11 @@ class ShiftService extends MySqlPoolDal {
         return false
     }
 
-    Shift updateRollingFloatCalculations(Shift oldShift){
+    Shift updateRollingFloatCalculations(Shift oldShift) {
         Shift newShift = null
         def cashManagementConfig = cashManagementService.getCashManagementConfig(oldShift.getRetailerId(), oldShift.getStoreId())
         BigDecimal currentCashTotal = oldShift.cashInDrawer
+
         //Following conditions were considered when checking rolling float
         //1. Auto float cash management flag should be enable
         //2. Configured rolling float value should be positive
@@ -413,31 +460,53 @@ class ShiftService extends MySqlPoolDal {
         //4. Current shift should have positive value (zero or greater)
         if (cashManagementConfig.rollingFloatEnabled && cashManagementConfig.rollingFloatValue > 0 && currentCashTotal != null && currentCashTotal.compareTo(BigDecimal.ZERO) > 0 && isCashManagementEnable(oldShift.tillId)) {
             User loggedInUser = loadLoggedInUser()
+
             newShift = populateNewShift(oldShift.retailerId, oldShift.storeId, oldShift.tillId,loggedInUser) //call function to open shift
+
             BigDecimal rollingFloatAmount = calculateMovingRollingFloat(currentCashTotal, cashManagementConfig.rollingFloatValue)
-            moveRollingFloatToNewShift(newShift, rollingFloatAmount)
-            updateRollingFloatToOldShift(oldShift, rollingFloatAmount)
+
+            def cashTender = tenderTypeService.getApplicableTenderTypes()?.find { it.cashTender }
+
+            if (cashTender) {
+                moveRollingFloatToNewShift(newShift, cashTender, rollingFloatAmount)
+
+                updateRollingFloatToOldShift(oldShift, cashTender, rollingFloatAmount)
+            }
         }
+
         return newShift
     }
 
-    boolean addRollingFloatAuditAndTenderMovements(Shift oldShift, Shift newShift){
+    boolean addRollingFloatAuditAndTenderMovements(Shift oldShift, Shift newShift) {
         //This exists mean rolling float is enabled and action succeeded
         if (newShift != null) {
             Safe primarySafe = safeService.getPrimaryStoreSafes()
             User loggedInUser = loadLoggedInUser()
-            addAudit(oldShift, ShiftAction.CASH_LIFT, true, loggedInUser, null)// Add audit for cash lift from old shift action in rolling float action
-            addAudit(newShift, ShiftAction.ADD_FLOAT, true, loggedInUser, null)// Add audit for add float to new shift action in rolling float action
-            shiftCashTenderMovementUpdate(oldShift, primarySafe.id, false, oldShift.autoFloatOut, BigDecimal.ZERO)// Add tender movement for cash moving into safe
-            shiftCashTenderMovementUpdate(newShift, primarySafe.id, true, newShift.autoFloatIn, BigDecimal.ZERO)// Add tender movement for cash moving out safe
+
+            def cashTender = tenderTypeService.getApplicableTenderTypes()?.find { it.cashTender }
+
+            TenderTotal cashLiftTenderTotal = new TenderTotal(cashTender?.id, cashTender?.name, cashTender?.cashTender)
+            cashLiftTenderTotal.setQuantity(1)
+            cashLiftTenderTotal.setValue(oldShift.autoFloatOut)
+
+            def tenderTotalList = [cashLiftTenderTotal]
+
+            addAudit(oldShift, ShiftAction.CASH_LIFT, true, loggedInUser, null, primarySafe, tenderTotalList)  // Add audit for tender lift from old shift action in rolling float action
+            addAudit(newShift, ShiftAction.ADD_FLOAT, true, loggedInUser, null, primarySafe, tenderTotalList)  // Add audit for add float to new shift action in rolling float action
+
+            shiftCashTenderMovementUpdate(oldShift, primarySafe.id, false, cashTender?.id, cashTender?.name, oldShift.autoFloatOut) // Add tender movement for cash moving into safe
+            shiftCashTenderMovementUpdate(newShift, primarySafe.id, true, cashTender?.id, cashTender?.name, newShift.autoFloatIn)   // Add tender movement for cash moving out safe
+
             return true
         }
+
         return false
     }
 
-    private void moveRollingFloatToNewShift(Shift newShift, BigDecimal rollingFloatAmount){
-        TenderTotal newTenderTotal = new TenderTotal(TenderType.CASH)
+    private void moveRollingFloatToNewShift(Shift newShift, TenderType cashTender, BigDecimal rollingFloatAmount) {
+        TenderTotal newTenderTotal = new TenderTotal(cashTender?.id, cashTender?.name, cashTender?.cashTender)
         newTenderTotal.value = rollingFloatAmount
+
         newShift.tenderTotals.add(newTenderTotal)
         newShift.cashInDrawer = rollingFloatAmount
         newShift.autoFloatIn = rollingFloatAmount
@@ -466,20 +535,21 @@ class ShiftService extends MySqlPoolDal {
             newShift = populateNewShift(retailerId, storeId, tillId, loggedInUser)
         }
         saveShift(newShift) // Save shift
-        addAudit(newShift, ShiftAction.OPEN, isAutoGenerated, loggedInUser, null) // Audit for shift open action
+
+        addAudit(newShift, ShiftAction.OPEN, isAutoGenerated, loggedInUser, null, null, null) // Audit for shift open action
         return newShift;
     }
 
-    void addAudit(Shift shift, ShiftAction shiftAction, boolean isAutoGenerated, User loggedInUser, Integer tenderMovementId){
+    void addAudit(Shift shift, ShiftAction shiftAction, boolean isAutoGenerated, User loggedInUser, Integer tenderMovementId, Safe safe, List<TenderTotal> tenderTotalList){
         try {
-            ShiftAudit shiftAudit = initializeShiftAudit(shift, shiftAction, isAutoGenerated, loggedInUser, tenderMovementId)
+            ShiftAudit shiftAudit = initializeShiftAudit(shift, shiftAction, isAutoGenerated, loggedInUser, tenderMovementId, safe, tenderTotalList)
             saveShiftAudit(shiftAudit)
         } catch (Exception ex) {
             log.error("Error adding audit for shift id: " + shift.getId() + " : " + ex.getMessage(), ex)
         }
     }
 
-    private ShiftAudit initializeShiftAudit(Shift shift, ShiftAction shiftAction, boolean isAutoGenerated, User loggedInUser, Integer tenderId) {
+    private ShiftAudit initializeShiftAudit(Shift shift, ShiftAction shiftAction, boolean isAutoGenerated, User loggedInUser, Integer tenderId, Safe safe, List<TenderTotal> tenderTotalList) {
         ShiftAudit shiftAudit = new ShiftAudit()
         shiftAudit.with {
             shiftId = shift.id
@@ -487,8 +557,13 @@ class ShiftService extends MySqlPoolDal {
             action = shiftAction
             userId = loggedInUser?.id
             username = loggedInUser?.username
+            usersRealName = loggedInUser?.name
             timestamp = new DateTime()
             tenderMovementId = tenderId
+            backOffice = true
+            safeId = safe?.id
+            safeDescription = safe?.description
+            tenderMovementValue = tenderTotalList
         }
 
         if (shiftAction in [ShiftAction.SPOT_CHECK, ShiftAction.RECONCILE, ShiftAction.RECOUNT, ShiftAction.FINALISE, ShiftAction.ADD_FLOAT, ShiftAction.CASH_LIFT]) {
@@ -568,7 +643,7 @@ class ShiftService extends MySqlPoolDal {
     }
 
     private void saveShiftAudit(ShiftAudit shiftAudit){
-        try (Connection conn = getConnection(); CallableStatement saveShiftStatement = conn.prepareCall("{ call saveShiftAudit(?, ?, ?, ?, ?, ?, ?, ?, ?) }")) {
+        try (Connection conn = getConnection(); CallableStatement saveShiftStatement = conn.prepareCall("{ call saveShiftAudit(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")) {
             if (shiftAudit.getId() > 0) {
                 saveShiftStatement.setInt(1, shiftAudit.getId())
             } else {
@@ -579,14 +654,27 @@ class ShiftService extends MySqlPoolDal {
             saveShiftStatement.setString(4, shiftAudit.getAction().toString())
             saveShiftStatement.setInt(5, shiftAudit.getUserId())
             saveShiftStatement.setString(6, shiftAudit.getUsername())
-            saveShiftStatement.setTimestamp(7, commonService.convertToSqlTimestamp(shiftAudit.getTimestamp()))
-            saveShiftStatement.setString(8,  (shiftAudit?.extras != null) ? gsonProvider.gson.toJson(shiftAudit.extras) : null)
+            saveShiftStatement.setString(7, shiftAudit.getUsersRealName())
+            saveShiftStatement.setTimestamp(8, commonService.convertToSqlTimestamp(shiftAudit.getTimestamp()))
+            saveShiftStatement.setString(9,  (shiftAudit?.extras != null) ? gsonProvider.gson.toJson(shiftAudit.extras) : null)
 
             if (shiftAudit.getTenderMovementId()) {
-                saveShiftStatement.setInt(9, shiftAudit.getTenderMovementId())
+                saveShiftStatement.setInt(10, shiftAudit.getTenderMovementId())
             } else {
-                saveShiftStatement.setNull(9, Types.INTEGER)
+                saveShiftStatement.setNull(10, Types.INTEGER)
             }
+            if (shiftAudit.getTenderMovementValue() != null && shiftAudit.getTenderMovementValue().size() != 0) {
+                saveShiftStatement.setString(11, gsonProvider.gson.toJson(shiftAudit.getTenderMovementValue()));
+            } else {
+                saveShiftStatement.setString(11, null);
+            }
+            saveShiftStatement.setBoolean(12, shiftAudit.isBackOffice());
+            if (shiftAudit.getSafeId() != null) {
+                saveShiftStatement.setInt(13, shiftAudit.getSafeId())
+            } else {
+                saveShiftStatement.setNull(13, Types.INTEGER);
+            }
+            saveShiftStatement.setString(14, shiftAudit.getSafeDescription());
             saveShiftStatement.executeUpdate();
         } catch (SQLException ex) {
             log.error(String.format("Sql error saving shift audit for shift id: %s error: %s", shiftAudit.getShiftId(), ex.getMessage()), ex)
@@ -610,44 +698,48 @@ class ShiftService extends MySqlPoolDal {
         return loggedInUser
     }
 
-    private void updateCashTotal(Shift shift) {
-        //Load on hold cash total values --> Saved at cash up view
-        def cashPendingTotal = shift.pendingReconciliationTotals.find { it.tenderType == TenderType.CASH }
+    private void updateCashTotal(Shift shift, TenderType cashTenderType) {
+        // Load on hold cash total values --> Saved at cash up view
+        def cashPendingTotal = shift.pendingReconciliationTotals.find { it.tenderTypeId == cashTenderType?.id }
 
-        //Then update pending cash value to shift actual cash value
-        def cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
-                new ReconciliationTotal(TenderType.CASH).tap { shift.reconciliationTotals << it }
+        // Then update pending cash value to shift actual cash value
+        def cashTotal = shift.reconciliationTotals.find { it.tenderTypeId == cashTenderType?.id } ?: new ReconciliationTotal(cashTenderType.id, cashTenderType.name, cashTenderType.cashTender).tap { shift.reconciliationTotals << it }
+
         cashTotal.value = cashPendingTotal?.value ?: BigDecimal.ZERO
         cashTotal.variance = cashPendingTotal?.variance ?: BigDecimal.ZERO
     }
 
-    private void updateVoucherTotal(Shift shift) {
-        //Load on hold voucher total values --> Saved at cash up view
-        def vouchersPendingTotal = shift.pendingReconciliationTotals.find { it.tenderType == TenderType.VOUCHER }
+    private void updateTenderTotal(Shift shift, TenderType tenderType) {
+        // Load on hold tender total values --> Saved at cash up view
+        def tenderPendingTotal = shift.pendingReconciliationTotals.find { it.tenderTypeId == tenderType?.id }
 
-        //Then update pending voucher value to shift actual voucher value
-        def vouchersTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
-                new ReconciliationTotal(TenderType.VOUCHER).tap { shift.reconciliationTotals << it }
-        vouchersTotal.value = vouchersPendingTotal?.value ?: BigDecimal.ZERO
-        vouchersTotal.variance = vouchersPendingTotal?.variance ?: BigDecimal.ZERO
+        // Then update pending voucher value to shift actual voucher value
+        def tenderTotal = shift.reconciliationTotals.find { it.tenderTypeId == tenderType?.id } ?: new ReconciliationTotal(tenderType.id, tenderType.name, tenderType.cashTender).tap { shift.reconciliationTotals << it }
+
+        tenderTotal.value = tenderPendingTotal?.value ?: BigDecimal.ZERO
+        tenderTotal.variance = tenderPendingTotal?.variance ?: BigDecimal.ZERO
     }
 
-    private void updatePendingCashTotal(CashUpCommand cashUpCommand, Shift shift) {
-        def cashTotal = shift.pendingReconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
-                new ReconciliationTotal(TenderType.CASH).tap { shift.pendingReconciliationTotals << it }
+    private void updatePendingCashTotal(CashUpCommand cashUpCommand, Shift shift, TenderType cashTenderType) {
+        def cashTotal = shift.pendingReconciliationTotals.find { it.tenderTypeId == cashTenderType?.id } ?: new ReconciliationTotal(cashTenderType?.id, cashTenderType?.name, cashTenderType?.cashTender).tap { shift.pendingReconciliationTotals << it }
+
         cashTotal.value = calculateCashTotal(cashUpCommand)
+
         BigDecimal currentCashTotal = (cashTotal.value ?: BigDecimal.ZERO)
         BigDecimal currentCashInDrawer = (shift.cashInDrawer ?: BigDecimal.ZERO)
+
         cashTotal.variance = currentCashTotal.subtract(currentCashInDrawer)
     }
 
-    private void updatePendingVoucherTotal(CashUpCommand cashUpCommand, Shift shift) {
-        def vouchersTotal = shift.pendingReconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
-                new ReconciliationTotal(TenderType.VOUCHER).tap { shift.pendingReconciliationTotals << it }
-        vouchersTotal.value = cashUpCommand.vouchersTotal
-        BigDecimal currentVoucherTotal = (vouchersTotal.value ?: BigDecimal.ZERO)
-        BigDecimal currentTenderTotal = (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
-        vouchersTotal.variance = currentVoucherTotal.subtract(currentTenderTotal)
+    private void updatePendingTenderTotal(CashUpCommand cashUpCommand, Shift shift, TenderType tenderType) {
+        def tenderTotal = shift.pendingReconciliationTotals.find { it.tenderTypeId == tenderType?.id } ?: new ReconciliationTotal(tenderType?.id, tenderType?.name, tenderType?.cashTender).tap { shift.pendingReconciliationTotals << it }
+
+        tenderTotal.value = cashUpCommand?.totals?.find { it.tenderTypeId == tenderType?.id }?.value
+
+        BigDecimal cashedUpTenderTotal = (tenderTotal.value ?: BigDecimal.ZERO)
+        BigDecimal currentTenderTotal = (shift.tenderTotals.findAll { it.tenderTypeId == tenderType?.id }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
+
+        tenderTotal.variance = cashedUpTenderTotal.subtract(currentTenderTotal)
     }
 
     private BigDecimal calculateCashTotal(CashUpCommand cashUpCommand) {
@@ -671,17 +763,26 @@ class ShiftService extends MySqlPoolDal {
           cmd.tenPences * 0.10, cmd.fivePences * 0.05, cmd.twoPences * 0.02, cmd.onePences * 0.01].sum() ?: 0) as BigDecimal
     }
 
-    private void updateShiftSaveFields(SaveShiftCommand saveShiftCommand, Shift shift, User loggedInUser){
-        if (shift.shiftStatus == ShiftStatus.UNRECONCILED || shift.shiftStatus == ShiftStatus.RECONCILED){
-            if (!saveShiftCommand.isFinalise){
+    private void updateShiftSaveFields(SaveShiftCommand saveShiftCommand, Shift shift, User loggedInUser) {
+        if (shift.shiftStatus == ShiftStatus.UNRECONCILED || shift.shiftStatus == ShiftStatus.RECONCILED) {
+            if (!saveShiftCommand.isFinalise) {
+                def applicableTenderTypes = tenderTypeService.getApplicableTenderTypes()
+
                 // If the request is not a final request (Intermediate --> reconcile or recount)
                 // Then should
                 //   1. Move on hold cash values into shift cash value
                 //   2. Move on hold voucher values into shift voucher value
                 //   3. Update variance reason and reason text
                 //   4. Safe location to move
-                updateCashTotal(shift) // Update on hold cash into actual shift object cash
-                updateVoucherTotal(shift) // Update on hold voucher into actual shift object voucher
+                updateCashTotal(shift, applicableTenderTypes?.find { it.cashTender }) // Update on hold cash into actual shift object cash
+
+                // Remove any tender types which do not need to be cashed up manually.
+                applicableTenderTypes?.removeAll { it.cashTender } // Cash is handled separately above.
+                applicableTenderTypes?.removeAll { it.autoReconcile } // Auto-reconciled, so not cashed up.
+
+                applicableTenderTypes?.each {
+                    updateTenderTotal(shift, it) // Update on hold voucher into actual shift object voucher
+                }
 
                 shift.reconciliationTotals.each {
                     // Handle reset of tenderReconciliationVarianceReason when no variance exists at the middle of reconciliation,
@@ -701,17 +802,25 @@ class ShiftService extends MySqlPoolDal {
                     shift.reconciledDate = DateTime.now()
                     shift.reconciledByUserId = loggedInUser.getId()
                     shift.reconciledByUsersName = loggedInUser.getUsername()
+                    shift.reconciledByRealName = loggedInUser.getName()
                     shift.shiftStatus = ShiftStatus.RECONCILED
                 } else {
                     shift.reReconciledDate = DateTime.now()
                     shift.reReconciledByUserId = loggedInUser.getId()
                     shift.reReconciledByUsersName = loggedInUser.getUsername()
+                    shift.reReconciledByRealName = loggedInUser.getName()
                     shift.totalRecountAttempts = (shift.totalRecountAttempts ?: 0) + 1
                 }
                 // Once update done clear `pending` list
                 shift.getPendingReconciliationTotals().clear()
             } else {
                 shift.shiftStatus = ShiftStatus.FINALISED
+                shift.finalisedTime = DateTime.now()
+                shift.finalisedUserId = loggedInUser.getId()
+                shift.finalisedUserName = loggedInUser.getUsername()
+                shift.finalisedUsersRealName = loggedInUser.getName()
+                shift.finalisedSafeId = saveShiftCommand.safeId
+                shift.finalisedSafeDescription = safeService.getSafeDescriptionForId(saveShiftCommand.safeId)
             }
         }
     }
@@ -729,48 +838,28 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    private void shiftCashTenderMovementUpdate(Shift shift, int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
+    private void shiftCashTenderMovementUpdate(Shift shift, int safeId, boolean isAddFloat, Integer tenderTypeId, String tenderTypeName, BigDecimal tenderAmount) {
         TenderMovementType tenderMovementType = isAddFloat ? TenderMovementType.ADD_FLOAT : TenderMovementType.CASH_LIFT
         Location tillLocation = locationService.getTillLocation(shift.tillId) as Location
         Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as Location
 
         if (isAddFloat) {
-            // If this is add float action then we can have both CASH and VOUCHER types
-            // For add float action from location should be location of safe we are moving money into
-            // To location should be location of till where we move cash/voucher into
-            createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, TenderType.CASH, cashAmount)
-            createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, TenderType.VOUCHER, voucherAmount)
+            // For add float action from location should be location of safe we are moving tender into
+            // To location should be location of till where we move tender into
+            createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, tenderTypeId, tenderTypeName, tenderAmount)
         } else {
-            // In cash lift action there can only CASH type
-            // from location should be location of till while to location should be location of safe where we move cash into
-            createNewTenderMovement(tillLocation, safeLocation, tenderMovementType, TenderType.CASH, cashAmount)
+            // From location should be location of till while to location should be location of safe where we move cash into
+            createNewTenderMovement(tillLocation, safeLocation, tenderMovementType, tenderTypeId, tenderTypeName, tenderAmount)
         }
     }
 
-    private void shiftCashTenderUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
-        updateTenderTotalForCashUpdate(shift, TenderType.CASH, cashAmount)
-        if (isAddFloat) {
-            updateTenderTotalForCashUpdate(shift, TenderType.VOUCHER, voucherAmount)
-        }
-    }
-
-    private void updateCashDrawer(Shift shift, BigDecimal cashAmount){
-        if (cashAmount != null){
-            BigDecimal currentCash = shift.getCashInDrawer();
-            if (currentCash == null) {
-                currentCash = BigDecimal.ZERO;
-            }
-            BigDecimal newCashAmount = currentCash.add(cashAmount);
-            shift.setCashInDrawer(newCashAmount);
-        }
-    }
-
-    private void createNewTenderMovement(Location fromLocation, Location toLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
+    private void createNewTenderMovement(Location fromLocation, Location toLocation, TenderMovementType tenderMovementType, Integer tenderTypeId, String tenderTypeName, BigDecimal updateAmount) {
         if (updateAmount.compareTo(BigDecimal.ZERO) != 0) {
             try {
-                TenderMovement tenderMovement = reportingService.createNewTenderMovement(
+                TenderMovement tenderMovement = cashReportingService.createNewTenderMovement(
                         tenderMovementType,
-                        tenderType,
+                        tenderTypeId,
+                        tenderTypeName,
                         fromLocation,
                         toLocation,
                         null,  // reasonCode
@@ -780,29 +869,15 @@ class ShiftService extends MySqlPoolDal {
                         null,  // comments
                         updateAmount
                 )
-                reportingService.saveTenderMovement(tenderMovement)
+
+                cashReportingService.saveTenderMovement(tenderMovement)
             } catch (Exception ex) {
-                log.error("Error saving tender movement for tender type: ${tenderType} error: ${ex.getMessage()}", ex)
+                log.error("Error saving tender movement for tender type: ${tenderTypeId} error: ${ex.getMessage()}", ex)
             }
         }
     }
 
-    private void updateTenderTotalForCashUpdate(Shift shift, TenderType tenderType, BigDecimal updateAmount) {
-        if (updateAmount != 0) { //update amount either can be negative or positive
-            TenderTotal tenderTotal = shift.getTenderTotals().stream()
-                    .filter(tt -> tt.getTenderType() == tenderType).findFirst()
-                    .orElseGet(() -> {
-                        TenderTotal newTenderTotal = new TenderTotal(tenderType);
-                        shift.getTenderTotals().add(newTenderTotal);
-                        return newTenderTotal;
-                    });
-
-            tenderTotal.setQuantity(tenderTotal.getQuantity() + 1);
-            tenderTotal.setValue(tenderTotal.getValue().add(updateAmount));
-        }
-    }
-
-    private void updateAutoShiftDataFields(Shift shift, User user, boolean isFinal){
+    private void updateAutoShiftDataFields(Shift shift, User user, boolean isFinal) {
         try {
             if (isFinal) {
                 shift.setShiftStatus(ShiftStatus.FINALISED)
@@ -812,12 +887,14 @@ class ShiftService extends MySqlPoolDal {
                 shift.setReconciledByUserId(user.getId())
                 shift.setReconciledByUsersName(user.getUsername())
                 for (TenderTotal tenderTotal : shift.getTenderTotals()){
-                    ReconciliationTotal newReconciliationTotal = new ReconciliationTotal(tenderTotal.getTenderType())
+                    ReconciliationTotal newReconciliationTotal = new ReconciliationTotal(tenderTotal.tenderTypeId, tenderTotal.tenderTypeName, tenderTotal.cashTender)
                     newReconciliationTotal.setValue(tenderTotal.getValue())
                     newReconciliationTotal.setVariance(BigDecimal.ZERO)
+
                     shift.getReconciliationTotals().add(newReconciliationTotal)
                 }
             }
+
             saveShift(shift)
         } catch (Exception ex) {
             log.error(String.format("Error updating direct shift data update for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -835,11 +912,12 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    private void updateRollingFloatToOldShift(Shift oldShift, BigDecimal rollingFloatAmount){
-        def oldTotal = oldShift.tenderTotals.find { it.tenderType == TenderType.CASH }
-        oldTotal.value = oldTotal.value.subtract(rollingFloatAmount)
-        oldShift.cashInDrawer = oldShift.cashInDrawer.subtract(rollingFloatAmount)
-        oldShift.autoFloatOut = rollingFloatAmount
+    private void updateRollingFloatToOldShift(Shift oldShift, TenderType cashTender, BigDecimal rollingFloatAmount){
+        def oldTotal = oldShift.tenderTotals.find { it.tenderTypeId == cashTender?.id }
+
+        oldTotal?.value = oldTotal?.value?.subtract(rollingFloatAmount)
+        oldShift?.cashInDrawer = oldShift?.cashInDrawer?.subtract(rollingFloatAmount)
+        oldShift?.autoFloatOut = rollingFloatAmount
     }
 
     private BigDecimal calculateMovingRollingFloat(BigDecimal expectedValue, int rollingFloatValue) {

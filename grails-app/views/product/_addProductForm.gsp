@@ -33,23 +33,23 @@
                                 <label for="effectiveDate" class="col-3 col-form-label text-right pr-4">Effective Date</label>
                                 <g:textField name="effectiveDate" type="text" class="col-5 form-control bottom-border" value="${effectiveDateIndex ? effectiveDateIndex[1]?.toString('dd/MM/yyyy') : now?.toString('dd/MM/yyyy')}" autocomplete="off" />
                             </div>
-                            <div class="row form-group mb-3">
+                            <div class="row form-group">
                                 <label for="itemCode" class="col-3 col-form-label text-right pr-4">Item Code (PLU)</label>
                                 <g:field maxLength="20" type="text" name="itemCode" class="col-5 form-control bottom-border" value="${product?.itemCode}" onblur="itemCodeChanged(this.value);" />
                             </div>
-                            <div class="row form-group mb-3">
+                            <div class="row form-group">
                                 <label for="description" class="col-3 col-form-label text-right pr-4">Description</label>
                                 <g:textField maxLength="100" name="description" class="col-5 form-control bottom-border add-product-desc" value="${product?.description}" required="true" />
                             </div>
-                            <div class="row form-group mb-3">
+                            <div class="row form-group">
                                 <label for="receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
                                 <g:textField maxLength="50" name="receiptDescription" value="${product?.receiptDescription}" class="col-5 form-control bottom-border add-product-receiptDesc" required="true" />
                             </div>
-                            <div class="row form-group mb-3">
+                            <div class="row form-group">
                                 <label for="selDescription" class="col-3 col-form-label text-right pr-4">SEL Description</label>
                                 <g:textField maxLength="16" name="selDescription" value="${product?.selDescription}" class="col-5 form-control bottom-border" required="true" />
                             </div>
-                            <div class="row form-group mb-3">
+                            <div class="row form-group">
                                 <label for="selType" class="col-3 col-form-label text-right pr-4">SEL type</label>
                                 <g:select name="selType"
                                           class="col-3 form-control select-border"
@@ -57,10 +57,6 @@
                                           optionKey="id"
                                           optionValue="name"
                                           value="${product?.selType?.id}"/>
-                            </div>
-                            <div class="row form-group mb-3">
-                                <label for="unitSize" class="col-3 col-form-label text-right pr-4">Unit Size</label>
-                                <g:textField maxLength="50" name="unitSize" class="col-5 form-control bottom-border" value="${product?.unitSize ?: 'EACH'}"/>
                             </div>
                         </div>
 
@@ -76,7 +72,7 @@
                                     <g:render template="categorySelect" model="[categories: categoryValues, productCategoryList: productCategoryList, selectedCategoryId: product?.category?.id, level: 1, triggerOnCategoryChange: true]" />
                                 </div>
                             </div>
-                            <div class="row form-group mb-3">
+                            <div class="row form-group">
                                 <label for="productImgUrl" class="col-3 col-form-label text-right pr-4">Image URL</label>
                                 <g:textField
                                         maxLength="150"
@@ -87,6 +83,10 @@
                                         pattern="https?://.+"
                                         title="Please enter a valid URL starting with http:// or https://"
                                 />
+                            </div>
+                            <div class="row form-group form-check pl-0">
+                                <label for="ownLabel" class="col-3 col-form-label text-right pr-4">Own Label</label>
+                                <g:checkBox name="ownLabel" id="ownLabel" class="col-1 form-check-input wl-checkbox" checked="${product?.ownLabel}" />
                             </div>
                         </div>
                     </div>
@@ -140,7 +140,7 @@
                         <g:each in="${product?.variants}" var="variant" status="i">
                             <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                 <div id="variant-${i}">
-                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes, storeId: storeId]" />
+                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes, unitOfMeasure: variant.unitOfMeasure?.id, storeId: storeId]" />
                                 </div>
                             </g:if>
                         </g:each>
@@ -177,10 +177,6 @@
                             <div class="row form-group">
                                 <label for="vatPercentageOverride" class="col-3 col-form-label text-right pr-4">VAT Override</label>
                                 <g:textField name="vatPercentageOverride" value="${product?.vatPercentageOverride ?: '0.00'}" class="col-3 form-control bottom-border text-right mask-money" readonly="${product?.vatCode?.code != 'O'}" />
-                            </div>
-                            <div class="row mt-1 form-group">
-                                <label for="discreetMessage" class="col-3 col-form-label text-right pr-4">Discreet Message</label>
-                                <g:textField maxLength="50" name="discreetMessage" value="${product?.discreetMessage}" class="col-5 form-control bottom-border" />
                             </div>
                             <fieldset ${(snappyEnabled?:"disabled")}>
                                 <div class="row mt-1 form-group form-check pl-0">
@@ -274,6 +270,48 @@
 
                     <div id="promotionsContainer">
 
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Product Messages. -->
+        <div class="card bg-light border-wl accordion-card">
+            <div class="card-header pointer" id="productMessages" data-toggle="collapse" data-target="#collapseMessages" aria-expanded="true" aria-controls="collapseMessages">
+                <div class="row">
+                    <div class="col-10"><strong>Product Messages</strong></div>
+                    <div class="col-2 text-right">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div id="collapseMessages" class="collapse collapsed" aria-labelledby="productMessages" data-parent="#accordion">
+                <div class="card-body py-5">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="row form-group">
+                                <label for="saleMessage" class="col-4 col-form-label text-right pr-4">Sale Prompt Message:</label>
+                                <g:textField maxLength="80" name="saleMessage" value="${product?.saleMessages?.isEmpty() ? '' : product?.saleMessages?.max { it.id }?.text}" class="col-4 form-control" />
+                                <g:hiddenField name="saleMessageId" value="${product?.saleMessages?.isEmpty() ? '' : product?.saleMessages?.max { it.id }?.id}" />
+                            </div>
+                            <div class="row mt-1 form-group">
+                                <label for="returnMessage" class="col-4 col-form-label text-right pr-4">Return Prompt Message:</label>
+                                <g:textField maxLength="80" name="refundMessage" value="${product?.refundMessages?.isEmpty() ? '' : product?.refundMessages?.max { it.id }?.text}" class="col-4 form-control" />
+                                <g:hiddenField name="refundMessageId" value="${product?.refundMessages?.isEmpty() ? '' : product?.refundMessages?.max { it.id }?.id}" />
+                            </div>
+                            <div class="row mt-1 form-group">
+                                <label for="scoSaleMessage" class="col-4 col-form-label text-right pr-4">SCO Sale Prompt Message:</label>
+                                <g:textField maxLength="80" name="scoSaleMessage" value="${product?.scoMessages?.isEmpty() ? '' : product?.scoMessages?.max { it.id }?.text}" class="col-4 form-control" />
+                                <g:hiddenField name="scoSaleMessageId" value="${product?.scoMessages?.isEmpty() ? '' : product?.scoMessages?.max { it.id }?.id}" />
+                            </div>
+                            <div class="row mt-1 form-group">
+                                <label for="discreetMessage" class="col-4 col-form-label text-right pr-4">Discreet Message:</label>
+                                <g:textField maxLength="48" name="discreetMessage" value="${product?.discreetMessage}" class="col-3 form-control" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -417,6 +455,31 @@
                 </div>
             </div>
         </g:if>
+
+        <g:if test="${productAttributeValuesList?.size() > 0}">
+            <div class="card bg-light border-wl accordion-card">
+                <div class="card-header pointer" id="productInformation" data-toggle="collapse" data-target="#collapseProductInformation" aria-expanded="true" aria-controls="collapseProductInformation">
+                    <div class="row">
+                        <div class="col-10"><strong>Product Information</strong></div>
+                        <div class="col-2 text-right">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="collapseProductInformation" class="collapse collapsed" aria-labelledby="ProductInformation" data-parent="#accordion">
+                    <div class="card-body py-5">
+                        <div id="ProductInformationContainer"  style="max-height: 300px; overflow-x: hidden; overflow-y: auto;">
+                            <g:render template="productInformation" model="[productAttributeValuesList: productAttributeValuesList, isStore: storeId == null]" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </g:if>
+
+
 
         <!-- Product history. -->
         <div class="card bg-light border-wl accordion-card">

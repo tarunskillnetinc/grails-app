@@ -52,34 +52,20 @@
                 <span style="font-weight: bold;">Value</span> <!-- Keeping the font weight bold -->
             </div>
 
-            <div class="spot-check-row">
-                <span>Cash</span>
-                <span class="spot-check-value">
-                    <g:formatNumber number="${shift?.tenderTotals?.find { it.tenderType.name() == 'CASH' }?.value ?: BigDecimal.ZERO}" type="currency" />
-                </span>
-            </div>
-
-            <div class="spot-check-row">
-                <span>Card</span>
-                <span class="spot-check-value">
-                    <g:formatNumber number="${shift?.tenderTotals?.find { it.tenderType.name() == 'CARD' }?.value ?: BigDecimal.ZERO}" type="currency" />
-                </span>
-            </div>
-
-            <div class="spot-check-row">
-                <span>Voucher</span>
-                <span class="spot-check-value">
-                    <g:formatNumber number="${shift?.tenderTotals?.find { it.tenderType.name() == 'VOUCHER' }?.value ?: BigDecimal.ZERO}" type="currency" />
-                </span>
-            </div>
+            <g:each in="${shift?.tenderTotals}" var="tenderTotal">
+                <div class="spot-check-row">
+                    <span>${tenderTotal.tenderTypeName}</span>
+                    <span class="spot-check-value">
+                        <g:formatNumber number="${tenderTotal?.value ?: BigDecimal.ZERO}" type="currency" />
+                    </span>
+                </div>
+            </g:each>
 
             <!-- Total Line -->
             <div class="spot-check-row spot-check-total">
                 <span style="font-weight: bold;">Total</span> <!-- Keeping the font weight bold -->
                 <span class="spot-check-value">
-                    <g:formatNumber number="${ (shift?.tenderTotals?.find { it.tenderType.name() == 'CASH' }?.value ?: BigDecimal.ZERO) +
-                            (shift?.tenderTotals?.find { it.tenderType.name() == 'CARD' }?.value ?: BigDecimal.ZERO) +
-                            (shift?.tenderTotals?.find { it.tenderType.name() == 'VOUCHER' }?.value ?: BigDecimal.ZERO) }" type="currency" />
+                    <g:formatNumber number="${shift?.tenderTotals?.sum { it.value ?: BigDecimal.ZERO } ?: BigDecimal.ZERO}" type="currency" />
                 </span>
             </div>
         </div>

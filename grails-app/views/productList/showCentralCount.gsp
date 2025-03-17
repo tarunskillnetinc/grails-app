@@ -68,12 +68,12 @@
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="dateStarted" class="col-4 col-form-label text-right pr-4">Date Started</label>
-                    <g:textField name="dateStarted" class="col-5 form-control bottom-border" value="${productList?.dateStarted}" disabled="disabled" />
+                    <g:textField name="dateStarted" class="col-5 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy HH:mm:ss", date:productList?.dateStarted?.toDate())}" disabled="disabled" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="dateCompleted" class="col-4 col-form-label text-right pr-4">Date Completed</label>
-                    <g:textField name="dateCompleted" class="col-5 form-control bottom-border" value="${productList?.dateCompleted}" disabled="disabled" />
+                    <g:textField name="dateCompleted" class="col-5 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy HH:mm:ss", date:productList?.dateCompleted?.toDate())}" disabled="disabled" />
                 </div>
 
                 <div class="header-wl mt-5">
@@ -84,8 +84,6 @@
                     <div class="col-1 font-weight-bold">Product ID</div>
                     <div class="col-2 font-weight-bold">Item Code</div>
                     <div class="col font-weight-bold">Description</div>
-                    <div class="col-1 font-weight-bold">Colour</div>
-                    <div class="col-1 font-weight-bold">Size</div>
                 </div>
 
                 <div id="search-results" class="align-content-center mb-5">
@@ -98,8 +96,6 @@
                             <div class="col-1">${productListItem.productVariant?.product?.id}</div>
                             <div class="col-2">${productListItem.productVariant?.sku}</div>
                             <div class="col">${productListItem.productVariant?.product?.description}</div>
-                            <div class="col-1">${productListItem.productVariant?.colour ?: 'N/A'}</div>
-                            <div class="col-1">${productListItem.productVariant?.size ?: 'N/A'}</div>
                         </div>
                     </g:each>
                 </div>

@@ -190,19 +190,19 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
             List<TenderTotal> tenderTotalList = new ArrayList<>()
 
             if (reconCashTotal > 0) {
-                reconciliationTotalList.add(getReconciliationTotal(TenderType.CASH, reconCashTotal, 0))
+                reconciliationTotalList.add(getReconciliationTotal(123, "CashTender", true, reconCashTotal, 0))
             }
 
             if (reconVoucherTotal > 0) {
-                reconciliationTotalList.add(getReconciliationTotal(TenderType.VOUCHER, reconVoucherTotal, 0))
+                reconciliationTotalList.add(getReconciliationTotal(125, "VoucherTender", false, reconVoucherTotal, 0))
             }
 
             if (tenderCashTotal > 0) {
-                tenderTotalList.add(getTenderTotal(TenderType.CASH, tenderCashTotal))
+                tenderTotalList.add(getTenderTotal(123, "CashTender", true, tenderCashTotal))
             }
 
             if (tenderVoucherTotal > 0) {
-                tenderTotalList.add(getTenderTotal(TenderType.VOUCHER, tenderVoucherTotal))
+                tenderTotalList.add(getTenderTotal(125, "VoucherTender", false, tenderVoucherTotal))
             }
 
             _shift.setReconciliationTotals(reconciliationTotalList)
@@ -220,10 +220,10 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
         controller.ajaxSaveCash(cashUpCommand)
 
         then:
-        BigDecimal cashTotalVal = _shift.reconciliationTotals.find { it.tenderType == TenderType.CASH }.value
-        BigDecimal cashTotalVariance = _shift.reconciliationTotals.find { it.tenderType == TenderType.CASH }.variance
-        BigDecimal voucherTotalVal = _shift.reconciliationTotals.find { it.tenderType == TenderType.VOUCHER }.value
-        BigDecimal voucherTotalVariance = _shift.reconciliationTotals.find { it.tenderType == TenderType.VOUCHER }.variance
+        BigDecimal cashTotalVal = _shift.reconciliationTotals.find { it.tenderTypeId == 123 }.value
+        BigDecimal cashTotalVariance = _shift.reconciliationTotals.find { it.tenderTypeId == 123 }.variance
+        BigDecimal voucherTotalVal = _shift.reconciliationTotals.find { it.tenderTypeId == 125 }.value
+        BigDecimal voucherTotalVariance = _shift.reconciliationTotals.find { it.tenderTypeId == 125 }.variance
 
         switch (shiftId) {
             case 1:
@@ -296,9 +296,9 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
         controller.shiftService = Stub(ShiftService) {
             _shift.setReconciledDate(reconciledDate)
             _shift.setReconciliationTotals(List.of(
-                    getReconciliationTotal(TenderType.CASH, 500, 10),
-                    getReconciliationTotal(TenderType.VOUCHER, 100, 0)))
-            _shift.setTenderTotals(List.of(getTenderTotal(TenderType.CASH, 10)))
+                    getReconciliationTotal(123, "CashTender", true, 500, 10),
+                    getReconciliationTotal(125, "VoucherTender", false, 100, 0)))
+            _shift.setTenderTotals(List.of(getTenderTotal(123, "CashTender", true, 10)))
 
             getShift(saveShiftCommand.getShiftId(), -1, -1) >> _shift
         }
@@ -365,16 +365,16 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
         return shift
     }
 
-    private ReconciliationTotal getReconciliationTotal(TenderType tenderType, BigDecimal value, BigDecimal variance) {
-        ReconciliationTotal reconciliationTotal = new ReconciliationTotal(tenderType)
+    private ReconciliationTotal getReconciliationTotal(int tenderTypeId, String tenderTypeName, boolean cashTender, BigDecimal value, BigDecimal variance) {
+        ReconciliationTotal reconciliationTotal = new ReconciliationTotal(tenderTypeId, tenderTypeName, cashTender)
         reconciliationTotal.setValue(value)
         reconciliationTotal.setVariance(variance)
 
         return reconciliationTotal;
     }
 
-    private TenderTotal getTenderTotal(TenderType tenderType, BigDecimal value) {
-        TenderTotal tenderTotal = new TenderTotal(tenderType)
+    private TenderTotal getTenderTotal(int tenderTypeId, String tenderTypeName, boolean cashTender, BigDecimal value) {
+        TenderTotal tenderTotal = new TenderTotal(tenderTypeId, tenderTypeName, cashTender)
         tenderTotal.setValue(value)
 
         return tenderTotal

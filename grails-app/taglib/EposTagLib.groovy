@@ -1,6 +1,8 @@
 import uk.co.wonderlane.wlpos.Category
+import uk.co.wonderlane.wlpos.EcomSupplierCategoryMapping
 import uk.co.wonderlane.wlpos.Group
 import uk.co.wonderlane.wlpos.ImageRecord
+import uk.co.wonderlane.wlpos.enums.CategoryHistoryType
 import uk.co.wonderlane.wlpos.enums.ImageType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.PromotionType
@@ -16,7 +18,7 @@ class EposTagLib {
     def reportingService
     def buttonService
     def categoryService
-    def tagService
+    def productGroupService
     def productService
     def promotionService
     def imageService
@@ -119,7 +121,9 @@ class EposTagLib {
                 break
             case ReportType.PROMOTIONS_GROUPED:
                 out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All Promotional Sales</li>"""
-
+                break
+            case ReportType.BANKING_REPORT:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Banking Report</li>"""
                 break
             case ReportType.PROMOTIONS:
                 def promotion = promotionService.getPromotion(attrs.promotionId)
@@ -148,6 +152,10 @@ class EposTagLib {
                 break
             case ReportType.PAYPOINT_SALES:
                 out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All PayPoint Sales</li>"""
+
+                break
+            case ReportType.CHARITY_DONATIONS:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All Charity Donations</li>"""
 
                 break
             case ReportType.ORDERS:
@@ -291,33 +299,37 @@ class EposTagLib {
 
     def productHistory = { attrs, body ->
         def productHistory = attrs.productHistory
+        def userText = 'System'
+        if (productHistory?.usersName) {
+            userText = """User ${productHistory?.usersName}"""
+        }
         switch ((ProductHistoryType)productHistory?.productHistoryType) {
             case ProductHistoryType.FIELD:
-                out << """User ${productHistory?.usersName} changed 
+                out << """${userText} changed 
                         ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.PRICE:
-                out << """User ${productHistory?.usersName} changed price from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                out << """${userText} changed price from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.PRODUCT_RANGE_ADD:
-                out << """User ${productHistory?.usersName} added product range ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                out << """${userText} added product range ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.PRODUCT_RANGE_DELETE:
-                out << """User ${productHistory?.usersName} deleted product range ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                out << """${userText} deleted product range ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.LOCATION_ADD:
-                out << """User ${productHistory?.usersName} added new location with 
+                out << """${userText} added new location with 
                         ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
                             from ${(productHistory?.fromValue) == "0" ? "unset" : productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.LOCATION_EDIT:
-                out << """User ${productHistory?.usersName} changed location with 
+                out << """${userText} changed location with 
                         ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.LOCATION_DELETE:
-                out << """User ${productHistory?.usersName} deleted location with 
+                out << """${userText} deleted location with 
                         ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
                             from ${productHistory?.fromValue} to ${(productHistory?.toValue) == "0" ? "unset" : productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
@@ -325,12 +337,41 @@ class EposTagLib {
                 out << """Product created at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.PREFERRED_SKU:
-                out << """User ${productHistory?.usersName} changed Preferred SKU from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                out << """${userText} changed Preferred SKU from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break;
+            case ProductHistoryType.PRODUCT_ATTRIBUTE:
+                out << """${userText} changed product attribute field
+                        ${productHistory?.field} 
+                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
             default:
-                out << """User ${productHistory?.usersName} changed 
+                out << """${userText} changed 
                         ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+        }
+    }
+
+    def categoryHistory = { attrs, body ->
+        def category = attrs.category
+        def categoryHistory = attrs.categoryHistory
+        switch ((CategoryHistoryType)categoryHistory?.type) {
+            case CategoryHistoryType.FIELD:
+                out << """User ${categoryHistory?.usersName} changed 
+                    ${(g.message(code: 'CategoryHistory.' + categoryHistory?.field) != null && !g.message(code: 'CategoryHistory.' + categoryHistory?.field).isEmpty())  ? g.message(code: 'CategoryHistory.' + categoryHistory?.field) : categoryHistory?.field} 
+                        for ${category?.description} from ${categoryHistory?.fromValue} to ${categoryHistory?.toValue} at ${categoryHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case CategoryHistoryType.NEW_CATEGORY:
+                out << """User ${categoryHistory?.usersName} created ${category?.retailerCategoryCode} for ${category?.description} at ${categoryHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}<br>"""
+                out << """User ${categoryHistory?.usersName} created ${category?.description} at ${categoryHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case CategoryHistoryType.ADD_PRODUCT:
+            case CategoryHistoryType.REMOVE_PRODUCT:
+                break
+            default:
+                out << """User ${categoryHistory?.usersName} changed 
+                    ${(g.message(code: 'CategoryHistory.' + categoryHistory?.field) != null && !g.message(code: 'CategoryHistory.' + categoryHistory?.field).isEmpty())  ? g.message(code: 'CategoryHistory.' + categoryHistory?.field) : categoryHistory?.field} 
+                        from ${categoryHistory?.fromValue} to ${categoryHistory?.toValue} at ${categoryHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
         }
     }
@@ -495,10 +536,10 @@ class EposTagLib {
             def category = categoryService.getCategory(attrs.promotionGroup.categoryId)
 
             out << category?.description
-        } else if (attrs.promotionGroup.tagId) {
-            def tag = tagService.getTag(attrs.promotionGroup.tagId)
+        } else if (attrs.promotionGroup.productGroupId) {
+            def productGroup = productGroupService.getProductGroup(attrs.promotionGroup.productGroupId)
 
-            out << tag?.description
+            out << productGroup?.description
         }
     }
 
@@ -521,6 +562,32 @@ class EposTagLib {
         }
     }
 
+
+    def renderCategoryHierarchy = { attrs ->
+        // List of mappings and selected categories
+        List<EcomSupplierCategoryMapping> mappings = attrs.mappings ?: []
+        List<Integer> selectedCategories = attrs.selectedCategories ?: []
+
+        // Map all categories by ID for fast lookup
+        Map<Integer, Category> categoryMap = mappings.collectEntries { [(it.category.id): it.category] }
+
+        // Find top-level categories (those without a parent in the mappings)
+        List<Category> topLevelCategories = categoryMap.values().findAll { category ->
+            !mappings.find { it.category.id == category?.parentCategory?.id }
+        }
+
+        // Create a set to track rendered paths and avoid duplication
+        Set<String> renderedPaths = new HashSet<>()
+        StringBuilder output = new StringBuilder()
+
+        // Render hierarchy starting from the top-level categories
+        topLevelCategories.each { category ->
+            output << renderWithChildren(category, selectedCategories, renderedPaths, categoryMap)
+        }
+
+        out << output.toString()
+    }
+
     def renderSafeInfo = { attrs ->
         def safe = attrs.safe
         if (safe) {
@@ -537,7 +604,53 @@ class EposTagLib {
             out << '</div>'
         }
     }
-    
+
+    private String renderWithChildren(Category category, List<Integer> selectedCategories, Set<String> renderedPaths, Map<Integer, Category> categoryMap) {
+        StringBuilder output = new StringBuilder()
+
+        // Build the full path dynamically using parent categories
+        String fullPath = buildFullPath(category)
+
+        // Check if the category has relevant children (descendants that are selected)
+        boolean hasRelevantChildren = category.childCategories?.any { child ->
+            isCategoryOrDescendantSelected(child, selectedCategories, categoryMap)
+        } ?: false
+
+        if (hasRelevantChildren) {
+            // If the category has relevant children, only render its children
+            category.childCategories?.each { child ->
+                if (isCategoryOrDescendantSelected(child, selectedCategories, categoryMap)) {
+                    output << renderWithChildren(child, selectedCategories, renderedPaths, categoryMap)
+                }
+            }
+        } else if (selectedCategories.contains(category.id)) {
+            // Render the current category only if it is a leaf node or explicitly selected
+            output << "${fullPath}<br/>"
+            output << "<hr style='margin: 5px 0; border: 0; border-top: 1px solid #ccc;'/>"
+        }
+
+        return output.toString()
+    }
+
+    private String buildFullPath(Category category) {
+        if (!category.parentCategory) {
+            return category.description // Root category
+        }
+        return "${buildFullPath(category.parentCategory)} →  ${category.description}"
+    }
+
+    private boolean isCategoryOrDescendantSelected(Category category, List<Integer> selectedCategories, Map<Integer, Category> categoryMap) {
+        if (selectedCategories.contains(category?.id)) {
+            return true // Current category is selected
+        }
+
+        // Check if any descendant is selected
+        return category.childCategories?.any { child ->
+            isCategoryOrDescendantSelected(child, selectedCategories, categoryMap)
+        } ?: false
+    }
+
+
     private static String getLocationField(String field) {
         def formattedFieldArray = field?.split("(?=\\p{Upper})")
         return String.join(" ", formattedFieldArray).toLowerCase()

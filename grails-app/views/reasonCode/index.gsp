@@ -9,28 +9,80 @@
     <asset:javascript src="jquery-ui.js" />
     <asset:stylesheet src="jquery-ui.css" />
 
+    <style>
+    #sortable {
+        padding-left: 0
+    }
+
+    #sortable li {
+        cursor: grab
+    }
+
+    #sortable .non-sortable .grabhandle {
+        visibility: hidden;
+    }
+
+    #sortable .non-sortable {
+        cursor: auto;
+    }
+
+    .grabhandle {
+        display: inline-block;
+        fill: #AAA;
+        height: 1em;
+        width: 1em;
+        position: relative;
+        top: 0.7em;
+    }
+    </style>
+
     <script type="application/javascript">
         const searchUrl = "${createLink(controller: 'reasonCode', action: 'ajaxSearch')}";
         const editUrl = "${createLink(controller: 'reasonCode', action: 'ajaxEditReasonCode')}";
         const addUrl = "${createLink(controller: 'reasonCode', action: 'ajaxAddReasonCode')}";
         const saveUrl = "${createLink(controller: 'reasonCode', action: 'ajaxSaveReasonCode')}";
         const deleteUrl = "${createLink(controller: 'reasonCode', action: 'ajaxDeleteReasonCode')}"
+        const reinstateUrl = "${createLink(controller: 'reasonCode', action: 'ajaxReinstateReasonCode')}"
+        const saveReorderUrl = "${createLink(controller: 'reasonCode', action: 'ajaxSaveReorderReasonCode')}"
         const reasonCodeTypeProductList = "${ReasonCodeType.PRODUCT_LIST.name()}";
 
         let modalContents;
         let modal;
         let errorMsg;
+        let successMsg;
+        let reasonCodeNewOrders;
 
         $(document).ready(function() {
             modalContents = $('#edit-code-content');
             modal = $('#edit-code-modal');
             errorMsg = $('#error-message');
+            successMsg = $('#success-message');
+
             ajaxSearch();
             updateDirectionColumnVisibility();
         });
 
-        function ajaxSearch(sortParams) {
+        function ajaxSaveReorder() {
+            clearSuccessMsg();
             clearErrorMsg();
+            $.ajax({
+                url: saveReorderUrl,
+                type: "POST",
+                data: {order: reasonCodeNewOrders},
+                success: function (response) {
+                    showSuccessMsg('Priority changed successfully.');
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    showErrorMsg('Error updating reason code details.');
+                    console.log(thrownError)
+                }
+            })
+        }
+
+        function ajaxSearch(sortParams) {
+            clearSuccessMsg();
+            clearErrorMsg();
+
             const searchResults = $('#search-results');
 
             searchResults.html(
@@ -43,7 +95,9 @@
 
             $.ajax({
                 url: searchUrl,
-                data: {type: $("#code-type-select").val(),
+                data: {
+                    type: $("#code-type-select").val(),
+                    deleted: showDeletedFilter.checked,
                     max: sortParams ? sortParams["max"] : null,
                     offset: sortParams ? sortParams.offset : null,
                     sortColumn: sortParams ? sortParams.sortColumn : null,
@@ -79,7 +133,9 @@
         }
 
         function ajaxEdit(id) {
+            clearSuccessMsg();
             clearErrorMsg();
+
             setupModal();
             $.ajax({
                 url: editUrl,
@@ -98,6 +154,8 @@
 
         function ajaxAdd() {
             clearErrorMsg();
+            clearSuccessMsg()
+
             setupModal();
             $.ajax({
                 url: addUrl,
@@ -115,9 +173,12 @@
 
         function ajaxSave() {
             const data = $('#edit-code-form').serialize()
+            clearSuccessMsg()
             clearErrorMsg();
+
             setupModal();
             hideSaveBtns();
+
             $.ajax({
                 url: saveUrl,
                 method: "POST",
@@ -140,7 +201,9 @@
         }
 
         function ajaxDelete(id, desc) {
+            clearSuccessMsg()
             clearErrorMsg();
+
             if (confirm('This will delete reason code "' + desc + '"')) {
                 $.ajax({
                     url: deleteUrl,
@@ -149,12 +212,37 @@
                     success: function (resp) {
                         if (resp === "OK") {
                             ajaxSearch();
+                            showSuccessMsg("Reason code " + desc + " deleted")
                         } else {
                             showErrorMsg(resp);
                         }
                     },
                     error: function () {
-                        showErrorMsg('Error occurred trying to save reason code details.');
+                        showErrorMsg('Error occurred trying to delete reason code.');
+                    }
+                });
+            }
+        }
+
+        function ajaxReinstate(id, desc) {
+            clearSuccessMsg()
+            clearErrorMsg();
+
+            if (confirm('This will reinstate reason code "' + desc + '"')) {
+                $.ajax({
+                    url: reinstateUrl,
+                    method: "PUT",
+                    data: {id: id},
+                    success: function (resp) {
+                        if (resp === "OK") {
+                            ajaxSearch();
+                            showSuccessMsg("Reason code " + desc + " reinstated")
+                        } else {
+                            showErrorMsg(resp);
+                        }
+                    },
+                    error: function () {
+                        showErrorMsg('Error occurred trying to reinstate reason code.');
                     }
                 });
             }
@@ -186,6 +274,16 @@
             errorMsg.show();
         }
 
+        function clearSuccessMsg() {
+            successMsg.text('');
+            successMsg.hide();
+        }
+
+        function showSuccessMsg(msg) {
+            successMsg.text(msg);
+            successMsg.show();
+        }
+
         function hideSaveBtns() {
             $("#cancel-edit-btn").hide()
             $("#save-code-btn").hide()
@@ -195,6 +293,10 @@
             $("#cancel-edit-btn").show()
             $("#save-code-btn").show()
         }
+
+        $(function () {
+            $("#sortable").sortable();
+        });
     </script>
 </head>
 
@@ -222,6 +324,7 @@
             </div>
         </div>
 
+        <div class="alert alert-success alert-wl mx-0" role="alert" id="success-message" style="display: none"></div>
         <div class="alert alert-danger alert-wl mx-0" role="alert" id="error-message" style="display: none"></div>
 
         <div class="row mt-4">
@@ -246,17 +349,32 @@
                                     <option value="CUSTOMER_REFUSAL">Customer Refusal</option>
                                     <option value="LINE_VOID">Line Void</option>
                                     <option value="MARKDOWN">Markdown</option>
-                                    <option value="PAID_OUT">Paid Out</option>
                                     <option value="PAID_IN">Paid In</option>
+                                    <option value="PAID_OUT">Paid Out</option>
                                     <option value="PRODUCT_LIST">Product List</option>
                                     <option value="REFUND">Refund</option>
-                                    <option value="TENDER_RECONCILIATION_VARIANCE">Tender Reconciliation Variance</option>
-                                    <option value="TENDER_RECONCILIATION_SAFE_VARIANCE">Tender Reconciliation Safe Variance</option>
+                                    <option value="TENDER_RECONCILIATION_SAFE_VARIANCE">Safe Tender Reconcile</option>
+                                    <option value="TENDER_RECONCILIATION_VARIANCE">Tills Tender Reconcile</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-0 mt-6">
+                            <div class="col-6 offset-2">
+                                <g:checkBox id="showDeletedFilter" name="showDeletedFilter"
+                                            class="form-check-input wl-checkbox ml-0 pointer"
+                                            checked="${showDeletedFilter}" onchange="ajaxSearch()"/>
+                                <label for="showDeletedFilter"
+                                       class="col-form-label-sm wl-label-right pointer">Show deleted reason codes</label>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="mt-auto ml-auto mr-3">
+                <button id="save-btn" class="btn btn-success ml-1" name="save"
+                        onclick="ajaxSaveReorder();">Save</button>
             </div>
         </div>
         <div id="search-results">

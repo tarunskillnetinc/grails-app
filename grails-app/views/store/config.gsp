@@ -11,24 +11,12 @@
     <asset:javascript src="popper.min.js" />
     <asset:javascript src="multi-select-checks.js" />
     <asset:javascript src="money-mask.js" />
+    <asset:javascript src="numberHelper.js" />
 
     <script type="text/javascript">
         function updateColorIndicator(color, indicatorId) {
             var colorPickerElement = document.getElementById(indicatorId);
             colorPickerElement.value = "#" + color; // Prepend "#" to the color value
-        }
-
-        function enforceDecimalLimit(element, decimalPlaces) {
-            // If greater than max number set to max
-            if (parseFloat(element.value) > 1) {
-                element.value = 1
-            } else if (element.value.substring(element.value.indexOf("."), element.value.length).length > 3) {
-                // Truncate to number of decimal places and return
-                element.value = element.value.substring(0, (decimalPlaces + 2))
-            } else if (element.value < 0.001) {
-                // If the value is less than 0.001 or not valid then set it back to what it was before
-                element.value = element.defaultValue
-            }
         }
 
         $(document).ready(function() {

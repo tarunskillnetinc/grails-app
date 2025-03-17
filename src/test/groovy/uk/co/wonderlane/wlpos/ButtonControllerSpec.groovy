@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.enums.ButtonGridType
 import uk.co.wonderlane.wlpos.enums.ButtonType
-import uk.co.wonderlane.wlpos.enums.TenderType
 
 class ButtonControllerSpec extends Specification implements ControllerUnitTest<ButtonController>, DataTest {
 
@@ -434,11 +433,10 @@ class ButtonControllerSpec extends Specification implements ControllerUnitTest<B
         Button btn = new Button(row: 1, column: 1, sku: 100, buttonGrid: btnGrid, quantity: 100, description: "Test", type: btnType,
                 bgColour: "#FFFFFF", textColour: "#000000", imageDisplay: imageDisplay, textDisplay: true);
         btn.setId(buttonId)
-        btn.setTenderType(TenderType.CASH)
+        btn.setTenderType(new TenderType())
         btn.springSecurityService = getFakeSpringSecurityService()
         btnGrid.save(flush: true, failOnError: true)
         btn.save(flush: true, failOnError: true)
         return btn;
     }
-
 }

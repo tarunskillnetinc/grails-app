@@ -7,8 +7,6 @@ import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.*
 
-import java.awt.Image
-
 class ButtonController {
 
     def springSecurityService
@@ -17,6 +15,7 @@ class ButtonController {
     def imageService
     def imageRecordService
     def rabbitService
+    def tenderTypeService
     def gsonProvider
 
     def edit() {
@@ -33,15 +32,17 @@ class ButtonController {
             buttonImage = imageService.getImage(imageRecord)
         }
 
+        def (availableTenderTypes, totalCount) = tenderTypeService.getTenderTypes(null, false, "name", "asc", 0, 9999)
+
         [button: button,
          buttonImage: buttonImage,
-         availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type),
+         availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type).sort { message(code: "ProcessType.${it.name()}" ) },
          availableSubPages: buttonService.getOtherButtonGrids(),
-         availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
+         availableTenderTypes: availableTenderTypes,
          productSku: productVariant?.sku,
          productDescription: productVariant?.product?.description,
          storeId: getStoreId(),
-         displayExactOption: button.tenderType != null && button.tenderType == TenderType.CASH,
+         displayExactOption: button.tenderType != null && !button.tenderType.cardPayment,
          displayManualOption: button.tenderType != null]
     }
 
@@ -79,12 +80,22 @@ class ButtonController {
         def fileSizeError = request.getAttribute(MaxFileUploadSizeResolver.FILE_SIZE_EXCEEDED_ERROR)
         if (fileSizeError != null && fileSizeError instanceof SizeLimitExceededException) {
             form.errors.reject('button.error.fileSize.message')
-            renderError(getButton(params.id, params.buttonGridId, params.row, params.column), form)
-            return
+        }
+
+        // TODO Remove deprecated legacy tender type.
+        if (form.tenderType?.cashTender) {
+            form.legacyTenderType = uk.co.wonderlane.wlpos.enums.TenderType.CASH
+        } else if (form.tenderType?.cardPayment) {
+            form.legacyTenderType = uk.co.wonderlane.wlpos.enums.TenderType.CARD
+        } else if (form.tenderType?.voucherType) {
+            form.legacyTenderType = uk.co.wonderlane.wlpos.enums.TenderType.VOUCHER
+        } else {
+            // Defaulting to something so that it doesn't throw a validation error, it would already throw an error elsewhere if this was the case.
+            form.legacyTenderType = uk.co.wonderlane.wlpos.enums.TenderType.CASH
         }
 
         if (!form.exact && !form.manual && (form.amount == null || (form.amount != null && form.amount.compareTo(BigDecimal.ZERO) <= 0))) {
-            form.errors.reject(form.tenderType == TenderType.CASH ? 'button.error.amount.min.message.exact' : 'button.error.amount.min.message.noExact')
+            form.errors.reject(form.tenderType?.cashTender ? 'button.error.amount.min.message.exact' : 'button.error.amount.min.message.noExact')
         }
 
         def button
@@ -92,6 +103,16 @@ class ButtonController {
 
         if (form.overrideId == form.id) {
             form.id = 0
+        }
+
+        def buttonGrid = ButtonGrid.get(form.buttonGridId)
+
+        // Quick check to make sure you haven't configured any other cash buttons on this button grid using a different cash tender type.
+        if (form.tenderType?.cashTender) {
+            def otherCashButton = buttonGrid?.buttons?.find { it.tenderType?.cashTender && it.tenderType?.id != form.tenderType?.id }
+            if (otherCashButton) {
+                form.errors.reject('button.error.otherCashButton.message', [otherCashButton.tenderType?.name] as Object[], null)
+            }
         }
 
         ImageRecord imageRecord = null;
@@ -102,7 +123,7 @@ class ButtonController {
             }
         } else {
             button = new Button()
-            button.buttonGrid = ButtonGrid.get(form.buttonGridId)
+            button.buttonGrid = buttonGrid
             existingButton = false
 
             if (springSecurityService.principal.storeId != null && (form.overrideId == null || form.overrideId == 0)) {
@@ -249,17 +270,19 @@ class ButtonController {
                     buttonImage = imageService.getImage(imageRecord)
                 }
 
+                def (availableTenderTypes, totalCount) = tenderTypeService.getTenderTypes(null, false, null, null, 0, 9999)
+
                 // TODO Populate an error to display on screen.
                 render (view: "edit", model: [
                         button: button,
                         buttonImage: buttonImage,
-                        availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type),
+                        availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type).sort { message(code: "ProcessType.${it.name()}" ) },
                         availableSubPages: buttonService.getOtherButtonGrids(),
-                        availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
+                        availableTenderTypes: availableTenderTypes,
                         productSku: productVariant?.sku,
                         productDescription: productVariant?.product?.description,
                         storeId: getStoreId(),
-                        displayExactOption: button?.tenderType != null && button?.tenderType == TenderType.CASH,
+                        displayExactOption: button?.tenderType != null && !button?.tenderType?.cardPayment,
                         displayManualOption: button?.tenderType != null
                 ])
             }
@@ -283,18 +306,20 @@ class ButtonController {
             productVariant = productService.getProductVariant(button.sku)
         }
 
+        def (availableTenderTypes, totalCount) = tenderTypeService.getTenderTypes(null, false, null, null, 0, 9999)
+
         render (view: "edit", model: [
                 button: button,
                 buttonImage: buttonImage,
-                availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type),
+                availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type).sort { message(code: "ProcessType.${it.name()}" ) },
                 availableSubPages: buttonService.getOtherButtonGrids(),
-                availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
+                availableTenderTypes: availableTenderTypes,
                 productSku: productVariant?.sku,
                 productDescription: productVariant?.product?.description,
                 storeId: getStoreId(),
                 form: form,
                 previousImage: uploadedImage,
-                displayExactOption: button.tenderType != null && button.tenderType == TenderType.CASH,
+                displayExactOption: button.tenderType != null && !button.tenderType?.cardPayment,
                 displayManualOption: button.tenderType != null
         ])
     }
@@ -317,13 +342,7 @@ class ButtonController {
     }
 
     private SyncMessage buildButtonSyncMessage(SyncMessageType messageType) {
-        return new SyncMessage(
-            messageType,
-            springSecurityService.principal.retailerId,
-            springSecurityService.principal.storeNumber,
-            springSecurityService.principal.storeId,
-            null
-        )
+        return new SyncMessage(messageType, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
     }
 
     private Button copyButtonGrid(Button button, Boolean existingButton) {

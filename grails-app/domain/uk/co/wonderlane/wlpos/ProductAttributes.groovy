@@ -60,7 +60,7 @@ class ProductAttributes {
             if (obj.type == ProductAttributeType.NUMERIC && val != null) {
                 if (!val.isNumber()) {
                     return ['productAttribute.numeric.default.not.a.number']
-                } else if (val.toLong() > 999999999) {
+                } else if (val.toDouble() > 999999999) {
                     return ['productAttribute.numeric.default.out.of.range']
                 }
             }

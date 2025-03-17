@@ -33,9 +33,12 @@ class Pack implements Serializable {
     DateTime updateDatetime
     Collection<Barcode> barcodez = new ArrayList<>()
     BigDecimal minAlcoholUnitPrice
-    BigDecimal weightedAverageCost
     PriceMarkedType priceMarkedType
     BigDecimal priceMarkedValue
+    BigDecimal lengthCm
+    BigDecimal widthCm
+    BigDecimal heightCm
+    BigDecimal weightKg
 
     static transients = ['barcodez']
 
@@ -62,9 +65,12 @@ class Pack implements Serializable {
         updateDatetime column: "updateDatetime"
         primaryCase column: "primaryCase"
         minAlcoholUnitPrice column: "minAlcoholUnitPrice"
-        weightedAverageCost column: "weightedAverageCost"
         priceMarkedType column: "priceMarkedType", sqlType: "enum", enumType: "string"
         priceMarkedValue column: "priceMarkedValue"
+        lengthCm column: "lengthCm"
+        widthCm column: "widthCm"
+        heightCm column: "heightCm"
+        weightKg column: "weightKg"
     }
 
     int getQuantity(def packLines) {
@@ -95,8 +101,11 @@ class Pack implements Serializable {
         barcodez bindable: true
         priceMarkedType nullable: true
         minAlcoholUnitPrice nullable: true, blank: true, max: 999999.99 as BigDecimal, scale: 2
-        weightedAverageCost nullable: true, max: 999999.99 as BigDecimal, scale: 2
         priceMarkedValue nullable: true, max: 999999.99 as BigDecimal, scale: 2
+        lengthCm nullable: true, max: 9999.99 as BigDecimal, scale: 2
+        widthCm nullable: true, max: 9999.99 as BigDecimal, scale: 2
+        heightCm nullable: true, max: 9999.99 as BigDecimal, scale: 2
+        weightKg nullable: true, max: 9999.999 as BigDecimal, scale: 3
     }
 
     public uk.co.wonderlane.wlpos.entities.supplier.Pack getPack() {
@@ -118,7 +127,6 @@ class Pack implements Serializable {
         pack.setPrimaryCase(primaryCase)
         pack.setUpdateDate(updateDatetime)
         pack.setMinAlcoholUnitPrice(minAlcoholUnitPrice)
-        pack.setWeightedAverageCost(weightedAverageCost)
         pack.setPriceMarkedType(priceMarkedType)
         pack.setPriceMarkedValue(priceMarkedValue)
         getBarcodes()?.each {
