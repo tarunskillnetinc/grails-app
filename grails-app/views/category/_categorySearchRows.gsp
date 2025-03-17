@@ -20,8 +20,7 @@
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "customerAgeRestriction" }?.enabled}">
                 <div id="category-result-${i+1}-customer-age-restriction" class="col-2">${category?.restrictions?.buyerAgeRestriction ?: ""}</div>
             </g:if>
-
-            <button class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem; margin-left: auto; margin-right: 10px;" disabled>Products</button>
+            <g:link elementId="category-result-${i+1}-products" class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem; margin-left: auto; margin-right: 10px;" controller="category" action="categoryProductMapping" params="[id: category.id]">Products</g:link>
         </div>
     </g:if>
     <g:render template="categorySearchRows" model="[topLevelCategories: category.childCategories, matchedCategories: matchedCategories, level: level+1, userColumns: userColumns]"/>

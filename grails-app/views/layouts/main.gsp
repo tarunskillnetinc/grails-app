@@ -125,8 +125,9 @@
                             <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="shelf-edge-labels-dropdown" controller="shelfEdgeLabel" class="dropdown-item">Shelf Edge Labels</g:link>
                             </g:if>
-
-                            <g:link elementId="suppliers-dropdown" controller="supplier" class="dropdown-item">Suppliers</g:link>
+                                <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
+                                    <g:link elementId="suppliers-dropdown" controller="supplier" class="dropdown-item">Supplier Maintenance</g:link>
+                                </sec:ifAnyGranted>
                         </div>
                     </li>
 
@@ -293,7 +294,6 @@
                             </sec:ifAnyGranted>
 
                             <sec:ifAnyGranted roles='ROLE_ENGINEER'>
-
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                     <g:link elementId="financial-week-dropdown" controller="financialWeek" class="dropdown-item">Financial Weeks</g:link>
                                 </g:if>
@@ -301,6 +301,9 @@
 
                             <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                    <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.charityEnabled').toBoolean()}">
+                                        <g:link elementId="charity-organisations-dropdown" controller="charityOrganisations" class="dropdown-item">Charity Organisations</g:link>
+                                    </g:if>
                                     <div class="dropdown-divider"></div>
 
                                     <span id="product-configuration" class="dropdown-header">Product Configuration</span>
