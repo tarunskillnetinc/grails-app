@@ -81,6 +81,24 @@ class SupplierService extends MySqlDal {
         }
     }
 
+    def clearCurrentAndFutureSupplierCaseRates(int supplierId) {
+        try (Connection conn = getConnection(); CallableStatement cstmt = conn.prepareCall("{ call clearCurrentAndFutureCaseRates(?, ?) }")) {
+            try {
+                cstmt.setInt(1, springSecurityService.principal.retailerId)
+                cstmt.setInt(2, supplierId)
+
+                cstmt.executeUpdate()
+            }
+            catch (Exception ex) {
+                ex.printStackTrace()
+            }
+            finally {
+                cstmt.close()
+                conn.close()
+            }
+        }
+    }
+
     def getSymbolGroupSubscriptions() {
         return SymbolGroupSubscription.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
     }

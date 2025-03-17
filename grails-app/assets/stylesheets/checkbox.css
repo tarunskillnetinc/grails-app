@@ -74,6 +74,11 @@
     cursor: pointer;
 }
 
+.readonly-checkbox {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
 .checkbox-container.level-2 {
     margin-left: 30px;
 }
