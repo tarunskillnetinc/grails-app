@@ -13,8 +13,6 @@ beans = {
     userDetailsService(WonderLaneUserDetailsService)
     retailerConfigService(RetailerConfigService)
 
-
-
     wonderLaneAuthenticationProvider(WonderLaneAuthenticationProvider) {
         storeNumberValidator = ref('storeNumberValidator')
         retailerProvider = ref('retailerProvider')
@@ -412,6 +410,6 @@ beans = {
         springSecurityService = ref('springSecurityService')
         snsClient = ref("snsClient")
         gsonProvider = ref("gsonProvider")
-        supplierTopic = grailsApplication.config.getProperty("sns.snsSupplierTopic")
+        supplierTopic = grailsApplication.config.getProperty("sns.supplierTopic")
     }
 }
