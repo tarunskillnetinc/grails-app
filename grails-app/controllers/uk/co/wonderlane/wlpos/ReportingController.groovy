@@ -1095,7 +1095,8 @@ class ReportingController {
                                                           startDate : startDate,
                                                           endDate : endDate,
                                                           sortParams : sortParams,
-                                                          totalResults : totalDeliveries.size()])
+                                                          totalResults : totalDeliveries.size(),
+                                                          retailer: Retailer.get(springSecurityService.principal.retailerId)])
         }
     }
 
