@@ -41,7 +41,7 @@
         }
 
         function acceptDeliveryButtonPressed() {
-            $("#confirmModalContent").html("Are you sure you wish to accept this delivery?");
+            $("#confirmModalContent").html("Are you sure you wish to receipt this delivery?");
 
             var confirmModalYesButton = $('#confirmModalYesButton');
             var confirmModalNoButton = $('#confirmModalNoButton');
