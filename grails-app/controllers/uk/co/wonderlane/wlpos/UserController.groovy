@@ -9,21 +9,44 @@ import uk.co.wonderlane.wlpos.enums.SyncMessageType
 class UserController {
 
     def springSecurityService
-
     def userService
     def rabbitService
-    def gsonProvider
+    def storeService
 
     def index() {
-        [users: userService.getUsers("", 0, 50), searchTerm: ""]
+        def stores = getStores()
+        List<User> users = userService.getUsers("", -1, false,  0, 50) as List<User>
+        [users: users,
+         userNameFilter: "",
+         homeStoreFilter: "",
+         showInactiveUserFilter: false,
+         stores: stores,
+         offset: 0,
+         max: 50]
     }
 
-    def ajaxGetUsers(String searchTerm, int offset, int max) {
-        render (template: "userSearchResults", model: [users: userService.getUsers(searchTerm, offset, max), searchTerm: searchTerm])
+    def ajaxGetUsers() {
+        Integer homeStoreFilter = -1
+        String userNameFilter = params.userNameFilter
+        if (params.homeStoreFilter && params.homeStoreFilter.isNumber()) {
+            homeStoreFilter = Integer.parseInt(params.homeStoreFilter)
+        }
+        Integer offset = (params.offset != null && params.offset != "") ? Integer.parseInt(params.offset) : 0
+        Integer max = (params.max != null && params.max != "") ? Integer.parseInt(params.max) : 50
+        Boolean showInactiveUsers = params.showInactiveUserFilter != null ? Boolean.valueOf(params.showInactiveUserFilter) : false
+        List<User> users = userService.getUsers(userNameFilter, homeStoreFilter, showInactiveUsers, offset, max) as List<User>
+        render (template: "userSearchResults", model: [
+                        users: users,
+                        userNameFilter: userNameFilter,
+                        homeStoreFilter: homeStoreFilter,
+                        showInactiveUserFilter: showInactiveUsers,
+                        offset: offset,
+                        max: max])
     }
 
     def add() {
-        [roleValues: getEligibleUserRoles()]
+        def stores = getStores()
+        [stores: stores, roleValues: getEligibleUserRoles()]
     }
 
     def userEdit() {
@@ -38,7 +61,8 @@ class UserController {
             flash.error = "User not found."
         }
 
-        [user: user, isUserReadOnly: isUserReadOnly(user), roleValues: getEligibleUserRoles(user?.getRole())]
+        def stores = getStores()
+        [user: user, isUserReadOnly: isUserReadOnly(user), roleValues: getEligibleUserRoles(user?.getRole()), stores: stores]
     }
 
     def changePassword() {
@@ -280,6 +304,10 @@ class UserController {
         syncMessage.setUsers(users)
 
         rabbitService.sendMessage(syncMessage)
+    }
+
+    private getStores(){
+        return storeService.getStores(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
     }
 }
 

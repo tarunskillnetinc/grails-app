@@ -6,10 +6,16 @@
     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'userEdit', id: user.id)}';">
         <div id="username-${i + 1}" class="col-4">${user.username}</div>
         <div id="name-${i + 1}" class="col-4">${user.name}</div>
-        <div id="dob-${i + 1}" class="col-2"><g:formatDate format="dd/MM/yyyy" date="${user.dateOfBirth}" /></div>
+        <div id="homeStore-${i + 1}" class="col-2">${user?.getStoreIdentifier() ?: 'N/A'}</div>
+        <div id="status-${i + 1}" class="col-2">${user.active ? 'Active' : 'Inactive'}</div>
     </div>
 </g:each>
 
 <div class="my-3 text-right">
-    <util:remotePaginate action="ajaxGetUsers" total="${users?.totalCount ?: 0}" update="search-results" offset="${offset ?: 0}" max="${max ?: 50}" params="['searchTerm': searchTerm]" />
+    <util:remotePaginate action="ajaxGetUsers" total="${users?.totalCount ?: 0}" update="search-results" offset="${offset ?: 0}" max="${max ?: 50}" params="[
+            userNameFilter: userNameFilter,
+            homeStoreFilter: homeStoreFilter,
+            showInactiveUserFilter: showInactiveUserFilter
+
+    ]" />
 </div>

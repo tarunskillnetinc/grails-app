@@ -74,4 +74,17 @@ class User {
 
         return user
     }
+
+    String getStoreIdentifier() {
+        try {
+            if (defaultStoreId > 0) {
+                Store store = Store.findById(defaultStoreId)
+                return store.config.storeNumber + "-" + store.config.storeName
+            }
+            return null
+        } catch (Exception ex) {
+            return null
+        }
+    }
+
 }

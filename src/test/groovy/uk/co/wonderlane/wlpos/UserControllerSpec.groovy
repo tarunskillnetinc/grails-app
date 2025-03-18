@@ -19,7 +19,7 @@ class UserControllerSpec extends Specification implements ControllerUnitTest<Use
         given:
 
         controller.userService = Stub(UserService) {
-            getUsers(_, _, _) >> new ArrayList()
+            getUsers(_, _, _, _, _) >> new ArrayList()
         }
 
         controller.springSecurityService = getFakeSpringSecurityService()
@@ -37,7 +37,7 @@ class UserControllerSpec extends Specification implements ControllerUnitTest<Use
         given:
 
         controller.userService = Stub(UserService) {
-            getUsers(_, _, _) >> new ArrayList()
+            getUsers(_, _, _,_,_) >> new ArrayList()
         }
 
         controller.springSecurityService = getFakeSpringSecurityService()
