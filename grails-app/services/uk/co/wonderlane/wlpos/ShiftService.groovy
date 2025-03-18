@@ -491,7 +491,7 @@ class ShiftService extends MySqlPoolDal {
 
             def tenderTotalList = [cashLiftTenderTotal]
 
-            addAudit(oldShift, ShiftAction.CASH_LIFT, true, loggedInUser, null, primarySafe, tenderTotalList)  // Add audit for cash lift from old shift action in rolling float action
+            addAudit(oldShift, ShiftAction.CASH_LIFT, true, loggedInUser, null, primarySafe, tenderTotalList)  // Add audit for tender lift from old shift action in rolling float action
             addAudit(newShift, ShiftAction.ADD_FLOAT, true, loggedInUser, null, primarySafe, tenderTotalList)  // Add audit for add float to new shift action in rolling float action
 
             shiftCashTenderMovementUpdate(oldShift, primarySafe.id, false, cashTender?.id, cashTender?.name, oldShift.autoFloatOut) // Add tender movement for cash moving into safe

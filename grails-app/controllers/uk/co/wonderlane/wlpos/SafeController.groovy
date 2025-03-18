@@ -121,7 +121,7 @@ class SafeController {
 
         } catch (Exception ex) {
             log.error(String.format("Safe searching failed: for inactive enable: %s error: %s ", inactiveSafes, ex.getMessage()), ex)
-            render(status: 400, contentType: 'application/json', message: "Safe search failed")
+            render(status: 400, text: "Safe search failed")
         }
     }
 

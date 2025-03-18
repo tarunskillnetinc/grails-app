@@ -66,7 +66,7 @@
                             <g:select name="reasoncodeId"
                                       from="${reasonCodes}"
                                       optionKey="id"
-                                      optionValue="${{ it.description.toLowerCase().capitalize() }}"
+                                      optionValue="description"
                                       class="form-control select-border"
                                       title="cash reasoncode"/>
                         </div>

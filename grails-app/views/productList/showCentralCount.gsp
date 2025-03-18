@@ -84,8 +84,6 @@
                     <div class="col-1 font-weight-bold">Product ID</div>
                     <div class="col-2 font-weight-bold">Item Code</div>
                     <div class="col font-weight-bold">Description</div>
-                    <div class="col-1 font-weight-bold">Colour</div>
-                    <div class="col-1 font-weight-bold">Size</div>
                 </div>
 
                 <div id="search-results" class="align-content-center mb-5">
@@ -98,8 +96,6 @@
                             <div class="col-1">${productListItem.productVariant?.product?.id}</div>
                             <div class="col-2">${productListItem.productVariant?.sku}</div>
                             <div class="col">${productListItem.productVariant?.product?.description}</div>
-                            <div class="col-1">N/A</div>
-                            <div class="col-1">N/A</div>
                         </div>
                     </g:each>
                 </div>
