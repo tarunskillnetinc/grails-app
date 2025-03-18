@@ -293,7 +293,7 @@ environments:
             loyalty:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/loyalty"
+                url: "jdbc:mysql://retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/loyalty"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "cloudoffice"
@@ -327,7 +327,7 @@ environments:
                 password: CdtfudWdnGVS87IKs7dV
                 database: transactions
             loyalty:
-                host: retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+                host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
                 port: 3306
                 username: cloudoffice
                 password: CdtfudWdnGVS87IKs7dV
