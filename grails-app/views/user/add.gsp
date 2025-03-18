@@ -109,11 +109,11 @@
                         </div>
 
                         <div class="form-group row mt-5">
-                            <label for="storeId" class="col-4 col-form-label text-right pr-4">Home store</label>
+                            <label for="defaultStoreId" class="col-4 col-form-label text-right pr-4">Home store</label>
                             <div class="col-6">
                                 <div class="dropdown-content">
                                     <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','storeId')">
-                                    <g:select id="storeId" size="6" name="storeId" style="overflow-y: scroll; overflow-x: hidden;" from="${stores}" optionValue="${{it.config.storeNumber +' - ' +it.config.storeName}}"
+                                    <g:select id="defaultStoreId" size="6" name="defaultStoreId" style="overflow-y: scroll; overflow-x: hidden;" from="${stores}" optionValue="${{it.config.storeNumber +' - ' +it.config.storeName}}"
                                               value="${user?.storeId}"
                                               optionKey="${{it.config.storeNumber}}"
                                               class="form-control select-border"
