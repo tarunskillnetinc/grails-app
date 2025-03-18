@@ -21,6 +21,11 @@
     </script>
 </head>
 <body>
+<g:if test="${flash.message}">
+    <section id="message-container">
+        <div class="alert alert-success alert-wl" role="alert">${flash.message}</div>
+    </section>
+</g:if>
     <section id="breadcrumb-container" class="container-fluid">
         <nav aria-label="breadcrumb">
             <div class="row mt-4">
