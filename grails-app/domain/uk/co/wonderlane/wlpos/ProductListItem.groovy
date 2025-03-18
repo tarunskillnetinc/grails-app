@@ -13,6 +13,7 @@ class ProductListItem {
     BigDecimal quantity
     BigDecimal fillQuantity = BigDecimal.ZERO
     BigDecimal parentQuantity
+    DateTime effectiveDate
 
     static belongsTo = [ productList: ProductList, productListItemGroup: ProductListItemGroup ]
 
@@ -29,6 +30,7 @@ class ProductListItem {
         quantity column: "quantity"
         fillQuantity column: "fillQuantity"
         parentQuantity column: "parentQuantity"
+        effectiveDate column: "effectiveDate"
 
         productList column: "productListId"
         productListItemGroup column: "productListItemGroupId"
@@ -41,6 +43,7 @@ class ProductListItem {
         fillQuantity nullable: false
         parentQuantity nullable: true
         productListItemGroup nullable: true
+        effectiveDate nullable:true
     }
 
     def getTotalValue() {
@@ -99,7 +102,7 @@ class ProductListItem {
         }
 
         productListItem.setAvailablePacks(null) // TODO
-//        productListItem.setEffectiveDate(effectiveDate) // TODO not yet in CO domain.
+        productListItem.setEffectiveDate(effectiveDate)
 //        productListItem.setLocation(location) // TODO not yet in CO domain.
         productListItem.setWeighted(productVariant?.product?.weightedItem)
         productListItem.setProductItemCode(productVariant?.product?.itemCode)

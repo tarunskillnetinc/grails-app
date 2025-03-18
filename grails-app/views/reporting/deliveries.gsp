@@ -178,6 +178,12 @@
                         </div>
 
                         <div class="form-group form-check">
+                            <g:checkBox name="columns" id="columnsType" class="form-check-input" value="type"
+                                        checked="${!userColumns || userColumns?.columns?.find { it.column == 'type' }?.enabled}"/>
+                            <label class="form-check-label" for="columnsType">Type</label>
+                        </div>
+
+                        <div class="form-group form-check">
                             <g:checkBox name="columns" id="columnsStoreNumber" class="form-check-input" value="storeId"
                                         checked="${!userColumns || userColumns?.columns?.find { it.column == 'storeId' }?.enabled}"/>
                             <label class="form-check-label" for="columnsStoreNumber">Store</label>
@@ -200,14 +206,35 @@
                             <g:checkBox name="columns" id="columnsSupplier" class="form-check-input"
                                         value="supplierName"
                                         checked="${!userColumns || userColumns?.columns?.find { it.column == 'supplierName' }?.enabled}"/>
-                            <label class="form-check-label" for="columnsSupplier">Supplier Reference</label>
+                            <label class="form-check-label" for="columnsSupplier">Supplier</label>
                         </div>
 
                         <div class="form-group form-check">
-                            <g:checkBox name="columns" id="columnsNumberOfItems" class="form-check-input"
-                                        value="numberOfItems"
-                                        checked="${!userColumns || userColumns?.columns?.find { it.column == 'numberOfItems' }?.enabled}"/>
-                            <label class="form-check-label" for="columnsNumberOfItems">Number of Products</label>
+                            <g:checkBox name="columns" id="columnsSupplierRef" class="form-check-input"
+                                        value="supplierRef"
+                                        checked="${!userColumns || userColumns?.columns?.find { it.column == 'supplierRef' }?.enabled}"/>
+                            <label class="form-check-label" for="columnsSupplierRef">Supplier Reference</label>
+                        </div>
+
+                        <div class="form-group form-check">
+                            <g:checkBox name="columns" id="columnsShipmentRef" class="form-check-input"
+                                        value="shipmentRef"
+                                        checked="${!userColumns || userColumns?.columns?.find { it.column == 'shipmentRef' }?.enabled}"/>
+                            <label class="form-check-label" for="columnsShipmentRef">Shipment Reference</label>
+                        </div>
+
+                        <div class="form-group form-check">
+                            <g:checkBox name="columns" id="columnsNumberOfCages" class="form-check-input"
+                                        value="numberOfCages"
+                                        checked="${!userColumns || userColumns?.columns?.find { it.column == 'numberOfCages' }?.enabled}"/>
+                            <label class="form-check-label" for="columnsNumberOfCages">Number of Cages</label>
+                        </div>
+
+                        <div class="form-group form-check">
+                            <g:checkBox name="columns" id="columnsNumberOfPacks" class="form-check-input"
+                                        value="numberOfPacks"
+                                        checked="${!userColumns || userColumns?.columns?.find { it.column == 'numberOfPacks' }?.enabled}"/>
+                            <label class="form-check-label" for="columnsNumberOfPacks">Number of Packs</label>
                         </div>
 
                         <div class="form-group form-check">
