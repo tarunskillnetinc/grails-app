@@ -7,11 +7,13 @@
 
         <script type="text/javascript">
             $(document).ready(function () {
-                $('#userSearchTerm').on('keyup', function(event) {
-                    if (event.key === 'Enter') {
-                        search();
-                    }
-                });
+                // $('#userSearchTerm').on('keyup', function(event) {
+                //     if (event.key === 'Enter') {
+                //         search();
+                //     }
+                // });
+
+                search();
 
                 if (${showInactiveUserFilter}) {
                     $('#showInactiveUserFilter').prop('checked', true);
@@ -123,9 +125,9 @@
 
                                         <label for="homeStoreFilter" class="col-2 col-form-label-sm text-right">Home Store</label>
                                         <div class="col-4">
-                                            <g:select id="homeStoreFilter" name="homeStoreFilter" from="${stores}" optionValue="${{it.config.storeNumber +' - ' +it.config.storeName}}"
+                                            <g:select id="homeStoreFilter" name="homeStoreFilter" from="${stores}" optionValue="${{it.config.storeNumber + '-' + it.config.storeName}}"
                                                       optionKey="id"
-                                                      noSelection="${['': '']}"
+                                                      noSelection="${isLoggedInFromStoreLevel ? ['': defaultStore?.config?.storeNumber + '-' + defaultStore?.config?.storeName] : ['': '']}"
                                                       class="form-control select-border"></g:select>
                                         </div>
                                     </div>

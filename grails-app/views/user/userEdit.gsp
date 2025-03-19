@@ -96,6 +96,7 @@
 
             <g:if test="${user}">
                 <g:form name="edit-user-form" action="editSelectedUser" novalidate="novalidate" class="mt-4">
+                    <g:hiddenField name="id" value="${user?.id ?: 0}" />
                     <div class="row">
                         <div class="col-md-6  mt-5">
                             <!-- Left column -->
@@ -121,7 +122,7 @@
                             </div>
 
                             <div class="form-group row  mt-5">
-                                <label for="defaultStoreId" class="col-4 col-form-label text-right pr-4">Home store</label>
+                                <label for="defaultStoreId" class="col-4 col-form-label text-right pr-4">Home Store</label>
                                 <div class="col-6">
                                     <div class="dropdown-content">
                                         <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreId')" value="${user?.getStoreIdentifier()}">
@@ -139,6 +140,13 @@
 
                         <div class="col-md-6  mt-5">
                             <!-- Right column -->
+                            <div class="form-group row">
+                                <label for="active" class="col-4 col-form-label text-right pr-4">Active</label>
+                                <div class="col-6">
+                                    <g:checkBox name="active" class="ml-0 form-check-input wl-checkbox" checked="${user?.active}" />
+                                </div>
+                            </div>
+
                             <div class="form-group row">
                                 <label for="ageRelatedSaleAllowed" class="col-4 col-form-label text-right pr-4">Age Related Sale Allowed</label>
                                 <div class="col-6">

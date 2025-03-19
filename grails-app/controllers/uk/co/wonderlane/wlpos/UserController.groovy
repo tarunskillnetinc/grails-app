@@ -14,9 +14,16 @@ class UserController {
     def storeService
 
     def index() {
+        boolean isLoggedInFromStoreLevel = false
+        Store defaultStore = null
+        if (springSecurityService.principal.storeId != null){
+            isLoggedInFromStoreLevel = true
+            defaultStore = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        }
         def stores = getStores()
         List<User> users = userService.getUsers("", -1, false,  0, 50) as List<User>
-        [users: users, userNameFilter: "", homeStoreFilter: "", showInactiveUserFilter: false, stores: stores, offset: 0, max: 50]
+        [users: users, userNameFilter: "", homeStoreFilter: "", showInactiveUserFilter: false, stores: stores,
+         isLoggedInFromStoreLevel: isLoggedInFromStoreLevel, defaultStore:defaultStore, offset: 0, max: 50]
     }
 
     def ajaxGetUsers() {
@@ -125,7 +132,6 @@ class UserController {
 
                 //Set pre existing values to save user object
                 saveUserCommand.retailerId = user.retailerId
-                saveUserCommand.defaultStoreId = user.getDefaultStoreId()
                 saveUserCommand.password = user.getPassword()
                 saveUserCommand.confirmPassword = user.getPassword()
 
@@ -241,11 +247,11 @@ class UserController {
 
     //Check selected user is eligible to edit or delete
     private boolean isUserReadOnly(User user) {
-        boolean isLoggedInFromHO = false
+        boolean isLoggedInFromValidLocationToEdit = false
 
         //Check logged in user logged in HO level
-        if (springSecurityService.principal.storeId == null){
-            isLoggedInFromHO = true
+        if ((springSecurityService.principal.storeId == null) || (springSecurityService.principal.storeId == user?.defaultStoreId)){
+            isLoggedInFromValidLocationToEdit = true
         }
 
         //Currently allow user to edit/ delete only if
@@ -253,7 +259,7 @@ class UserController {
         // 2. Logged in user should logged in HO level
         // 3. Editing user should not be logged in user
         // 4. Should be lower rank user than logged in user
-        if (user && user?.getId() != springSecurityService.principal.id && isLoggedInFromHO && isValidUserToUpdate(user?.getRole())) {
+        if (user && user?.getId() != springSecurityService.principal.id && isLoggedInFromValidLocationToEdit && isValidUserToUpdate(user?.getRole())) {
             return false
         }
         return true
