@@ -150,7 +150,7 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Receipt Viewer</li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Transaction Search</li>
                         </ol>
                     </div>
                 </div>
@@ -159,7 +159,7 @@
 
         <section id="header-container" class="container-fluid">
             <div class="header-wl mt-3">
-                <h2 id="page-title" class="mx-auto">Receipt Viewer</h2>
+                <h2 id="page-title" class="mx-auto">Transaction Search</h2>
             </div>
         </section>
 

@@ -25,7 +25,7 @@ class ReceiptService {
             }
 
             gte("dateGenerated", fromDate)
-            lt("dateGenerated", toDate)
+            lte("dateGenerated", toDate)
 
             if (tillId) {
                 eq("tillId", tillId)
@@ -38,7 +38,21 @@ class ReceiptService {
 
         totalCount = results.totalCount
 
-        return [results, totalCount]
+        // Fetch all stores for this retailer
+        def stores = Store.withNewSession { session ->
+            Store.findAllByRetailerId(springSecurityService.principal.retailerId)
+        }
+
+        // Combine Receipt and Store data
+        def combinedResults = results.collect { receipt ->
+            def store = stores.find { store ->
+                def storeConfig = store.getConfig()
+                storeConfig.storeNumber == receipt.storeId
+            }
+            [receipt: receipt, store: store]
+        }
+
+        return [combinedResults, totalCount]
     }
 
     def getReceipt(int receiptId) {
