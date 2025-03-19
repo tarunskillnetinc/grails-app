@@ -84,7 +84,6 @@ class UserController {
 
     def save(SaveUserCommand saveUserCommand) {
         saveUserCommand.retailerId = springSecurityService.principal.retailerId
-        saveUserCommand.defaultStoreId = 0
 
         if (saveUserCommand.validate()) {
             User user = saveUserCommand.id ? User.get(saveUserCommand.id) : new User()

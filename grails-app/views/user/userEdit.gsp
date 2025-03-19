@@ -32,6 +32,8 @@
                 }
             }
 
+
+
         </script>
 
     </head>
@@ -122,10 +124,12 @@
                                 <label for="defaultStoreId" class="col-4 col-form-label text-right pr-4">Home store</label>
                                 <div class="col-6">
                                     <div class="dropdown-content">
-                                        <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','storeId')">
-                                        <g:select id="defaultStoreId" size="6" name="defaultStoreId" style="overflow-y: scroll; overflow-x: hidden;" from="${stores}" optionValue="${{it.config.storeNumber +' - ' +it.config.storeName}}"
-                                                  value="${user?.storeId}"
-                                                  optionKey="${{it.config.storeNumber}}"
+                                        <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreId')" value="${user?.getStoreIdentifier()}">
+                                        <g:select id="defaultStoreId" size="6" name="defaultStoreId" style="overflow-y: scroll; overflow-x: hidden;"
+                                                  from="${stores}" optionValue="${{it.config.storeNumber +' - ' +it.config.storeName}}"
+                                                  value="${user?.defaultStoreId}"
+                                                  onchange="updateTextField(this,'storeIdInput')"
+                                                  optionKey="${{it?.id}}"
                                                   class="form-control select-border"
                                                   disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}" />
                                     </div>
@@ -167,113 +171,6 @@
                 </g:form>
             </g:if>
 
-
-%{--            <g:if test="${user}">--}%
-%{--                <g:form name="edit-user-form" action="editSelectedUser" novalidate="novalidate" class="mt-4">--}%
-
-%{--                    <div class="row mt-5 mb-3">--}%
-%{--                        <div class="form-group row col-12 col-lg-6">--}%
-%{--                            <label for="username" class="col-4 col-form-label text-right pr-4">Username</label>--}%
-%{--                            <g:textField name="username" class="col-5 form-control bottom-border" value="${user?.username}" readonly="true"/>--}%
-%{--                        </div>--}%
-
-%{--                        <div class="form-group form-check row col-12 col-lg-6">--}%
-%{--                            <label for="ageRelatedSaleAllowed" class="col-4 col-form-label text-right pr-4">Age Related Sale Allowed</label>--}%
-%{--                            <g:checkBox name="ageRelatedSaleAllowed" class="col-1 ml-0 form-check-input wl-checkbox" checked="${user?.ageRelatedSaleAllowed || !user}" disabled="${isUserReadOnly}"/>--}%
-%{--                        </div>--}%
-%{--                    </div>--}%
-
-%{--                    <div class="row mt-5 mb-3">--}%
-%{--                        <div class="form-group row col-12 col-lg-6">--}%
-%{--                            <label for="name" class="col-4 col-form-label text-right pr-4">Name</label>--}%
-%{--                            <g:textField name="name" class="col-5 form-control bottom-border" value="${user?.name}" readonly="${isUserReadOnly}"/>--}%
-%{--                        </div>--}%
-
-%{--                        <div class="form-group row col-12 col-lg-6">--}%
-%{--                            <label for="securityKey" class="col-4 col-form-label text-right pr-4">Security Key</label>--}%
-%{--                            <g:textField name="securityKey" class="col-5 form-control bottom-border" value="${user?.securityKey}" readonly="${isUserReadOnly}"/>--}%
-%{--                        </div>--}%
-%{--                    </div>--}%
-
-%{--                    <div class="row mt-5 mb-3">--}%
-%{--                        <div class="form-group row col-12 col-lg-6">--}%
-%{--                            <label for="dateOfBirth" class="col-4 col-form-label text-right pr-4">Date of Birth</label>--}%
-%{--                            <g:textField name="dateOfBirth" class="col-5 form-control bottom-border" value="${g.formatDate(format: "dd/MM/yyyy", date: user?.dateOfBirth)}" readonly="${isUserReadOnly}"/>--}%
-%{--                        </div>--}%
-
-%{--                        <div class="form-group row col-12 col-lg-6">--}%
-%{--                            <label for="role" class="col-4 col-form-label text-right pr-4">Role</label>--}%
-%{--                            <g:select name="role" class="col-3 form-control select-border" from="${roleValues}" value="${user?.role}" readonly="${isUserReadOnly}" valueMessagePrefix="Role"/>--}%
-%{--                        </div>--}%
-%{--                    </div>--}%
-
-%{--                    <div class="row mt-5 mb-3">--}%
-%{--                        <div class="form-group row col-12 col-lg-6">--}%
-%{--                            <label for="storeId" class="col-4 col-form-label text-right pr-4">Home store</label>--}%
-%{--                            <div class="dropdown-content col-lg-5">--}%
-%{--                                <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','storeId')">--}%
-
-%{--                                <g:select id="storeId" size="6" name="storeId" style="overflow-y: scroll; overflow-x: hidden;" from="${stores}" optionValue="${{it.config.storeNumber +' - ' +it.config.storeName}}"--}%
-%{--                                          value="${till?.storeId}"--}%
-%{--                                          optionKey="${{it.config.storeNumber}}"--}%
-%{--                                          class="form-control select-border"--}%
-%{--                                          disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}" />--}%
-%{--                            </div>--}%
-%{--                        </div>--}%
-
-%{--                        <div class="form-group row col-12 col-lg-6">--}%
-%{--                            <label for="retailerUserId" class="col-4 col-form-label text-right pr-4">Retailer User ID</label>--}%
-%{--                            <g:textField name="retailerUserId" class="col-5 form-control bottom-border" value="${user?.retailerUserId}" readonly="${isUserReadOnly}"/>--}%
-%{--                        </div>--}%
-%{--                    </div>--}%
-
-%{--                    <div class="form-group row col-12 col-lg-6 mt-4">--}%
-%{--                        <label for="id" class="col-4 col-form-label text-right pr-4">ID</label>--}%
-%{--                        <g:textField name="id" class="col-5 form-control bottom-border" value="${user?.id}" readonly="true"/>--}%
-%{--                    </div>--}%
-
-%{--                    <div class="form-group row col-12 col-lg-6">--}%
-%{--                        <label for="username" class="col-4 col-form-label text-right pr-4">Username</label>--}%
-%{--                        <g:textField name="username" class="col-5 form-control bottom-border" value="${user?.username}" readonly="true"/>--}%
-%{--                    </div>--}%
-
-%{--                    <div class="form-group row col-12 col-lg-6">--}%
-%{--                        <label for="name" class="col-4 col-form-label text-right pr-4">Name</label>--}%
-%{--                        <g:textField name="name" class="col-5 form-control bottom-border" value="${user?.name}" readonly="${isUserReadOnly}"/>--}%
-%{--                    </div>--}%
-
-%{--                    <div class="form-group row col-12 col-lg-6">--}%
-%{--                        <label for="dateOfBirth" class="col-4 col-form-label text-right pr-4">Date of Birth</label>--}%
-%{--                        <g:textField name="dateOfBirth" class="col-5 form-control bottom-border" value="${g.formatDate(format: "dd/MM/yyyy", date: user?.dateOfBirth)}" readonly="${isUserReadOnly}"/>--}%
-%{--                    </div>--}%
-
-%{--                    <div class="form-group form-check row col-12 col-lg-6">--}%
-%{--                        <label for="active" class="col-4 col-form-label text-right pr-4">Active</label>--}%
-%{--                        <g:checkBox name="active" class="col-1 form-check-input wl-checkbox" checked="${user?.active || !user}" disabled="${isUserReadOnly}"/>--}%
-%{--                    </div>--}%
-
-%{--                    <div class="form-group form-check row col-12 col-lg-6">--}%
-%{--                        <label for="ageRelatedSaleAllowed" class="col-4 col-form-label text-right pr-4">Age Related Sale Allowed</label>--}%
-%{--                        <g:checkBox name="ageRelatedSaleAllowed" class="col-1 form-check-input wl-checkbox" checked="${user?.ageRelatedSaleAllowed || !user}" disabled="${isUserReadOnly}"/>--}%
-%{--                    </div>--}%
-
-%{--                    <div class="form-group row col-12 col-lg-6">--}%
-%{--                        <label for="securityKey" class="col-4 col-form-label text-right pr-4">Security Key</label>--}%
-%{--                        <g:textField name="securityKey" class="col-5 form-control bottom-border" value="${user?.securityKey}" readonly="${isUserReadOnly}"/>--}%
-%{--                    </div>--}%
-
-%{--                    <div class="form-group row col-12 col-lg-6">--}%
-%{--                        <label for="role" class="col-4 col-form-label text-right pr-4">Role</label>--}%
-%{--                        <g:select name="role" class="col-3 form-control select-border" from="${roleValues}" value="${user?.role}" readonly="${isUserReadOnly}" valueMessagePrefix="Role"/>--}%
-%{--                    </div>--}%
-
-%{--                    <div class="form-group row col-12 col-lg-6">--}%
-%{--                        <label for="retailerUserId" class="col-4 col-form-label text-right pr-4">Retailer User ID</label>--}%
-%{--                        <g:textField name="retailerUserId" class="col-5 form-control bottom-border" value="${user?.retailerUserId}" readonly="${isUserReadOnly}"/>--}%
-%{--                    </div>--}%
-
-%{--                </g:form>--}%
-%{--            </g:if>--}%
         </section>
     </body>
 </html>

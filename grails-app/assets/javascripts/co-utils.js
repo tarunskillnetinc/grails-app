@@ -30,3 +30,8 @@ function filter(inputName, dropDownName) {
         }
     }
 }
+
+function updateTextField(selectElement, elementId) {
+    var selectedText = selectElement.options[selectElement.selectedIndex].text;
+    document.getElementById(elementId).value = selectedText;
+}
