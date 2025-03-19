@@ -21,7 +21,7 @@ class UserController {
             defaultStore = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
         }
         def stores = getStores()
-        List<User> users = userService.getUsers("", -1, false,  0, 50) as List<User>
+        List<User> users = userService.getUsers("", defaultStore?.id, false,  0, 50) as List<User>
         [users: users, userNameFilter: "", homeStoreFilter: "", showInactiveUserFilter: false, stores: stores,
          isLoggedInFromStoreLevel: isLoggedInFromStoreLevel, defaultStore:defaultStore, offset: 0, max: 50]
     }

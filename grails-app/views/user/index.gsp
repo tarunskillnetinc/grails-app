@@ -7,18 +7,11 @@
 
         <script type="text/javascript">
             $(document).ready(function () {
-                // $('#userSearchTerm').on('keyup', function(event) {
-                //     if (event.key === 'Enter') {
-                //         search();
-                //     }
-                // });
-
-                search();
-
                 if (${showInactiveUserFilter}) {
                     $('#showInactiveUserFilter').prop('checked', true);
                 }
             });
+
 
             function search() {
                 var URL = "${createLink(controller: 'user', action: 'ajaxGetUsers')}";
@@ -39,7 +32,6 @@
 
                 filterParams['offset'] = 0;
                 filterParams['max'] = 50;
-
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -62,6 +54,7 @@
                 $('#showInactiveUserFilter').prop('checked', false);
                 search()
             }
+
         </script>
     </head>
 
