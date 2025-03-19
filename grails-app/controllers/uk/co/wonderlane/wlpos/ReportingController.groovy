@@ -1002,7 +1002,8 @@ class ReportingController {
          endDate : endDate,
          storeId : storeId,
          supplierId : supplierId,
-         stores : stores]
+         stores : stores,
+        retailer:  Retailer.get(springSecurityService.principal.retailerId)]
     }
 
     // The top level of the main deliveries report.
@@ -1199,7 +1200,7 @@ class ReportingController {
         }
 
         if (params.csv != null && params.csv == "true") {
-            handleCSV(cages, true)
+            handleCSV(cages, true,  Retailer.get(springSecurityService.principal.retailerId))
         } else {
             render(template: "deliveryCageResults", model: [cages            : cages,
                                                             userColumns      : reportingService.getReportColumns(ReportType.DELIVERY),
@@ -1926,7 +1927,7 @@ class ReportingController {
 
     private String getDeliveriesCsv(List<ProductList> deliveries, Retailer retailer) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Delivery ID,Type,${retailer?.config?.retailerTerminologyConfig?.storeTerm},Status,Delivery Date,Supplier,Supplier Reference,Shipment Reference,Number of Cages, Number of ${retailer?.config?.retailerTerminologyConfig?.packTerm},Total Cost\n")
+        stringBuilder.append("Delivery ID,Type,${retailer?.config?.retailerTerminologyConfig?.storeTerm},Status,Delivery Date,Supplier,Supplier Reference,Shipment Reference,Number of Cages, Number of ${retailer?.config?.retailerTerminologyConfig?.packTerm}s,Total Cost\n")
 
         deliveries?.each { delivery ->
             stringBuilder.append(delivery?.orderId)
@@ -1976,7 +1977,7 @@ class ReportingController {
 
     private static String getCagedDeliveryCsv(List<ProductListItemGroup> delivery, Retailer retailer) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Cage Barcode,Processing Date,${retailer?.config?.retailerTerminologyConfig?.packTerm} in Cage\n")
+        stringBuilder.append("Cage Barcode,Processing Date,${retailer?.config?.retailerTerminologyConfig?.packTerm}s in Cage\n")
 
         delivery?.each { group ->
             stringBuilder.append(group?.uniqueIdentifier)
