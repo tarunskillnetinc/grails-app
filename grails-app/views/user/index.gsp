@@ -125,9 +125,8 @@
                                         <div class="col-4">
                                             <g:select id="homeStoreFilter" name="homeStoreFilter" from="${stores}" optionValue="${{it.config.storeNumber +' - ' +it.config.storeName}}"
                                                       optionKey="id"
-                                                      noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': '']}"
-                                                      class="form-control select-border"
-                                                      disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
+                                                      noSelection="${['': '']}"
+                                                      class="form-control select-border"></g:select>
                                         </div>
                                     </div>
 

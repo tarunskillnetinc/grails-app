@@ -116,7 +116,7 @@
                             <div class="form-group row mt-5">
                                 <label for="dateOfBirth" class="col-4 col-form-label text-right pr-4">Date of Birth</label>
                                 <div class="col-6">
-                                    <g:textField name="dateOfBirth" class="form-control bottom-border" value="${g.formatDate(format: "dd/MM/yyyy", date: user?.dateOfBirth)}" readonly="${isUserReadOnly}"/>
+                                    <g:textField name="dateOfBirth" class="form-control bottom-border" value="${g.formatDate(format: "dd/MM/yyyy", date: user?.dateOfBirth)}" disabled="${isUserReadOnly}"/>
                                 </div>
                             </div>
 
@@ -131,7 +131,7 @@
                                                   onchange="updateTextField(this,'storeIdInput')"
                                                   optionKey="${{it?.id}}"
                                                   class="form-control select-border"
-                                                  disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}" />
+                                                  disabled="${isUserReadOnly}" />
                                     </div>
                                 </div>
                             </div>
@@ -156,7 +156,7 @@
                             <div class="form-group row  mt-5">
                                 <label for="role" class="col-4 col-form-label text-right pr-4">Role</label>
                                 <div class="col-6">
-                                    <g:select name="role" class="form-control select-border" from="${roleValues}" value="${user?.role}" readonly="${isUserReadOnly}" valueMessagePrefix="Role"/>
+                                    <g:select name="role" class="form-control select-border" from="${roleValues}" value="${user?.role}" disabled="${isUserReadOnly}" valueMessagePrefix="Role"/>
                                 </div>
                             </div>
 

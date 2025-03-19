@@ -16,13 +16,7 @@ class UserController {
     def index() {
         def stores = getStores()
         List<User> users = userService.getUsers("", -1, false,  0, 50) as List<User>
-        [users: users,
-         userNameFilter: "",
-         homeStoreFilter: "",
-         showInactiveUserFilter: false,
-         stores: stores,
-         offset: 0,
-         max: 50]
+        [users: users, userNameFilter: "", homeStoreFilter: "", showInactiveUserFilter: false, stores: stores, offset: 0, max: 50]
     }
 
     def ajaxGetUsers() {
@@ -45,8 +39,14 @@ class UserController {
     }
 
     def add() {
+        boolean isLoggedInFromStoreLevel = false
+        Store defaultStore = null
+        if (springSecurityService.principal.storeId != null){
+            isLoggedInFromStoreLevel = true
+            defaultStore = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        }
         def stores = getStores()
-        [stores: stores, roleValues: getEligibleUserRoles()]
+        [stores: stores, roleValues: getEligibleUserRoles(), isLoggedInFromStoreLevel: isLoggedInFromStoreLevel, defaultStore: defaultStore]
     }
 
     def userEdit() {
