@@ -298,7 +298,7 @@
 
         <div class="col-12 text-right mt-3">
             <div class="d-flex justify-content-end align-items-center">
-                <g:if test="${onlyRetailerLevel && isStoreLevelLogin==null}">
+                <g:if test="${onlyRetailerLevel && (isStoreLevelLogin==null || isStoreLevelLogin == false)}">
                     <g:link elementId="cancel-btn" controller="cashManagement" action="index" tabindex="-1" role="button" class="btn btn-wl ml-1">Cancel</g:link>
                 </g:if>
                 <g:if test="${isStoreLevelLogin?isStoreLevelLogin:false}">
