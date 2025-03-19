@@ -210,7 +210,7 @@
 
                             <g:link elementId="till-control-events-dropdown" controller="reporting" action="tillControlEvents" class="dropdown-item">Till Control Events</g:link>
                             <a id="journal" class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Journal</a>
-                            <g:link elementId="receipt-viewer-dropdown" controller="receipt" action="index" class="dropdown-item">Receipt Viewer</g:link>
+                            <g:link elementId="receipt-viewer-dropdown" controller="receipt" action="index" class="dropdown-item">Transaction Search</g:link>
                         </div>
                     </li>
 
