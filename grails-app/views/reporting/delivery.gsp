@@ -41,7 +41,7 @@
         }
 
         function acceptDeliveryButtonPressed() {
-            $("#confirmModalContent").html("Are you sure you wish to accept this delivery?");
+            $("#confirmModalContent").html("Are you sure you wish to receipt this delivery?");
 
             var confirmModalYesButton = $('#confirmModalYesButton');
             var confirmModalNoButton = $('#confirmModalNoButton');
@@ -219,7 +219,7 @@
                                                 value="cases"
                                                 checked="${!userColumns || userColumns?.columns?.find { it.column == 'cases' }?.enabled}"/>
                                     <label class="form-check-label"
-                                           for="columnsCases">${retailer?.config?.retailerTerminologyConfig?.packTerm}s in the Cage</label>
+                                           for="columnsCases">${retailer?.config?.retailerTerminologyConfig?.packTerm}s in the Cage </label>
                                 </div>
                             </div>
 

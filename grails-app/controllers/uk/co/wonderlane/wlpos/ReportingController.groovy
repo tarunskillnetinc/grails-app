@@ -1002,7 +1002,8 @@ class ReportingController {
          endDate : endDate,
          storeId : storeId,
          supplierId : supplierId,
-         stores : stores]
+         stores : stores,
+        retailer:  Retailer.get(springSecurityService.principal.retailerId)]
     }
 
     // The top level of the main deliveries report.
@@ -1032,6 +1033,7 @@ class ReportingController {
 
         def deliveries = productListService.getDeliveries(storeId, supplierId, startDate, endDate.plusDays(1))
         def totalDeliveries = []
+        def suppliers
 
         if (deliveries) {
             switch (sortParams.sortColumn) {
@@ -1062,30 +1064,32 @@ class ReportingController {
 
             totalDeliveries.addAll(deliveries)
 
-            if (sortParams.sortOrder.equalsIgnoreCase("desc")) {
-                totalDeliveries = totalDeliveries.reverse()
-            }
-        }
-
-        if (params.csv != null && params.csv == "true") {
-            def fileName = "deliveries-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
-            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
-            response.setHeader("Content-Type", "text/csv;")
-            render getDeliveriesCsv(totalDeliveries)
-        } else {
-            def dels = sortParams.offset < totalDeliveries.size() ? totalDeliveries.subList(sortParams.offset, (sortParams.offset + sortParams.max < totalDeliveries.size() ? sortParams.offset + sortParams.max : totalDeliveries.size())) : []
-
             // If supplier Id is passed no need to get all suppliers, just the one supplier with the id
-            def suppliers = supplierId ? supplierService.getSupplier(supplierId) : supplierService.getSuppliers()
+            suppliers = supplierId ? supplierService.getSupplier(supplierId) : supplierService.getSuppliers()
 
             // Loop over deliveries and attach the supplierName to each of the deliveries
-            dels.each { del ->
+            totalDeliveries.each { del ->
                 if (del.supplierId) {
                     del.metaClass.supplierName = suppliers.find { it.id == del?.supplierId.toInteger() || it.reference == del?.supplierReference }.name
                 } else {
                     del.metaClass.supplierName = ""
                 }
             }
+
+            if (sortParams.sortOrder.equalsIgnoreCase("desc")) {
+                totalDeliveries = totalDeliveries.reverse()
+            }
+        }
+
+        Retailer retailer = Retailer.get(springSecurityService.principal.retailerId)
+
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "deliveries-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+            render getDeliveriesCsv(totalDeliveries, retailer)
+        } else {
+            def dels = sortParams.offset < totalDeliveries.size() ? totalDeliveries.subList(sortParams.offset, (sortParams.offset + sortParams.max < totalDeliveries.size() ? sortParams.offset + sortParams.max : totalDeliveries.size())) : []
 
             render(template: "deliveriesResults", model: [deliveries : dels,
                                                           userColumns : reportingService.getReportColumns(ReportType.DELIVERIES),
@@ -1095,7 +1099,8 @@ class ReportingController {
                                                           startDate : startDate,
                                                           endDate : endDate,
                                                           sortParams : sortParams,
-                                                          totalResults : totalDeliveries.size()])
+                                                          totalResults : totalDeliveries.size(),
+                                                          retailer: retailer])
         }
     }
 
@@ -1195,7 +1200,7 @@ class ReportingController {
         }
 
         if (params.csv != null && params.csv == "true") {
-            handleCSV(cages, true)
+            handleCSV(cages, true,  Retailer.get(springSecurityService.principal.retailerId))
         } else {
             render(template: "deliveryCageResults", model: [cages            : cages,
                                                             userColumns      : reportingService.getReportColumns(ReportType.DELIVERY),
@@ -1246,7 +1251,7 @@ class ReportingController {
         items = sortParams.offset < items.size() ? items.subList(sortParams.offset, (sortParams.offset + sortParams.max < items.size() ? sortParams.offset + sortParams.max : items.size())) : []
 
         if (params.csv != null && params.csv == "true") {
-            handleCSV(items, false)
+            handleCSV(items, false,  Retailer.get(springSecurityService.principal.retailerId))
         } else {
             render(template: "deliveryResults", model: [items            : items,
                                                         userColumns      : reportingService.getReportColumns(ReportType.DELIVERY),
@@ -1261,14 +1266,14 @@ class ReportingController {
         }
     }
 
-    private void handleCSV(List<Object> items, boolean caged) {
+    private void handleCSV(List<Object> items, boolean caged, Retailer retailer) {
         def fileName = "delivery-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
         response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
         response.setHeader("Content-Type", "text/csv;")
         if (caged) {
-            render getCagedDeliveryCsv(items)
+            render getCagedDeliveryCsv(items, retailer)
         } else {
-            render getDeliveryCsv(items)
+            render getDeliveryCsv(items, retailer)
         }
     }
 
@@ -1920,12 +1925,14 @@ class ReportingController {
         return stringBuilder.toString()
     }
 
-    private String getDeliveriesCsv(List<ProductList> deliveries) {
+    private String getDeliveriesCsv(List<ProductList> deliveries, Retailer retailer) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Delivery ID,Store,Status,Delivery Date,Supplier Name,Number of Products,Total Cost\n")
+        stringBuilder.append("Delivery ID,Type,${retailer?.config?.retailerTerminologyConfig?.storeTerm},Status,Delivery Date,Supplier,Supplier Reference,Shipment Reference,Number of Cages, Number of ${retailer?.config?.retailerTerminologyConfig?.packTerm}s,Total Cost\n")
 
         deliveries?.each { delivery ->
             stringBuilder.append(delivery?.orderId)
+            stringBuilder.append(",")
+            stringBuilder.append(delivery?.productListItemGroups?.size() > 0 ? "Caged Delivery" : "Direct Delivery")
             stringBuilder.append(",")
             stringBuilder.append(delivery?.store?.id)
             stringBuilder.append(",")
@@ -1933,7 +1940,13 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(delivery?.dateStarted?.toString("dd/MM/yyyy")) // Using Date started as the date of the delivery.
             stringBuilder.append(",")
+            stringBuilder.append(delivery?.supplierName)
+            stringBuilder.append(",")
             stringBuilder.append(delivery?.supplierReference)
+            stringBuilder.append(",")
+            stringBuilder.append(delivery?.shipmentReference)
+            stringBuilder.append(",")
+            stringBuilder.append(delivery?.productListItemGroups?.size())
             stringBuilder.append(",")
             stringBuilder.append(delivery?.productListItems?.size())
             stringBuilder.append(",")
@@ -1944,7 +1957,7 @@ class ReportingController {
         return stringBuilder.toString()
     }
 
-    private String getDeliveryCsv(List<ProductListItem> delivery) {
+    private String getDeliveryCsv(List<ProductListItem> delivery, Retailer retailer) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Product SKU,Product Description,Items Delivered,Total Cost\n")
 
@@ -1962,9 +1975,9 @@ class ReportingController {
         return stringBuilder.toString()
     }
 
-    private static String getCagedDeliveryCsv(List<ProductListItemGroup> delivery) {
+    private static String getCagedDeliveryCsv(List<ProductListItemGroup> delivery, Retailer retailer) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Cage Barcode,Processing Date,Cases in Cage\n")
+        stringBuilder.append("Cage Barcode,Processing Date,${retailer?.config?.retailerTerminologyConfig?.packTerm}s in Cage\n")
 
         delivery?.each { group ->
             stringBuilder.append(group?.uniqueIdentifier)
@@ -1972,6 +1985,7 @@ class ReportingController {
             stringBuilder.append(group?.effectiveDate)
             stringBuilder.append(",")
             stringBuilder.append((BigDecimal)group?.totalCases)
+            stringBuilder.append("\n")
         }
 
         return stringBuilder.toString()
