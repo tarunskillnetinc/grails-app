@@ -17,21 +17,3 @@ function intListener(elementId, maxLength = 9, maxValue = 999999999, textField =
         });
     }
 }
-
-function filter(inputName, dropDownName) {
-    var keyword = document.getElementById(inputName).value.toLowerCase();
-    var select = document.getElementById(dropDownName);
-    for (var i = 0; i < select.length; i++) {
-        var txt = select.options[i].text.toLowerCase();
-        if (!txt.match(keyword)) {
-            $(select.options[i]).attr('disabled', 'disabled').hide();
-        } else {
-            $(select.options[i]).removeAttr('disabled').show();
-        }
-    }
-}
-
-function updateTextField(selectElement, elementId) {
-    var selectedText = selectElement.options[selectElement.selectedIndex].text;
-    document.getElementById(elementId).value = selectedText;
-}

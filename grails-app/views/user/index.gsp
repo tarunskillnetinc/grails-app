@@ -5,7 +5,10 @@
 
         <title>User Management</title>
 
+        <asset:javascript src="user-co-utils.js"/>
+
         <script type="text/javascript">
+
             $(document).ready(function () {
                 if (${showInactiveUserFilter}) {
                     $('#showInactiveUserFilter').prop('checked', true);
@@ -14,6 +17,7 @@
 
 
             function search() {
+                clearFlashMessages();
                 var URL = "${createLink(controller: 'user', action: 'ajaxGetUsers')}";
 
                 var filterParams = { };
@@ -49,6 +53,7 @@
             }
 
             function clearFilters(){
+                clearFlashMessages();
                 $("#userNameFilter").val("");
                 $("#homeStoreFilter").val("");
                 $('#showInactiveUserFilter').prop('checked', false);
@@ -86,13 +91,11 @@
             <g:if test="${flash.message}">
                 <div class="alert alert-success alert-wl mx-0" role="alert" id="alert-success">${flash.message}</div>
             </g:if>
-
-            <g:if test="${flash.error}">
+            <g:elseif test="${flash.error}">
                 <section id="errors-container">
                     <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
                 </section>
-            </g:if>
-
+            </g:elseif>
 
             <section id="filters-section">
                 <div class="row mt-3">
@@ -118,9 +121,12 @@
 
                                         <label for="homeStoreFilter" class="col-2 col-form-label-sm text-right">Home Store</label>
                                         <div class="col-4">
-                                            <g:select id="homeStoreFilter" name="homeStoreFilter" from="${stores}" optionValue="${{it.config.storeNumber + '-' + it.config.storeName}}"
+                                            <g:select id="homeStoreFilter"
+                                                      name="homeStoreFilter"
+                                                      from="${stores}" optionValue="${{it.config.storeNumber + '-' + it.config.storeName}}"
                                                       optionKey="id"
-                                                      noSelection="${isLoggedInFromStoreLevel ? ['': defaultStore?.config?.storeNumber + '-' + defaultStore?.config?.storeName] : ['': '']}"
+                                                      noSelection="${['': '']}"
+                                                      value="${isLoggedInFromStoreLevel ? defaultStore?.id : ''}"
                                                       class="form-control select-border"></g:select>
                                         </div>
                                     </div>

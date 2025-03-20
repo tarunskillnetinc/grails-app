@@ -3,7 +3,7 @@
 </g:if>
 
 <g:each in="${users}" var="user" status="i">
-    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'userEdit', id: user.id)}';">
+    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'userEdit', id: user.id, isRedirect: false)}';">
         <div id="username-${i + 1}" class="col-4" style="word-break: break-word;">${user.username}</div>
         <div id="name-${i + 1}" class="col-4" style="word-break: break-word;">${user.name}</div>
         <div id="homeStore-${i + 1}" class="col-2">${user?.getStoreIdentifier() ?: 'N/A'}</div>

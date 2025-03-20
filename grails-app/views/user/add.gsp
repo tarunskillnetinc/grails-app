@@ -7,7 +7,7 @@
 
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
-        <asset:javascript src="co-utils.js"/>
+        <asset:javascript src="user-co-utils.js"/>
 
         <script type='text/javascript'>
             $(function() {
@@ -21,10 +21,6 @@
                     orientation: "bottom auto"
                 });
             });
-
-            function updateHiddenField(selectElement) {
-                document.getElementsByName('defaultStoreId')[0].value = selectElement.value;
-            }
 
         </script>
     </head>
@@ -57,19 +53,22 @@
                 </div>
             </div>
 
-            <g:if test="${flash.message}">
+            <g:if test="${flash.error}">
                 <section id="errors-container">
-                    <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+                    <div class="alert alert-success alert-wl mx-0" role="alert">${flash.error}</div>
                 </section>
             </g:if>
-
-            <g:hasErrors bean="${user}">
-                <section id="errors-container">
-                    <div class="alert alert-danger alert-wl mx-0" role="alert">
-                        <g:renderErrors bean="${user}" as="list" />
-                    </div>
-                </section>
-            </g:hasErrors>
+            <g:else>
+                <g:if test="${user}">
+                    <g:hasErrors bean="${user}">
+                        <section id="errors-container">
+                            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                                <g:renderErrors bean="${user}" as="list" />
+                            </div>
+                        </section>
+                    </g:hasErrors>
+                </g:if>
+            </g:else>
 
             <g:form name="add-user-form" action="save" novalidate="novalidate" class="mt-4">
                 <g:hiddenField name="id" value="${user?.id ?: 0}" />
@@ -118,11 +117,15 @@
                                 <div class="dropdown-content">
                                     <g:hiddenField name="defaultStoreId" value="${user?.defaultStoreId ?: (isLoggedInFromStoreLevel ? defaultStore?.id : '')}" />
                                     <input type="text" class="form-control bottom-border" placeholder="Search for store.."
-                                           id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreIdSelector')"  value="${isLoggedInFromStoreLevel ? defaultStore?.config?.storeNumber +' - ' + defaultStore?.config?.storeName : ''}" >
-                                    <g:select id="defaultStoreIdSelector" size="6" name="defaultStoreIdSelector" style="overflow-y: scroll;overflow-x: hidden;"
+                                           id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreIdSelector')"  value="${isLoggedInFromStoreLevel ? defaultStore?.config?.storeNumber + '-' + defaultStore?.config?.storeName : ''}" >
+                                    <g:select id="defaultStoreIdSelector"
+                                              size="6"
+                                              name="defaultStoreIdSelector"
+                                              style="overflow-y: scroll; overflow-x: hidden;"
                                               from="${stores}"
-                                              onchange="updateTextField(this,'storeIdInput'); updateHiddenField(this);"
-                                              optionValue="${{it?.config?.storeNumber +' - ' +it?.config?.storeName}}"
+                                              onchange="updateFields(this);"
+                                              onclick="updateFields(this);"
+                                              optionValue="${{it?.config?.storeNumber + ' - ' + it?.config?.storeName}}"
                                               value="${user?.defaultStoreId ?: (isLoggedInFromStoreLevel ? defaultStore?.id : '')}"
                                               optionKey="${{it?.id}}"
                                               class="form-control select-border"/>
