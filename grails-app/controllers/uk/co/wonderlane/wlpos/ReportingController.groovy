@@ -1934,7 +1934,7 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(delivery?.productListItemGroups?.size() > 0 ? "Caged Delivery" : "Direct Delivery")
             stringBuilder.append(",")
-            stringBuilder.append(delivery?.store?.id)
+            stringBuilder.append(delivery?.store?.getConfig()?.getStoreNumber())
             stringBuilder.append(",")
             stringBuilder.append(g.message(code: "DeliveryStatus.${delivery?.status}"))
             stringBuilder.append(",")
