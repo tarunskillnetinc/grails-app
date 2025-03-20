@@ -39,7 +39,8 @@
             <div id="payment-method-${i + 1}" class="col-2 my-auto"><g:message code="TransactionPaymentMethodType.${item.receipt.paymentMethod}" /></div>
             <div id="view-${i + 1}" class="col-2 my-auto text-center">
                 <button id="receipt-${i + 1}" class="btn btn-wl mx-2" onclick="showReceiptModal(${item.receipt.id});">Receipt</button>
-                <button id="details-${i + 1}" class="btn btn-info mx-2" onclick="">Details</button>
+                <button id="details-${i + 1}" class="btn btn-info mx-2"
+                        onclick="showTransactionDetails(${item.receipt.id})">Details</button>
             </div>
         </div>
     </g:each>

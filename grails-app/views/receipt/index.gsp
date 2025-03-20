@@ -13,6 +13,7 @@
         <script type='text/javascript'>
             var getReceiptsUrl = "${createLink(controller: 'receipt', action: 'ajaxGetReceipts')}";
             var getReceiptUrl = "${createLink(controller: 'receipt', action: 'ajaxGetReceipt')}";
+            var getTransactionDetailsUrl = "${createLink(controller: 'receipt', action: 'ajaxGetTransactionDetails')}";
 
             $(document).ready(function () {
                 $('#startDate').on("change", function () {
@@ -73,6 +74,20 @@
                     }, error: function(xhr, exception) {
                         $("#errors-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert"><ul>' +xhr.responseText+ '</ul></div>');
                         $("#loading-indicator").hide();
+                    }
+                });
+            }
+
+            function showTransactionDetails(receiptId) {
+                $("#receiptModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                $('#receiptModal').modal({show: true});
+
+                $.ajax({
+                    url: getTransactionDetailsUrl,
+                    method: "GET",
+                    data: {receiptId: receiptId},
+                    success: function (resp) {
+                        $("#receiptModalContent").html(resp);
                     }
                 });
             }
