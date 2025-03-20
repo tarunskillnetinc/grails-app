@@ -1125,6 +1125,8 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
         variantCmd.shelfLifeDays = variant.shelfLifeDays
         variantCmd.shelfCapacity = variant.shelfCapacity
         variantCmd.minimumDisplayQuantity = variant.minimumDisplayQuantity
+        variantCmd.stockManagementType = variant.stockManagementType
+        variantCmd.minAlcoholUnitPrice = variant.minAlcoholUnitPrice
         def packs = []
         variant.packs?.each {
             PackCommand packCommand = new PackCommand()

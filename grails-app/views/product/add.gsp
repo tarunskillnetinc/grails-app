@@ -270,6 +270,9 @@
                     params["widthCm"] = $(selector + "widthCm").val();
                     params["depthCm"] = $(selector + "depthCm").val();
 
+                    params["minAlcoholUnitPrice"] = $(selector + "minAlcoholUnitPrice").val();
+                    params["stockManagementType"] = $(selector + "stockManagementType").val();
+
                     var barcodeContainers = $($(selector + "barcodesContainer > div"));
                     barcodeContainers.each(function(loopIndex) {
                         var barcodeIndex = parseInt($(this).attr("id").substring(16));
@@ -349,10 +352,13 @@
                 var width = $("#addVariantWidthCm").val();
                 var depth = $("#addVariantDepthCm").val();
 
+                var stockManagementType = $("#stockManagementType").val();
+                var minAlcoholUnitPrice = $("#minAlcoholUnitPrice").val();
+
                 var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: isPreferredSku, retailPrice: retailPrice, costPrice: costPrice, weightedAverageCostPrice: weightedAverageCostPrice,
                     shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId,
                     description: description, receiptDescription: receiptDescription, priceMarked: priceMarked, unitSize: unitSize, "unitOfMeasure.id": unitOfMeasure, itemsInUnit: itemsInUnit,
-                    heightCm: height, widthCm: width, depthCm: depth, effectiveDate: effectiveDate };
+                    heightCm: height, widthCm: width, depthCm: depth, effectiveDate: effectiveDate, stockManagementType: stockManagementType,  minAlcoholUnitPrice: minAlcoholUnitPrice};
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 var barcodes = []; // To store the barcode values for validation
