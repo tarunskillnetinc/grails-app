@@ -28,7 +28,7 @@ class Restrictions {
     BigDecimal maximumMarkdownPercentage
     Integer quantityChangeRestriction
     Boolean promptForMarkdown
-    StockClassification stockClassification
+    //StockClassification stockClassification
     Integer promptedDaysFrom
     PricingClassification pricingClassification
 
@@ -59,7 +59,7 @@ class Restrictions {
         maximumMarkdownPercentage column: "maximumMarkdownPercentage"
         quantityChangeRestriction column: "quantityChangeRestriction"
         promptForMarkdown column: "promptForMarkdown"
-        stockClassification column: "stockClassification", sqlType: "text", enumType: "string"
+        //stockClassification column: "stockClassification", sqlType: "text", enumType: "string"
         promptedDaysFrom column: "promptedDaysFrom"
         pricingClassification column: "pricingClassificationId"
     }
@@ -98,7 +98,7 @@ class Restrictions {
         maximumMarkdownPercentage nullable: true
         quantityChangeRestriction nullable: true
         promptForMarkdown nullable: true
-        stockClassification nullable: true
+        //stockClassification nullable: true
         promptedDaysFrom nullable: true
         pricingClassification nullable: true
     }
@@ -130,7 +130,7 @@ class Restrictions {
         restrictions.setMaximumMarkdownPercentage(maximumMarkdownPercentage)
         restrictions.setQuantityChangeRestriction(quantityChangeRestriction)
         restrictions.setPromptForMarkdown(promptForMarkdown)
-        restrictions.setStockClassification(stockClassification)
+        //restrictions.setStockClassification(stockClassification)
         restrictions.setPromptedDaysFrom(promptedDaysFrom)
         restrictions.setPricingClassificationId(pricingClassification?.getId())
 
