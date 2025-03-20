@@ -1,15 +1,18 @@
 package uk.co.wonderlane.wlpos
 
+import grails.plugin.springsecurity.userdetails.NoStackUsernameNotFoundException
 import io.micronaut.http.HttpStatus
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
+import uk.co.wonderlane.wlpos.enums.Role
 
 class ReceiptController {
 
     def receiptService
+    def storeService
     int lastShownReceiptId
 
     def index() {
@@ -113,8 +116,25 @@ class ReceiptController {
         }
     }
 
-    def ajaxGetTransactionDetails(int transactionId, int storeId, int terminalId) {
+    def ajaxGetTransactionDetails(int transactionId, int storeId) {
+        def receipt = receiptService.getReceipt(receiptId)
+        def store = storeService.getStore(storeId)
+        def user = User.findByUsername(receipt.usersName)
 
+        if (!user) {
+            user = new User()
+            user.setName("INVALID")
+            user.setRole(Role.USER)
+            user.set
+        }
+
+        render(template: "transactionDetails", model: [
+                store                : store,
+                receipt              : receipt,
+                containsModifiers    : receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
+                firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
+                maxTotalLength       : receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
+                maxVatLength         : receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
     }
 
     def saveReceiptPrinted(){
