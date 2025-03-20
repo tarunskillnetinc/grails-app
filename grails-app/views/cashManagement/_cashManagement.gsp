@@ -127,7 +127,7 @@
 
         if ($('#cancel-btn-store-level').length) {
             $('#cancel-btn-store-level').on('click', function () {
-                $.get("${createLink(controller: 'cashManagement', action: 'index')}?storeId=" + ${storeId} + "&onlyRetailerLevel=false", function(data) {
+                $.get("${createLink(controller: 'cashManagement', action: 'index')}?onlyRetailerLevel=false", function(data) {
                     $('#cash-container').html(data);
                 });
             });
@@ -143,7 +143,6 @@
                     type: 'POST',
                     url: '${createLink(controller: "cashManagement", action: "deleteStoreLevelConfig")}', // API endpoint
                     data: {
-                        storeId: storeId,
                         isStoreLevelLogin: isStoreLevelLogin
                     },
                     success: function(response) {
@@ -166,7 +165,6 @@
                     type: 'POST',
                     url: '${createLink(controller: "cashManagement", action: "deleteStoreLevelConfig")}', // API endpoint
                     data: {
-                        storeId: storeId,
                         isStoreLevelLogin: true
                     },
                     success: function(response) {
@@ -302,7 +300,7 @@
                     <g:link elementId="cancel-btn" controller="cashManagement" action="index" tabindex="-1" role="button" class="btn btn-wl ml-1">Cancel</g:link>
                 </g:if>
                 <g:if test="${isStoreLevelLogin?isStoreLevelLogin:false}">
-                    <g:link elementId="cancel-btn" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true]" action="index" tabindex="-1" role="button" class="btn btn-wl ml-1">Cancel</g:link>
+                    <g:link elementId="cancel-btn" controller="cashManagement" params="[isStoreLevelLogin:true]" action="index" tabindex="-1" role="button" class="btn btn-wl ml-1">Cancel</g:link>
                 </g:if>
                 <g:if test="${isStoreLevelLogin == null && storeId != null}">
                     <button id="cancel-btn-store-level" class="btn btn-wl ml-1" name="save">Cancel</button>
@@ -374,7 +372,7 @@
                                 <b>
                                     Your store is currently using the default config.
                                 </b><br>
-                                Please select the override option at the top of the page to update the config specifically for this store <b>(${storeName}-${storeNumber})</b>.<br/>
+                                Please select the override option at the top of the page to update the config specifically for this store <b>${storeName} (${storeNumber})</b>.<br/>
                                 Please note that some config options are not overridable and will remain disabled.
                             </div>
                         </g:if>
