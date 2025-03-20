@@ -6,6 +6,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import uk.co.wonderlane.wlpos.entities.StoreConfig
 import uk.co.wonderlane.wlpos.entities.supplier.Pack
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
@@ -1927,14 +1928,24 @@ class ReportingController {
 
     private String getDeliveriesCsv(List<ProductList> deliveries, Retailer retailer) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Delivery ID,Type,${retailer?.config?.retailerTerminologyConfig?.storeTerm},Status,Delivery Date,Supplier,Supplier Reference,Shipment Reference,Number of Cages, Number of ${retailer?.config?.retailerTerminologyConfig?.packTerm}s,Total Cost\n")
+        stringBuilder.append("Delivery ID,Type,${retailer?.config?.retailerTerminologyConfig?.storeTerm} No,${retailer?.config?.retailerTerminologyConfig?.storeTerm} Name,Status,Delivery Date,Supplier,Supplier Reference,Shipment Reference,Number of Cages, Number of ${retailer?.config?.retailerTerminologyConfig?.packTerm}s,Total Cost\n")
+
+        Map<Integer, StoreConfig> storeConfigMap = new HashMap<>()
 
         deliveries?.each { delivery ->
+            // Cache the store config so we don't keep on deserialising the string value to an object every time
+            if (!storeConfigMap.containsKey(delivery?.store?.getId())) {
+                storeConfigMap.put(delivery?.store?.getId(), delivery?.store?.getConfig())
+            }
+            StoreConfig storeConfig = storeConfigMap.getOrDefault(delivery?.store?.id, null)
+
             stringBuilder.append(delivery?.orderId)
             stringBuilder.append(",")
             stringBuilder.append(delivery?.productListItemGroups?.size() > 0 ? "Caged Delivery" : "Direct Delivery")
             stringBuilder.append(",")
-            stringBuilder.append(delivery?.store?.getConfig()?.getStoreNumber())
+            stringBuilder.append(storeConfig?.getStoreNumber())
+            stringBuilder.append(",")
+            stringBuilder.append(storeConfig?.getStoreName())
             stringBuilder.append(",")
             stringBuilder.append(g.message(code: "DeliveryStatus.${delivery?.status}"))
             stringBuilder.append(",")
