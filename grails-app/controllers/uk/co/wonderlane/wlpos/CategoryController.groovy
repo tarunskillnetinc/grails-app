@@ -107,7 +107,7 @@ class CategoryController extends BaseController {
         blankCategory.restrictions.quantityChangeAllowed = true
         blankCategory.restrictions.quantityChangeRestriction = 5
         blankCategory.restrictions.promptedDaysFrom = 7
-        blankCategory.restrictions.stockClassification = StockClassification.STANDARD
+        //blankCategory.restrictions.stockClassification = StockClassification.STANDARD
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
         render(view: "maintenance", model: [category: blankCategory, addCategory: true, topLevelCategories: categoryService.getTopLevelCategories(), loyaltyEnabled: loyaltyEnabled, pricingClassifications: pricingClassification])
@@ -565,7 +565,7 @@ class CategoryController extends BaseController {
         builder.compare("restrictions.maximumMarkdownPercentage", category.restrictions.maximumMarkdownPercentage, editedCategory.restrictions.maximumMarkdownPercentage)
         builder.compare("restrictions.quantityChangeRestriction", category.restrictions.quantityChangeRestriction, editedCategory.restrictions.quantityChangeRestriction)
         builder.compare("restrictions.promptForMarkdown", category.restrictions.promptForMarkdown, editedCategory.restrictions.promptForMarkdown)
-        builder.compare("restrictions.stockClassification", category.restrictions.stockClassification, editedCategory.restrictions.stockClassification)
+        //builder.compare("restrictions.stockClassification", category.restrictions.stockClassification, editedCategory.restrictions.stockClassification)
         builder.compare("restrictions.promptedDaysFrom", category.restrictions.promptedDaysFrom, editedCategory.restrictions.promptedDaysFrom)
         builder.compare("restrictions.pricingClassification", category.restrictions.pricingClassification, editedCategory.restrictions.pricingClassification)
     }
