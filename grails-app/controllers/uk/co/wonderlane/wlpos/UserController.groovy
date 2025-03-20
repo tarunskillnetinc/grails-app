@@ -106,7 +106,7 @@ class UserController {
     def editSelectedUser(SaveUserCommand saveUserCommand) {
         User user = null
         try {
-            if (saveUserCommand != null && saveUserCommand.getId() != null && Integer.parseInt(saveUserCommand.getId().toString()) > 0){
+            if (saveUserCommand != null && Integer.parseInt(saveUserCommand.getId().toString()) > 0){
                 //Load user --> Before this method invoke verify user exists, Therefore chances of user not exists is very less
                 user = User.get(saveUserCommand.getId())
 
@@ -251,7 +251,7 @@ class UserController {
         return true
     }
 
-    private void renderUserEdit(def userOrCommand, User user) {
+    private void renderUserEdit(SaveUserCommand userOrCommand, User user) {
         boolean isLoggedInFromStoreLevel = false
         Store defaultStore = null
         if (springSecurityService.principal.storeId != null) {
@@ -266,7 +266,7 @@ class UserController {
                 stores: stores,
                 isLoggedInFromStoreLevel: isLoggedInFromStoreLevel,
                 defaultStore: defaultStore,
-                homeStoreIdentifier: userOrCommand ? userOrCommand?.getStoreIdentifier() : user?.getStoreIdentifier()
+                homeStoreIdentifier: getStoreIdentifier(userOrCommand ? userOrCommand?.defaultStoreId : user?.defaultStoreId)
         ])
     }
 
@@ -370,6 +370,20 @@ class UserController {
     private getStores(){
         return storeService.getStores(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
     }
+
+    private String getStoreIdentifier(Integer defaultStoreId) {
+        try {
+            if (defaultStoreId != null && defaultStoreId > 0) {
+                Store store = Store.findById(defaultStoreId)
+                if (store && store.config) {
+                    return store.config.storeNumber + "-" + store.config.storeName
+                }
+            }
+        } catch (Exception ex) {
+            return ""
+        }
+
+    }
 }
 
 class SaveUserCommand {
@@ -425,18 +439,7 @@ class SaveUserCommand {
                 return true
             }
         }
-    }
 
-    String getStoreIdentifier() {
-        try {
-            if (defaultStoreId > 0) {
-                Store store = Store.findById(defaultStoreId)
-                return store.config.storeNumber + "-" + store.config.storeName
-            }
-            return null
-        } catch (Exception ex) {
-            return null
-        }
     }
 }
 

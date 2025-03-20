@@ -115,7 +115,7 @@
                             <label for="defaultStoreId" class="col-4 col-form-label text-right pr-4">Home Store</label>
                             <div class="col-6">
                                 <div class="dropdown-content">
-                                    <g:hiddenField name="defaultStoreId" value="${user?.defaultStoreId ?: (isLoggedInFromStoreLevel ? defaultStore?.id : '')}" />
+                                    <g:hiddenField name="defaultStoreId" value="${user?.defaultStoreId ?: (isLoggedInFromStoreLevel ? defaultStore?.id : 0)}" />
                                     <input type="text" class="form-control bottom-border" placeholder="Search for store.."
                                            id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreIdSelector')"  value="${isLoggedInFromStoreLevel ? defaultStore?.config?.storeNumber + '-' + defaultStore?.config?.storeName : ''}" >
                                     <g:select id="defaultStoreIdSelector"

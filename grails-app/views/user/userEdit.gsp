@@ -94,15 +94,18 @@
                     <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
                 </section>
             </g:elseif>
-            <g:elseif test="${user?.hasErrors()}">
-                <section id="errors-container">
-                    <div class="alert alert-danger alert-wl mx-0" role="alert">
-                        <g:eachError bean="${user}">
-                            <p><g:message error="${it}"/></p>
-                        </g:eachError>
-                    </div>
-                </section>
-            </g:elseif>
+            <g:else>
+                <g:if test="${user}">
+                    <g:hasErrors bean="${user}">
+                        <section id="errors-container">
+                            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                                <g:renderErrors bean="${user}" as="list" />
+                            </div>
+                        </section>
+                    </g:hasErrors>
+                </g:if>
+            </g:else>
+
 
             <g:if test="${user}">
                 <g:form name="edit-user-form" action="editSelectedUser" novalidate="novalidate" class="mt-4">
@@ -135,7 +138,7 @@
                                 <label for="defaultStoreId" class="col-4 col-form-label text-right pr-4">Home Store</label>
                                 <div class="col-6">
                                     <div class="dropdown-content">
-                                        <g:hiddenField name="defaultStoreId" value="${user?.defaultStoreId ?: (isLoggedInFromStoreLevel ? defaultStore?.id : '')}" />
+                                        <g:hiddenField name="defaultStoreId" value="${user?.defaultStoreId ?: (isLoggedInFromStoreLevel ? defaultStore?.id : 0)}" />
                                         <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput"
                                                onkeyup="filter('storeIdInput','defaultStoreIdSelector')" value="${homeStoreIdentifier}" disabled="${isUserReadOnly}" >
                                         <g:select id="defaultStoreIdSelector"
@@ -157,6 +160,13 @@
                         <div class="col-md-6  mt-5">
                             <!-- Right column -->
                             <div class="form-group row">
+                                <label for="active" class="col-4 col-form-label text-right pr-4">Active</label>
+                                <div class="col-6">
+                                    <g:checkBox name="active" class="ml-0 form-check-input wl-checkbox" checked="${user?.active}" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-3">
                                 <label for="ageRelatedSaleAllowed" class="col-4 col-form-label text-right pr-4">Age Related Sale Allowed</label>
                                 <div class="col-6">
                                     <g:checkBox name="ageRelatedSaleAllowed" class="ml-0 form-check-input wl-checkbox" checked="${user?.ageRelatedSaleAllowed || !user}" disabled="${isUserReadOnly}"/>

@@ -47,7 +47,6 @@ class User {
     static constraints = {
         username nullable: false, blank: false, minSize: 3, maxSize: 40, unique: true
         password nullable: false, blank: false, password: true, minSize: 4, maxSize: 70
-        defaultStoreId nullable: false
         name nullable: false, maxSize: 50
         dateOfBirth nullable: false
         active nullable: false
