@@ -344,7 +344,6 @@
                 <div class="col-3 font-weight-bold my-auto">Product</div>
                 <div class="col-1 text-center font-weight-bold my-auto">Pack Size</div>
                 <div class="col-1 text-center font-weight-bold my-auto">Effective Date</div>
-                <div class="col-1 text-center font-weight-bold my-auto">Price Marked</div>
                 <div class="col-1 text-center font-weight-bold my-auto">Old Pack Cost Price</div>
                 <div class="col-1 text-center font-weight-bold my-auto">New Pack Cost Price</div>
                 <div class="col-1 text-center font-weight-bold my-auto">New RRP</div>
