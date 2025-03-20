@@ -8,17 +8,18 @@
         <div id="till-id-${i + 1}" class="col-1 my-auto text-center">${till.tillId}</div>
         <div id="description-${i + 1}" class="col-2 my-auto text-center" style="overflow-x: hidden;">${till.description}</div>
         <div id="serial-number-${i + 1}" class="col-2 my-auto text-center">${till.serialNumber}</div>
+        <div id=type-${i + 1}" class="col-1 my-auto text-center">${message(code: "TillType.${till.type}")}</div> 
 
-        <div class="col-5 my-auto text-right">
-            <button id="edit-${i + 1}" class="btn btn-wl mx-2" onclick="editTill(${till.storeId}, ${till.tillId}, '${till.serialNumber}')">Edit Till</button>
+        <div class="col-4 my-auto text-right">
+            <button id="edit-${i + 1}" class="btn btn-wl mx-2" onclick="editTill(${till.storeId}, ${till.tillId}, '${till.serialNumber}')">Edit</button>
             <g:if test="${till.serialNumber}">
                 <button id="unassign-${i + 1}" class="btn btn-info mx-2" onclick="unassignSerial(${till.id}, '${till.serialNumber}', ${till.tillId});">Unassign Serial</button>
             </g:if>
             <g:else>
                 <button id="unassign-${i + 1}" class="btn btn-info mx-2" onclick="unassignSerial(${till.id}, '${till.serialNumber}', ${till.tillId});" disabled title="No serial assigned">Unassign Serial</button>
             </g:else>
-            <button id="delete-${i + 1}" class="btn btn-danger mx-2" onclick="deleteTill(${till.storeId}, ${till.tillId}, '${till.serialNumber}')">Delete Till</button>
-            <button id="configuration-${i + 1}" class="btn btn-wl mx-2" onclick="advancedConfiguration('${till.serialNumber}')">Advanced Configuration</button>
+            <button id="delete-${i + 1}" class="btn btn-danger mx-2" onclick="deleteTill(${till.storeId}, ${till.tillId}, '${till.serialNumber}')">Delete</button>
+            <button id="configuration-${i + 1}" class="btn btn-wl mx-2" onclick="advancedConfiguration('${till.serialNumber}')">Configuration</button>
         </div>
     </div>
 </g:each>
