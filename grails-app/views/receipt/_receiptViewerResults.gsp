@@ -28,7 +28,7 @@
     </g:if>
 
     <g:each in="${combinedResults}" var="item" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to view." style="cursor: pointer;" onclick="showReceiptModal(${item.receipt.id});">
+        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable">
             <div id="store-id-${i + 1}" class="col-1 my-auto">${item.store.config.storeName} - ${item.receipt.storeId}</div>
             <div id="till-id-${i + 1}" class="col-1 my-auto">${item.receipt.tillId}</div>
             <div id="transaction-id-${i + 1}" class="col-2 my-auto">${item.receipt.transactionId}</div>
