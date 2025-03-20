@@ -63,12 +63,22 @@
                     <g:link elementId="cancel" controller="user" action="index" role="button" class="btn btn-wl">Cancel</g:link>
 
                     <g:if test="${!isUserReadOnly}">
-                        <button id="delete-btn" class="btn btn-danger" name="delete" onclick="ConfirmUserDelete()">Delete</button>
+                        <g:if test="${user?.active}">
+                            <button id="delete-btn" class="btn btn-danger" name="delete" onclick="ConfirmUserDelete()">Delete</button>
+                        </g:if>
+                        <g:else>
+                            <button id="reinstate-btn" class="btn btn-danger" name="reinstate" >Reinstate</button>
+                        </g:else>
                         <button id="save-btn" class="btn btn-success" name="save" onclick="validateAndSubmitUserEdit( ${isLoggedInFromStoreLevel}, ${defaultStore?.id});">Save</button>
                         <button id="reset-password" class="btn btn-warning" name="reset-password" onclick="document.location.href='${createLink(action:'changePassword', params: [id: user?.id, name : user?.name] )}';">Reset Password</button>
                     </g:if>
                     <g:else>
-                        <button id="delete-btn" class="btn btn-danger" name="delete" disabled onclick="ConfirmUserDelete()">Delete</button>
+                        <g:if test="${user?.active}">
+                            <button id="delete-btn" class="btn btn-danger" name="delete" disabled onclick="ConfirmUserDelete()">Delete</button>
+                        </g:if>
+                        <g:else>
+                            <button id="reinstate-btn" class="btn btn-danger" disabled name="Reinstate" >Reinstate</button>
+                        </g:else>
                         <button id="save-btn" class="btn btn-success" name="save" disabled onclick="validateAndSubmitUserEdit( ${isLoggedInFromStoreLevel}, ${defaultStore?.id});">Save</button>
                         <button id="reset-password" class="btn btn-warning" name="reset-password" disabled onclick="document.location.href='${createLink(action:'changePassword', params: [id: user?.id, name : user?.name])}';">Reset Password</button>
                     </g:else>
@@ -147,13 +157,6 @@
                         <div class="col-md-6  mt-5">
                             <!-- Right column -->
                             <div class="form-group row">
-                                <label for="active" class="col-4 col-form-label text-right pr-4">Active</label>
-                                <div class="col-6">
-                                    <g:checkBox name="active" class="ml-0 form-check-input wl-checkbox" checked="${user?.active}" />
-                                </div>
-                            </div>
-
-                            <div class="form-group row mt-3">
                                 <label for="ageRelatedSaleAllowed" class="col-4 col-form-label text-right pr-4">Age Related Sale Allowed</label>
                                 <div class="col-6">
                                     <g:checkBox name="ageRelatedSaleAllowed" class="ml-0 form-check-input wl-checkbox" checked="${user?.ageRelatedSaleAllowed || !user}" disabled="${isUserReadOnly}"/>

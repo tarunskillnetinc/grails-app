@@ -85,15 +85,15 @@ class UserController {
     def save(SaveUserCommand saveUserCommand) {
         try {
             saveUserCommand.retailerId = springSecurityService.principal.retailerId
-            User user = saveUserCommand.id ? User.get(saveUserCommand.id) : new User()
-            user.properties = saveUserCommand.properties
-            if (user?.validate()) {
+            if (saveUserCommand?.validate()) {
+                User user = saveUserCommand.id ? User.get(saveUserCommand.id) : new User()
+                user.properties = saveUserCommand.properties
                 userService.saveUser(user)
                 flash.message = "User saved successfully"
                 pushUserUpdatesToMq(user, true)
                 redirect (action: "index")
             } else {
-                renderAddUser(user)
+                renderAddUser(saveUserCommand)
             }
         } catch (Exception ex) {
             log.error("Error saving user, Exception " + ex)
@@ -118,6 +118,10 @@ class UserController {
 
                 if (!isValidToEdit(saveUserCommand)) {
                     flash.error = "Logged in user has no permission to promote user to ${saveUserCommand?.role}"
+                    renderUserEdit(saveUserCommand, user)
+                    return
+                } else if (!isLoggedInFromValidLocation(user)){ //Only HO logged in user has permission to edit user
+                    flash.error = "User does not have permission for edit"
                     renderUserEdit(saveUserCommand, user)
                     return
                 }
@@ -166,7 +170,7 @@ class UserController {
                 flash.error = errorMessage
                 renderUserEdit(null, user)
                 return
-            } else if (isLoggedInFromValidLocation()){ //Only HO logged in user has permission to edit user
+            } else if (!isLoggedInFromValidLocation(user)){ //Only HO logged in user has permission to edit user
                 flash.error = "Store user does not have permission for delete"
                 renderUserEdit(null, user)
                 return
@@ -203,7 +207,7 @@ class UserController {
                     String errorMessage = "Logged in user has no permission to change password of " + user?.getRole()?.toString()
                     flash.error = errorMessage
                     isValidToChangePassword = false
-                } else if (isLoggedInFromValidLocation()){ //Check logged in user logged as store user or HO user
+                } else if (!isLoggedInFromValidLocation(user)){ //Check logged in user logged as store user or HO user
                     flash.error = "Store user does not have permission for change user password"
                     isValidToChangePassword = false
                 }
@@ -342,8 +346,8 @@ class UserController {
     private boolean isLoggedInFromValidLocation(User user){
 
         //Check logged in user logged in HO level or from same store as default store
-        if (springSecurityService.principal.storeId == null){
-            return false
+        if ((springSecurityService.principal.storeId == null) || (springSecurityService.principal.storeId == user?.defaultStoreId)){
+            return true
         }
 
         return true
