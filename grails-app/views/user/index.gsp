@@ -17,7 +17,7 @@
 
 
             function search() {
-                clearFlashMessages();
+                clearOldFlashMessages();
                 var URL = "${createLink(controller: 'user', action: 'ajaxGetUsers')}";
 
                 var filterParams = { };
@@ -53,7 +53,7 @@
             }
 
             function clearFilters(){
-                clearFlashMessages();
+                clearOldFlashMessages();
                 $("#userNameFilter").val("");
                 $("#homeStoreFilter").val("");
                 $('#showInactiveUserFilter').prop('checked', false);
@@ -89,10 +89,10 @@
             </div>
 
             <g:if test="${flash.message}">
-                <div class="alert alert-success alert-wl mx-0" role="alert" id="alert-success">${flash.message}</div>
+                <div class="alert alert-success alert-wl mx-0" role="alert" id="alert-success" data-flash-message="${flash.message ? 'true' : 'false'}">${flash.message}</div>
             </g:if>
             <g:elseif test="${flash.error}">
-                <section id="errors-container">
+                <section id="errors-container" data-flash-message="${flash.error ? 'true' : 'false'}">
                     <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
                 </section>
             </g:elseif>

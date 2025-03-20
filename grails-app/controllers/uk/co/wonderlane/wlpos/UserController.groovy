@@ -251,7 +251,7 @@ class UserController {
         return true
     }
 
-    private void renderUserEdit(SaveUserCommand userOrCommand, User user) {
+    private void renderUserEdit(SaveUserCommand saveUserCommand, User user) {
         boolean isLoggedInFromStoreLevel = false
         Store defaultStore = null
         if (springSecurityService.principal.storeId != null) {
@@ -260,17 +260,16 @@ class UserController {
         }
         def stores = getStores()
         render(view: "userEdit", model: [
-                user: userOrCommand ?: user,
+                user: saveUserCommand ?: user,
                 isUserReadOnly: isUserReadOnly(user),
                 roleValues: getEligibleUserRoles(user?.role),
                 stores: stores,
                 isLoggedInFromStoreLevel: isLoggedInFromStoreLevel,
-                defaultStore: defaultStore,
-                homeStoreIdentifier: getStoreIdentifier(userOrCommand ? userOrCommand?.defaultStoreId : user?.defaultStoreId)
+                defaultStore: defaultStore
         ])
     }
 
-    private void renderAddUser(def userCommand){
+    private void renderAddUser(SaveUserCommand saveUserCommand){
         boolean isLoggedInFromStoreLevel = false
         Store defaultStore = null
         if (springSecurityService.principal.storeId != null){
@@ -278,7 +277,7 @@ class UserController {
             defaultStore = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
         }
         def stores = getStores()
-        render(view: "add", model:  [user: userCommand,
+        render(view: "add", model:  [user: saveUserCommand,
                                      stores: stores,
                                      roleValues: getEligibleUserRoles(),
                                      isLoggedInFromStoreLevel: isLoggedInFromStoreLevel,
@@ -369,20 +368,6 @@ class UserController {
 
     private getStores(){
         return storeService.getStores(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
-    }
-
-    private String getStoreIdentifier(Integer defaultStoreId) {
-        try {
-            if (defaultStoreId != null && defaultStoreId > 0) {
-                Store store = Store.findById(defaultStoreId)
-                if (store && store.config) {
-                    return store.config.storeNumber + "-" + store.config.storeName
-                }
-            }
-        } catch (Exception ex) {
-            return ""
-        }
-
     }
 }
 

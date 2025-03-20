@@ -22,7 +22,13 @@
                 });
             });
 
-        </script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var selectElement = document.getElementById('defaultStoreIdSelector');
+                updateFields(selectElement);
+            });
+
+
+    </script>
     </head>
 
     <body>
@@ -54,14 +60,14 @@
             </div>
 
             <g:if test="${flash.error}">
-                <section id="errors-container">
-                    <div class="alert alert-success alert-wl mx-0" role="alert">${flash.error}</div>
+                <section id="errors-container" data-flash-message="${flash.error ? 'true' : 'false'}">
+                    <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
                 </section>
             </g:if>
             <g:else>
                 <g:if test="${user}">
                     <g:hasErrors bean="${user}">
-                        <section id="errors-container">
+                        <section id="errors-container" data-flash-message="${flash.error ? 'true' : 'false'}">
                             <div class="alert alert-danger alert-wl mx-0" role="alert">
                                 <g:renderErrors bean="${user}" as="list" />
                             </div>
@@ -115,9 +121,8 @@
                             <label for="defaultStoreId" class="col-4 col-form-label text-right pr-4">Home Store</label>
                             <div class="col-6">
                                 <div class="dropdown-content">
-                                    <g:hiddenField name="defaultStoreId" value="${user?.defaultStoreId ?: (isLoggedInFromStoreLevel ? defaultStore?.id : 0)}" />
-                                    <input type="text" class="form-control bottom-border" placeholder="Search for store.."
-                                           id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreIdSelector')"  value="${isLoggedInFromStoreLevel ? defaultStore?.config?.storeNumber + '-' + defaultStore?.config?.storeName : ''}" >
+                                    <g:hiddenField name="defaultStoreId" value="${isLoggedInFromStoreLevel ? defaultStore?.id : 0}" />
+                                    <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreIdSelector')"  >
                                     <g:select id="defaultStoreIdSelector"
                                               size="6"
                                               name="defaultStoreIdSelector"
@@ -125,8 +130,8 @@
                                               from="${stores}"
                                               onchange="updateFields(this);"
                                               onclick="updateFields(this);"
-                                              optionValue="${{it?.config?.storeNumber + ' - ' + it?.config?.storeName}}"
-                                              value="${user?.defaultStoreId ?: (isLoggedInFromStoreLevel ? defaultStore?.id : '')}"
+                                              optionValue="${{it?.config?.storeNumber + '-' + it?.config?.storeName}}"
+                                              value="${user?.defaultStoreId ?: (isLoggedInFromStoreLevel ? defaultStore?.id : 0)}"
                                               optionKey="${{it?.id}}"
                                               class="form-control select-border"/>
                                 </div>

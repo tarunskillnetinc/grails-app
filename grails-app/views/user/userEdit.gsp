@@ -25,16 +25,22 @@
             });
 
             function ConfirmUserDelete() {
-                clearFlashMessages();
+                clearOldFlashMessages();
                 var result = confirm("Are you sure you want to delete this user?");
                 if (result) {
                     document.location.href='${createLink(action:'deleteUser', id: user?.id)}';
                 }
             }
 
+            document.addEventListener('DOMContentLoaded', function() {
+                var selectElement = document.getElementById('defaultStoreIdSelector');
+                updateFields(selectElement);
+            });
 
 
-        </script>
+
+
+    </script>
 
     </head>
 
@@ -87,10 +93,10 @@
             </div>
 
             <g:if test="${flash.message}">
-                <div class="alert alert-success alert-wl" role="alert">${flash.message}</div>
+                <div class="alert alert-success alert-wl" role="alert" data-flash-message="${flash.message ? 'true' : 'false'}">${flash.message}</div>
             </g:if>
             <g:elseif test="${flash.error}">
-                <section id="errors-container">
+                <section id="errors-container" data-flash-message="${flash.error ? 'true' : 'false'}">
                     <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
                 </section>
             </g:elseif>
@@ -138,14 +144,13 @@
                                 <label for="defaultStoreId" class="col-4 col-form-label text-right pr-4">Home Store</label>
                                 <div class="col-6">
                                     <div class="dropdown-content">
-                                        <g:hiddenField name="defaultStoreId" value="${user?.defaultStoreId ?: (isLoggedInFromStoreLevel ? defaultStore?.id : 0)}" />
-                                        <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput"
-                                               onkeyup="filter('storeIdInput','defaultStoreIdSelector')" value="${homeStoreIdentifier}" disabled="${isUserReadOnly}" >
+                                        <g:hiddenField name="defaultStoreId" value="${user?.defaultStoreId ?:  0}" />
+                                        <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreIdSelector')"  >
                                         <g:select id="defaultStoreIdSelector"
                                                   size="6"
                                                   name="defaultStoreIdSelector"
                                                   style="overflow-y: scroll; overflow-x: hidden;"
-                                                  from="${stores}" optionValue="${{it.config.storeNumber +' - ' +it.config.storeName}}"
+                                                  from="${stores}" optionValue="${{it.config.storeNumber + '-' + it.config.storeName}}"
                                                   value="${user?.defaultStoreId}"
                                                   onchange="updateFields(this);"
                                                   onclick="updateFields(this);"

@@ -1,5 +1,5 @@
 function validateAndSubmitUserEdit(isLoggedInFromStoreLevel, defaultStoreId) {
-    clearFlashMessages();
+    clearOldFlashMessages();
     let selectElement = document.getElementById('defaultStoreIdSelector');
     let selectedId = selectElement.value;
     if (isLoggedInFromStoreLevel && (selectedId.toString() !== defaultStoreId.toString())) {
@@ -18,7 +18,7 @@ function validateAndSubmitUserEdit(isLoggedInFromStoreLevel, defaultStoreId) {
 }
 
 function filter(inputName, dropDownName) {
-    clearFlashMessages();
+    clearOldFlashMessages();
     var keyword = document.getElementById(inputName).value.toLowerCase();
     var select = document.getElementById(dropDownName);
     for (var i = 0; i < select.length; i++) {
@@ -32,7 +32,7 @@ function filter(inputName, dropDownName) {
 }
 
 function updateFields(selectElement) {
-    clearFlashMessages();
+    clearOldFlashMessages();
     updateTextField(selectElement, 'storeIdInput');
     updateHiddenField(selectElement);
 }
@@ -42,11 +42,23 @@ function updateTextField(selectElement, elementId) {
     document.getElementById(elementId).value = selectedText;
 }
 
+
 function updateHiddenField(selectElement) {
     document.getElementsByName('defaultStoreId')[0].value = selectElement.value;
 }
 
 function clearFlashMessages() {
-    $('#alert-success').remove();
-    $('#errors-container').remove();
+    $('#alert-success').empty();
+    $('#errors-container').empty();
+}
+
+function clearOldFlashMessages() {
+    ['alert-success', 'errors-container'].forEach(function(id) {
+        var element = document.getElementById(id);
+        if (element && element.getAttribute('data-flash-message') === 'true') {
+            element.textContent = '';
+            element.style.display = 'none';
+            element.setAttribute('data-flash-message', 'false');
+        }
+    });
 }
