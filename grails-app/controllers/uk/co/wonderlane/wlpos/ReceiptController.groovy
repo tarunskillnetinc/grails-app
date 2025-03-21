@@ -121,13 +121,24 @@ class ReceiptController {
         Receipt receipt = receiptService.getReceipt(receiptId)
         Store store = storeService.getStore(receipt.storeId)
         BasketTransaction basketTransaction = basketTransactionService.getBasketTransactionByReceipt(receipt)
+        User user = User.findByRetailerIdAndUsername(receipt.retailerId, username)
 
+        if (!user) { // The user appears to have disappeared.
+            def basketuser = basketTransaction.getUser()
 
-        def user = basketTransaction.getUser()
+            user = new User()
+            user.setName(basketuser.name)
+            user.setId(basketuser.id)
+        }
+
         def basket = basketTransaction.getBasket()
         def basketItems = basketTransaction.getBasketItems()
 
         render(template: "transactionDetails", model: [
+                user             : user,
+                basketTransaction: basketTransaction,
+                basket           : basket,
+                basketItems      : basketItems,
                 store                : store,
                 receipt              : receipt,
                 containsModifiers    : receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
