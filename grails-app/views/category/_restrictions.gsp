@@ -162,60 +162,21 @@
 
 <div class="row">
     <div class="form-group row col-5 offset-lg-1">
-        <label for="restrictions.quantityChangeRestriction" class="col-5 col-form-label text-right pr-4">Quantity Change Restriction:</label>
-        <g:textField name="restrictions.quantityChangeRestriction" class="col-5 form-control numberField" maxlength="2" required="true" value="${category?.restrictions?.quantityChangeRestriction}" readonly="${!category?.restrictions?.quantityChangeAllowed}" />
+        <label for="restrictions.promptedDaysFrom" class="col-5 col-form-label text-right pr-4">Prompted Days From:</label>
+        <g:textField name="restrictions.promptedDaysFrom" class="col-5 form-control numberField" maxlength="2" required="true" value="${category?.restrictions?.promptedDaysFrom}" />
     </div>
     <div class="form-group row col-5 form-check">
         <div class="col-5 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.promptForMarkdown" class="col-form-label text-right wl-label">Prompt For Markdown:</label>
-            <g:checkBox name="restrictions.promptForMarkdown" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.promptForMarkdown}" disabled="${!category?.restrictions?.markdownAllowed}" />
+            <g:checkBox name="restrictions.promptForMarkdown" class="col-5 form-control numberField" checked="${category?.restrictions?.promptForMarkdown}" disabled="${!category?.restrictions?.markdownAllowed}" />
         </div>
     </div>
 </div>
 
 <div class="row">
     <div class="form-group row col-5 offset-lg-1">
-        <label for="restrictions.stockClassification" class="col-5 col-form-label text-right pr-4">Stock Management:</label>
-        <div class="col-7">
-            <div>
-                <g:radio id="stockClassification.STANDARD" name="restrictions.stockClassification" value="STANDARD" checked="${(category?.restrictions?.stockClassification ?: StockClassification.STANDARD) == StockClassification.STANDARD}" />
-                <label for="stockClassification.STANDARD"> Standard Stock Management</label>
-            </div>
-        </div>
-    </div>
-    <div class="form-group row col-5">
-        <label for="restrictions.promptedDaysFrom" class="col-5 col-form-label text-right pr-4">Prompted Days From:</label>
-        <g:textField name="restrictions.promptedDaysFrom" class="col-5 form-control numberField" maxlength="2" required="true" value="${category?.restrictions?.promptedDaysFrom}" />
-    </div>
-</div>
-
-<div class="row">
-    <div class="form-group row col-5 offset-lg-1">
-        <div class="col-5 col-form-label text-right pr-4">&nbsp;</div>
-        <div class="col-7">
-            <div>
-                <g:radio id="stockClassification.NOSTOCK_NOSALE" name="restrictions.stockClassification" value="NOSTOCK_NOSALE" checked="${category?.restrictions?.stockClassification == StockClassification.NOSTOCK_NOSALE}" />
-                <label for="stockClassification.NOSTOCK_NOSALE"> No Stock Management,</label>
-                <label for="stockClassification.NOSTOCK_NOSALE">&nbsp;&nbsp;&nbsp;&nbsp;Items Allowed for sale</label>
-            </div>
-        </div>
-    </div>
-    <div class="form-group row col-5">
         <label for="restrictions.pricingClassification" class="col-5 col-form-label text-right pr-4">Pricing Classification:</label>
         <g:select name="restrictions.pricingClassification" from="${pricingClassifications}" optionKey="id" optionValue="classification" value="${category?.restrictions?.pricingClassificationId}" valueMessagePrefix="pricingClassification" class="col-5 form-control select-border" />
-    </div>
-</div>
-
-<div class="row">
-    <div class="form-group row col-5 offset-lg-1">
-        <div class="col-5 col-form-label text-right pr-4">&nbsp;</div>
-        <div class="col-7">
-            <div>
-                <g:radio id="stockClassification.NOSTOCK_ALLOWSALE" name="restrictions.stockClassification" value="NOSTOCK_ALLOWSALE" checked="${category?.restrictions?.stockClassification == StockClassification.NOSTOCK_ALLOWSALE}" />
-                <label for="stockClassification.NOSTOCK_ALLOWSAL"> No Stock Management,</label>
-                <label for="stockClassification.NOSTOCK_ALLOWSAL">&nbsp;&nbsp;&nbsp;&nbsp;Items Not allowed for sale</label>
-            </div>
-        </div>
     </div>
     <div class="form-group row col-5 form-check">
         <div class="col-5 col-form-label text-right pr-4 pt-0 pb-0">
