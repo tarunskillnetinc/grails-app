@@ -18,7 +18,6 @@ import org.springframework.validation.FieldError
 import org.springframework.validation.ObjectError
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.PackStatus
-import uk.co.wonderlane.wlpos.enums.PriceMarkedType
 import uk.co.wonderlane.wlpos.enums.ProductAttributeType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductMessageType
@@ -1595,9 +1594,6 @@ class ProductController extends BaseController {
         builder.compare("packRecommendedRetailPrice", oldPack.recommendedRetailPrice, pack.recommendedRetailPrice)
         builder.compare("packStatus", oldPack.status, pack.status)
         builder.compare("packMaximumOrderQuantity", oldPack.maximumOrderQuantity, pack.maximumOrderQuantity)
-        builder.compare("packPriceMarked", oldPack.priceMarked, pack.priceMarked)
-        builder.compare("packPriceMarkedType", oldPack.priceMarkedType, pack.priceMarkedType)
-        builder.compare("packPriceMarkedValue", oldPack.priceMarkedValue, pack.priceMarkedValue)
         builder.compare("packLengthCm", oldPack.lengthCm, pack.lengthCm)
         builder.compare("packWidthCm", oldPack.widthCm, pack.widthCm)
         builder.compare("packHeightCm", oldPack.heightCm, pack.heightCm)
