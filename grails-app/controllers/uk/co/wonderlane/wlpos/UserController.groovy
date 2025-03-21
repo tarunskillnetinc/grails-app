@@ -343,13 +343,8 @@ class UserController {
 
     //Method to return logged in type (Store user / HO)
     private boolean isLoggedInFromValidLocation(User user){
-
         //Check logged in user logged in HO level or from same store as default store
-        if ((springSecurityService.principal.storeId == null) || (springSecurityService.principal.storeId == user?.defaultStoreId)){
-            return true
-        }
-
-        return false
+        return ((springSecurityService.principal.storeId == null) || (springSecurityService.principal.storeId == user?.defaultStoreId))
     }
 
     //This method is to send updated request to MQ
