@@ -122,6 +122,7 @@
                             <g:hiddenField name="endDate" value="${endDate?.toString("dd/MM/yyyy")}" />
                             <g:hiddenField name="supplierId" value="${supplierId}" />
                             <g:hiddenField name="storeId" value="${storeId}" />
+                            <g:hiddenField name="caged" value="${caged}" />
 
                             <div class="form-group row">
                                 <label for="descriptionFilter" class="col-2 col-form-label-sm text-right">Description</label>
@@ -144,7 +145,7 @@
 
             <div class="col-lg-3 offset-lg-2 col-md-3 text-right" style="margin-top: 8px;">
                 <g:if test="${showAcceptDeliveryButton}">
-                    <button id="acceptDelivery" class="btn btn-warning" onclick="acceptDeliveryButtonPressed();">Accept Delivery</button>
+                    <button id="acceptDelivery" class="btn btn-warning" onclick="acceptDeliveryButtonPressed();">Receipt Delivery</button>
                 </g:if>
 
                 <button class="btn btn-wl" onclick="exportToCsv();">Export to CSV</button>
@@ -168,32 +169,58 @@
 
                     <div class="card-body collapse" id="columnsCollapse">
                         <g:form name="reportColumnsForm" id="reportColumnsForm">
-                            <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsSku" class="form-check-input"
-                                            value="sku"
-                                            checked="${!userColumns || userColumns?.columns?.find { it.column == 'sku' }?.enabled}"/>
-                                <label class="form-check-label" for="columnsSku">Product SKU</label>
+                            <div id="directDeliveryFilter">
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsSku" class="form-check-input"
+                                                value="sku"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'sku' }?.enabled}"/>
+                                    <label class="form-check-label" for="columnsSku">Product SKU</label>
+                                </div>
+
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsDescription" class="form-check-input"
+                                                value="description"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'description' }?.enabled}"/>
+                                    <label class="form-check-label" for="columnsDescription">Product Description</label>
+                                </div>
+
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsItemQuantity" class="form-check-input"
+                                                value="itemQuantity"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'itemQuantity' }?.enabled}"/>
+                                    <label class="form-check-label" for="columnsItemQuantity">Items Delivered</label>
+                                </div>
+
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsLineValue" class="form-check-input"
+                                                value="totalCost"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'totalCost' }?.enabled}"/>
+                                    <label class="form-check-label" for="columnsLineValue">Total Cost</label>
+                                </div>
                             </div>
 
-                            <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsDescription" class="form-check-input"
-                                            value="description"
-                                            checked="${!userColumns || userColumns?.columns?.find { it.column == 'description' }?.enabled}"/>
-                                <label class="form-check-label" for="columnsDescription">Product Description</label>
-                            </div>
+                            <div id="cageDeliveryFilter">
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsCageBarcode" class="form-check-input"
+                                                value="cageBarcode"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'cageBarcode' }?.enabled}"/>
+                                    <label class="form-check-label" for="cageBarcode">Cage Barcode</label>
+                                </div>
 
-                            <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsItemQuantity" class="form-check-input"
-                                            value="itemQuantity"
-                                            checked="${!userColumns || userColumns?.columns?.find { it.column == 'itemQuantity' }?.enabled}"/>
-                                <label class="form-check-label" for="columnsItemQuantity">Items Delivered</label>
-                            </div>
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsProcessingDate" class="form-check-input"
+                                                value="processingDate"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'processingDate' }?.enabled}"/>
+                                    <label class="form-check-label" for="columnsProcessingDate">Processing Date</label>
+                                </div>
 
-                            <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsLineValue" class="form-check-input"
-                                            value="totalCost"
-                                            checked="${!userColumns || userColumns?.columns?.find { it.column == 'totalCost' }?.enabled}"/>
-                                <label class="form-check-label" for="columnsLineValue">Total Cost</label>
+                                <div class="form-group form-check">
+                                    <g:checkBox name="columns" id="columnsCases" class="form-check-input"
+                                                value="cases"
+                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'cases' }?.enabled}"/>
+                                    <label class="form-check-label"
+                                           for="columnsCases">${retailer?.config?.retailerTerminologyConfig?.packTerm}s in the Cage</label>
+                                </div>
                             </div>
 
                             <button id="columns-submit-button" type="button" class="btn btn-wl"
@@ -205,7 +232,6 @@
         </div>
 
         <div id="results-container" class="align-content-center">
-            <g:render template="deliveryResults" />
         </div>
     </section>
 
@@ -215,10 +241,10 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h2 id="confirmModalHeader">Accept Delivery</h2>
+                        <h2 id="confirmModalHeader">Receipt Delivery</h2>
                     </div>
 
-                    <div class="modal-body" id="confirmModalContent">Are you sure you wish to accept this delivery?</div>
+                    <div class="modal-body" id="confirmModalContent">Are you sure you wish to receipt this delivery?</div>
 
                     <div class="modal-footer">
                         <button type="button" id="confirmModalNoButton" class="btn btn-wl" data-dismiss="modal">No</button>
@@ -238,7 +264,7 @@
                         <h2>Success</h2>
                     </div>
 
-                    <div class="modal-body">Delivery accepted.</div>
+                    <div class="modal-body">Delivery receipted.</div>
 
                     <div class="modal-footer">
                         <button type="button" id="closeSuccessModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>

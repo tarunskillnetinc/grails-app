@@ -52,22 +52,22 @@ grails:
             csv: text/csv
             form: application/x-www-form-urlencoded
             html:
-              - text/html
-              - application/xhtml+xml
+                - text/html
+                - application/xhtml+xml
             js: text/javascript
             json:
-              - application/json
-              - text/json
+                - application/json
+                - text/json
             multipartForm: multipart/form-data
             pdf: application/pdf
             rss: application/rss+xml
             text: text/plain
             hal:
-              - application/hal+json
-              - application/hal+xml
+                - application/hal+json
+                - application/hal+xml
             xml:
-              - text/xml
-              - application/xml
+                - text/xml
+                - application/xml
     urlmapping:
         cache:
             maxsize: 1000
@@ -293,7 +293,7 @@ environments:
             loyalty:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/loyalty"
+                url: "jdbc:mysql://retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/loyalty"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "cloudoffice"
@@ -327,7 +327,7 @@ environments:
                 password: CdtfudWdnGVS87IKs7dV
                 database: transactions
             loyalty:
-                host: retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+                host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
                 port: 3306
                 username: cloudoffice
                 password: CdtfudWdnGVS87IKs7dV
@@ -412,7 +412,7 @@ environments:
             password: twP0KDKRsXJt6eQ7F8vy
             useSsl: true
             senderExchange: Processing
-            exportExchange: Trigger
+            exportExchange: Waitrose_exchange_poc
 
         mysql:
             wlpos:
@@ -924,7 +924,7 @@ environments:
             password: BIirEAt0dC89whYZgJZE
             useSsl: true
             senderExchange: Processing
-            exportExchange: Trigger
+            exportExchange: Waitrose_Exchange
 
         mysql:
             wlpos:

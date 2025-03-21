@@ -10,7 +10,7 @@
                     <g:link elementId="cancel-btn" controller="store" action="index" tabindex="-1" role="button" class="btn btn-wl" params="[storeNumberFilter: storeNumberFilter, storeNameFilter: storeNameFilter, showDeletedFilter: showDeletedFilter, max: max, offset: offset, sort: sort, order: order]">Cancel</g:link>
                 </g:if>
                 <g:else>
-                    <g:link elementId="cancel-btn" controller="store" action="config" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
+                    <g:link elementId="cancel-btn" url="/" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
                 </g:else>
             </sec:ifAnyGranted>
             <sec:ifNotGranted roles="ROLE_ENGINEER, ROLE_HEAD_OFFICE">
@@ -135,6 +135,8 @@
                     </div>
                 </div>
             </div>
+
+            <g:render template="sharedStoreConfigurationAccordions" />
 
             <!-- EPOS configuration. -->
             <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">
@@ -271,7 +273,7 @@
                             <div class="form-group row">
                                 <label for="config.countIncrement" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Count increments</label>
                                 <div class="col-7 col-lg-4 col-xl-3">
-                                    <g:field type="number" min="0.01" max="1" step="0.01" name="config.countIncrement" value="${storeSettings?.config?.countIncrement}" class="form-control bottom-border" onfocusout="enforceDecimalLimit(this, 2);"/>
+                                    <g:field type="number" min="0.01" max="1" step="0.01" name="config.countIncrement" value="${storeSettings?.config?.countIncrement}" class="form-control bottom-border" onfocusout="enforceDecimalLimit(this, 2, 1);"/>
                                 </div>
                             </div>
                         </div>

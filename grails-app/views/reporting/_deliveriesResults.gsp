@@ -7,6 +7,14 @@
             sortOrder: ${sortParams?.sortColumn == 'deliveryId' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
         });">Delivery ID</a></div>
     </g:if>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
+        <div class="col-1 font-weight-bold"><a id="type" href="#" onclick="getReportData({
+            max: ${sortParams?.max},
+            offset: ${sortParams?.offset},
+            sortColumn: 'type',
+            sortOrder: ${sortParams?.sortColumn == 'type' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
+        });">Type</a></div>
+    </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeId" }?.enabled}">
         <div class="col-1 font-weight-bold"><a id="store-id" href="#" onclick="getReportData({
             max: ${sortParams?.max},
@@ -37,15 +45,41 @@
             offset: ${sortParams?.offset},
             sortColumn: 'supplierName',
             sortOrder: ${sortParams?.sortColumn == 'supplierName' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">Supplier Reference</a></div>
+        });">Supplier</a></div>
     </g:if>
-    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "numberOfItems" }?.enabled}">
-        <div class="col-2 font-weight-bold"><a id="number-of-items" href="#" onclick="getReportData({
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "supplierRef" }?.enabled}">
+        <div class="col-2 font-weight-bold"><a id="supplier-ref" href="#" onclick="getReportData({
             max: ${sortParams?.max},
             offset: ${sortParams?.offset},
-            sortColumn: 'numberOfItems',
-            sortOrder: ${sortParams?.sortColumn == 'numberOfItems' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">Number of Products</a></div>
+            sortColumn: 'supplierRef',
+            sortOrder: ${sortParams?.sortColumn == 'supplierRef' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
+        });">Supplier Reference</a></div>
+    </g:if>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "shipmentRef" }?.enabled}">
+        <div class="col-2 font-weight-bold"><a id="shipment-ref" href="#" onclick="getReportData({
+            max: ${sortParams?.max},
+            offset: ${sortParams?.offset},
+            sortColumn: 'shipmentRef',
+            sortOrder: ${sortParams?.sortColumn == 'shipmentRef' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
+        });">Shipment Reference</a></div>
+    </g:if>
+
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "numberOfCages" }?.enabled}">
+        <div class="col-2 font-weight-bold"><a id="number-of-cages" href="#" onclick="getReportData({
+            max: ${sortParams?.max},
+            offset: ${sortParams?.offset},
+            sortColumn: 'numberOfCages',
+            sortOrder: ${sortParams?.sortColumn == 'numberOfCages' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
+        });">Number of Cages</a></div>
+    </g:if>
+
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "numberOfPacks" }?.enabled}">
+        <div class="col-2 font-weight-bold"><a id="number-of-packs" href="#" onclick="getReportData({
+            max: ${sortParams?.max},
+            offset: ${sortParams?.offset},
+            sortColumn: 'numberOfPacks',
+            sortOrder: ${sortParams?.sortColumn == 'numberOfPacks' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
+        });">Number of Packs</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalCost" }?.enabled}">
         <div class="col-2 font-weight-bold"><a id="total-cost" href="#" onclick="getReportData({
@@ -70,9 +104,18 @@
 
     <g:each in="${deliveries}" var="delivery" status="i">
         <div id="delivery-search-results-${i + 1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" style="cursor: pointer;" title="Click to view"
-                onclick="document.location.href = '${createLink(action:'delivery', params: [productListId: delivery.id, storeId: storeId, supplierId: supplierId, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy")])}';">
+            <g:if test="${delivery?.productListItemGroups?.size() <= 0}">
+                onclick="document.location.href = '${createLink(action:'delivery', params: [productListId: delivery.id, storeId: storeId, supplierId: supplierId, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy"), caged: false])}';"
+            </g:if>
+            <g:else>
+                 onclick="document.location.href = '${createLink(action:'delivery', params: [productListId: delivery.id, storeId: storeId, supplierId: supplierId, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy"), caged: true])}';"
+            </g:else>
+        >
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "deliveryId" }?.enabled}">
                 <div id="delivery-id-${i + 1}" class="col-1 my-auto">${delivery?.orderId}</div>
+            </g:if>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
+                <div id="type-${i + 1}" class="col-1 my-auto">${delivery?.productListItemGroups?.size() > 0 ? "Caged Delivery" : "Direct Delivery"}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeId" }?.enabled}">
                 <div id="store-id-${i + 1}" class="col-1 my-auto">${delivery?.store?.config?.storeNumber}</div>
@@ -85,14 +128,22 @@
                     <g:if test="${delivery?.startDate}">
                         <g:formatDate format="dd/MM/yyyy" date="${delivery?.dateStarted?.toDate() ?: new Date()}"/>
                     </g:if>
-                    <g:else>&nbsp;</g:else>
                 </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "supplierName" }?.enabled}">
-                <div id="supplier-name-${i + 1}" class="col-2 my-auto text-truncate">${delivery?.supplierReference}</div>
+                <div id="supplier-name-${i + 1}" class="col-2 my-auto text-truncate">${delivery?.supplierName}</div>
             </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "numberOfItems" }?.enabled}">
-                <div id="number-of-items-${i + 1}" class="col-2 my-auto">${delivery?.productListItems?.size()}</div>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "supplierRef" }?.enabled}">
+                <div id="supplier-ref-${i + 1}" class="col-2 my-auto">${delivery?.supplierReference}</div>
+            </g:if>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "shipmentRef" }?.enabled}">
+                <div id="shipment-ref-${i + 1}" class="col-2 my-auto">${delivery?.shipmentReference}</div>
+            </g:if>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "numberOfCages" }?.enabled}">
+                <div id="number-of-cages-${i + 1}" class="col-2 my-auto">${delivery?.productListItemGroups?.size()  ?: ""}</div>
+            </g:if>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "numberOfPacks" }?.enabled}">
+                <div id="number-of-packs-${i + 1}" class="col-2 my-auto">${delivery?.productListItems?.size() ?: "" }</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalCost" }?.enabled}">
                 <div id="total-cost-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${delivery?.totalCost}" type="currency"/></div>

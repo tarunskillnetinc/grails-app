@@ -28,13 +28,9 @@ class Pack implements Serializable {
     PackStatus status
     Integer maximumOrderQuantity
     boolean allowSubstitutes
-    boolean priceMarked
     boolean primaryCase
     DateTime updateDatetime
     Collection<Barcode> barcodez = new ArrayList<>()
-    BigDecimal minAlcoholUnitPrice
-    PriceMarkedType priceMarkedType
-    BigDecimal priceMarkedValue
     BigDecimal lengthCm
     BigDecimal widthCm
     BigDecimal heightCm
@@ -61,12 +57,8 @@ class Pack implements Serializable {
         status column: "status"
         maximumOrderQuantity column: "maximumOrderQuantity"
         allowSubstitutes column: "allowSubstitutes"
-        priceMarked column: "priceMarked"
         updateDatetime column: "updateDatetime"
         primaryCase column: "primaryCase"
-        minAlcoholUnitPrice column: "minAlcoholUnitPrice"
-        priceMarkedType column: "priceMarkedType", sqlType: "enum", enumType: "string"
-        priceMarkedValue column: "priceMarkedValue"
         lengthCm column: "lengthCm"
         widthCm column: "widthCm"
         heightCm column: "heightCm"
@@ -95,13 +87,9 @@ class Pack implements Serializable {
         status nullable: false
         maximumOrderQuantity nullable: true, min: 0 as Integer, max: 99999 as Integer
         allowSubstitutes nullable: false
-        priceMarked nullable: false
         primaryCase nullable: false
         updateDatetime nullable: false
         barcodez bindable: true
-        priceMarkedType nullable: true
-        minAlcoholUnitPrice nullable: true, blank: true, max: 999999.99 as BigDecimal, scale: 2
-        priceMarkedValue nullable: true, max: 999999.99 as BigDecimal, scale: 2
         lengthCm nullable: true, max: 9999.99 as BigDecimal, scale: 2
         widthCm nullable: true, max: 9999.99 as BigDecimal, scale: 2
         heightCm nullable: true, max: 9999.99 as BigDecimal, scale: 2
@@ -123,12 +111,8 @@ class Pack implements Serializable {
         pack.setStatus(status)
         pack.setMaximumOrderQuantity(maximumOrderQuantity != null ? maximumOrderQuantity : 0)
         pack.setAllowSubstitutes(allowSubstitutes)
-        pack.setPriceMarked(priceMarked)
         pack.setPrimaryCase(primaryCase)
         pack.setUpdateDate(updateDatetime)
-        pack.setMinAlcoholUnitPrice(minAlcoholUnitPrice)
-        pack.setPriceMarkedType(priceMarkedType)
-        pack.setPriceMarkedValue(priceMarkedValue)
         getBarcodes()?.each {
             pack.getBarcodes().add(it.barcode)
         }

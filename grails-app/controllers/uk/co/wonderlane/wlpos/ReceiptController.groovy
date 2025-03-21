@@ -74,8 +74,20 @@ class ReceiptController {
         if (inputErrors.length() != 0) {
             render(status: HttpStatus.BAD_REQUEST.code, inputErrors)
         } else {
-            def (results, totalCount) = receiptService.getReceipts(startDate, endDate, tillId, transactionId, sort, order, offset, max)
-            render(template: "receiptViewerResults", model: [receipts: results, totalCount: totalCount, sort: sort, order: order, offset: offset, max: max, startDate: params.startDate, endDate: params.endDate, tillId: params.tillId, transactionId: params.transactionId, totalReceiptLineType: ReceiptLineType.TOTAL])
+            def (combinedResults, totalCount) = receiptService.getReceipts(startDate, endDate, tillId, transactionId, sort, order, offset, max)
+            render(template: "receiptViewerResults", model: [
+                    combinedResults: combinedResults,
+                    totalCount: totalCount,
+                    sort: sort,
+                    order: order,
+                    offset: offset,
+                    max: max,
+                    startDate: params.startDate,
+                    endDate: params.endDate,
+                    tillId: params.tillId,
+                    transactionId: params.transactionId,
+                    totalReceiptLineType: ReceiptLineType.TOTAL
+            ])
         }
     }
 

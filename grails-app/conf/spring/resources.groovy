@@ -126,7 +126,8 @@ beans = {
             grailsApplication.config.getProperty('rabbitmq.username'),
             grailsApplication.config.getProperty('rabbitmq.password'),
             Boolean.parseBoolean(grailsApplication.config.getProperty('rabbitmq.useSsl')),
-            grailsApplication.config.getProperty('rabbitmq.senderExchange')
+            grailsApplication.config.getProperty('rabbitmq.senderExchange'),
+            grailsApplication.config.getProperty('rabbitmq.exportExchange')
             ) {
 
         springSecurityService = ref('springSecurityService')
@@ -190,6 +191,16 @@ beans = {
 
 
     hardwareService(HardwareService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+                    grailsApplication.config.getProperty('mysql.wlpos.username'),
+                    grailsApplication.config.getProperty('mysql.wlpos.password'),
+                    grailsApplication.config.getProperty('mysql.wlpos.database'))) {
+        springSecurityService = ref('springSecurityService')
+        sessionFactory = ref('sessionFactory')
+    }
+
+    branchOrderService(BranchOrderService,
             new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
                     Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
                     grailsApplication.config.getProperty('mysql.wlpos.username'),
@@ -307,6 +318,19 @@ beans = {
         categoryService = ref('categoryService')
         sessionFactory = ref('sessionFactory')
     }
+
+    amendableOrderService(AmendableOrderService, new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+            Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+            grailsApplication.config.getProperty('mysql.wlpos.username'),
+            grailsApplication.config.getProperty('mysql.wlpos.password'),
+            grailsApplication.config.getProperty('mysql.wlpos.database'))) {
+        springSecurityService = ref('springSecurityService')
+        sessionFactory = ref('sessionFactory')
+        gsonProvider = ref("gsonProvider")
+        productListService = ref("productListService")
+        promotionService = ref("promotionService")
+    }
+
 
     gsonProvider(GsonProvider)
 
