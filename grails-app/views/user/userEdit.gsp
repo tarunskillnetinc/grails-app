@@ -167,7 +167,7 @@
                             <div class="form-group row">
                                 <label for="active" class="col-4 col-form-label text-right pr-4">Active</label>
                                 <div class="col-6">
-                                    <g:checkBox name="active" class="ml-0 form-check-input wl-checkbox" checked="${user?.active}" />
+                                    <g:checkBox name="active" class="ml-0 form-check-input wl-checkbox" checked="${user?.active}" disabled="${isUserReadOnly}"/>
                                 </div>
                             </div>
 
