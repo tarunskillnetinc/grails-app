@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>Receipt Viewer</title>
+        <title>Transaction Viewer</title>
 
         <asset:stylesheet src="receipt.css" />
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
@@ -11,8 +11,8 @@
         <asset:javascript src="validators/input-validator.js" />
 
         <script type='text/javascript'>
-            var getReceiptsUrl = "${createLink(controller: 'receipt', action: 'ajaxGetReceipts')}";
-            var getReceiptUrl = "${createLink(controller: 'receipt', action: 'ajaxGetReceipt')}";
+            var getReceiptsUrl = "${createLink(controller: 'transaction', action: 'ajaxGetReceipts')}";
+            var getReceiptUrl = "${createLink(controller: 'transaction', action: 'ajaxGetReceipt')}";
 
             $(document).ready(function () {
                 $('#startDate').on("change", function () {

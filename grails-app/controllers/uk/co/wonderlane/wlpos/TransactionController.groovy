@@ -7,7 +7,7 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 
-class ReceiptController {
+class TransactionController {
 
     def receiptService
     int lastShownReceiptId

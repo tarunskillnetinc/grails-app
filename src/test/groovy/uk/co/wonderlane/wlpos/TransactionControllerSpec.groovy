@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 
-class ReceiptControllerSpec extends Specification implements ControllerUnitTest<ReceiptController> {
+class TransactionControllerSpec extends Specification implements ControllerUnitTest<TransactionController> {
 
 
     //-------------------------------index function Unit tests----------------------------//
