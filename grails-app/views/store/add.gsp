@@ -228,6 +228,7 @@
                         </div>
                     </div>
                 </div>
+                <g:render template="sharedStoreConfigurationAccordions" />
             </div>
         </g:form>
     </section>

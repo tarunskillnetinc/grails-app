@@ -40,7 +40,6 @@ class ProductVariant implements Serializable {
     BigDecimal widthCm
     BigDecimal depthCm
     StockManagementType stockManagementType
-    BigDecimal minAlcoholUnitPrice
     String extras
 
     Collection<Pack> packs = new ArrayList<>()
@@ -91,7 +90,6 @@ class ProductVariant implements Serializable {
         depthCm column: "depthCm"
         extras column: "extras", sqlType: "json"
         stockManagementType column: "stockManagementType", sqlType: "enum", enumType: 'string'
-        minAlcoholUnitPrice column: "minAlcoholUnitPrice"
     }
 
     static constraints = {
@@ -123,7 +121,6 @@ class ProductVariant implements Serializable {
         widthCm nullable: true
         depthCm nullable: true
         stockManagementType nullable: false
-        minAlcoholUnitPrice nullable: true
         extras nullable: true
         delete bindable: true
         barcodez bindable: true
@@ -249,7 +246,6 @@ class ProductVariant implements Serializable {
         productVariant.setEffectiveDate(effectiveDate)
         productVariant.setMinimumDisplayQuantity(minimumDisplayQuantity)
         productVariant.setShelfCapacity(shelfCapacity)
-        productVariant.setMinAlcoholUnitPrice(minAlcoholUnitPrice)
         productVariant.setStockManagementType(stockManagementType)
 
         getBarcodes()?.each {

@@ -894,7 +894,6 @@ class ProductController extends BaseController {
                     existingVariant.widthCm = editedVariant.widthCm
                     existingVariant.depthCm = editedVariant.depthCm
                     existingVariant.stockManagementType = editedVariant.stockManagementType
-                    existingVariant.minAlcoholUnitPrice = editedVariant.minAlcoholUnitPrice
 
                     if (existingVariant.getShelfCapacity() != null
                             && !(existingVariant.getShelfCapacity() >= 1 && existingVariant.getShelfCapacity() <= 999)) {
@@ -940,7 +939,6 @@ class ProductController extends BaseController {
                 newVariant.widthCm = editedVariant.widthCm
                 newVariant.depthCm = editedVariant.depthCm
                 newVariant.stockManagementType = editedVariant.stockManagementType
-                newVariant.minAlcoholUnitPrice = editedVariant.minAlcoholUnitPrice
 
                 editedVariant.packs?.each { editedPack ->
                     Pack newPack = new Pack()
@@ -1366,9 +1364,6 @@ class ProductController extends BaseController {
                 || newPack.recommendedRetailPrice != existingPack.recommendedRetailPrice
                 || newPack.status != existingPack.status
                 || newPack.maximumOrderQuantity != existingPack.maximumOrderQuantity
-                || newPack.priceMarked != existingPack.priceMarked
-                || newPack.priceMarkedType != existingPack.priceMarkedType
-                || newPack.priceMarkedValue != existingPack.priceMarkedValue
                 || newPack.lengthCm != existingPack.lengthCm
                 || newPack.widthCm != existingPack.widthCm
                 || newPack.heightCm != existingPack.heightCm
@@ -1400,11 +1395,6 @@ class ProductController extends BaseController {
         packToBeUpdated.maximumOrderQuantity = editedPack.maximumOrderQuantity
         packToBeUpdated.allowSubstitutes = editedPack.allowSubstitutes
         packToBeUpdated.primaryCase = editedPack.primaryCase
-        packToBeUpdated.priceMarked = editedPack.priceMarked
-        if (editedPack.priceMarked) {
-            packToBeUpdated.priceMarkedType = editedPack.priceMarkedType
-            packToBeUpdated.priceMarkedValue = editedPack.priceMarkedValue
-        }
         packToBeUpdated.lengthCm = editedPack.lengthCm
         packToBeUpdated.widthCm = editedPack.widthCm
         packToBeUpdated.heightCm = editedPack.heightCm
@@ -1539,7 +1529,6 @@ class ProductController extends BaseController {
         builder.compare(id, "widthCm", oldVariant.widthCm, variant.widthCm)
         builder.compare(id, "depthCm", oldVariant.depthCm, variant.depthCm)
         builder.compare(id, "stockManagementType", oldVariant.stockManagementType, variant.stockManagementType)
-        builder.compare(id, "minAlcoholUnitPrice", oldVariant.minAlcoholUnitPrice, variant.minAlcoholUnitPrice)
 
         //---------------------------- Update history for barcode fields --------------------------------//
 
@@ -2031,7 +2020,6 @@ class ProductController extends BaseController {
             productVariant.widthCm = variant.widthCm
             productVariant.depthCm = variant.depthCm
             productVariant.stockManagementType = variant.stockManagementType
-            productVariant.minAlcoholUnitPrice = variant.minAlcoholUnitPrice
             productVariant.setProduct(to)
 
             List<Barcode> barcodes = new ArrayList<>()
@@ -2165,7 +2153,6 @@ class AddVariantCommand {
     BigDecimal heightCm
     BigDecimal widthCm
     BigDecimal depthCm
-    BigDecimal minAlcoholUnitPrice
     boolean priceMarked
     boolean preferredSku
     StockManagementType stockManagementType
@@ -2214,14 +2201,10 @@ class AddPackCommand implements Validateable {
     boolean isWeighted = false
     Integer productVariantId
     List<AddBarcodeCommand> barcodez
-    BigDecimal minAlcoholUnitPrice
     BigDecimal lengthCm
     BigDecimal heightCm
     BigDecimal widthCm
     BigDecimal weightKg
-    boolean priceMarked = false
-    PriceMarkedType priceMarkedType
-    BigDecimal priceMarkedValue
 
     static constraints = {
         importFrom Pack
@@ -2229,7 +2212,6 @@ class AddPackCommand implements Validateable {
         productVariantId nullable: true
         allowSubstitutes nullable: true
         primaryCase nullable: true
-        priceMarked nullable: true
         supplier nullable: false, blank: false, validator: { supplier, pack ->
             if (!supplier.id) return ["addPackCommand.supplier.empty"]
         }
@@ -2248,18 +2230,6 @@ class AddPackCommand implements Validateable {
         }
         maximumOrderQuantity validator: {
             if (it >= 100000) return ['addPackCommand.maxOrderQuantity.maxValue']
-        }
-        priceMarkedValue nullable: true, blank: true,validator: {val, obj ->
-            if (obj.priceMarked) {
-                if (val == null) return ['addPackCommand.priceMarkedValue.nullable']
-                if (BigDecimal.ZERO == val) return ['addPackCommand.priceMarkedValue.zero']
-                if (val >= 1.0E9) return ['addPackCommand.priceMarkedValue.max']
-            }
-        }
-        priceMarkedType nullable: true, blank: true, validator: {val, obj ->
-            if (obj.priceMarked) {
-                if (val == null) return ['addPackCommand.priceMarkedType.nullable']
-            }
         }
     }
 
@@ -2421,7 +2391,6 @@ class ProductVariantCommand {
     BigDecimal widthCm
     BigDecimal depthCm
     StockManagementType stockManagementType
-    BigDecimal minAlcoholUnitPrice
     String extras
 
     Collection<PackCommand> packs = new ArrayList<>()
@@ -2443,9 +2412,6 @@ class PackCommand {
     Integer maximumOrderQuantity
     boolean allowSubstitutes
     boolean primaryCase = false
-    boolean priceMarked = false
-    PriceMarkedType priceMarkedType
-    BigDecimal priceMarkedValue
     BigDecimal lengthCm
     BigDecimal widthCm
     BigDecimal heightCm

@@ -10,7 +10,7 @@
                     <g:link elementId="cancel-btn" controller="store" action="index" tabindex="-1" role="button" class="btn btn-wl" params="[storeNumberFilter: storeNumberFilter, storeNameFilter: storeNameFilter, showDeletedFilter: showDeletedFilter, max: max, offset: offset, sort: sort, order: order]">Cancel</g:link>
                 </g:if>
                 <g:else>
-                    <g:link elementId="cancel-btn" controller="store" action="config" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
+                    <g:link elementId="cancel-btn" url="/" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
                 </g:else>
             </sec:ifAnyGranted>
             <sec:ifNotGranted roles="ROLE_ENGINEER, ROLE_HEAD_OFFICE">
@@ -135,6 +135,8 @@
                     </div>
                 </div>
             </div>
+
+            <g:render template="sharedStoreConfigurationAccordions" />
 
             <!-- EPOS configuration. -->
             <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">

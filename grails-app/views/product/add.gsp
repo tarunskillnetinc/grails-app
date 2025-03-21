@@ -270,7 +270,6 @@
                     params["widthCm"] = $(selector + "widthCm").val();
                     params["depthCm"] = $(selector + "depthCm").val();
 
-                    params["minAlcoholUnitPrice"] = $(selector + "minAlcoholUnitPrice").val();
                     params["stockManagementType"] = $(selector + "stockManagementType").val();
 
                     var barcodeContainers = $($(selector + "barcodesContainer > div"));
@@ -353,12 +352,11 @@
                 var depth = $("#addVariantDepthCm").val();
 
                 var stockManagementType = $("#stockManagementType").val();
-                var minAlcoholUnitPrice = $("#minAlcoholUnitPrice").val();
 
                 var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: isPreferredSku, retailPrice: retailPrice, costPrice: costPrice, weightedAverageCostPrice: weightedAverageCostPrice,
                     shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId,
                     description: description, receiptDescription: receiptDescription, priceMarked: priceMarked, unitSize: unitSize, "unitOfMeasure.id": unitOfMeasure, itemsInUnit: itemsInUnit,
-                    heightCm: height, widthCm: width, depthCm: depth, effectiveDate: effectiveDate, stockManagementType: stockManagementType,  minAlcoholUnitPrice: minAlcoholUnitPrice};
+                    heightCm: height, widthCm: width, depthCm: depth, effectiveDate: effectiveDate, stockManagementType: stockManagementType};
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 var barcodes = []; // To store the barcode values for validation
@@ -679,7 +677,6 @@
                     params["packs[" +loopIndex +"].priceMarkedValue"] = $(packSelector +"\\.priceMarkedValue").val();
                     params["packs[" +loopIndex +"].priceMarked"] = $(packSelector +"\\.priceMarked").val();
                     params["packs[" +loopIndex +"].priceMarkedType"] = $(packSelector +"\\.priceMarkedType").val();
-                    params["packs[" +loopIndex +"].minAlcoholUnitPrice"] = $(packSelector +"\\.minAlcoholUnitPrice").val();
 
                     params["packs[" +loopIndex +"].lengthCm"] = $(packSelector + "\\.lengthCm").val();
                     params["packs[" +loopIndex +"].heightCm"] = $(packSelector + "\\.heightCm").val();

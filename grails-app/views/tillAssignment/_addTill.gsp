@@ -1,10 +1,7 @@
+<%@ page import="uk.co.wonderlane.wlpos.enums.TillType" %>
+
 <div class="modal-header">
-    <g:if test="${enableEdit}">
-        <h2>Edit Till</h2>
-    </g:if>
-    <g:else>
-        <h2>Add Till</h2>
-    </g:else>
+    <h2>${enableEdit ? "Edit" : "Add"} Till</h2>
 </div>
 
 <div class="modal-body">
@@ -69,9 +66,16 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="cashManagementEnabled" class="col-6 offset-1 col-form-label text-right">Enable Cash Management</label>
-            <div class="input-group col-1">
-                <input type="checkbox" class="form-control form-check-input wl-checkbox" name="cashManagementEnabled" id="cashManagementEnabled" ${till?.cashManagementEnabled == null || till?.cashManagementEnabled ? 'checked' : ''}/>
+            <label for="tillType" class="col-3 offset-1 col-form-label text-right">Till Type</label>
+            <div class="dropdown-content col-4">
+                <g:select name="type" from="${tillTypes}" valueMessagePrefix="TillType" value="${till?.type ? till.type : TillType.POS}" class="form-control select-border" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
+            <label for="cashManagementEnabled" class="col-3 offset-1 col-form-label text-right">Enable Cash Management</label>
+            <div class="input-group col-4">
+                <input type="checkbox" class="form-control form-check-input wl-checkbox ml-0" name="cashManagementEnabled" id="cashManagementEnabled" ${till?.cashManagementEnabled == null || till?.cashManagementEnabled ? 'checked' : ''}/>
             </div>
         </div>
 
