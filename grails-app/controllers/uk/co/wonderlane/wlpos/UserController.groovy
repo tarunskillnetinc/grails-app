@@ -349,7 +349,7 @@ class UserController {
             return true
         }
 
-        return true
+        return false
     }
 
     //This method is to send updated request to MQ
