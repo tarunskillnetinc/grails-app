@@ -6,11 +6,11 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
-import uk.co.wonderlane.wlpos.reporting.BasketTransaction
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 
 class ReceiptController {
 
+    def springSecurityService
     def receiptService
     def storeService
     def basketTransactionService
@@ -118,33 +118,35 @@ class ReceiptController {
     }
 
     def ajaxGetTransactionDetails(int receiptId) {
-        Receipt receipt = receiptService.getReceipt(receiptId)
-        Store store = storeService.getStore(receipt.storeId)
-        BasketTransaction basketTransaction = basketTransactionService.getBasketTransactionByReceipt(receipt)
-        User user = User.findByRetailerIdAndUsername(receipt.retailerId, username)
+        try {
+            Receipt receipt = receiptService.getReceipt(receiptId)
+            Store store = storeService.getStoreByStoreNumber(receipt.retailerId, receipt.storeId)
+            def basketTransaction = basketTransactionService.getBasketTransactionByReceipt(receipt, store)
+            User user = User.findByRetailerIdAndUsername(receipt.retailerId, receipt.usersName)
 
-        if (!user) { // The user appears to have disappeared.
-            def basketuser = basketTransaction.getUser()
+            if (!user) { // The user appears to have disappeared. Unlikely event.
+                def basketuser = basketTransaction?.getUser()
 
-            user = new User()
-            user.setName(basketuser.name)
-            user.setId(basketuser.id)
+                user = new User()
+                user.setName(basketuser?.name)
+                user.setId(basketuser?.id)
+            }
+
+            render(template: "transactionDetails", model: [
+                    user                 : user,
+                    basketTransaction    : basketTransaction,
+                    basket               : basketTransaction.basket,
+                    basketItems          : basketTransaction.basket.basketItems,
+                    store                : store,
+                    receipt              : receipt,
+                    containsModifiers    : receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
+                    firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
+                    maxTotalLength       : receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
+                    maxVatLength         : receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
         }
-
-        def basket = basketTransaction.getBasket()
-        def basketItems = basketTransaction.getBasketItems()
-
-        render(template: "transactionDetails", model: [
-                user             : user,
-                basketTransaction: basketTransaction,
-                basket           : basket,
-                basketItems      : basketItems,
-                store                : store,
-                receipt              : receipt,
-                containsModifiers    : receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
-                firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
-                maxTotalLength       : receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
-                maxVatLength         : receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
+        catch (Exception ex) {
+            ex.printStackTrace()
+        }
     }
 
     def saveReceiptPrinted(){

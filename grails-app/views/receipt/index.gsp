@@ -79,15 +79,15 @@
             }
 
             function showTransactionDetails(receiptId) {
-                $("#receiptModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-                $('#receiptModal').modal({show: true});
+                $("#receiptDetailsModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                $('#receiptDetailsModal').modal({show: true});
 
                 $.ajax({
                     url: getTransactionDetailsUrl,
                     method: "GET",
                     data: {receiptId: receiptId},
                     success: function (resp) {
-                        $("#receiptModalContent").html(resp);
+                        $("#receiptDetailsModalContent").html(resp);
                     }
                 });
             }
@@ -156,6 +156,16 @@
 
             }
     </script>
+        <style>
+        .superlarge-modal-dialog {
+            max-width: 95%;
+            margin: 1.75rem auto;
+        }
+
+        .superlarge-modal-dialog .container {
+            max-width: 95%;
+        }
+        </style>
     </head>
 
 <body>
@@ -257,5 +267,26 @@
                 </div>
             </div>
         </section>
+
+<section id="receipt-details-modal" class="container-fluid">
+    <!-- Receipt modal -->
+    <div class="modal fade" id="receiptDetailsModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel"
+         aria-hidden="true">
+        <div class="superlarge-modal-dialog modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Transaction Details</h2>
+                </div>
+
+                <div id="receiptDetailsModalContent"></div>
+
+                <div class="modal-footer">
+                    <button type="button" id="closeReceiptDetailsModalButton" class="btn btn-secondary"
+                            data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
     </body>
 </html>
