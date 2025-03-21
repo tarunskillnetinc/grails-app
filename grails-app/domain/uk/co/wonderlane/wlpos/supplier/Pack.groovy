@@ -7,7 +7,6 @@ import uk.co.wonderlane.wlpos.Barcode
 import uk.co.wonderlane.wlpos.ProductVariant
 import uk.co.wonderlane.wlpos.entities.wlim.PackLine
 import uk.co.wonderlane.wlpos.enums.PackStatus
-import uk.co.wonderlane.wlpos.enums.PriceMarkedType
 
 import java.util.stream.Collectors
 
