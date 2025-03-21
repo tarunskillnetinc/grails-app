@@ -114,15 +114,13 @@ class UserController {
                     flash.error = "User not found. Failed to edit"
                     redirect(action: "index")
                     return
-                }
-
-                if (!isValidToEdit(saveUserCommand)) {
+                } else if (!isValidToEdit(saveUserCommand)) {
                     flash.error = "Logged in user has no permission to promote user to ${saveUserCommand?.role}"
-                    renderUserEdit(saveUserCommand, user)
+                    redirect(action: "index")
                     return
                 } else if (!isLoggedInFromValidLocation(user)){ //Only HO logged in user has permission to edit user
                     flash.error = "User does not have permission for edit"
-                    renderUserEdit(saveUserCommand, user)
+                    redirect(action: "index")
                     return
                 }
 
