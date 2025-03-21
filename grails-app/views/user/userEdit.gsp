@@ -115,11 +115,18 @@
 
             <g:if test="${user}">
                 <g:form name="edit-user-form" action="editSelectedUser" novalidate="novalidate" class="mt-4">
-                    <g:hiddenField name="id" value="${user?.id ?: 0}" />
                     <div class="row">
                         <div class="col-md-6  mt-5">
                             <!-- Left column -->
+
                             <div class="form-group row">
+                                <label for="id" class="col-4 col-form-label text-right pr-4">ID</label>
+                                <div class="col-6">
+                                    <g:textField name="id" class="form-control bottom-border" value="${user?.id}" readonly="true"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-3">
                                 <label for="username" class="col-4 col-form-label text-right pr-4">Username</label>
                                 <div class="col-6">
                                     <g:textField name="username" class="form-control bottom-border" value="${user?.username}" readonly="true"/>
