@@ -1,18 +1,19 @@
 package uk.co.wonderlane.wlpos
 
-import grails.plugin.springsecurity.userdetails.NoStackUsernameNotFoundException
+
 import io.micronaut.http.HttpStatus
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import uk.co.wonderlane.wlpos.reporting.BasketTransaction
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
-import uk.co.wonderlane.wlpos.enums.Role
 
 class ReceiptController {
 
     def receiptService
     def storeService
+    def basketTransactionService
     int lastShownReceiptId
 
     def index() {
@@ -116,17 +117,15 @@ class ReceiptController {
         }
     }
 
-    def ajaxGetTransactionDetails(int transactionId, int storeId) {
-        def receipt = receiptService.getReceipt(receiptId)
-        def store = storeService.getStore(storeId)
-        def user = User.findByUsername(receipt.usersName)
+    def ajaxGetTransactionDetails(int receiptId) {
+        Receipt receipt = receiptService.getReceipt(receiptId)
+        Store store = storeService.getStore(receipt.storeId)
+        BasketTransaction basketTransaction = basketTransactionService.getBasketTransactionByReceipt(receipt)
 
-        if (!user) {
-            user = new User()
-            user.setName("INVALID")
-            user.setRole(Role.USER)
-            user.set
-        }
+
+        def user = basketTransaction.getUser()
+        def basket = basketTransaction.getBasket()
+        def basketItems = basketTransaction.getBasketItems()
 
         render(template: "transactionDetails", model: [
                 store                : store,

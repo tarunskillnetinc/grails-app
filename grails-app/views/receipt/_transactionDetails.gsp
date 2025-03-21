@@ -25,7 +25,7 @@
 
                 <div><span>Operator Name:</span> <span>${user.name}</span></div>
 
-                <div><span>Operator Role:</span> <span>${user.transactionId}</span></div>
+                <div><span>Operator Role:</span> <span>${user.role}</span></div>
             </div>
         </div>
 
