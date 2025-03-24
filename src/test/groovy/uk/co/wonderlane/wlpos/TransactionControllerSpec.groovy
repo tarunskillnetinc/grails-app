@@ -30,7 +30,7 @@ class TransactionControllerSpec extends Specification implements ControllerUnitT
 
     void "should retrieve receipts on request"() {
         given:
-        controller.receiptService = Stub(ReceiptService) {
+        controller.transactionService = Stub(TransactionService) {
             getReceipts(_, _, _, _, _, _) >> new FakeSearchResultList()
         }
         params.offset = offset
@@ -74,7 +74,7 @@ class TransactionControllerSpec extends Specification implements ControllerUnitT
         testReceipt.receiptLines.add(basketItem)
         testReceipt.receiptLines.add(vatItem)
 
-        controller.receiptService = Stub(ReceiptService) {
+        controller.transactionService = Stub(TransactionService) {
             getReceipt(_) >> testReceipt
         }
 
@@ -99,7 +99,7 @@ class TransactionControllerSpec extends Specification implements ControllerUnitT
         Receipt testReceipt = new Receipt()
         testReceipt.receiptLines = new HashSet<>()
 
-        controller.receiptService = Stub(ReceiptService) {
+        controller.transactionService = Stub(TransactionService) {
             getReceipt(_) >> testReceipt
         }
 

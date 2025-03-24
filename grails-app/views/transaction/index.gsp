@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>Transaction Viewer</title>
+        <title>Transaction Search</title>
 
         <asset:stylesheet src="receipt.css" />
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
@@ -122,7 +122,7 @@
                 mywindow.document.write("</body></html>");
 
                 mywindow.onafterprint = () => {  $.ajax({
-                    url: "${createLink(controller: 'receipt', action: 'saveReceiptPrinted')}",
+                    url: "${createLink(controller: 'transaction', action: 'saveReceiptPrinted')}",
                     method: "GET"
                 })
 
