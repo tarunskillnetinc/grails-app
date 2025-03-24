@@ -1,4 +1,4 @@
-Attempt<%@ page import="uk.co.wonderlane.wlpos.enums.BasketItemType" %>
+<%@ page import="uk.co.wonderlane.wlpos.enums.BasketItemType" %>
 <div class="container">
     <div class="row">
         <div class="col-md-4">
@@ -100,7 +100,7 @@ Attempt<%@ page import="uk.co.wonderlane.wlpos.enums.BasketItemType" %>
                                 code="BasketItemType.${basketItem.type}"/></div>
 
                         <div id="entrymethod-id-${seqNum + 1}"
-                             class="col-1 my-auto">${basketItem.scanned ?: "N/A"}</div>
+                             class="col-1 my-auto">${basketItem.scanned ? "Scanned" : "Key-in"}</div>
 
                         <div id="productcode-id-${seqNum + 1}"
                              class="col-1 my-auto">${basketItem.product?.itemCode}</div>
@@ -113,18 +113,52 @@ Attempt<%@ page import="uk.co.wonderlane.wlpos.enums.BasketItemType" %>
 
                         <div id="totalquantity-id-${seqNum + 1}" class="col-1 my-auto">${basketItem.qty ?: "N/A"}</div>
 
-                        <div id="unitprice-id-${seqNum + 1}" class="col-1 my-auto">unit price</div>
+                        <g:if test="${basketItem.qty}">
+                            <div id="unitprice-id-${seqNum + 1}" class="col-1 my-auto"><g:formatNumber
+                                    number="${basketItem.total / basketItem.qty}" type="currency"/></div>
+                        </g:if>
+                        <g:else>
+                            <div id="unitprice-id-${seqNum + 1}" class="col-1 my-auto">-</div>
+                        </g:else>
 
                         <div id="totalprice-id-${seqNum + 1}" class="col-1 my-auto"><g:formatNumber
                                 number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></div>
 
-                        <div id="vat-id-${seqNum + 1}" class="col-1 my-auto">VAT</div>
+                        <div id="vat-id-${seqNum + 1}" class="col-1 my-auto">
+                            <g:if test="${basketItem.priceDetails && basketItem.priceDetails.size() > 0}">
+                                <g:set var="vat_individual_total" value="${0}"/>
+                                <g:each in="${basketItem.priceDetails}" var="detail">
+                                    <g:set var="vat_individual_total"
+                                           value="${vat_individual_total + detail.vatAmount}"/>
+                                </g:each>
+                                <g:formatNumber number="${vat_individual_total}" type="currency"/>
+                            </g:if>
+                            <g:else>
+                                N/A
+                            </g:else>
+                        </div>
 
-                        <div id="ageverification-id-${seqNum + 1}" class="col-1 my-auto">age verification</div>
+                        <div id="ageverification-id-${seqNum + 1}"
+                             class="col-1 my-auto">${basketItem.ageRestricted ? "&#10003;" : "-"}</div>
 
-                        <div id="returnreason-id-${seqNum + 1}" class="col-1 my-auto">return reason</div>
+                        <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.RefundBasketItem}">
+                            <div id="returnreason-id-${seqNum + 1}"
+                                 class="col-1 my-auto">${basketItem.refundReasonOther + " " + basketItem.refundReason?.description + " " + basketItem.refundReason?.type}</div>
+                        </g:if>
+                        <g:else>
+                            <div id="returnreason-id-${seqNum + 1}" class="col-1 my-auto">N/A</div>
+                        </g:else>
 
-                        <div id="pricechange-id-${seqNum + 1}" class="col-1 my-auto">price change</div>
+                        <g:if test="${basketItem.markdownAmount}">
+                            <div id="pricechange-id-${seqNum + 1}" class="col-1 my-auto">
+                                <g:formatNumber number="${basketItem.markdownAmount}" type="currency"/>
+                            </div>
+                        </g:if>
+                        <g:else>
+                            <div id="pricechange-id-${seqNum + 1}" class="col-1 my-auto">
+                                N/A
+                            </div>
+                        </g:else>
 
                         <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.ReduceToClearBasketItem}">
                             <div id="rtc-id-${seqNum + 1}" class="col-1 my-auto">-</div>
@@ -155,20 +189,20 @@ Attempt<%@ page import="uk.co.wonderlane.wlpos.enums.BasketItemType" %>
                         <div id="barcode-id-${seqNum + 1}"
                              class="col-1 my-auto">${basketItem.barcodeScanned ?: "N/A"}</div>
 
-                        <div id="totalquantity-id-${seqNum + 1}" class="col-1 my-auto">${basketItem.qty ?: "N/A"}</div>
+                        <div id="totalquantity-id-${seqNum + 1}" class="col-1 my-auto">N/A</div>
 
-                        <div id="unitprice-id-${seqNum + 1}" class="col-1 my-auto">unit price</div>
+                        <div id="unitprice-id-${seqNum + 1}" class="col-1 my-auto">-</div>
 
                         <div id="totalprice-id-${seqNum + 1}" class="col-1 my-auto"><g:formatNumber
                                 number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></div>
 
-                        <div id="vat-id-${seqNum + 1}" class="col-1 my-auto">VAT</div>
+                        <div id="vat-id-${seqNum + 1}" class="col-1 my-auto">N/A</div>
 
-                        <div id="ageverification-id-${seqNum + 1}" class="col-1 my-auto">age verification</div>
+                        <div id="ageverification-id-${seqNum + 1}" class="col-1 my-auto">-</div>
 
-                        <div id="returnreason-id-${seqNum + 1}" class="col-1 my-auto">return reason</div>
+                        <div id="returnreason-id-${seqNum + 1}" class="col-1 my-auto">N/A</div>
 
-                        <div id="pricechange-id-${seqNum + 1}" class="col-1 my-auto">price change</div>
+                        <div id="pricechange-id-${seqNum + 1}" class="col-1 my-auto">N/A</div>
 
                         <div id="rtc-id-${seqNum + 1}" class="col-1 my-auto">-</div>
 
@@ -191,42 +225,54 @@ Attempt<%@ page import="uk.co.wonderlane.wlpos.enums.BasketItemType" %>
         <div class="col-md-12">
             <h4>Tender Details</h4>
 
+            <div id="tender-details-table" class="table-responsive">
+                <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+                    <div class="col-1 font-weight-bold">Sequence</div>
+
+                    <div class="col-1 font-weight-bold">Tender</div>
+
+                    <div class="col-1 font-weight-bold">Tender Value</div>
+
+                    <div class="col-1 font-weight-bold">Card Number</div>
+
+                    <div class="col-1 font-weight-bold">Tender Status</div>
+
+                    <div class="col-1 font-weight-bold">Change</div>
+                </div>
+            </div>
+
             <g:each in="${basketItems}" var="basketItem" status="seqNum">
                 <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.TenderBasketItem}">
-                    <div>
-                        <span>${seqNum}</span>
-                        <span>${basketItem.tenderType}</span>
-                        <span><g:formatNumber number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></span>
-                        <span>${basketItem.receiptDescription}</span> <span>TODO TENDER STATUS</span> <span>TODO CHANGE</span>
+                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${seqNum % 2} hoverable">
+                        <div id="sequence-id-${seqNum + 1}" class="col-1 my-auto">${seqNum}</div>
+
+                        <div id="tender-id-${seqNum + 1}" class="col-1 my-auto">
+                            <g:message code="TenderType.${basketItem.tenderType}"/>
+                        </div>
+
+                        <div id="tendervalue-id-${seqNum + 1}" class="col-1 my-auto"><g:formatNumber
+                                number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></div>
+
+                        <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CardTenderBasketItem}">
+                            <div id="pan-id-${seqNum + 1}" class="col-1 my-auto">${basketItem.pan}</div>
+                        </g:if>
+                        <g:else>
+                            <div id="pan-id-${seqNum + 1}" class="col-1 my-auto">-</div>
+                        </g:else>
+
+                        <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CardTenderBasketItem}">
+                            <div id="tenderstatus-id-${seqNum + 1}" class="col-1 my-auto">${basketItem.authCode}</div>
+                        </g:if>
+                        <g:else>
+                            <div id="tenderstatus-id-${seqNum + 1}" class="col-1 my-auto">-</div>
+                        </g:else>
+
+
+                        <div id="tenderstatus-id-${seqNum + 1}" class="col-1 my-auto">TODO TENDER STATUS</div>
+
+                        <div id="XXXX-${seqNum + 1}" class="col-1 my-auto">TODO CHANGE</div>
                     </div>
                 </g:if>
-
-                <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CardTenderBasketItem}">
-                    <div>
-                        <span>${seqNum}</span>
-                        <span>Card</span>XXX
-                        <span><g:formatNumber number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></span>
-                        <span>${basketItem.pan}</span>
-                        <span>${basketItem.authCode}</span>
-                        <span>-</span>
-                    </div>
-                </g:if>
-
-                <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.ChangeBasketItem}">
-                    <div><span>${basketItem.id}</span> <span>Change</span> <span><g:formatNumber
-                            number="${basketItem.total ?: BigDecimal.ZERO}"
-                            type="currency"/></span> <span>-</span> <span>-</span> <span>-</span>
-                    </div>
-                </g:if>
-
-
-                <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CashbackTenderBasketItem}">
-                    <div><span>${basketItem.id}</span> <span>Cashback</span> <span><g:formatNumber
-                            number="${basketItem.total ?: BigDecimal.ZERO}"
-                            type="currency"/></span> <span>-</span> <span>-</span> <span>-</span>
-                    </div>
-                </g:if>
-
             </g:each>
         </div>
     </div>
