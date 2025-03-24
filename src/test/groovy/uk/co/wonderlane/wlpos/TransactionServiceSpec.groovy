@@ -9,7 +9,7 @@ import org.joda.time.DateTime
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.helpers.HibernateTestMockCriteria
 
-class ReceiptServiceSpec extends Specification implements ServiceUnitTest<ReceiptService>, DataTest {
+class TransactionServiceSpec extends Specification implements ServiceUnitTest<TransactionService>, DataTest {
 
     Class<?>[] getDomainClassesToMock() {
         [Receipt] as Class<?>[]

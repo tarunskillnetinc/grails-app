@@ -1,5 +1,3 @@
-<%@ page import="uk.co.wonderlane.wlpos.enums.StockClassification" %>
-
 <div class="row">
     <div class="form-group row col-5 offset-lg-1">
         <label for="varianceQuantity" class="col-5 col-form-label text-right pr-4 pl-1">Variance Quantity Threshold:</label>
@@ -14,7 +12,7 @@
 </div>
 
 <div class="row">
-    <div class="form-group row col-5 offset-lg-1 form-check"">
+    <div class="form-group row col-5 offset-lg-1 form-check">
         <div class="col-5 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.saleAllowed" class="col-form-label text-right wl-label">Prohibit From Sale:</label>
             <g:checkBox name="restrictions.saleAllowed" class="col-1 form-check-input wl-checkbox" checked="${!category?.restrictions?.saleAllowed}" />
