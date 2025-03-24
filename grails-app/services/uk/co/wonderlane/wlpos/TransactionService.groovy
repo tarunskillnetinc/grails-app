@@ -6,7 +6,7 @@ import org.hibernate.Transaction
 import org.joda.time.DateTime
 
 @Transactional("transactions")
-class ReceiptService {
+class TransactionService {
 
     def springSecurityService
     def sessionFactory
