@@ -118,7 +118,7 @@
                                 <div class="form-group row">
                                     <label for="storeNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store Number*</label>
                                     <div class="col-7 col-lg-2">
-                                        <g:field type="number" min="0" max="999999999" maxlength="9" name="storeNumber" value="${store?.storeNumber}"  class="form-control bottom-border" onkeydown="acceptMaxNumberValue(event, 999999999);" />
+                                        <g:field type="number" min="0" max="999999" maxlength="6" name="storeNumber" value="${store?.storeNumber}"  class="form-control bottom-border" onkeydown="acceptMaxNumberValue(event, 999999);" />
                                     </div>
                                 </div>
 
@@ -182,6 +182,13 @@
                                 </div>
 
                                 <div class="form-group row">
+                                    <label for="addressLine3" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Address Line 3</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="addressLine3" maxlength="20" value="${store?.addressLine3}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
                                     <label for="addressTown" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Town / City</label>
                                     <div class="col-7 col-lg-4">
                                         <g:textField name="addressTown" maxlength="20" value="${store?.addressTown}" class="form-control bottom-border" />
@@ -213,6 +220,50 @@
                                     <label for="phoneNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Phone Number</label>
                                     <div class="col-7 col-lg-4">
                                         <g:textField name="phoneNumber" maxlength="12" value="${store?.phoneNumber}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="alternativePhoneNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Alternative Phone Number</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="alternativePhoneNumber" maxlength="12" value="${store?.phoneNumber}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="emailAddress" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Email Address</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="emailAddress" maxlength="254" value="${store?.emailAddress}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="netSalesArea" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Net Sales Area</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="netSalesArea" maxlength="20" value="${store?.netSalesArea}" class="form-control bottom-border"
+                                                     onkeydown="acceptFloat(event)"
+                                                     onkeyup="validateFloatQuantity(this, 0, 999999.9999, 4)" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="anaCode" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">ANA Code</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="anaCode" maxlength="30" value="${store?.anaCode}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="longitude" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Longitude</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="longitude" maxlength="20" value="${store?.longitude}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="latitude" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Latitude</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="latitude" maxlength="20" value="${store?.latitude}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 

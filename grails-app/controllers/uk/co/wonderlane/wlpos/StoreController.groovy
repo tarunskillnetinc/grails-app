@@ -179,11 +179,18 @@ class StoreController {
             storeConfig.addressBuildingNumberOrName = newStoreCommand.addressBuildingNumberOrName
             storeConfig.addressLine1 = newStoreCommand.addressLine1
             storeConfig.addressLine2 = newStoreCommand.addressLine2
+            storeConfig.addressLine3 = newStoreCommand.addressLine3
             storeConfig.addressTown = newStoreCommand.addressTown
             storeConfig.addressCounty = newStoreCommand.addressCounty
             storeConfig.addressCountry = newStoreCommand.addressCountry
             storeConfig.addressPostCode = newStoreCommand.addressPostCode
             storeConfig.phoneNumber = newStoreCommand.phoneNumber
+            storeConfig.alternativePhoneNumber = newStoreCommand.alternativePhoneNumber
+            storeConfig.emailAddress = newStoreCommand.emailAddress
+            storeConfig.anaCode = newStoreCommand.anaCode
+            storeConfig.netSalesArea = newStoreCommand.netSalesArea
+            storeConfig.latitude = newStoreCommand.latitude
+            storeConfig.longitude = newStoreCommand.longitude
 
             store.config = storeConfig
 
@@ -316,11 +323,18 @@ class NewStoreCommand implements Validateable {
     String addressBuildingNumberOrName
     String addressLine1
     String addressLine2
+    String addressLine3
     String addressTown
     String addressCounty
     String addressCountry
     String addressPostCode
     String phoneNumber
+    String alternativePhoneNumber
+    String emailAddress
+    String anaCode
+    String netSalesArea
+    String longitude
+    String latitude
     Integer parentStoreId
     Integer copyConfigFrom
     Range range
@@ -339,6 +353,7 @@ class NewStoreCommand implements Validateable {
         addressBuildingNumberOrName nullable: true, maxSize: 30
         addressLine1 nullable: true, maxSize: 20
         addressLine2 nullable: true, maxSize: 20
+        addressLine3 nullable: true, maxSize: 20
         addressTown nullable: true, maxSize: 20
         addressCounty nullable: true, maxSize: 20
         addressCountry nullable: true, maxSize: 20
@@ -351,6 +366,32 @@ class NewStoreCommand implements Validateable {
                 return false
             }
         }
+        alternativePhoneNumber nullable: true, maxSize: 12, validator: {val, obj ->
+            if(val != null && !val.isNumber()){
+                return false
+            }
+        }
+        emailAddress email: true, maxSize: 254, nullable: true
+        anaCode nullable: true, maxSize: 30
+        netSalesArea nullable: true, validator: { val ->
+            if (val == null) return true // Allow null values
+
+            try {
+                BigDecimal value = new BigDecimal(val)
+                if (value >= new BigDecimal("9999999.9999")) {
+                    return false
+                }
+                //Fail if the value has more than 4 decimal places
+                if (value.scale() > 4) {
+                    return false
+                }
+                return true
+            } catch (NumberFormatException e) {
+                return false
+            }
+        }
+        longitude nullable: true, maxSize: 20
+        latitude nullable: true, maxSize: 20
         parentStoreId nullable: true
         copyConfigFrom nullable: true
         range nullable: true
@@ -390,11 +431,18 @@ class StoreConfigCommand implements Validateable {
     String addressBuildingNumberOrName
     String addressLine1
     String addressLine2
+    String addressLine3
     String addressTown
     String addressCounty
     String addressCountry
     String addressPostCode
     String phoneNumber
+    String alternativePhoneNumber
+    String emailAddress
+    String anaCode
+    String netSalesArea
+    String longitude
+    String latitude
     PrintReceiptOption printReceiptOption
     Integer quantityPromptThreshold
     BigDecimal valuePromptThreshold
@@ -413,27 +461,15 @@ class StoreConfigCommand implements Validateable {
     String returnsMessage
 
     static constraints = {
+        importFrom NewStoreCommand, include: [
+                "storeName", "addressBuildingNumberOrName", "addressLine1", "addressLine2", "addressLine3",
+                "addressTown", "addressCounty", "addressCountry", "addressPostCode", "phoneNumber",
+                "alternativePhoneNumber", "emailAddress", "anaCode", "netSalesArea", "longitude", "latitude"]
         storeNumber nullable: true
         storeType nullable: true
         receiptMessage1 nullable: true, maxSize: 100
         receiptMessage2 nullable: true, maxSize: 100
         vatRegistrationNumber nullable: true, maxSize: 45
-        storeName nullable: false, blank: false, maxSize: 30
-        addressBuildingNumberOrName nullable: true, maxSize: 30
-        addressLine1 nullable: true, maxSize: 20
-        addressLine2 nullable: true, maxSize: 20
-        addressTown nullable: true, maxSize: 20
-        addressCounty nullable: true, maxSize: 20
-        addressCountry nullable: true, maxSize: 20
-        addressPostCode nullable: true, maxSize: 8, validator: {val, obj ->
-            if (val != null && Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE).matcher(val).find())
-                return false
-        }
-        phoneNumber nullable: true, maxSize: 12, validator: {val, obj ->
-            if(val != null && !val.isNumber()){
-                return false
-            }
-        }
         printReceiptOption nullable: false
         quantityPromptThreshold nullable: true, min: 1, max: 999
         valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: 9999.99
