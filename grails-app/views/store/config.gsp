@@ -14,6 +14,8 @@
     <asset:javascript src="numberHelper.js" />
 
     <script type="text/javascript">
+        var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
+
         function updateColorIndicator(color, indicatorId) {
             var colorPickerElement = document.getElementById(indicatorId);
             colorPickerElement.value = "#" + color; // Prepend "#" to the color value
@@ -38,6 +40,25 @@
             });
 
         });
+
+        function addStoreAdditionalDetail(attributeId) {
+            $("#addStoreAdditionalDetailsContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+            $('#addStoreAdditionalDetailsModal').modal({show: true, backdrop: 'static', keyboard: false});
+            $.ajax({
+                url: addStoreAdditionalDetails,
+                method: "GET",
+                success: function (resp) {
+                    $("#addStoreAdditionalDetailsContent").html(resp);
+                }
+            });
+        }
+
+        function closeStoreAdditionalDetailAddModal() {
+            if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+                $('#addStoreAdditionalDetailsModal').modal('hide')
+            }
+        }
+
     </script>
 
     <style>
@@ -129,5 +150,14 @@
     <g:else>
         <g:render template="storeConfig" model='${pageScope}'/>
     </g:else>
+
+    <section id="addStoreAdditionalDetails-modal" class="container-fluid">
+        <div class="modal fade" id="addStoreAdditionalDetailsModal" tabindex="-1" role="dialog" aria-labelledby="addStoreAdditionalDetailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                <div id="addStoreAdditionalDetailsContent" class="modal-content"></div>
+            </div>
+        </div>
+    </section>
+
 </body>
 </html>

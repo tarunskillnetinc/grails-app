@@ -257,6 +257,10 @@ class StoreController {
         }
     }
 
+    def ajaxAddStoreAdditionalDetail() {
+        render(template: "addStoreAdditionalDetail")
+    }
+
     private List loadDropdownData(retailerId, storeNumber) {
         def availablePriceBands = PriceBand.findAllByRetailerId(retailerId)
         def availableProductRanges = Range.findAllByRetailerId(retailerId)

@@ -136,7 +136,7 @@
                 </div>
             </div>
 
-            <g:render template="sharedStoreConfigurationAccordions" />
+            <g:render template="sharedStoreConfigurationAccordions" model="[storeSettings: storeSettings]"/>
 
             <!-- EPOS configuration. -->
             <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">

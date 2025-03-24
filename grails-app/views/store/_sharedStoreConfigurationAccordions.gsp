@@ -14,6 +14,25 @@
     <div id="collapseStoreAdditionalDetails" class="collapse" aria-labelledby="storeAdditionalDetails" data-parent="#accordion">
         <div class="card-body py-5">
             <div class="col-12">
+                <g:if test="${storeSettings?.getAdditionalDetailsList()}">
+                    <g:each in="${storeSettings.getAdditionalDetailsList()}" var="detail" status="i">
+                        <div class="form-group row mb-3 align-items-center">
+                            <div class="col-md-3">
+                                <label class="form-control-label mb-0">${detail?.description?.encodeAsHTML()}:</label>
+                            </div>
+                            <div class="col-md-7 pl-0">
+                                <input type="text" class="form-control" value="${detail?.value?.encodeAsHTML()}" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <a href="#" class="btn btn-sm btn-primary mr-2" style="min-width: 80px; font-size: 0.9rem;" onclick="editAdditionalDetail(${i})">Edit</a>
+                                <a href="#" class="btn btn-sm btn-danger" style="min-width: 80px; font-size: 0.9rem;" onclick="deleteAdditionalDetail(${i})">Delete</a>
+                            </div>
+                        </div>
+                    </g:each>
+                </g:if>
+                <div class="mt-3">
+                    <a href="#" class="text-primary" onclick="addStoreAdditionalDetail()"><i class="fas fa-plus-circle mr-1"></i>Add additional store field</a>
+                </div>
             </div>
         </div>
     </div>
