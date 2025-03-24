@@ -7,6 +7,10 @@
     <asset:javascript src="storeCommonUtils.js" />
 
     <script type="text/javascript">
+
+        var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
+        var saveStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxSaveStoreAdditionalDetail')}"
+
         function typeChanged() {
             var selectedType = $("#type option:selected").val();
 
@@ -233,5 +237,14 @@
             </div>
         </g:form>
     </section>
+
+    <section id="addStoreAdditionalDetails-modal" class="container-fluid">
+        <div class="modal fade" id="addStoreAdditionalDetailsModal" tabindex="-1" role="dialog" aria-labelledby="addStoreAdditionalDetailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                <div id="addStoreAdditionalDetailsContent" class="modal-content"></div>
+            </div>
+        </div>
+    </section>
+
 </body>
 </html>
