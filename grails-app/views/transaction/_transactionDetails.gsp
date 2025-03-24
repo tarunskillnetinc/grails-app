@@ -91,7 +91,7 @@
             </div>
 
             <g:each in="${basketItems}" var="basketItem" status="seqNum">
-                <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.SaleBasketItem}">
+                <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.ProductBasketItem}">
                     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${seqNum % 2} hoverable">
                         <div id="sequence-id-${seqNum + 1}" class="col-1 my-auto">${seqNum}</div>
 
@@ -124,30 +124,40 @@
 
                         <div id="pricechange-id-${seqNum + 1}" class="col-1 my-auto">price change</div>
 
-                        <div id="rtc-id-${seqNum + 1}" class="col-1 my-auto">RTC</div>
+                        <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.ReduceToClearBasketItem}">
+                            <div id="rtc-id-${seqNum + 1}" class="col-1 my-auto">-</div>
+                        </g:if>
+                        <g:else>
+                            <div id="rtc-id-${seqNum + 1}" class="col-1 my-auto">&#10003;</div>
+                        </g:else>
 
-                        <div id="promotionstype-id-${seqNum + 1}" class="col-1 my-auto">promotions type</div>
+                        <div id="promotionstype-id-${seqNum + 1}" class="col-1 my-auto">-</div>
                     </div>
                 </g:if>
-                <g:elseif test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.ProductBasketItem}">
+
+                <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.PromotionBasketItem}">
                     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${seqNum % 2} hoverable">
-                        <div id="sequence-id-${seqNum + 1}" class="col-1 my-auto">PBI ${seqNum}</div>
+                        <div id="sequence-id-${seqNum + 1}" class="col-1 my-auto">${seqNum}</div>
 
                         <div id="type-id-${seqNum + 1}" class="col-1 my-auto">${basketItem.type}</div>
 
-                        <div id="entrymethod-id-${seqNum + 1}" class="col-1 my-auto">entrymethod</div>
+                        <div id="entrymethod-id-${seqNum + 1}"
+                             class="col-1 my-auto">${basketItem.scanned ?: "N/A"}</div>
 
-                        <div id="productcode-id-${seqNum + 1}" class="col-1 my-auto">productcode</div>
+                        <div id="productcode-id-${seqNum + 1}" class="col-1 my-auto">N/A</div>
 
-                        <div id="productdescription-id-${seqNum + 1}" class="col-1 my-auto">prod descr</div>
+                        <div id="productdescription-id-${seqNum + 1}"
+                             class="col-1 my-auto">${basketItem.promotion?.description}</div>
 
-                        <div id="barcode-id-${seqNum + 1}" class="col-1 my-auto">barcode</div>
+                        <div id="barcode-id-${seqNum + 1}"
+                             class="col-1 my-auto">${basketItem.barcodeScanned ?: "N/A"}</div>
 
-                        <div id="totalquantity-id-${seqNum + 1}" class="col-1 my-auto">total qty</div>
+                        <div id="totalquantity-id-${seqNum + 1}" class="col-1 my-auto">${basketItem.qty ?: "N/A"}</div>
 
                         <div id="unitprice-id-${seqNum + 1}" class="col-1 my-auto">unit price</div>
 
-                        <div id="totalprice-id-${seqNum + 1}" class="col-1 my-auto">total price</div>
+                        <div id="totalprice-id-${seqNum + 1}" class="col-1 my-auto"><g:formatNumber
+                                number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></div>
 
                         <div id="vat-id-${seqNum + 1}" class="col-1 my-auto">VAT</div>
 
@@ -157,11 +167,12 @@
 
                         <div id="pricechange-id-${seqNum + 1}" class="col-1 my-auto">price change</div>
 
-                        <div id="rtc-id-${seqNum + 1}" class="col-1 my-auto">RTC</div>
+                        <div id="rtc-id-${seqNum + 1}" class="col-1 my-auto">-</div>
 
-                        <div id="promotionstype-id-${seqNum + 1}" class="col-1 my-auto">promotions type</div>
+                        <div id="promotionstype-id-${seqNum + 1}"
+                             class="col-1 my-auto">${basketItem.promotion?.type?.friendlyName ?: "N/A"}</div>
                     </div>
-                </g:elseif>
+                </g:if>
             </g:each>
         </div>
     </div>
@@ -170,15 +181,6 @@
         <div class="col-md-12">
             <h4>Transaction Discount Totals</h4>
 
-            <g:each in="${basketItems}" var="basketItem" status="seqNum">
-                <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.PromotionBasketItem}">
-                    <div>
-                        <span>${seqNum}</span>
-                        <span>${basketItem.promotion.description}</span>
-                        <span>${basketItem.totalSavings}</span>
-                    </div>
-                </g:if>
-            </g:each>
         </div>
     </div>
 
