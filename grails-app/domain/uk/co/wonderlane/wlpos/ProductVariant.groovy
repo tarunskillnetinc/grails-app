@@ -4,6 +4,7 @@ import org.grails.web.util.WebUtils
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.LocationsType
+import uk.co.wonderlane.wlpos.enums.StockManagementType
 import uk.co.wonderlane.wlpos.supplier.Pack
 
 import java.math.RoundingMode
@@ -38,6 +39,7 @@ class ProductVariant implements Serializable {
     BigDecimal heightCm
     BigDecimal widthCm
     BigDecimal depthCm
+    StockManagementType stockManagementType
     String extras
 
     Collection<Pack> packs = new ArrayList<>()
@@ -87,6 +89,7 @@ class ProductVariant implements Serializable {
         widthCm column: "widthCm"
         depthCm column: "depthCm"
         extras column: "extras", sqlType: "json"
+        stockManagementType column: "stockManagementType", sqlType: "enum", enumType: 'string'
     }
 
     static constraints = {
@@ -117,6 +120,7 @@ class ProductVariant implements Serializable {
         heightCm nullable: true
         widthCm nullable: true
         depthCm nullable: true
+        stockManagementType nullable: false
         extras nullable: true
         delete bindable: true
         barcodez bindable: true
@@ -242,6 +246,7 @@ class ProductVariant implements Serializable {
         productVariant.setEffectiveDate(effectiveDate)
         productVariant.setMinimumDisplayQuantity(minimumDisplayQuantity)
         productVariant.setShelfCapacity(shelfCapacity)
+        productVariant.setStockManagementType(stockManagementType)
 
         getBarcodes()?.each {
             productVariant.getBarcodes().add(it.barcode)

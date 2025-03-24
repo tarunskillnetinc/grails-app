@@ -19,6 +19,7 @@
     <g:hiddenField name="variants[${index}].depthCm" value="${variant?.depthCm}" />
     <g:hiddenField name="variants[${index}].effectiveDate" value="${variant?.effectiveDate}" />
     <g:hiddenField name="variants[${index}].preferredSku" value="${variant?.preferredSku}" />
+    <g:hiddenField name="variants[${index}].stockManagementType" value="${variant?.stockManagementType}" />
 
     <div class="col-2 my-auto" id="variants[${index}].skuText">${variant?.sku ?: 0}</div>
     <div class="col-2 my-auto" id="variants[${index}].retailPriceText"><g:formatNumber number="${variant?.currentPrice}" type="currency" /> (${variant?.retailPrice ? "store override" : "price band"})</div>

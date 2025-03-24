@@ -180,7 +180,7 @@
     </div>
     <div class="form-group row col-5 form-check">
         <div class="col-5 col-form-label text-right pr-4 pt-0 pb-0">
-            <label for="restrictions.creditPaymentAllowed" class="col-form-label text-right wl-label">Credit Payment Allowed:</label>
+            <label for="restrictions.creditPaymentAllowed"class="col-form-label text-right wl-label">Credit Payment Allowed:</label>
             <g:checkBox name="restrictions.creditPaymentAllowed" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.creditPaymentAllowed}" />
         </div>
     </div>

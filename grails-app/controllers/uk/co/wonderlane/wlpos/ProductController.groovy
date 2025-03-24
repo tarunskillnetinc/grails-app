@@ -22,6 +22,7 @@ import uk.co.wonderlane.wlpos.enums.ProductAttributeType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductMessageType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
+import uk.co.wonderlane.wlpos.enums.StockManagementType
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
 import uk.co.wonderlane.wlpos.utils.WeightedAverageCostPriceUtil
@@ -891,6 +892,7 @@ class ProductController extends BaseController {
                     existingVariant.heightCm = editedVariant.heightCm
                     existingVariant.widthCm = editedVariant.widthCm
                     existingVariant.depthCm = editedVariant.depthCm
+                    existingVariant.stockManagementType = editedVariant.stockManagementType
 
                     if (existingVariant.getShelfCapacity() != null
                             && !(existingVariant.getShelfCapacity() >= 1 && existingVariant.getShelfCapacity() <= 999)) {
@@ -935,6 +937,7 @@ class ProductController extends BaseController {
                 newVariant.heightCm = editedVariant.heightCm
                 newVariant.widthCm = editedVariant.widthCm
                 newVariant.depthCm = editedVariant.depthCm
+                newVariant.stockManagementType = editedVariant.stockManagementType
 
                 editedVariant.packs?.each { editedPack ->
                     Pack newPack = new Pack()
@@ -1524,6 +1527,7 @@ class ProductController extends BaseController {
         builder.compare(id, "heightCm", oldVariant.heightCm, variant.heightCm)
         builder.compare(id, "widthCm", oldVariant.widthCm, variant.widthCm)
         builder.compare(id, "depthCm", oldVariant.depthCm, variant.depthCm)
+        builder.compare(id, "stockManagementType", oldVariant.stockManagementType, variant.stockManagementType)
 
         //---------------------------- Update history for barcode fields --------------------------------//
 
@@ -2011,6 +2015,7 @@ class ProductController extends BaseController {
             productVariant.heightCm = variant.heightCm
             productVariant.widthCm = variant.widthCm
             productVariant.depthCm = variant.depthCm
+            productVariant.stockManagementType = variant.stockManagementType
             productVariant.setProduct(to)
 
             List<Barcode> barcodes = new ArrayList<>()
@@ -2146,6 +2151,7 @@ class AddVariantCommand {
     BigDecimal depthCm
     boolean priceMarked
     boolean preferredSku
+    StockManagementType stockManagementType
 
     BigDecimal getCurrentPrice() {
         if (retailPrice != null) {
@@ -2380,6 +2386,7 @@ class ProductVariantCommand {
     BigDecimal heightCm
     BigDecimal widthCm
     BigDecimal depthCm
+    StockManagementType stockManagementType
     String extras
 
     Collection<PackCommand> packs = new ArrayList<>()
