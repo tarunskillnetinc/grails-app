@@ -1,7 +1,7 @@
 <%@ page import="uk.co.wonderlane.wlpos.enums.BasketItemType" %>
 <div class="container">
-    <div class="row">
-        <div class="col-md-4">
+    <div class="row mt-3">
+        <div class="card border-wl mr-3 p-2 ml-0">
             <h4>Transaction Reference:</h4>
 
             <div>
@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-4 card border-wl ml-3 mr-3 p-2">
             <h4>Operator Details:</h4>
 
             <div>
@@ -30,7 +30,7 @@
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-4 card border-wl ml-3 p-2 mr-0">
             <h4>Transaction:</h4>
 
             <div>
@@ -46,7 +46,7 @@
     </div>
 
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12 card border-wl mt-3 mb-3 p-2">
             <h4>Transaction Additional Details</h4>
 
             <div><span>Loyalty Number:</span> <span>${basket.loyaltyMemberDetails?.memberId ?: "N/A"}</span></div>
@@ -56,6 +56,7 @@
     </div>
 
     <div class="row">
+        <div class="m-2 p-2">
         <h4>Transaction Details:</h4>
 
         <div id="transaction-details-table" class="table-responsive">
@@ -91,6 +92,12 @@
                 <div class="col-1 font-weight-bold">Promotions<br/>Type</div>
             </div>
 
+        <!--
+                PaypointBasketItem.
+                PaidInBasketItem :tick
+                PaidOutBasketItem :tick
+
+            -->
             <g:each in="${basketItems}" var="basketItem" status="seqNum">
                 <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.ProductBasketItem}">
                     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${seqNum % 2} hoverable">
@@ -212,6 +219,7 @@
                 </g:if>
             </g:each>
         </div>
+        </div>
     </div>
 
     <div class="row">
@@ -261,14 +269,12 @@
                         </g:else>
 
                         <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CardTenderBasketItem}">
-                            <div id="tenderstatus-id-${seqNum + 1}" class="col-1 my-auto">${basketItem.authCode}</div>
+                            <div id="tenderstatus-id-${seqNum + 1}"
+                                 class="col-1 my-auto">${basketItem.authCode ?: ""}</div>
                         </g:if>
                         <g:else>
                             <div id="tenderstatus-id-${seqNum + 1}" class="col-1 my-auto">-</div>
                         </g:else>
-
-
-                        <div id="tenderstatus-id-${seqNum + 1}" class="col-1 my-auto">TODO TENDER STATUS</div>
 
                         <div id="XXXX-${seqNum + 1}" class="col-1 my-auto">TODO CHANGE</div>
                     </div>
