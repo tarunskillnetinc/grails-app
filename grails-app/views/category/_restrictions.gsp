@@ -14,7 +14,7 @@
 </div>
 
 <div class="row">
-    <div class="form-group row col-5 offset-lg-1 form-check"">
+    <div class="form-group row col-5 offset-lg-1 form-check">
         <div class="col-5 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.saleAllowed" class="col-form-label text-right wl-label">Prohibit From Sale:</label>
             <g:checkBox name="restrictions.saleAllowed" class="col-1 form-check-input wl-checkbox" checked="${!category?.restrictions?.saleAllowed}" />
@@ -168,7 +168,7 @@
     <div class="form-group row col-5 form-check">
         <div class="col-5 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.promptForMarkdown" class="col-form-label text-right wl-label">Prompt For Markdown:</label>
-            <g:checkBox name="restrictions.promptForMarkdown" class="col-5 form-control numberField" checked="${category?.restrictions?.promptForMarkdown}" disabled="${!category?.restrictions?.markdownAllowed}" />
+            <g:checkBox name="restrictions.promptForMarkdown" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.promptForMarkdown}" disabled="${!category?.restrictions?.markdownAllowed}" />
         </div>
     </div>
 </div>
