@@ -59,11 +59,11 @@ class TransactionService {
         def receiptCriteria = Receipt.createCriteria()
 
         return receiptCriteria.get() {
-            eq ("id", receiptId)
-            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("id", receiptId)
+            eq("retailerId", springSecurityService.principal.retailerId)
 
             if (springSecurityService.principal.storeNumber != null) {
-                eq ("storeId", springSecurityService.principal.storeNumber)
+                eq("storeId", springSecurityService.principal.storeNumber)
             }
         }
     }
@@ -72,24 +72,25 @@ class TransactionService {
         def receiptCriteria = Receipt.createCriteria()
 
         return receiptCriteria.get() {
-            eq ("transactionId", transactionId)
-            eq ("storeId", storeId)
+            eq("transactionId", transactionId)
+            eq("storeId", storeId)
             eq("tillId", tillId)
-            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("retailerId", springSecurityService.principal.retailerId)
         }
     }
-    def saveReceiptPrinted(int receiptId) {
-            Session session = sessionFactory.openSession()
-            Transaction transaction = session.beginTransaction()
-            Receipt receipt = Receipt.get(receiptId)
 
-        if(receipt){
+    def saveReceiptPrinted(int receiptId) {
+        Session session = sessionFactory.openSession()
+        Transaction transaction = session.beginTransaction()
+        Receipt receipt = Receipt.get(receiptId)
+
+        if (receipt) {
             receipt.printed = 1
             receipt.save(flush: true)
         }
 
-            transaction.commit()
-            session.close()
+        transaction.commit()
+        session.close()
 
     }
 }
