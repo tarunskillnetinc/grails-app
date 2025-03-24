@@ -51,3 +51,16 @@ function saveStoreAdditionalDetail(){
         }
     });
 }
+
+function deleteAdditionalDetail(index) {
+    var storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer > #storeAdditionalDetail-" + index);
+    if (storeAdditionalDetailsContainer.length) {
+        storeAdditionalDetailsContainer.remove();
+    }
+}
+
+function closeStoreAdditionalDetailAddModal() {
+    if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+        $('#addStoreAdditionalDetailsModal').modal('hide')
+    }
+}
