@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
+import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
 import uk.co.wonderlane.wlpos.entities.StoreConfig
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
@@ -220,6 +221,7 @@ class StoreController {
 
             bindData(storeConfig, storeCommand.config)
 
+
             storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig))
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
@@ -259,6 +261,10 @@ class StoreController {
 
     def ajaxAddStoreAdditionalDetail() {
         render(template: "addStoreAdditionalDetail")
+    }
+
+    def ajaxSaveStoreAdditionalDetail(AddStoreAdditionalDetailCommand additionalDetailCommand) {
+        render(template: "storeAdditionalDetail", model: [index: additionalDetailCommand?.index, detail: additionalDetailCommand?.storeAdditionalDetails])
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
@@ -361,6 +367,7 @@ class StoreCommand implements Validateable {
     boolean deleted
 
     StoreConfigCommand config
+    List<StoreAdditionalDetailCommand> storeAdditionalDetails
 
     static constraints = {
         id nullable: true
@@ -369,6 +376,7 @@ class StoreCommand implements Validateable {
         range nullable: false
         retailerStoreId nullable: true
         config nullable: false
+        storeAdditionalDetails nullable: true
     }
 }
 
@@ -474,4 +482,14 @@ class StoreConfigCommand implements Validateable {
     private boolean isValidHexCode(String s) {
         return s.chars().allMatch({ c -> "0123456789ABCDEFabcdef".indexOf(c) >= 0 });
     }
+}
+
+class StoreAdditionalDetailCommand implements Validateable {
+    String description
+    String value
+}
+
+class AddStoreAdditionalDetailCommand implements Validateable {
+    int index
+    StoreAdditionalDetailCommand storeAdditionalDetails
 }
