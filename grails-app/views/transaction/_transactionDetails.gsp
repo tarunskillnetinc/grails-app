@@ -67,10 +67,6 @@
                     <div><span>${basketItem.promotion.description}</span> <span>${basketItem.promotion.totalSavings}</span>
                     </div>
                 </g:if>
-                <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basket.PromotionBasketItem}">
-                    <div><span>${basketItem.promotion.description}</span> <span>${basketItem.promotion.totalSavings}</span>
-                    </div>
-                </g:if>
             </g:each>
         </div>
     </div>
