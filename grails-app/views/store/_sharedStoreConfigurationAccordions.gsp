@@ -22,7 +22,7 @@
                 </g:if>
             </div>
             <div class="mt-3 ml-2">
-                <a href="#" class="text-primary" onclick="addStoreAdditionalDetail()"><i class="fas fa-plus-circle mr-1"></i>Add additional store field</a>
+                <a href="#" class="text-primary" onclick="addStoreAdditionalDetail(null, null, null)"><i class="fas fa-plus-circle mr-1"></i>Add additional store field</a>
             </div>
         </div>
     </div>

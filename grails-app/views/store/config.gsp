@@ -5,17 +5,17 @@
     <title>Store Configuration</title>
 
     <asset:stylesheet src="multi-select-checks.css" />
-
     <asset:javascript src="validators/input-validator.js"/>
     <asset:javascript src="store-settings/color-pick.js" />
     <asset:javascript src="popper.min.js" />
     <asset:javascript src="multi-select-checks.js" />
     <asset:javascript src="money-mask.js" />
     <asset:javascript src="numberHelper.js" />
+    <asset:javascript src="storeCommonUtils.js" />
 
     <script type="text/javascript">
+
         var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
-        var saveStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxSaveStoreAdditionalDetail')}"
 
         function updateColorIndicator(color, indicatorId) {
             var colorPickerElement = document.getElementById(indicatorId);
@@ -42,27 +42,25 @@
 
         });
 
-        function addStoreAdditionalDetail(attributeId) {
+        function addStoreAdditionalDetail(index, description, value) {
+            var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
             $("#addStoreAdditionalDetailsContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
             $('#addStoreAdditionalDetailsModal').modal({show: true, backdrop: 'static', keyboard: false});
+            params = {index: index, description: description, value: value}
             $.ajax({
                 url: addStoreAdditionalDetails,
                 method: "GET",
+                data: params,
                 success: function (resp) {
                     $("#addStoreAdditionalDetailsContent").html(resp);
                 }
             });
         }
 
-        function closeStoreAdditionalDetailAddModal() {
-            if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
-                $('#addStoreAdditionalDetailsModal').modal('hide')
-            }
-        }
-
         function saveStoreAdditionalDetail(){
-            var index = 0
+            var saveStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxSaveStoreAdditionalDetail')}"
             var params = {}
+            var index = $("#addStoreAdditionalDetailIndex").val()
             var description = $("#addStoreAdditionalDetailDescription").val()
             var value = $("#addStoreAdditionalDetailValue").val()
             params["storeAdditionalDetails.description"] = description;
@@ -70,10 +68,12 @@
 
             var lastVariantContainer = $("#storeAdditionalDetailsContainer > div:last-child");
 
-            if (lastVariantContainer.length > 0) {
-                index = parseInt(lastVariantContainer[0].id.split('-')[1]) + 1;
-            } else {
-                index = 0;
+            if(index == null) {
+                if (lastVariantContainer.length > 0) {
+                    index = parseInt(lastVariantContainer[0].id.split('-')[1]) + 1;
+                } else {
+                    index = 0;
+                }
             }
 
             params["index"] = index;
@@ -86,7 +86,7 @@
                     var storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer > #storeAdditionalDetail-" +index);
 
                     if (storeAdditionalDetailsContainer.length === 0) {
-                        $("#storeAdditionalDetailsContainer").append("<div id=\"storeAdditionalDetail-" +index +"\"></div>");
+                        $("#storeAdditionalDetailsContainer").append("<div id=\"storeAdditionalDetail-" + index +"\"></div>");
 
                         storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer > #storeAdditionalDetail-" +index);
                     }

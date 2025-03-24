@@ -7,7 +7,7 @@
         <g:textField name="storeAdditionalDetails[${index}].value" maxlength="20" value="${detail?.value?.encodeAsHTML()}" class="form-control bottom-border" readonly="true"/>
     </div>
     <div class="col-md-3">
-        <a href="#" class="btn btn-sm btn-primary mr-2" style="min-width: 80px; font-size: 0.9rem;" onclick="editAdditionalDetail(${i})">Edit</a>
-        <a href="#" class="btn btn-sm btn-danger" style="min-width: 80px; font-size: 0.9rem;" onclick="deleteAdditionalDetail(${i})">Delete</a>
+        <a href="#" class="btn btn-sm btn-primary mr-2" style="min-width: 80px; font-size: 0.9rem;" onclick="addStoreAdditionalDetail('${index}', '${detail?.description}', '${detail?.value}')">Edit</a>
+        <a href="#" class="btn btn-sm btn-danger" style="min-width: 80px; font-size: 0.9rem;" onclick="deleteAdditionalDetail(${index})">Delete</a>
     </div>
 </div>

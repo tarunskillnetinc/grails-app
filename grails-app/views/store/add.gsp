@@ -4,6 +4,7 @@
     <meta name="layout" content="main" />
     <title>Add Store</title>
     <asset:javascript src="validators/input-validator.js" />
+    <asset:javascript src="storeCommonUtils.js" />
 
     <script type="text/javascript">
         function typeChanged() {

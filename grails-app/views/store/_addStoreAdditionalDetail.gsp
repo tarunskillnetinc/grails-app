@@ -20,11 +20,12 @@
     </script>
 
     <div class="row form-group mb-4 mt-4">
+      <g:hiddenField name="addStoreAdditionalDetailIndex" value="${index}" />
       <div class="col-5">
         <div class="row">
           <label for="addStoreAdditionalDetailDescription" class="col-4 col-form-label-mandatory text-right">Description</label>
           <div class="col-8">
-            <g:field type="text" id="addStoreAdditionalDetailDescription" name="addStoreAdditionalDetailDescription" class="form-control select-border" maxlength="20" />
+            <g:field type="text" id="addStoreAdditionalDetailDescription" name="addStoreAdditionalDetailDescription" class="form-control select-border" maxlength="20" value="${description}"/>
           </div>
         </div>
       </div>
@@ -33,7 +34,7 @@
         <div class="row">
           <label id="value" for="addStoreAdditionalDetailValue" class="col-3 col-form-label text-right pr-4">Value</label>
           <div class="col-9 pr-5">
-            <g:textArea id="addStoreAdditionalDetailValue" name="addStoreAdditionalDetailValue" class="form-control select-border" value="" rows="6" style="min-height: 150px;" />
+            <g:textArea id="addStoreAdditionalDetailValue" name="addStoreAdditionalDetailValue" class="form-control select-border" value="${value}" rows="6" style="min-height: 150px;" />
           </div>
         </div>
       </div>

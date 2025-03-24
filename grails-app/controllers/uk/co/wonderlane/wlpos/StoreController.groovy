@@ -260,7 +260,7 @@ class StoreController {
     }
 
     def ajaxAddStoreAdditionalDetail() {
-        render(template: "addStoreAdditionalDetail")
+        render(template: "addStoreAdditionalDetail", model: [index : params?.index, description: params?.description, value: params?.value])
     }
 
     def ajaxSaveStoreAdditionalDetail(AddStoreAdditionalDetailCommand additionalDetailCommand) {
