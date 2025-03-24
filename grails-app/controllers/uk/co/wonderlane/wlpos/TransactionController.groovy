@@ -1,6 +1,5 @@
 package uk.co.wonderlane.wlpos
 
-
 import io.micronaut.http.HttpStatus
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -8,10 +7,10 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 
-class ReceiptController {
+class TransactionController {
 
+    def transactionService
     def springSecurityService
-    def receiptService
     def storeService
     def basketTransactionService
     int lastShownReceiptId
@@ -78,7 +77,7 @@ class ReceiptController {
         if (inputErrors.length() != 0) {
             render(status: HttpStatus.BAD_REQUEST.code, inputErrors)
         } else {
-            def (combinedResults, totalCount) = receiptService.getReceipts(startDate, endDate, tillId, transactionId, sort, order, offset, max)
+            def (combinedResults, totalCount) = transactionService.getReceipts(startDate, endDate, tillId, transactionId, sort, order, offset, max)
             render(template: "receiptViewerResults", model: [
                     combinedResults: combinedResults,
                     totalCount: totalCount,
@@ -96,7 +95,7 @@ class ReceiptController {
     }
 
     def ajaxGetReceipt(int receiptId) {
-        def receipt = receiptService.getReceipt(receiptId)
+        def receipt = transactionService.getReceipt(receiptId)
         lastShownReceiptId = receiptId;
 
         render (template: "receipt", model: [receipt: receipt,
@@ -107,7 +106,7 @@ class ReceiptController {
     }
 
     def ajaxGetReceiptByTransaction(int transactionId, int storeId, int terminalId) {
-        def receipt = receiptService.getReceipt(transactionId, storeId, terminalId)
+        def receipt = transactionService.getReceipt(transactionId, storeId, terminalId)
         if (receipt != null) {
             render(template: "receipt", model: [receipt              : receipt,
                                                 containsModifiers    : receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
@@ -146,7 +145,7 @@ class ReceiptController {
 
     def saveReceiptPrinted(){
         if(lastShownReceiptId > 0){
-            receiptService.saveReceiptPrinted(lastShownReceiptId);
+            transactionService.saveReceiptPrinted(lastShownReceiptId);
             lastShownReceiptId = null;
         }
     }

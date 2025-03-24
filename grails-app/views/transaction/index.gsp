@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>Receipt Viewer</title>
+        <title>Transaction Search</title>
 
         <asset:stylesheet src="receipt.css" />
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
@@ -11,9 +11,9 @@
         <asset:javascript src="validators/input-validator.js" />
 
         <script type='text/javascript'>
-            var getReceiptsUrl = "${createLink(controller: 'receipt', action: 'ajaxGetReceipts')}";
-            var getReceiptUrl = "${createLink(controller: 'receipt', action: 'ajaxGetReceipt')}";
-            var getTransactionDetailsUrl = "${createLink(controller: 'receipt', action: 'ajaxGetTransactionDetails')}";
+            var getReceiptsUrl = "${createLink(controller: 'transaction', action: 'ajaxGetReceipts')}";
+            var getReceiptUrl = "${createLink(controller: 'transaction', action: 'ajaxGetReceipt')}";
+            var getTransactionDetailsUrl = "${createLink(controller: 'transaction', action: 'ajaxGetTransactionDetails')}";
 
             $(document).ready(function () {
                 $('#startDate').on("change", function () {
@@ -137,7 +137,7 @@
                 mywindow.document.write("</body></html>");
 
                 mywindow.onafterprint = () => {  $.ajax({
-                    url: "${createLink(controller: 'receipt', action: 'saveReceiptPrinted')}",
+                    url: "${createLink(controller: 'transaction', action: 'saveReceiptPrinted')}",
                     method: "GET"
                 })
 
@@ -268,25 +268,25 @@
             </div>
         </section>
 
-<section id="receipt-details-modal" class="container-fluid">
-    <!-- Receipt modal -->
-    <div class="modal fade" id="receiptDetailsModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel"
-         aria-hidden="true">
-        <div class="superlarge-modal-dialog modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Transaction Details</h2>
-                </div>
+        <section id="receipt-details-modal" class="container-fluid">
+            <!-- Receipt modal -->
+            <div class="modal fade" id="receiptDetailsModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel"
+                 aria-hidden="true">
+                <div class="superlarge-modal-dialog modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Transaction Details</h2>
+                        </div>
 
-                <div id="receiptDetailsModalContent"></div>
+                        <div id="receiptDetailsModalContent"></div>
 
-                <div class="modal-footer">
-                    <button type="button" id="closeReceiptDetailsModalButton" class="btn btn-secondary"
-                            data-dismiss="modal">Close</button>
+                        <div class="modal-footer">
+                            <button type="button" id="closeReceiptDetailsModalButton" class="btn btn-secondary"
+                                    data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
+        </section>
     </body>
 </html>

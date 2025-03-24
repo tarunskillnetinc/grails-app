@@ -184,7 +184,6 @@ class SupplierService extends MySqlDal {
                     result.description = rs.getString("description")
                     result.quantity = rs.getInt("quantity")
                     result.effectiveDate = DateTime.parse(rs.getString("effectiveDate"), dateFormatter)
-                    result.priceMarked = rs.getBoolean("priceMarked")
                     result.oldPackPrice = rs.getBigDecimal("oldPackPrice")
                     result.newPackPrice = rs.getBigDecimal("newPackPrice")
                     result.retailPrice = rs.getBigDecimal("retailPrice")
