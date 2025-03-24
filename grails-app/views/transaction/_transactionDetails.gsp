@@ -1,3 +1,4 @@
+Attempt<%@ page import="uk.co.wonderlane.wlpos.enums.BasketItemType" %>
 <div class="container">
     <div class="row">
         <div class="col-md-4">
@@ -95,7 +96,8 @@
                     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${seqNum % 2} hoverable">
                         <div id="sequence-id-${seqNum + 1}" class="col-1 my-auto">${seqNum}</div>
 
-                        <div id="type-id-${seqNum + 1}" class="col-1 my-auto">${basketItem.type}</div>
+                        <div id="type-id-${seqNum + 1}" class="col-1 my-auto"><g:message
+                                code="BasketItemType.${basketItem.type}"/></div>
 
                         <div id="entrymethod-id-${seqNum + 1}"
                              class="col-1 my-auto">${basketItem.scanned ?: "N/A"}</div>
@@ -139,7 +141,8 @@
                     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${seqNum % 2} hoverable">
                         <div id="sequence-id-${seqNum + 1}" class="col-1 my-auto">${seqNum}</div>
 
-                        <div id="type-id-${seqNum + 1}" class="col-1 my-auto">${basketItem.type}</div>
+                        <div id="type-id-${seqNum + 1}" class="col-1 my-auto"><g:message
+                                code="BasketItemType.${basketItem.type}"/></div>
 
                         <div id="entrymethod-id-${seqNum + 1}"
                              class="col-1 my-auto">${basketItem.scanned ?: "N/A"}</div>
