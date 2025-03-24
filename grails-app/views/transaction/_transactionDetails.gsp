@@ -1,7 +1,7 @@
 <%@ page import="uk.co.wonderlane.wlpos.enums.BasketItemType" %>
 <div class="container">
     <div class="row mt-3">
-        <div class="card border-wl mr-3 p-2 ml-0">
+        <div class="col-md-4 card border-wl mr-0 p-2 ml-0">
             <h4>Transaction Reference:</h4>
 
             <div>
@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        <div class="col-md-4 card border-wl ml-3 mr-3 p-2">
+        <div class="col-md-3 card border-wl ml-auto mr-auto p-2">
             <h4>Operator Details:</h4>
 
             <div>
@@ -30,7 +30,7 @@
             </div>
         </div>
 
-        <div class="col-md-4 card border-wl ml-3 p-2 mr-0">
+        <div class="col-md-4 card border-wl p-2 mr-0">
             <h4>Transaction:</h4>
 
             <div>
@@ -46,7 +46,7 @@
     </div>
 
     <div class="row">
-        <div class="col-md-12 card border-wl mt-3 mb-3 p-2">
+        <div class="card border-wl mt-3 mb-3 p-2 col-md-4">
             <h4>Transaction Additional Details</h4>
 
             <div><span>Loyalty Number:</span> <span>${basket.loyaltyMemberDetails?.memberId ?: "N/A"}</span></div>
@@ -56,11 +56,11 @@
     </div>
 
     <div class="row">
-        <div class="m-2 p-2">
+        <div class="pt-2 pb-2 w-100">
         <h4>Transaction Details:</h4>
 
         <div id="transaction-details-table" class="table-responsive">
-            <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+            <div class="row mt-2 pb-2 ml-0 mr-0 table-wl bottom-border">
                 <div class="col-1 font-weight-bold">Sequence</div>
 
                 <div class="col-1 font-weight-bold">Type</div>
@@ -98,40 +98,41 @@
                 PaidOutBasketItem :tick
 
             -->
+            <g:set var="line" value="${0}"/>
             <g:each in="${basketItems}" var="basketItem" status="seqNum">
                 <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.ProductBasketItem}">
-                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${seqNum % 2} hoverable">
-                        <div id="sequence-id-${seqNum + 1}" class="col-1 my-auto">${seqNum}</div>
+                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
+                        <div id="sequence-id-${line + 1}" class="col-1 my-auto">${seqNum}</div>
 
-                        <div id="type-id-${seqNum + 1}" class="col-1 my-auto"><g:message
+                        <div id="type-id-${line + 1}" class="col-1 my-auto"><g:message
                                 code="BasketItemType.${basketItem.type}"/></div>
 
-                        <div id="entrymethod-id-${seqNum + 1}"
+                        <div id="entrymethod-id-${line + 1}"
                              class="col-1 my-auto">${basketItem.scanned ? "Scanned" : "Key-in"}</div>
 
-                        <div id="productcode-id-${seqNum + 1}"
+                        <div id="productcode-id-${line + 1}"
                              class="col-1 my-auto">${basketItem.product?.itemCode}</div>
 
-                        <div id="productdescription-id-${seqNum + 1}"
+                        <div id="productdescription-id-${line + 1}"
                              class="col-1 my-auto">${basketItem.product?.description}</div>
 
-                        <div id="barcode-id-${seqNum + 1}"
+                        <div id="barcode-id-${line + 1}"
                              class="col-1 my-auto">${basketItem.barcodeScanned ?: "N/A"}</div>
 
-                        <div id="totalquantity-id-${seqNum + 1}" class="col-1 my-auto">${basketItem.qty ?: "N/A"}</div>
+                        <div id="totalquantity-id-${line + 1}" class="col-1 my-auto">${basketItem.qty ?: "N/A"}</div>
 
                         <g:if test="${basketItem.qty}">
-                            <div id="unitprice-id-${seqNum + 1}" class="col-1 my-auto"><g:formatNumber
+                            <div id="unitprice-id-${line + 1}" class="col-1 my-auto"><g:formatNumber
                                     number="${basketItem.total / basketItem.qty}" type="currency"/></div>
                         </g:if>
                         <g:else>
-                            <div id="unitprice-id-${seqNum + 1}" class="col-1 my-auto">-</div>
+                            <div id="unitprice-id-${line + 1}" class="col-1 my-auto">-</div>
                         </g:else>
 
-                        <div id="totalprice-id-${seqNum + 1}" class="col-1 my-auto"><g:formatNumber
+                        <div id="totalprice-id-${line + 1}" class="col-1 my-auto"><g:formatNumber
                                 number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></div>
 
-                        <div id="vat-id-${seqNum + 1}" class="col-1 my-auto">
+                        <div id="vat-id-${line + 1}" class="col-1 my-auto">
                             <g:if test="${basketItem.priceDetails && basketItem.priceDetails.size() > 0}">
                                 <g:set var="vat_individual_total" value="${0}"/>
                                 <g:each in="${basketItem.priceDetails}" var="detail">
@@ -145,15 +146,15 @@
                             </g:else>
                         </div>
 
-                        <div id="ageverification-id-${seqNum + 1}"
+                        <div id="ageverification-id-${line + 1}"
                              class="col-1 my-auto">${basketItem.ageRestricted ? "&#10003;" : "-"}</div>
 
                         <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.RefundBasketItem}">
-                            <div id="returnreason-id-${seqNum + 1}"
+                            <div id="returnreason-id-${line + 1}"
                                  class="col-1 my-auto">${basketItem.refundReasonOther + " " + basketItem.refundReason?.description + " " + basketItem.refundReason?.type}</div>
                         </g:if>
                         <g:else>
-                            <div id="returnreason-id-${seqNum + 1}" class="col-1 my-auto">N/A</div>
+                            <div id="returnreason-id-${line + 1}" class="col-1 my-auto">N/A</div>
                         </g:else>
 
                         <g:if test="${basketItem.markdownAmount}">
@@ -162,60 +163,62 @@
                             </div>
                         </g:if>
                         <g:else>
-                            <div id="pricechange-id-${seqNum + 1}" class="col-1 my-auto">
+                            <div id="pricechange-id-${line + 1}" class="col-1 my-auto">
                                 N/A
                             </div>
                         </g:else>
 
                         <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.ReduceToClearBasketItem}">
-                            <div id="rtc-id-${seqNum + 1}" class="col-1 my-auto">-</div>
+                            <div id="rtc-id-${line + 1}" class="col-1 my-auto">-</div>
                         </g:if>
                         <g:else>
-                            <div id="rtc-id-${seqNum + 1}" class="col-1 my-auto">&#10003;</div>
+                            <div id="rtc-id-${line + 1}" class="col-1 my-auto">&#10003;</div>
                         </g:else>
 
-                        <div id="promotionstype-id-${seqNum + 1}" class="col-1 my-auto">-</div>
+                        <div id="promotionstype-id-${line + 1}" class="col-1 my-auto">-</div>
                     </div>
+                    <g:set var="line" value="${line + 1}"/>
                 </g:if>
 
                 <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.PromotionBasketItem}">
-                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${seqNum % 2} hoverable">
-                        <div id="sequence-id-${seqNum + 1}" class="col-1 my-auto">${seqNum}</div>
+                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
+                        <div id="sequence-id-${line + 1}" class="col-1 my-auto">${seqNum}</div>
 
-                        <div id="type-id-${seqNum + 1}" class="col-1 my-auto"><g:message
+                        <div id="type-id-${line + 1}" class="col-1 my-auto"><g:message
                                 code="BasketItemType.${basketItem.type}"/></div>
 
-                        <div id="entrymethod-id-${seqNum + 1}"
+                        <div id="entrymethod-id-${line + 1}"
                              class="col-1 my-auto">${basketItem.scanned ?: "N/A"}</div>
 
-                        <div id="productcode-id-${seqNum + 1}" class="col-1 my-auto">N/A</div>
+                        <div id="productcode-id-${line + 1}" class="col-1 my-auto">N/A</div>
 
-                        <div id="productdescription-id-${seqNum + 1}"
+                        <div id="productdescription-id-${line + 1}"
                              class="col-1 my-auto">${basketItem.promotion?.description}</div>
 
-                        <div id="barcode-id-${seqNum + 1}"
+                        <div id="barcode-id-${line + 1}"
                              class="col-1 my-auto">${basketItem.barcodeScanned ?: "N/A"}</div>
 
-                        <div id="totalquantity-id-${seqNum + 1}" class="col-1 my-auto">N/A</div>
+                        <div id="totalquantity-id-${line + 1}" class="col-1 my-auto">N/A</div>
 
-                        <div id="unitprice-id-${seqNum + 1}" class="col-1 my-auto">-</div>
+                        <div id="unitprice-id-${line + 1}" class="col-1 my-auto">-</div>
 
-                        <div id="totalprice-id-${seqNum + 1}" class="col-1 my-auto"><g:formatNumber
+                        <div id="totalprice-id-${line + 1}" class="col-1 my-auto"><g:formatNumber
                                 number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></div>
 
-                        <div id="vat-id-${seqNum + 1}" class="col-1 my-auto">N/A</div>
+                        <div id="vat-id-${line + 1}" class="col-1 my-auto">N/A</div>
 
-                        <div id="ageverification-id-${seqNum + 1}" class="col-1 my-auto">-</div>
+                        <div id="ageverification-id-${line + 1}" class="col-1 my-auto">-</div>
 
-                        <div id="returnreason-id-${seqNum + 1}" class="col-1 my-auto">N/A</div>
+                        <div id="returnreason-id-${line + 1}" class="col-1 my-auto">N/A</div>
 
-                        <div id="pricechange-id-${seqNum + 1}" class="col-1 my-auto">N/A</div>
+                        <div id="pricechange-id-${line + 1}" class="col-1 my-auto">N/A</div>
 
-                        <div id="rtc-id-${seqNum + 1}" class="col-1 my-auto">-</div>
+                        <div id="rtc-id-${line + 1}" class="col-1 my-auto">-</div>
 
-                        <div id="promotionstype-id-${seqNum + 1}"
+                        <div id="promotionstype-id-${line + 1}"
                              class="col-1 my-auto">${basketItem.promotion?.type?.friendlyName ?: "N/A"}</div>
                     </div>
+                    <g:set var="line" value="${line + 1}"/>
                 </g:if>
             </g:each>
         </div>
@@ -223,61 +226,70 @@
     </div>
 
     <div class="row">
-        <div class="col-md-12">
+        <div class="card border-wl mt-3 mb-3 p-2 col-md-4">
             <h4>Transaction Discount Totals</h4>
 
+            <div class="m-1">
+                <span class="font-weight-bold">Staff Discount:</span><span id="staff-discount">1.23</span>
+            </div>
+
+            <div class="m-1">
+                <span class="font-weight-bold">Promotion Savings</span><span id="promotion-savings">4.56</span>
+            </div>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-12">
+        <div class="pt-2 pb-2 w-75">
             <h4>Tender Details</h4>
 
-            <div id="tender-details-table" class="table-responsive">
-                <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                    <div class="col-1 font-weight-bold">Sequence</div>
+            <div id="tender-details-table">
+                <div class="row mt-2 pb-2 ml-0 mr-0 table-wl bottom-border">
+                    <div class="col-2 font-weight-bold">Sequence</div>
 
-                    <div class="col-1 font-weight-bold">Tender</div>
+                    <div class="col-2 font-weight-bold">Tender</div>
 
-                    <div class="col-1 font-weight-bold">Tender Value</div>
+                    <div class="col-2 font-weight-bold">Tender Value</div>
 
-                    <div class="col-1 font-weight-bold">Card Number</div>
+                    <div class="col-2 font-weight-bold">Card Number</div>
 
-                    <div class="col-1 font-weight-bold">Tender Status</div>
+                    <div class="col-2 font-weight-bold">Tender Status</div>
 
-                    <div class="col-1 font-weight-bold">Change</div>
+                    <div class="col-2 font-weight-bold">Change</div>
                 </div>
             </div>
 
+            <g:set var="line" value="${0}"/>
             <g:each in="${basketItems}" var="basketItem" status="seqNum">
                 <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.TenderBasketItem}">
-                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${seqNum % 2} hoverable">
-                        <div id="sequence-id-${seqNum + 1}" class="col-1 my-auto">${seqNum}</div>
+                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
+                        <div id="sequence-id-${line + 1}" class="col-2 my-auto">${seqNum}</div>
 
-                        <div id="tender-id-${seqNum + 1}" class="col-1 my-auto">
+                        <div id="tender-id-${line + 1}" class="col-2 my-auto">
                             <g:message code="TenderType.${basketItem.tenderType}"/>
                         </div>
 
-                        <div id="tendervalue-id-${seqNum + 1}" class="col-1 my-auto"><g:formatNumber
+                        <div id="tendervalue-id-${line + 1}" class="col-2 my-auto"><g:formatNumber
                                 number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></div>
 
                         <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CardTenderBasketItem}">
-                            <div id="pan-id-${seqNum + 1}" class="col-1 my-auto">${basketItem.pan}</div>
+                            <div id="pan-id-${line + 1}" class="col-2 my-auto">${basketItem.pan}</div>
                         </g:if>
                         <g:else>
-                            <div id="pan-id-${seqNum + 1}" class="col-1 my-auto">-</div>
+                            <div id="pan-id-${line + 1}" class="col-2 my-auto">-</div>
                         </g:else>
 
                         <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CardTenderBasketItem}">
-                            <div id="tenderstatus-id-${seqNum + 1}"
-                                 class="col-1 my-auto">${basketItem.authCode ?: ""}</div>
+                            <div id="tenderstatus-id-${line + 1}"
+                                 class="col-2 my-auto">${basketItem.authCode ?: ""}</div>
                         </g:if>
                         <g:else>
-                            <div id="tenderstatus-id-${seqNum + 1}" class="col-1 my-auto">-</div>
+                            <div id="tenderstatus-id-${line + 1}" class="col-2 my-auto">-</div>
                         </g:else>
 
-                        <div id="XXXX-${seqNum + 1}" class="col-1 my-auto">TODO CHANGE</div>
+                        <div id="XXXX-${line + 1}" class="col-2 my-auto">TODO CHANGE</div>
                     </div>
+                    <g:set var="line" value="${line + 1}"/>
                 </g:if>
             </g:each>
         </div>
