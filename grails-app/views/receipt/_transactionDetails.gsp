@@ -81,20 +81,37 @@
 
             <g:each in="${basketItems}" var="basketItem">
                 <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.TenderBasketItem}">
-                    <div><span>${basketItem.id}</span> <span>${basketItem.tenderType}</span> <span>${basketItem.total}</span> <span>${basketItem.receiptDescription}</span> <span>TODO TENDER STATUS</span> <span>TODO CHANGE</span>
+                    <div><span>${basketItem.id}</span> <span>${basketItem.tenderType}</span> <span><g:formatNumber number="${basketItem.total} ?: BigDecimal.ZERO}" type="currency"/></span> <span>${basketItem.receiptDescription}</span> <span>TODO TENDER STATUS</span> <span>TODO CHANGE</span>
                     </div>
                 </g:if>
                 <g:elseif test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basket.TenderBasketItem}">
                     <div><span>${basketItem.promotion.description}</span> <span>${basketItem.promotion.totalSavings}</span>
                     </div>
                 </g:elseif>
-
                 <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CardTenderBasketItem}">
-                    <div><span>${basketItem.panSeq}</span> <span>Card</span> <span>${basketItem.total}</span> <span>${basketItem.pan}</span> <span>${basketItem.authCode}</span> <span>-</span>
+                    <div><span>${basketItem.panSeq}</span> <span>Card</span> <span><g:formatNumber number="${basketItem.total} ?: BigDecimal.ZERO}" type="currency"/></span> <span>${basketItem.pan}</span> <span>${basketItem.authCode}</span> <span>-</span>
                     </div>
                 </g:if>
                 <g:elseif test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basket.CardTenderBasketItem}">
                     <div><span>${basketItem.promotion.description}</span> <span>${basketItem.promotion.totalSavings}</span>
+                    </div>
+                </g:elseif>
+
+                <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.ChangeBasketItem}">
+                    <div><span>${basketItem.id}</span> <span>Change</span> <span><g:formatNumber number="${basketItem.total} ?: BigDecimal.ZERO}" type="currency"/></span> <span>-</span> <span>-</span> <span>-</span>
+                    </div>
+                </g:if>
+                <g:elseif test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basket.ChangeBasketItem}">
+                    <div><span>${basketItem.id}</span> <span>Change</span> <span>${basketItem.total}</span> <span>-</span> <span>-</span> <span>-</span>
+                    </div>
+                </g:elseif>
+
+                <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CashbackTenderBasketItem}">
+                    <div><span>${basketItem.id}</span> <span>Cashback</span> <span><g:formatNumber number="${basketItem.total} ?: BigDecimal.ZERO}" type="currency"/></span> <span>-</span> <span>-</span> <span>-</span>
+                    </div>
+                </g:if>
+                <g:elseif test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basket.CashbackTenderBasketItem}">
+                    <div><span>${basketItem.id}</span> <span>Cashback</span> <span><g:formatNumber number="${basketItem.total} ?: BigDecimal.ZERO}" type="currency"/></span> <span>-</span> <span>-</span> <span>-</span>
                     </div>
                 </g:elseif>
             </g:each>

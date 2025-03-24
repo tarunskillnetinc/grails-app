@@ -118,36 +118,31 @@ class ReceiptController {
     }
 
     def ajaxGetTransactionDetails(int receiptId) {
-        try {
-            Receipt receipt = receiptService.getReceipt(receiptId)
-            Store store = storeService.getStoreByStoreNumber(receipt.retailerId, receipt.storeId)
-            def basketTransaction = basketTransactionService.getBasketTransactionByReceipt(receipt, store)
-            User user = User.findByRetailerIdAndUsername(receipt.retailerId, receipt.usersName)
+        Receipt receipt = receiptService.getReceipt(receiptId)
+        Store store = storeService.getStoreByStoreNumber(receipt.retailerId, receipt.storeId)
+        def basketTransaction = basketTransactionService.getBasketTransactionByReceipt(receipt, store)
+        User user = User.findByRetailerIdAndUsername(receipt.retailerId, receipt.usersName)
 
-            if (!user) { // The user appears to have disappeared. Unlikely event.
-                def basketuser = basketTransaction?.getUser()
+        if (!user) { // The user appears to have disappeared. Unlikely event.
+            def basketuser = basketTransaction?.getUser()
 
-                user = new User()
-                user.setName(basketuser?.name)
-                user.setId(basketuser?.id)
-            }
-
-            render(template: "transactionDetails", model: [
-                    user                 : user,
-                    basketTransaction    : basketTransaction,
-                    basket               : basketTransaction.basket,
-                    basketItems          : basketTransaction.basket.basketItems,
-                    store                : store,
-                    receipt              : receipt,
-                    containsModifiers    : receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
-                    firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
-                    maxTotalLength       : receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
-                    maxVatLength         : receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
+            user = new User()
+            user.setName(basketuser?.name)
+            user.setId(basketuser?.id)
         }
-        catch (Exception ex) {
-            ex.printStackTrace()
-        }
-    }
+
+        render(template: "transactionDetails", model: [
+                user                 : user,
+                basketTransaction    : basketTransaction,
+                basket               : basketTransaction.basket,
+                basketItems          : basketTransaction.basket.basketItems,
+                store                : store,
+                receipt              : receipt,
+                containsModifiers    : receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
+                firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
+                maxTotalLength       : receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
+                maxVatLength         : receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
+}
 
     def saveReceiptPrinted(){
         if(lastShownReceiptId > 0){
