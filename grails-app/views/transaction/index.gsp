@@ -165,6 +165,16 @@
         .superlarge-modal-dialog .container {
             max-width: 95%;
         }
+
+        #transaction-details-table {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        #transaction-details-table .col-1 {
+            font-size: 14px;
+            max-width: 6.66666%
+        }
         </style>
     </head>
 
