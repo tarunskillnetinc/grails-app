@@ -124,7 +124,7 @@ class TransactionController {
 
     def ajaxGetTransactionDetails(int receiptId) {
         try {
-            Receipt receipt = receiptService.getReceipt(receiptId)
+            Receipt receipt = transactionService.getReceipt(receiptId)
             Store store = storeService.getStoreByStoreNumber(receipt.retailerId, receipt.storeId)
             def basketTransaction = basketTransactionService.getBasketTransactionByReceipt(receipt, store)
             User user = User.findByRetailerIdAndUsername(receipt.retailerId, receipt.usersName)
@@ -151,7 +151,7 @@ class TransactionController {
         }
         catch(Exception ex) {
             def inputErrors = "Transaction details could not be fetched.<br/>"
-            inputErrors += exceptionToString(ex)
+            inputErrors += "<pre>" + exceptionToString(ex) + "</pre>"
             render(status: HttpStatus.BAD_REQUEST.code, inputErrors)
         }
 }
