@@ -1,5 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="uk.co.wonderlane.wlpos.enums.BasketItemType" %>
+<%@ page import="uk.co.wonderlane.wlpos.enums.TenderType" %>
+<%@ page import="uk.co.wonderlane.wlpos.enums.BasketItemType" %>
+
 <html>
 <head>
     <meta name="layout" content="main"/>
@@ -24,12 +27,16 @@
     }
 }
 
+#transaction-header-details .col-md-6 {
+    max-width: 49%
+}
+
     #transaction-details-table {
         max-width: 100%;
         overflow-x: auto;
     }
 
-    #transaction-details-table .col-1 {
+#transaction-details-table .col-1 { /* Make it 16 columns wide */
         font-size: 14px;
         max-width: 6.66666%
     }
@@ -68,9 +75,9 @@
 </section>
 
 <section id="transactions-container" class="container-fluid">
-    <div class="container">
+    <div class="container" id="transaction-header-details">
         <div class="row mt-3">
-            <div class="col-md-4 card mr-0 p-2 ml-0">
+            <div class="col-md-6 card p-2 mr-auto">
                 <h4 class="mx-auto">Transaction Reference</h4>
 
                 <div class="col-md-12">
@@ -108,7 +115,7 @@
                 </div>
             </div>
 
-            <div class="col-md-3 card ml-auto mr-auto p-2">
+            <div class="col-md-6 card p-2">
                 <h4 class="mx-auto">Operator Details</h4>
 
                 <div class="col-md-12">
@@ -131,8 +138,34 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="col-md-4 card p-2 mr-0">
+        <div class="row mt-3">
+            <div class="col-md-6 card p-2 mr-auto">
+                <h4 class="mx-auto">Transaction Additional Details</h4>
+
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Loyalty Number:</div>
+
+                        <div class="col-6">${basket.loyaltyMemberDetails?.memberId ?: "N/A"}</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Discount Card:</div>
+
+                        <div class="col-6">${basket.loyaltyMemberDetails?.guId ?: "N/A"}</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">&nbsp;</div>
+
+                        <div class="col-6">&nbsp;</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 card p-2">
                 <h4 class="mx-auto">Transaction</h4>
 
                 <div class="col-md-12">
@@ -153,26 +186,6 @@
 
                         <div class="col-6"><g:formatNumber
                                 number="${receipt.transactionAmount ?: BigDecimal.ZERO}" type="currency"/></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="card mt-3 mb-3 p-2 col-md-4">
-                <h4 class="mx-auto">Transaction Additional Details</h4>
-
-                <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-6 text-right font-weight-bold">Loyalty Number:</div>
-
-                        <div class="col-6">${basket.loyaltyMemberDetails?.memberId ?: "N/A"}</div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-6 text-right font-weight-bold">Discount Card:</div>
-
-                        <div class="col-6">${basket.loyaltyMemberDetails?.guId ?: "N/A"}</div>
                     </div>
                 </div>
             </div>
