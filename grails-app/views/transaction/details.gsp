@@ -12,6 +12,18 @@
     <asset:javascript src="validators/input-validator.js"/>
 
     <style>
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1363px;
+    }
+}
+
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1500px;
+    }
+}
+
     #transaction-details-table {
         max-width: 100%;
         overflow-x: auto;
@@ -41,68 +53,128 @@
 </section>
 
 <section id="header-container" class="container-fluid">
-    <div class="header-wl mt-3">
-        <h2 id="page-title" class="mx-auto">Transaction Search</h2>
+    <div class="row header-wl mt-3">
+        <div class="col-6 offset-3">
+            <h2 id="page-title" class="mx-auto my-auto">Transaction Details</h2>
+        </div>
+
+        <div class="col-3 text-right">
+            <button id="close-btn" class="btn btn-wl mt-1" onclick='history.back();'>Close</button>
+        </div>
     </div>
 </section>
 
 <section id="errors-container" class="container-fluid">
 </section>
 
-<section id="shifts-container" class="container-fluid">
+<section id="transactions-container" class="container-fluid">
     <div class="container">
         <div class="row mt-3">
             <div class="col-md-4 card border-wl mr-0 p-2 ml-0">
-                <h4>Transaction Reference:</h4>
+                <h4 class="mx-auto">Transaction Reference</h4>
 
-                <div>
-                    <div><span>Transaction Number:</span> <span>${receipt.transactionId}</span></div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Transaction Number:</div>
 
-                    <div><span>Transaction Date &amp; Time:</span> <span><g:formatDate format="dd/MM/yyyy HH:mm:ss"
-                                                                                       date="${receipt.dateGenerated.toDate()}"
-                                                                                       timeZone="Europe/London"/></span>
+                        <div class="col-6">${receipt.transactionId}</div>
                     </div>
 
-                    <div><span>Store:</span> <span>${store.config.storeName} - ${store.config.storeNumber}</span></div>
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Transaction Date &amp; Time:</div>
 
-                    <div><span>Till:</span> <span>${receipt.tillId}</span></div>
+                        <div class="col-6"><g:formatDate format="dd/MM/yyyy HH:mm:ss"
+                                                         date="${receipt.dateGenerated.toDate()}"
+                                                         timeZone="Europe/London"/></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Transaction Number:</div>
+
+                        <div class="col-6">${receipt.transactionId}</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Store:</div>
+
+                        <div class="col-6">${store.config.storeName} - ${store.config.storeNumber}</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Till:</div>
+
+                        <div class="col-6">${receipt.tillId}</div>
+                    </div>
                 </div>
             </div>
 
             <div class="col-md-3 card border-wl ml-auto mr-auto p-2">
-                <h4>Operator Details:</h4>
+                <h4 class="mx-auto">Operator Details</h4>
 
-                <div>
-                    <div><span>Operator:</span> <span>${user.retailerUserId}</span></div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Operator:</div>
 
-                    <div><span>Operator Name:</span> <span>${user.name}</span></div>
+                        <div class="col-6">${user.retailerUserId}</div>
+                    </div>
 
-                    <div><span>Operator Role:</span> <span>${user.role}</span></div>
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Operator Name:</div>
+
+                        <div class="col-6">${user.name}</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Operator Role:</div>
+
+                        <div class="col-6">${user.role}</div>
+                    </div>
                 </div>
             </div>
 
             <div class="col-md-4 card border-wl p-2 mr-0">
-                <h4>Transaction:</h4>
+                <h4 class="mx-auto">Transaction</h4>
 
-                <div>
-                    <div><span>Transaction Type:</span> <span>${receipt.paymentMethod}</span></div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Transaction Type:</div>
 
-                    <div><span>Transaction Status:</span> <span>UNKNOWN</span></div>
+                        <div class="col-6">${receipt.paymentMethod}</div>
+                    </div>
 
-                    <div><span>Transaction Total:</span> <span><g:formatNumber
-                            number="${receipt.transactionAmount ?: BigDecimal.ZERO}" type="currency"/></span></div>
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Transaction Status:</div>
 
+                        <div class="col-6">UNKNOWN</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Transaction Total:</div>
+
+                        <div class="col-6"><g:formatNumber
+                                number="${receipt.transactionAmount ?: BigDecimal.ZERO}" type="currency"/></div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="row">
             <div class="card border-wl mt-3 mb-3 p-2 col-md-4">
-                <h4>Transaction Additional Details</h4>
+                <h4 class="mx-auto">Transaction Additional Details</h4>
 
-                <div><span>Loyalty Number:</span> <span>${basket.loyaltyMemberDetails?.memberId ?: "N/A"}</span></div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Loyalty Number:</div>
 
-                <div><span>Discount Card:</span> <span>${basket.loyaltyMemberDetails?.guId ?: "N/A"}</span></div>
+                        <div class="col-6">${basket.loyaltyMemberDetails?.memberId ?: "N/A"}</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Discount Card:</div>
+
+                        <div class="col-6">${basket.loyaltyMemberDetails?.guId ?: "N/A"}</div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -279,14 +351,20 @@
 
         <div class="row">
             <div class="card border-wl mt-3 mb-3 p-2 col-md-4">
-                <h4>Transaction Discount Totals</h4>
+                <h4 class="mx-auto">Transaction Discount Totals</h4>
 
-                <div class="m-1">
-                    <span class="font-weight-bold">Staff Discount:</span><span id="staff-discount">1.23</span>
-                </div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Staff Discount:</div>
 
-                <div class="m-1">
-                    <span class="font-weight-bold">Promotion Savings</span><span id="promotion-savings">4.56</span>
+                        <div class="col-6">1.23 TODO</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Promotion Savings:</div>
+
+                        <div class="col-6">4.56 TODO</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -303,11 +381,9 @@
 
                         <div class="col-2 font-weight-bold">Tender Value</div>
 
-                        <div class="col-2 font-weight-bold">Card Number</div>
+                        <div class="col-4 font-weight-bold">Card Number</div>
 
                         <div class="col-2 font-weight-bold">Tender Status</div>
-
-                        <div class="col-2 font-weight-bold">Change</div>
                     </div>
                 </div>
 
@@ -325,10 +401,10 @@
                                     number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></div>
 
                             <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CardTenderBasketItem}">
-                                <div id="pan-id-${line + 1}" class="col-2 my-auto">${basketItem.pan}</div>
+                                <div id="pan-id-${line + 1}" class="col-4 my-auto">${basketItem.pan}</div>
                             </g:if>
                             <g:else>
-                                <div id="pan-id-${line + 1}" class="col-2 my-auto">-</div>
+                                <div id="pan-id-${line + 1}" class="col-4 my-auto">-</div>
                             </g:else>
 
                             <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CardTenderBasketItem}">
@@ -338,8 +414,6 @@
                             <g:else>
                                 <div id="tenderstatus-id-${line + 1}" class="col-2 my-auto">-</div>
                             </g:else>
-
-                            <div id="XXXX-${line + 1}" class="col-2 my-auto">TODO CHANGE</div>
                         </div>
                         <g:set var="line" value="${line + 1}"/>
                     </g:if>

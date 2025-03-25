@@ -24,6 +24,7 @@ class TransactionController {
 
     def details() {
         try {
+            def receiptId
             if (params.receiptId) {
                 receiptId = Integer.parseInt(params.receiptId)
             }
@@ -41,7 +42,7 @@ class TransactionController {
                 user.setId(basketuser?.id)
             }
 
-            render(template: "transactionDetails", model: [
+            [
                     user                 : user,
                     basketTransaction    : basketTransaction,
                     basket               : basketTransaction.basket,
@@ -51,7 +52,8 @@ class TransactionController {
                     containsModifiers    : receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
                     firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
                     maxTotalLength       : receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
-                    maxVatLength         : receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
+                    maxVatLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0
+            ]
         }
         catch (Exception ex) {
             def inputErrors = "Transaction details could not be fetched.<br/>"
@@ -158,40 +160,6 @@ class TransactionController {
         def sw = new StringWriter()
         e.printStackTrace(new PrintWriter(sw))
         return sw.toString()
-    }
-
-    def ajaxGetTransactionDetails(int receiptId) {
-        try {
-            Receipt receipt = transactionService.getReceipt(receiptId)
-            Store store = storeService.getStoreByStoreNumber(receipt.retailerId, receipt.storeId)
-            def basketTransaction = basketTransactionService.getBasketTransactionByReceipt(receipt, store)
-            User user = User.findByRetailerIdAndUsername(receipt.retailerId, receipt.usersName)
-
-            if (!user) { // The user appears to have disappeared. Unlikely event.
-                def basketuser = basketTransaction?.getUser()
-
-                user = new User()
-                user.setName(basketuser?.name)
-                user.setId(basketuser?.id)
-            }
-
-            render(template: "transactionDetails", model: [
-                    user                 : user,
-                    basketTransaction    : basketTransaction,
-                    basket               : basketTransaction.basket,
-                    basketItems          : basketTransaction.basket.basketItems,
-                    store                : store,
-                    receipt              : receipt,
-                    containsModifiers    : receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
-                    firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
-                    maxTotalLength       : receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
-                    maxVatLength         : receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
-        }
-        catch(Exception ex) {
-            def inputErrors = "Transaction details could not be fetched.<br/>"
-            inputErrors += "<pre>" + exceptionToString(ex) + "</pre>"
-            render(status: HttpStatus.BAD_REQUEST.code, inputErrors)
-        }
     }
 
     def saveReceiptPrinted(){
