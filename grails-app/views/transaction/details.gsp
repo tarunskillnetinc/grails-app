@@ -70,7 +70,7 @@
 <section id="transactions-container" class="container-fluid">
     <div class="container">
         <div class="row mt-3">
-            <div class="col-md-4 card border-wl mr-0 p-2 ml-0">
+            <div class="col-md-4 card mr-0 p-2 ml-0">
                 <h4 class="mx-auto">Transaction Reference</h4>
 
                 <div class="col-md-12">
@@ -108,7 +108,7 @@
                 </div>
             </div>
 
-            <div class="col-md-3 card border-wl ml-auto mr-auto p-2">
+            <div class="col-md-3 card ml-auto mr-auto p-2">
                 <h4 class="mx-auto">Operator Details</h4>
 
                 <div class="col-md-12">
@@ -132,7 +132,7 @@
                 </div>
             </div>
 
-            <div class="col-md-4 card border-wl p-2 mr-0">
+            <div class="col-md-4 card p-2 mr-0">
                 <h4 class="mx-auto">Transaction</h4>
 
                 <div class="col-md-12">
@@ -159,7 +159,7 @@
         </div>
 
         <div class="row">
-            <div class="card border-wl mt-3 mb-3 p-2 col-md-4">
+            <div class="card mt-3 mb-3 p-2 col-md-4">
                 <h4 class="mx-auto">Transaction Additional Details</h4>
 
                 <div class="col-md-12">
@@ -350,7 +350,7 @@
         </div>
 
         <div class="row">
-            <div class="card border-wl mt-3 mb-3 p-2 col-md-4">
+            <div class="card mt-3 mb-3 p-2 col-md-4">
                 <h4 class="mx-auto">Transaction Discount Totals</h4>
 
                 <div class="col-md-12">
