@@ -178,7 +178,7 @@
                     <div class="row">
                         <div class="col-6 text-right font-weight-bold">Transaction Status:</div>
 
-                        <div class="col-6">UNKNOWN</div>
+                        <div class="col-6">${receipt.voided ? "Voided" : "Complete"}</div>
                     </div>
 
                     <div class="row">
