@@ -1,19 +1,16 @@
 package uk.co.wonderlane.wlpos
 
-import com.google.gson.reflect.TypeToken
+
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
-import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
 import uk.co.wonderlane.wlpos.entities.StoreConfig
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
-import java.lang.reflect.Type
 import java.math.MathContext
 import java.math.RoundingMode
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 class StoreController {
@@ -141,7 +138,8 @@ class StoreController {
          max                         : params.max,
          offset                      : params.offset,
          sort                        : params.sort,
-         order                       : params.order]
+         order                       : params.order,
+         storeAdditionalDetails      : store?.getAdditionalDetailsList()]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -152,7 +150,12 @@ class StoreController {
             def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
             def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
 
-            render(view: "add", model: [store : newStoreCommand, parentStores: parentStores, storeTypes: storeTypes, priceBands: priceBands, ranges: ranges])
+            render(view: "add", model: [store : newStoreCommand,
+                                        parentStores: parentStores,
+                                        storeTypes: storeTypes,
+                                        priceBands: priceBands,
+                                        ranges: ranges,
+                                        storeAdditionalDetails: newStoreCommand?.storeAdditionalDetails])
         } else {
             // Validated.
             def storeCopyingConfigFrom = null
@@ -268,7 +271,8 @@ class StoreController {
                                            availableProductRanges      : availableProductRanges,
                                            availableParentStores       : availableParentStores,
                                            availablePrintReceiptOptions: PrintReceiptOption.values(),
-                                           viewOptions                 : viewOptions])
+                                           viewOptions                 : viewOptions,
+                                           storeAdditionalDetails      : storeCommand?.storeAdditionalDetails])
         }
     }
 
@@ -426,7 +430,20 @@ class StoreCommand implements Validateable {
         range nullable: false
         retailerStoreId nullable: true
         config nullable: false
-        storeAdditionalDetails nullable: true
+        storeAdditionalDetails nullable: true, validator: { val, obj ->
+            if (val) {
+                def hasErrors = false
+                val.eachWithIndex { storeAdditionalDetail, index ->
+                    if (storeAdditionalDetail && !storeAdditionalDetail.validate()) {
+                        hasErrors = true
+                    }
+                }
+                if (hasErrors) {
+                    return ['storeCommand.storeAdditionalDetails.validator.error']
+                }
+            }
+            return true
+        }
     }
 }
 
@@ -534,8 +551,17 @@ class StoreAdditionalDetailCommand implements Validateable {
     String value
 
     static constraints = {
-        description nullable: true, maxSize: 20
-        value nullable: true, maxSize: 240
+        description nullable: true, validator: { val, obj ->
+            if (val != null && val.length() > 20 ) {
+                return ['signifier.pattern.charLength']
+            }
+        }
+
+        value nullable: true, validator: { val, obj ->
+            if (val != null && val.length() > 240 ) {
+                return ['signifier.pattern.charLength']
+            }
+        }
     }
 }
 

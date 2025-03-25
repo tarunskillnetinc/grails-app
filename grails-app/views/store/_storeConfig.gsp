@@ -189,7 +189,7 @@
                 </div>
             </div>
 
-            <g:render template="sharedStoreConfigurationAccordions" model="[storeAdditionalDetails: storeSettings?.getAdditionalDetailsList()]"/>
+            <g:render template="sharedStoreConfigurationAccordions" model="[storeAdditionalDetails: storeAdditionalDetails]"/>
 
             <!-- EPOS configuration. -->
             <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">

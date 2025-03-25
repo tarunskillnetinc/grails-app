@@ -23,8 +23,8 @@
                     </g:each>
                 </g:if>
             </div>
-            <div class="mt-3 ml-2">
-                <a href="#" class="text-primary" onclick="addStoreAdditionalDetail(null, null, null)"><i class="fas fa-plus-circle mr-1"></i>Add additional store field</a>
+            <div class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">
+                <a href="#" class="text-primary" onclick="addStoreAdditionalDetail(null, null, null)"><i class="fas fa-plus-circle"></i>Add additional store field</a>
             </div>
         </div>
     </div>
