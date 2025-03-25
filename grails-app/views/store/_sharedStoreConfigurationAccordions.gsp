@@ -13,8 +13,8 @@
     <div id="collapseStoreAdditionalDetails" class="collapse" aria-labelledby="storeAdditionalDetails" data-parent="#accordion">
         <div class="card-body py-5">
             <div class="col-12" id="storeAdditionalDetailsContainer">
-                <g:if test="${storeSettings?.getAdditionalDetailsList()}">
-                    <g:each in="${storeSettings.getAdditionalDetailsList()}" var="detail" status="i">
+                <g:if test="${storeAdditionalDetails}">
+                    <g:each in="${storeAdditionalDetails}" var="detail" status="i">
                         <g:if test="${detail != null}">
                             <div id="storeAdditionalDetail-${i}">
                                 <g:render template="storeAdditionalDetail" model="[index: i, detail: detail]" />

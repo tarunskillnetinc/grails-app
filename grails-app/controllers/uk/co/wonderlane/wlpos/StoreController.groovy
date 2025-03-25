@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import com.google.gson.reflect.TypeToken
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
@@ -9,6 +10,7 @@ import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
+import java.lang.reflect.Type
 import java.math.MathContext
 import java.math.RoundingMode
 import java.util.regex.Matcher
@@ -194,6 +196,9 @@ class StoreController {
 
             store.config = storeConfig
 
+            String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(newStoreCommand?.storeAdditionalDetails)
+            store.additionalDetails = storeAdditionalDetailJson
+
             storeService.saveStore(store)
 
             flash.message = "Store created successfully."
@@ -228,8 +233,9 @@ class StoreController {
 
             bindData(storeConfig, storeCommand.config)
 
+            String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(storeCommand?.storeAdditionalDetails)
 
-            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig))
+            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson)
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
@@ -340,6 +346,8 @@ class NewStoreCommand implements Validateable {
     Range range
     PriceBand priceBand
 
+    List<StoreAdditionalDetailCommand> storeAdditionalDetails
+
     static constraints = {
         storeNumber nullable: false,blank: false, min:1, max: 999999, validator: { val, obj ->
             def existingStore = obj.storeService.getStoreByStoreNumber(obj.springSecurityService.principal.retailerId, val)
@@ -396,6 +404,7 @@ class NewStoreCommand implements Validateable {
         copyConfigFrom nullable: true
         range nullable: true
         priceBand nullable: true
+        storeAdditionalDetails nullable: true
     }
 }
 

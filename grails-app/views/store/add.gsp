@@ -284,7 +284,7 @@
                         </div>
                     </div>
                 </div>
-                <g:render template="sharedStoreConfigurationAccordions" />
+                <g:render template="sharedStoreConfigurationAccordions" model="[storeAdditionalDetails: store?.storeAdditionalDetails]"/>
             </div>
         </g:form>
     </section>

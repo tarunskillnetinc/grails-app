@@ -92,17 +92,17 @@ class StoreService extends MySqlDal {
         return [stores, storeCount.first()]
     }
 
-    def saveStore(StoreCommand store, String configString) {
-        return doSaveStore(store, configString)
+    def saveStore(StoreCommand store, String configString, String storeAdditionalDetail) {
+        return doSaveStore(store, configString, storeAdditionalDetail)
     }
 
     // Needs to not be transactional otherwise Hibernate tries to save the store object rather than allowing the stored procedure to do it (well, it does both).
     @Transactional (readOnly = true)
     def saveStore(Store store) {
-        return doSaveStore(store, store.configString)
+        return doSaveStore(store, store.configString, store.additionalDetails)
     }
 
-    private void doSaveStore(def store, String configString) {
+    private void doSaveStore(def store, String configString, String storeAdditionalDetail) {
         Connection conn = getConnection()
         CallableStatement cstmt = conn.prepareCall("{ call saveStore(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
 
@@ -125,10 +125,7 @@ class StoreService extends MySqlDal {
             cstmt.setString(7, store.retailerStoreId)
             cstmt.setBoolean(8, store.deleted)
             cstmt.setString(9, configString)
-            Type listType = new TypeToken<List<StoreAdditionalDetail>>(){}.getType()
-            List<StoreAdditionalDetail> storeAdditionalDetailList  = convertToStoreAdditionalDetailList(store?.storeAdditionalDetails)
-            cstmt.setString(10, gsonProvider.gson.toJson(storeAdditionalDetailList, listType))
-
+            cstmt.setString(10, storeAdditionalDetail)
             cstmt.executeUpdate()
 
             def resultSet = cstmt.getResultSet()
@@ -139,6 +136,12 @@ class StoreService extends MySqlDal {
             cstmt.close()
             conn.close()
         }
+    }
+
+    String getAdditionalDetailsJsonString(List<StoreAdditionalDetailCommand> storeAdditionalDetails){
+        List<StoreAdditionalDetail> storeAdditionalDetailList  = convertToStoreAdditionalDetailList(storeAdditionalDetails)
+        Type listType = new TypeToken<List<StoreAdditionalDetail>>(){}.getType()
+        return gsonProvider.gson.toJson(storeAdditionalDetailList, listType)
     }
 
     private List<StoreAdditionalDetail> convertToStoreAdditionalDetailList(List<StoreAdditionalDetailCommand> storeAdditionalDetails) {
