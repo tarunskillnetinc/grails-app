@@ -109,7 +109,7 @@ class ButtonService {
         } else if (buttonGridType.isIn(ButtonGridType.SCO_MANAGER_FUNCTIONS, ButtonGridType.SCO_QUICK_SELL)) {
             return ProcessType.values().findAll { it.isAvailableOnSco() }
         } else if (buttonGridType.is(ButtonGridType.TENDER)) {
-            return ProcessType.NAVIGATE_BACK
+            return Collections.singletonList(ProcessType.NAVIGATE_BACK)
         }
     }
 }

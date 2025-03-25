@@ -14,8 +14,7 @@ function searchSafe(sortParams, isForceButtonClick) {
             $('#safeSearchTerm').data('prev', $('#memberOfferSearchTerm').val());
         },
         error: function (resp) {
-            var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Safe search failed.";
-            displayMessage('error', errorMessage);
+            displayMessage('error', resp.responseText);
         }
     })
 }

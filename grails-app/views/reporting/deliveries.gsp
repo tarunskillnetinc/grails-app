@@ -186,7 +186,7 @@
                         <div class="form-group form-check">
                             <g:checkBox name="columns" id="columnsStoreNumber" class="form-check-input" value="storeId"
                                         checked="${!userColumns || userColumns?.columns?.find { it.column == 'storeId' }?.enabled}"/>
-                            <label class="form-check-label" for="columnsStoreNumber">Store</label>
+                            <label class="form-check-label" for="columnsStoreNumber">${retailer?.config?.retailerTerminologyConfig?.storeTerm}</label>
                         </div>
 
                         <div class="form-group form-check">
@@ -234,7 +234,7 @@
                             <g:checkBox name="columns" id="columnsNumberOfPacks" class="form-check-input"
                                         value="numberOfPacks"
                                         checked="${!userColumns || userColumns?.columns?.find { it.column == 'numberOfPacks' }?.enabled}"/>
-                            <label class="form-check-label" for="columnsNumberOfPacks">Number of Packs</label>
+                            <label class="form-check-label" for="columnsNumberOfPacks">Number of ${retailer?.config?.retailerTerminologyConfig?.packTerm}s</label>
                         </div>
 
                         <div class="form-group form-check">

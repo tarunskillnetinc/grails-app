@@ -36,7 +36,7 @@ class ButtonController {
 
         [button: button,
          buttonImage: buttonImage,
-         availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type),
+         availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type).sort { message(code: "ProcessType.${it.name()}" ) },
          availableSubPages: buttonService.getOtherButtonGrids(),
          availableTenderTypes: availableTenderTypes,
          productSku: productVariant?.sku,
@@ -224,6 +224,11 @@ class ButtonController {
                     saveButton(button, image, singularButtonUpdate, imageRecord)
                 }
             }
+            if (buttonService.saveButton(button)) {
+                flash.message = "Button saved successfully"
+            } else if (buttonService.saveButtonGrid(button.buttonGrid)) {
+                flash.message = "Button grid saved successfully"
+            }
 
             try {
                 if (singularButtonUpdate) {
@@ -271,7 +276,7 @@ class ButtonController {
                 render (view: "edit", model: [
                         button: button,
                         buttonImage: buttonImage,
-                        availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type),
+                        availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type).sort { message(code: "ProcessType.${it.name()}" ) },
                         availableSubPages: buttonService.getOtherButtonGrids(),
                         availableTenderTypes: availableTenderTypes,
                         productSku: productVariant?.sku,
@@ -306,7 +311,7 @@ class ButtonController {
         render (view: "edit", model: [
                 button: button,
                 buttonImage: buttonImage,
-                availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type),
+                availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type).sort { message(code: "ProcessType.${it.name()}" ) },
                 availableSubPages: buttonService.getOtherButtonGrids(),
                 availableTenderTypes: availableTenderTypes,
                 productSku: productVariant?.sku,
@@ -330,6 +335,7 @@ class ButtonController {
             syncMessage.setInsert(true)
         } else {
             syncMessage.setInsert(false)
+            syncMessage.setDelete(true)
         }
 
         rabbitService.sendMessage(syncMessage)
