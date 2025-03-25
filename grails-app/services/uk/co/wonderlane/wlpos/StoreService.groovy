@@ -144,6 +144,16 @@ class StoreService extends MySqlDal {
         return gsonProvider.gson.toJson(storeAdditionalDetailList, listType)
     }
 
+     def sortAdditionalDetails(def details) {
+        if (details == null || details.isEmpty()) {
+            return
+        }
+
+        return details.sort { a, b ->
+            (a?.description ?: "").compareToIgnoreCase(b?.description ?: "")
+        }
+    }
+
     private List<StoreAdditionalDetail> convertToStoreAdditionalDetailList(List<StoreAdditionalDetailCommand> storeAdditionalDetails) {
         return storeAdditionalDetails.stream()
                 .map(command -> {

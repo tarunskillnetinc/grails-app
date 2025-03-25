@@ -13,15 +13,7 @@
     <div id="collapseStoreAdditionalDetails" class="collapse" aria-labelledby="storeAdditionalDetails" data-parent="#accordion">
         <div class="card-body py-5">
             <div class="col-12" id="storeAdditionalDetailsContainer">
-                <g:if test="${storeAdditionalDetails}">
-                    <g:each in="${storeAdditionalDetails}" var="detail" status="i">
-                        <g:if test="${detail != null}">
-                            <div id="storeAdditionalDetail-${i}">
-                                <g:render template="storeAdditionalDetail" model="[index: i, detail: detail]" />
-                            </div>
-                        </g:if>
-                    </g:each>
-                </g:if>
+                <g:render template="storeAdditionalDetail" model="[storeAdditionalDetails: storeAdditionalDetails]" />
             </div>
             <div class="col-5 col-lg-4 offset-lg-3 col-form-label text-right pr-4 mr-3">
                 <button type="button" class="btn btn-wl p-1" onclick="addStoreAdditionalDetail(null, null, null)">

@@ -14,15 +14,22 @@ function addStoreAdditionalDetail(index, description, value) {
 
 function saveStoreAdditionalDetail(){
     var params = {}
+    var additionalDetailContainer = $("#storeAdditionalDetailsContainer > div");
+
+    additionalDetailContainer.each(function(loopIndex) {
+        var description = $("#storeAdditionalDetails\\[" + loopIndex + "\\]\\.description").val()
+        var value = $("#storeAdditionalDetails\\[" + loopIndex + "\\]\\.value").val()
+        console.log("index " + loopIndex + " description " + description + " value " + value)
+        params["storeAdditionalDetails[" + loopIndex + "].description"] = description;
+        params["storeAdditionalDetails[" + loopIndex + "].value"] = value;
+    });
+
+    var updatedDescription = $("#addStoreAdditionalDetailDescription").val()
+    var updatedValue = $("#addStoreAdditionalDetailValue").val()
+
     var index = $("#addStoreAdditionalDetailIndex").val()
-    var description = $("#addStoreAdditionalDetailDescription").val()
-    var value = $("#addStoreAdditionalDetailValue").val()
-    params["storeAdditionalDetails.description"] = description;
-    params["storeAdditionalDetails.value"] = value;
-
-    var lastVariantContainer = $("#storeAdditionalDetailsContainer > div:last-child");
-
     if (index === null || index === undefined || index === "") {
+        var lastVariantContainer = $("#storeAdditionalDetailsContainer > div:last-child");
         if (lastVariantContainer.length > 0) {
             index = parseInt(lastVariantContainer[0].id.split('-')[1]) + 1;
         } else {
@@ -32,6 +39,9 @@ function saveStoreAdditionalDetail(){
         index = parseInt(index, 10);
     }
 
+
+    params["storeAdditionalDetails[" + index + "].description"] = updatedDescription;
+    params["storeAdditionalDetails[" + index + "].value"] = updatedValue;
     params["index"] = index;
 
     $.ajax({
@@ -39,16 +49,8 @@ function saveStoreAdditionalDetail(){
         method: "POST",
         data: params,
         success: function(resp) {
-            var storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer > #storeAdditionalDetail-" +index);
-
-            if (storeAdditionalDetailsContainer.length === 0) {
-                $("#storeAdditionalDetailsContainer").append("<div id=\"storeAdditionalDetail-" + index +"\"></div>");
-
-                storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer > #storeAdditionalDetail-" +index);
-            }
-
+            var storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer");
             storeAdditionalDetailsContainer.html(resp);
-
             $('#addStoreAdditionalDetailsModal').modal("hide");
         }
     });

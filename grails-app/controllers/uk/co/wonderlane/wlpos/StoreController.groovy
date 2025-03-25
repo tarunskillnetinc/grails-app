@@ -69,7 +69,12 @@ class StoreController {
 
             def (stores, storeCount) = storeService.searchStores(springSecurityService.principal.retailerId, storeNumberFilter, storeNameFilter, showDeletedFilter, sortParams)
 
-            render(template: "storeSearchResults", model: [stores: stores, totalResults: storeCount, sortParams: sortParams, storeNameFilter: storeNameFilter ?: "", storeNumberFilter: storeNumberFilter ?: "", showDeletedFilter: showDeletedFilter])
+            render(template: "storeSearchResults", model: [stores: stores,
+                                                           totalResults: storeCount,
+                                                           sortParams: sortParams,
+                                                           storeNameFilter: storeNameFilter ?: "",
+                                                           storeNumberFilter: storeNumberFilter ?: "",
+                                                           showDeletedFilter: showDeletedFilter])
         } catch (Exception e) {
             render status: 500, text:" Error searching for stores."
         }
@@ -139,7 +144,7 @@ class StoreController {
          offset                      : params.offset,
          sort                        : params.sort,
          order                       : params.order,
-         storeAdditionalDetails      : store?.getAdditionalDetailsList()]
+         storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList())]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -155,7 +160,7 @@ class StoreController {
                                         storeTypes: storeTypes,
                                         priceBands: priceBands,
                                         ranges: ranges,
-                                        storeAdditionalDetails: newStoreCommand?.storeAdditionalDetails])
+                                        storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails)])
         } else {
             // Validated.
             def storeCopyingConfigFrom = null
@@ -272,7 +277,7 @@ class StoreController {
                                            availableParentStores       : availableParentStores,
                                            availablePrintReceiptOptions: PrintReceiptOption.values(),
                                            viewOptions                 : viewOptions,
-                                           storeAdditionalDetails      : storeCommand?.storeAdditionalDetails])
+                                           storeAdditionalDetails      : storeService.sortAdditionalDetails(storeCommand?.storeAdditionalDetails)])
         }
     }
 
@@ -281,7 +286,7 @@ class StoreController {
     }
 
     def ajaxSaveStoreAdditionalDetail(AddStoreAdditionalDetailCommand additionalDetailCommand) {
-        render(template: "storeAdditionalDetail", model: [index: additionalDetailCommand?.index, detail: additionalDetailCommand?.storeAdditionalDetails])
+        render(template: "storeAdditionalDetail", model: [storeAdditionalDetails: storeService.sortAdditionalDetails(additionalDetailCommand?.storeAdditionalDetails)])
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
@@ -580,6 +585,5 @@ class StoreAdditionalDetailCommand implements Validateable {
 }
 
 class AddStoreAdditionalDetailCommand implements Validateable {
-    int index
-    StoreAdditionalDetailCommand storeAdditionalDetails
+    List<StoreAdditionalDetailCommand> storeAdditionalDetails
 }
