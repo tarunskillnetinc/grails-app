@@ -55,10 +55,12 @@ function saveStoreAdditionalDetail(){
 }
 
 function deleteAdditionalDetail(index) {
-    var storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer > #storeAdditionalDetail-" + index);
-    if (storeAdditionalDetailsContainer.length) {
-        storeAdditionalDetailsContainer.find('input, select, textarea').remove();
-        storeAdditionalDetailsContainer.remove();
+    if (confirm("Are you sure you want to delete?")) {
+        var storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer > #storeAdditionalDetail-" + index);
+        if (storeAdditionalDetailsContainer.length) {
+            storeAdditionalDetailsContainer.find('input, select, textarea').remove();
+            storeAdditionalDetailsContainer.remove();
+        }
     }
 }
 

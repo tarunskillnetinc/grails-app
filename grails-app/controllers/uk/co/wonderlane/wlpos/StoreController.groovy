@@ -408,7 +408,21 @@ class NewStoreCommand implements Validateable {
         copyConfigFrom nullable: true
         range nullable: true
         priceBand nullable: true
-        storeAdditionalDetails nullable: true
+        storeAdditionalDetails nullable: true, validator: { val, obj ->
+            if (val) {
+                def hasErrors = false
+                val.eachWithIndex { storeAdditionalDetail, index ->
+                    if (storeAdditionalDetail && !storeAdditionalDetail.validate()) {
+                        hasErrors = true
+                    }
+                }
+                if (hasErrors) {
+                    return ['storeCommand.storeAdditionalDetails.validator.error']
+                }
+            }
+            return true
+        }
+
     }
 }
 
