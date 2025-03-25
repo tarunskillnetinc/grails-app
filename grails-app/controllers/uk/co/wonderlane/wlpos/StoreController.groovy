@@ -523,6 +523,11 @@ class StoreConfigCommand implements Validateable {
 class StoreAdditionalDetailCommand implements Validateable {
     String description
     String value
+
+    static constraints = {
+        description nullable: true, maxSize: 20
+        value nullable: true, maxSize: 240
+    }
 }
 
 class AddStoreAdditionalDetailCommand implements Validateable {

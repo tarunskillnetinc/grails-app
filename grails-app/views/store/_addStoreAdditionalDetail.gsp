@@ -34,7 +34,7 @@
         <div class="row">
           <label id="value" for="addStoreAdditionalDetailValue" class="col-3 col-form-label text-right pr-4">Value</label>
           <div class="col-9 pr-5">
-            <g:textArea id="addStoreAdditionalDetailValue" name="addStoreAdditionalDetailValue" class="form-control select-border" value="${value}" rows="6" style="min-height: 150px;" />
+            <g:textArea id="addStoreAdditionalDetailValue" name="addStoreAdditionalDetailValue" class="form-control select-border" maxlength="240" value="${value}" rows="6" style="min-height: 150px;" />
           </div>
         </div>
       </div>

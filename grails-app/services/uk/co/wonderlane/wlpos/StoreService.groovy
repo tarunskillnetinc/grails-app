@@ -144,10 +144,12 @@ class StoreService extends MySqlDal {
     private List<StoreAdditionalDetail> convertToStoreAdditionalDetailList(List<StoreAdditionalDetailCommand> storeAdditionalDetails) {
         return storeAdditionalDetails.stream()
                 .map(command -> {
-                    StoreAdditionalDetail detail = new StoreAdditionalDetail();
-                    detail.setDescription(command.getDescription());
-                    detail.setValue(command.getValue());
-                    return detail;
+                    if (command != null) {
+                        StoreAdditionalDetail detail = new StoreAdditionalDetail();
+                        detail.setDescription(command.getDescription());
+                        detail.setValue(command.getValue());
+                        return detail;
+                    }
                 })
                 .collect(Collectors.toList());
     }

@@ -22,12 +22,14 @@ function saveStoreAdditionalDetail(){
 
     var lastVariantContainer = $("#storeAdditionalDetailsContainer > div:last-child");
 
-    if(index == null) {
+    if (index === null || index === undefined || index === "") {
         if (lastVariantContainer.length > 0) {
             index = parseInt(lastVariantContainer[0].id.split('-')[1]) + 1;
         } else {
             index = 0;
         }
+    } else {
+        index = parseInt(index, 10);
     }
 
     params["index"] = index;
@@ -55,6 +57,7 @@ function saveStoreAdditionalDetail(){
 function deleteAdditionalDetail(index) {
     var storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer > #storeAdditionalDetail-" + index);
     if (storeAdditionalDetailsContainer.length) {
+        storeAdditionalDetailsContainer.find('input, select, textarea').remove();
         storeAdditionalDetailsContainer.remove();
     }
 }
