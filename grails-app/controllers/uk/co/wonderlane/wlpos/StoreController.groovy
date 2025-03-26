@@ -4,6 +4,10 @@ package uk.co.wonderlane.wlpos
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
+import org.joda.time.LocalDate
+import org.joda.time.LocalTime
+import uk.co.wonderlane.wlpos.entities.OpeningTime
+import uk.co.wonderlane.wlpos.entities.OpeningTimeOverride
 import uk.co.wonderlane.wlpos.entities.StoreConfig
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
@@ -102,7 +106,23 @@ class StoreController {
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
 
-        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges]
+
+        def initialRegularHours = [
+                new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', close: false),
+                new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', close: false),
+                new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', close: false),
+                new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', close: false),
+                new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', close: false),
+                new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', close: false),
+                new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', close: false)
+        ]
+
+        def storeOpeningHoursCommand = new StoreOpeningHoursCommand(
+                regularHours: initialRegularHours,
+                specialOpeningHours: []
+        )
+
+        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand     : storeOpeningHoursCommand]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -160,7 +180,8 @@ class StoreController {
                                         storeTypes: storeTypes,
                                         priceBands: priceBands,
                                         ranges: ranges,
-                                        storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails)])
+                                        storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails)
+            ])
         } else {
             // Validated.
             def storeCopyingConfigFrom = null
@@ -586,4 +607,24 @@ class StoreAdditionalDetailCommand implements Validateable {
 
 class AddStoreAdditionalDetailCommand implements Validateable {
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
+}
+
+class StoreOpeningHoursCommand {
+    List<OpeningTimeCommand> regularHours;
+    private List<OpeningTimeOverrideCommand> specialOpeningHours;
+}
+
+class OpeningTimeCommand {
+    String day;
+    String startTime;
+    String endTime;
+    boolean close;
+}
+
+class OpeningTimeOverrideCommand {
+    private String date;
+    private String description;
+    private String startTime;
+    private String endTime;
+    private boolean close;
 }
