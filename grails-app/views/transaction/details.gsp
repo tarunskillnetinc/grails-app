@@ -295,8 +295,10 @@
                                         &#10003;
                                     </g:if>
                                     <g:else>
-                                        ${(basketItem.product?.category?.restrictions?.buyerAgeRestriction ?: 0 > (basketItem.product?.restrictions?.buyerAgeRestriction ?: 0)
-                                                ? basketItem.product?.category?.restrictions?.buyerAgeRestriction : basketItem.product?.restrictions?.buyerAgeRestriction)}
+                                        <g:set var="age_restriction_value"
+                                               value="${(basketItem.product?.category?.restrictions?.buyerAgeRestriction ?: 0 > (basketItem.product?.restrictions?.buyerAgeRestriction ?: 0)
+                                                       ? basketItem.product?.category?.restrictions?.buyerAgeRestriction : basketItem.product?.restrictions?.buyerAgeRestriction)}"/>
+                                        ${age_restriction_value ?: "-"}
                                     </g:else>
                                 </div>
 
@@ -380,6 +382,56 @@
 
                             <g:set var="pre_discount_total"
                                    value="${pre_discount_total + (basketItem.total ?: BigDecimal.ZERO)}"/>
+                            <g:set var="line" value="${line + 1}"/>
+                        </g:if>
+
+                        <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.PayPointBasketItem}">
+                            <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
+                                <div id="sequence-id-${line + 1}" class="col-1 my-auto">${seqNum}</div>
+
+                                <div id="type-id-${line + 1}" class="col-1 my-auto"><g:message
+                                        code="BasketItemType.${basketItem.type}"/></div>
+
+                                <div id="entrymethod-id-${line + 1}"
+                                     class="col-1 my-auto">${basketItem.scanned ? "Scanned" : "Key-in"}</div>
+
+                                <div id="productcode-id-${line + 1}"
+                                     class="col-1 my-auto"><g:message code="PPItemType.${basketItem.itemType}"/></div>
+
+                                <div id="productdescription-id-${line + 1}"
+                                     class="col-1 my-auto">
+                                    ${basketItem.basketDescription}
+                                </div>
+
+                                <div id="barcode-id-${line + 1}"
+                                     class="col-1 my-auto">${basketItem.barcodeScanned ?: "N/A"}</div>
+
+                                <div id="totalquantity-id-${line + 1}"
+                                     class="col-1 my-auto">N/A</div>
+
+                                <div id="unitprice-id-${line + 1}" class="col-1 my-auto">-</div>
+
+                                <div id="totalprice-id-${line + 1}" class="col-1 my-auto"><g:formatNumber
+                                        number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></div>
+
+                                <div id="vat-id-${line + 1}" class="col-1 my-auto">
+                                    N/A
+                                </div>
+
+                                <div id="ageverification-id-${line + 1}" class="col-1 my-auto">-</div>
+
+                                <div id="returnreason-id-${line + 1}" class="col-1 my-auto">N/A</div>
+
+                                <div id="pricechange-id-${line + 1}" class="col-1 my-auto">
+                                    N/A
+                                </div>
+
+                                <div id="rtc-id-${line + 1}" class="col-1 my-auto">-</div>
+
+                                <div id="promotionstype-id-${line + 1}" class="col-1 my-auto">-</div>
+                            </div>
+
+                            <g:set var="pre_discount_total" value="${pre_discount_total + basketItem.total}"/>
                             <g:set var="line" value="${line + 1}"/>
                         </g:if>
                     </g:each>
