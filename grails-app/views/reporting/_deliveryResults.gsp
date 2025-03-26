@@ -5,7 +5,7 @@
             offset: ${sortParams?.offset},
             sortColumn: 'sku',
             sortOrder: ${sortParams?.sortColumn == 'sku' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">Product SKU</a></div>
+        });">${retailer?.config?.retailerTerminologyConfig?.productTerm} SKU</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
         <div class="col-6 font-weight-bold"><a id="description" href="#" onclick="getReportData({
@@ -13,7 +13,7 @@
             offset: ${sortParams?.offset},
             sortColumn: 'description',
             sortOrder: ${sortParams?.sortColumn == 'description' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">Product Description</a></div>
+        });">${retailer?.config?.retailerTerminologyConfig?.productTerm} Description</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "itemQuantity" }?.enabled}">
         <div class="col-2 font-weight-bold"><a id="item-quantity" href="#" onclick="getReportData({
