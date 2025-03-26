@@ -19,6 +19,7 @@ enum ReportType {
     ORDER,
     DELIVERIES,
     DELIVERY,
+    DELIVERY_CAGE,
     DELIVERY_ITEM,
     CATEGORY_SEARCH,
     PRODUCT_LISTS,
