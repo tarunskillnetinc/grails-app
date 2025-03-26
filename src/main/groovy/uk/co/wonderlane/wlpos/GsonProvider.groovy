@@ -4,7 +4,6 @@ import com.google.gson.*
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.ISODateTimeFormat
-import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
 import uk.co.wonderlane.wlpos.entities.sns.SnsNotification
 import uk.co.wonderlane.wlpos.requests.clientexport.StockTransaction
 import uk.co.wonderlane.wlpos.utils.PropertyBasedInterfaceMarshal
