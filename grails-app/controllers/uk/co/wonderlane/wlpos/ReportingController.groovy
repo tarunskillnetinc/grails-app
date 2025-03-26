@@ -1219,7 +1219,7 @@ class ReportingController {
                     cages = cages.sort { it.effectiveDate }
                     break
                 case "cases":
-                    cages = cages.sort { it.totalCases }
+                    cages = cages.sort { it.totalCaseQuantity }
                     break
             }
 
@@ -1231,13 +1231,13 @@ class ReportingController {
         cages = sortParams.offset < cages.size() ? cages.subList(sortParams.offset, (sortParams.offset + sortParams.max < cages.size() ? sortParams.offset + sortParams.max : cages.size())) : []
 
         cages.each { cage ->
-            BigDecimal totalCasesQuantity = BigDecimal.ZERO
+            BigDecimal totalCaseQuantity = BigDecimal.ZERO
             cage.productListItems.each { item ->
                 item.packLines.each { line ->
-                    totalCasesQuantity = totalCasesQuantity.add((BigDecimal) line.quantity)
+                    totalCaseQuantity = totalCaseQuantity.add((BigDecimal) line.quantity)
                 }
             }
-            cage.metaClass.totalCases = totalCasesQuantity
+            cage.metaClass.totalCaseQuantity = totalCaseQuantity
         }
 
         if (params.csv != null && params.csv == "true") {
@@ -2030,7 +2030,7 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(group?.effectiveDate)
             stringBuilder.append(",")
-            stringBuilder.append((BigDecimal) group?.totalCases)
+            stringBuilder.append((BigDecimal) group?.totalCaseQuantity)
             stringBuilder.append("\n")
         }
 
