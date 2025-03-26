@@ -293,14 +293,11 @@
                                     <g:if test="${basketItem.ageRestricted}">
                                         &#10003;
                                     </g:if>
-                                    <g:elseif test="${basketItem.product?.category?.restrictions?.buyerAgeRestriction}">
-                                        ${basketItem.product.category.restrictions.buyerAgeRestriction}
-                                    </g:elseif>
-                                    <g:elseif test="${basketItem.product?.restrictions?.buyerAgeRestriction}">
-                                        ${basketItem.product.restrictions?.buyerAgeRestriction}
-                                    </g:elseif>
+                                    <g:else>
+                                        ${(basketItem.product?.category?.restrictions?.buyerAgeRestriction ?: 0 > (basketItem.product?.restrictions?.buyerAgeRestriction ?: 0)
+                                                ? basketItem.product?.category?.restrictions?.buyerAgeRestriction : basketItem.product?.restrictions?.buyerAgeRestriction)}
+                                    </g:else>
                                 </div>
-
 
                                 <div id="ageverification-id-${line + 1}"
                                      class="col-1 my-auto">${basketItem.ageRestricted ? "&#10003;" : "-"}</div>
