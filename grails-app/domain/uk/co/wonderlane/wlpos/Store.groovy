@@ -108,8 +108,10 @@ class Store {
     }
 
     List<StoreAdditionalDetail> getAdditionalDetailsList() {
-        Type listType = new TypeToken<List<StoreAdditionalDetail>>(){}.getType();
-        return gsonProvider.gson.fromJson(additionalDetails, listType);
+        if (additionalDetails) {
+            return gsonProvider.gson.fromJson(additionalDetails, new TypeToken<List<StoreAdditionalDetail>>(){}.type)
+        }
+        return []
     }
 
     String getAdditionalDetailsString() {
