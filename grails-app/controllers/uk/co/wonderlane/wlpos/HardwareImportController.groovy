@@ -50,7 +50,8 @@ class HardwareImportController {
                         def serialsInStock = hardwareService.getSerialsInStock()
 
                         rows.forEach({ CSVUploadHardware row ->
-                            if (validSerialNumbersInFile.contains(row.serialNumber?.trim()) || validSerialNumbersInFile.contains(row.serialNumber)) {
+                            if (validSerialNumbersInFile.any { it.toLowerCase() == row.serialNumber?.trim()?.toLowerCase() } ||
+                                    validSerialNumbersInFile.any { it.toLowerCase() == row.serialNumber?.toLowerCase() }) {
                                 // Check that this serial number has not successfully been added before this in the same import
                                 row.validRow = false
                                 row.errorRow = "Invalid - Duplicate serial number in file"
