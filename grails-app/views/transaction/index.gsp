@@ -141,26 +141,6 @@
 
             }
     </script>
-        <style>
-        .superlarge-modal-dialog {
-            max-width: 95%;
-            margin: 1.75rem auto;
-        }
-
-        .superlarge-modal-dialog .container {
-            max-width: 95%;
-        }
-
-        #transaction-details-table {
-            max-width: 100%;
-            overflow-x: auto;
-        }
-
-        #transaction-details-table .col-1 {
-            font-size: 14px;
-            max-width: 6.66666%
-        }
-        </style>
     </head>
 
 <body>
@@ -257,27 +237,6 @@
                         <div class="modal-footer">
                             <button type="button" id="printReceiptButton" class="btn btn-info mr-auto" onclick="printReceipt();">Print</button>
                             <button type="button" id="closeReceiptModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="receipt-details-modal" class="container-fluid">
-            <!-- Receipt modal -->
-            <div class="modal fade" id="receiptDetailsModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel"
-                 aria-hidden="true">
-                <div class="superlarge-modal-dialog modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2>Transaction Details</h2>
-                        </div>
-
-                        <div id="receiptDetailsModalContent"></div>
-
-                        <div class="modal-footer">
-                            <button type="button" id="closeReceiptDetailsModalButton" class="btn btn-secondary"
-                                    data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
