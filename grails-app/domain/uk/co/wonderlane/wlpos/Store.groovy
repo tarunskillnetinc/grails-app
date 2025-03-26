@@ -1,6 +1,5 @@
 package uk.co.wonderlane.wlpos
 
-import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
 import uk.co.wonderlane.wlpos.entities.StoreConfig
