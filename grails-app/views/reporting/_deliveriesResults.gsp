@@ -21,7 +21,15 @@
             offset: ${sortParams?.offset},
             sortColumn: 'storeId',
             sortOrder: ${sortParams?.sortColumn == 'storeId' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">${retailer?.config?.retailerTerminologyConfig?.storeTerm}</a></div>
+        });">${retailer?.config?.retailerTerminologyConfig?.storeTerm} No.</a></div>
+    </g:if>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeName" }?.enabled}">
+        <div class="col-1 font-weight-bold"><a id="store-name" href="#" onclick="getReportData({
+            max: ${sortParams?.max},
+            offset: ${sortParams?.offset},
+            sortColumn: 'storeName',
+            sortOrder: ${sortParams?.sortColumn == 'storeName' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
+        });">${retailer?.config?.retailerTerminologyConfig?.storeTerm} Name</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "status" }?.enabled}">
         <div class="col-1 font-weight-bold"><a id="status" href="#" onclick="getReportData({
@@ -119,6 +127,9 @@
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeId" }?.enabled}">
                 <div id="store-id-${i + 1}" class="col-1 my-auto">${delivery?.store?.config?.storeNumber}</div>
+            </g:if>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeName" }?.enabled}">
+                <div id="store-name-${i + 1}" class="col-1 my-auto">${delivery?.store?.config?.storeName}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "status" }?.enabled}">
                 <div id="status-${i + 1}" class="col-1 my-auto"><g:message code="DeliveryStatus.${delivery?.status}" /></div>
