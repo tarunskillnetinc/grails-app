@@ -19,7 +19,6 @@ function saveStoreAdditionalDetail(){
     additionalDetailContainer.each(function(loopIndex) {
         var description = $("#storeAdditionalDetails\\[" + loopIndex + "\\]\\.description").val()
         var value = $("#storeAdditionalDetails\\[" + loopIndex + "\\]\\.value").val()
-        console.log("index " + loopIndex + " description " + description + " value " + value)
         params["storeAdditionalDetails[" + loopIndex + "].description"] = description;
         params["storeAdditionalDetails[" + loopIndex + "].value"] = value;
     });
@@ -58,10 +57,28 @@ function saveStoreAdditionalDetail(){
 
 function deleteAdditionalDetail(index) {
     if (confirm("Are you sure you want to delete?")) {
-        var storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer > #storeAdditionalDetail-" + index);
-        if (storeAdditionalDetailsContainer.length) {
-            storeAdditionalDetailsContainer.find('input, select, textarea').remove();
-            storeAdditionalDetailsContainer.remove();
+        var additionalDetailContainer = $("#storeAdditionalDetailsContainer > div");
+        if (additionalDetailContainer.length) {
+            var params = {}
+            additionalDetailContainer.each(function(loopIndex) {
+                if (loopIndex !== index) {
+                    var description = $("#storeAdditionalDetails\\[" + loopIndex + "\\]\\.description").val();
+                    var value = $("#storeAdditionalDetails\\[" + loopIndex + "\\]\\.value").val();
+                    params["storeAdditionalDetails[" + loopIndex + "].description"] = description;
+                    params["storeAdditionalDetails[" + loopIndex + "].value"] = value;
+                }
+            });
+
+            $.ajax({
+                url: saveStoreAdditionalDetails,
+                method: "POST",
+                data: params,
+                success: function(resp) {
+                    var storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer");
+                    storeAdditionalDetailsContainer.html(resp);
+                    $('#addStoreAdditionalDetailsModal').modal("hide");
+                }
+            });
         }
     }
 }
