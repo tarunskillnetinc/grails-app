@@ -28,7 +28,7 @@
 }
 
 #transaction-header-details .col-md-6 {
-    max-width: 49%
+    max-width: 49.5%
 }
 
     #transaction-details-table {
@@ -134,7 +134,7 @@
                     <div class="row">
                         <div class="col-6 text-right font-weight-bold">Operator Role:</div>
 
-                        <div class="col-6">${user.role}</div>
+                        <div class="col-6"><g:message code="Role.${user.role}"/></div>
                     </div>
                 </div>
             </div>
@@ -172,13 +172,14 @@
                     <div class="row">
                         <div class="col-6 text-right font-weight-bold">Transaction Type:</div>
 
-                        <div class="col-6">${receipt.paymentMethod}</div>
+                        <div class="col-6"><g:message
+                                code="TransactionPaymentMethodType.${receipt.paymentMethod}"/></div>
                     </div>
 
                     <div class="row">
                         <div class="col-6 text-right font-weight-bold">Transaction Status:</div>
 
-                        <div class="col-6">${receipt.voided ? "Voided" : "Complete"}</div>
+                        <div class="col-6">${basketTransaction.voided ? "Voided" : "Complete"}</div>
                     </div>
 
                     <div class="row">
@@ -288,7 +289,7 @@
 
                                 <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.RefundBasketItem}">
                                     <div id="returnreason-id-${line + 1}"
-                                         class="col-1 my-auto">${basketItem.refundReasonOther + " " + basketItem.refundReason?.description + " " + basketItem.refundReason?.type}</div>
+                                         class="col-1 my-auto">${basketItem.refundReason?.description}</div>
                                 </g:if>
                                 <g:else>
                                     <div id="returnreason-id-${line + 1}" class="col-1 my-auto">N/A</div>
@@ -407,7 +408,12 @@
                             <div id="sequence-id-${line + 1}" class="col-2 my-auto">${seqNum}</div>
 
                             <div id="tender-id-${line + 1}" class="col-2 my-auto">
-                                <g:message code="TenderType.${basketItem.tenderType}"/>
+                                <g:if test="${basketItem.tenderType}"><!-- tendertype might not be a legal value -->
+                                    <g:message code="TenderType.${basketItem.tenderType}"/>
+                                </g:if>
+                                <g:else>
+                                    ${basketItem.name} <!-- in which case use the name instead -->
+                                </g:else>
                             </div>
 
                             <div id="tendervalue-id-${line + 1}" class="col-2 my-auto"><g:formatNumber
@@ -422,7 +428,7 @@
 
                             <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CardTenderBasketItem}">
                                 <div id="tenderstatus-id-${line + 1}"
-                                     class="col-2 my-auto">${basketItem.authCode ?: ""}</div>
+                                     class="col-2 my-auto">${basketItem.voided ? "Voided" : "Success"}</div>
                             </g:if>
                             <g:else>
                                 <div id="tenderstatus-id-${line + 1}" class="col-2 my-auto">-</div>
