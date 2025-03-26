@@ -245,6 +245,7 @@ class RetailerCommand implements Validateable {
     boolean amendableOrdersEnabled
     Integer alcoholMinimumPriceMultiplier
     boolean charityEnabled
+    boolean receiptInBranchOrders
 
     MultipartFile brandLogo
 
