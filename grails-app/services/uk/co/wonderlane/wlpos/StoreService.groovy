@@ -1,17 +1,22 @@
 package uk.co.wonderlane.wlpos
 
+import com.google.gson.reflect.TypeToken
 import grails.gorm.transactions.Transactional
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
 
+import java.lang.reflect.Type
 import java.sql.CallableStatement
 import java.sql.Connection
 import java.sql.Types
+import java.util.stream.Collectors
 
 @Transactional
 class StoreService extends MySqlDal {
 
     def springSecurityService
+    def gsonProvider
 
     StoreService(DatabaseCredentials databaseCredentials) {
         super(databaseCredentials)
@@ -87,19 +92,19 @@ class StoreService extends MySqlDal {
         return [stores, storeCount.first()]
     }
 
-    def saveStore(StoreCommand store, String configString) {
-        return doSaveStore(store, configString)
+    def saveStore(StoreCommand store, String configString, String storeAdditionalDetail) {
+        return doSaveStore(store, configString, storeAdditionalDetail)
     }
 
     // Needs to not be transactional otherwise Hibernate tries to save the store object rather than allowing the stored procedure to do it (well, it does both).
     @Transactional (readOnly = true)
     def saveStore(Store store) {
-        return doSaveStore(store, store.configString)
+        return doSaveStore(store, store.configString, store.additionalDetails)
     }
 
-    private void doSaveStore(def store, String configString) {
+    private void doSaveStore(def store, String configString, String storeAdditionalDetail) {
         Connection conn = getConnection()
-        CallableStatement cstmt = conn.prepareCall("{ call saveStore(?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+        CallableStatement cstmt = conn.prepareCall("{ call saveStore(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
             if (store.id && store.id > 0) {
@@ -120,7 +125,7 @@ class StoreService extends MySqlDal {
             cstmt.setString(7, store.retailerStoreId)
             cstmt.setBoolean(8, store.deleted)
             cstmt.setString(9, configString)
-
+            cstmt.setString(10, storeAdditionalDetail)
             cstmt.executeUpdate()
 
             def resultSet = cstmt.getResultSet()
@@ -131,5 +136,34 @@ class StoreService extends MySqlDal {
             cstmt.close()
             conn.close()
         }
+    }
+
+    String getAdditionalDetailsJsonString(List<StoreAdditionalDetailCommand> storeAdditionalDetails){
+        List<StoreAdditionalDetail> storeAdditionalDetailList  = convertToStoreAdditionalDetailList(storeAdditionalDetails)
+        Type listType = new TypeToken<List<StoreAdditionalDetail>>(){}.getType()
+        return gsonProvider.gson.toJson(storeAdditionalDetailList, listType)
+    }
+
+     def sortAdditionalDetails(def details) {
+        if (details == null || details.isEmpty()) {
+            return
+        }
+
+        return details.sort { a, b ->
+            (a?.description ?: "").compareToIgnoreCase(b?.description ?: "")
+        }
+    }
+
+    private List<StoreAdditionalDetail> convertToStoreAdditionalDetailList(List<StoreAdditionalDetailCommand> storeAdditionalDetails) {
+        return storeAdditionalDetails.stream()
+                .map(command -> {
+                    if (command != null) {
+                        StoreAdditionalDetail detail = new StoreAdditionalDetail();
+                        detail.setDescription(command.getDescription());
+                        detail.setValue(command.getValue());
+                        return detail;
+                    }
+                })
+                .collect(Collectors.toList());
     }
 }
