@@ -224,7 +224,7 @@ overridewrap {
 
         <div class="row">
             <div class="pt-4 pb-2 w-100">
-                <h4>Transaction Details:</h4>
+                <h4>Product Details:</h4>
 
                 <div id="transaction-details-table" class="table-responsive">
                     <div class="row mt-2 pb-2 ml-0 mr-0 table-wl bottom-border">
