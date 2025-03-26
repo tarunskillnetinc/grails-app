@@ -36,32 +36,48 @@
     overflow-x: auto;
 }
 
+overridewrap {
+    word-wrap: break-word;
+}
+
 #transaction-details-table .col-1 { /* Make it 15 columns wide */
     font-size: 14px;
     max-width: 6.66666%;
-    flex: 0 0 8.333333%;
+    flex: 0 0 6.66666%;
+    overflow: hidden;
 }
 
 #transaction-details-table .col-2 { /* Make it 15 columns wide */
     font-size: 14px;
-    max-width: 13.33332%;
-    flex: 0 0 8.333333%;
+    max-width: 10.33332%;
+    flex: 0 0 10.33332%;
 }
 
 #transaction-details-table .col-3 { /* Make it 15 columns wide */
     font-size: 14px;
-    max-width: 20%;
-    flex: 0 0 8.333333%;
+    max-width: 13.33332%;
+    flex: 0 0 13.33332%;
 }
 
 #transaction-details-table .col-05 { /* Half a column */
     font-size: 14px;
     max-width: 3.3333%;
-    flex: 0 0 8.333333%;
+    flex: 0 0 3.3333%;
     position: relative;
     width: 100%;
     padding-right: 15px;
     padding-left: 15px;
+}
+
+#transaction-details-table .col-07 { /* Half a column and a bit */
+    font-size: 14px;
+    max-width: 5.3333%;
+    flex: 0 0 5.3333%;
+    position: relative;
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    overflow: hidden;
 }
     </style>
 </head>
@@ -210,22 +226,22 @@
         </div>
 
         <div class="row">
-            <div class="pt-2 pb-2 w-100">
+            <div class="pt-4 pb-2 w-100">
                 <h4>Transaction Details:</h4>
 
                 <div id="transaction-details-table" class="table-responsive">
                     <div class="row mt-2 pb-2 ml-0 mr-0 table-wl bottom-border">
                         <div class="col-05 font-weight-bold">Seq</div>
 
-                        <div class="col-05 font-weight-bold">Type</div>
+                        <div class="col-07 font-weight-bold">Type</div>
 
                         <div class="col-1 font-weight-bold">Entry<br/>Method</div>
 
-                        <div class="col-2 font-weight-bold">Product<br/>Code</div>
+                        <div class="col-2 font-weight-bold overridewrap">Product<br/>Code</div>
 
                         <div class="col-3 font-weight-bold">Product<br/>Description</div>
 
-                        <div class="col-2 font-weight-bold">Barcode</div>
+                        <div class="col-2 font-weight-bold overridewrap">Barcode</div>
 
                         <div class="col-05 font-weight-bold">Total<br/>Qty</div>
 
@@ -235,7 +251,7 @@
 
                         <div class="col-1 font-weight-bold">VAT</div>
 
-                        <div class="col-05 font-weight-bold">Age<br/>Verification</div>
+                        <div class="col-05 font-weight-bold ">Age<br/>Check</div>
 
                         <div class="col-1 font-weight-bold">Return<br/>Reason</div>
 
@@ -264,20 +280,20 @@
                             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
                                 <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum}</div>
 
-                                <div id="type-id-${line + 1}" class="col-05 my-auto"><g:message
+                                <div id="type-id-${line + 1}" class="col-07 my-auto"><g:message
                                         code="BasketItemType.${basketItem.type}"/></div>
 
                                 <div id="entrymethod-id-${line + 1}"
                                      class="col-1 my-auto">${basketItem.scanned ? "Scanned" : "Key-in"}</div>
 
                                 <div id="productcode-id-${line + 1}"
-                                     class="col-2 my-auto p-1">${basketItem.product?.itemCode}</div>
+                                     class="col-2 my-auto p-1 overridewrap">${basketItem.product?.itemCode}</div>
 
                                 <div id="productdescription-id-${line + 1}"
                                      class="col-3 my-auto p-1">${basketItem.product?.description}</div>
 
                                 <div id="barcode-id-${line + 1}"
-                                     class="col-2 my-auto p-1">
+                                     class="col-2 my-auto p-1 overridewrap">
                                     <g:if test="${basketItem.barcodeScanned}"><!-- if this top level is set, use that -->
                                         ${basketItem.barcodeScanned}
                                     </g:if>
@@ -363,19 +379,19 @@
                             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
                                 <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum}</div>
 
-                                <div id="type-id-${line + 1}" class="col-05 my-auto"><g:message
+                                <div id="type-id-${line + 1}" class="col-07 my-auto"><g:message
                                         code="BasketItemType.${basketItem.type}"/></div>
 
                                 <div id="entrymethod-id-${line + 1}"
                                      class="col-1 my-auto">${basketItem.scanned ?: "N/A"}</div>
 
-                                <div id="productcode-id-${line + 1}" class="col-2 my-auto p-1">N/A</div>
+                                <div id="productcode-id-${line + 1}" class="col-2 my-auto p-1 overridewrap">N/A</div>
 
                                 <div id="productdescription-id-${line + 1}"
                                      class="col-3 my-auto p-1">${basketItem.promotion?.description}</div>
 
                                 <div id="barcode-id-${line + 1}"
-                                     class="col-2 my-auto p-1">${basketItem.barcodeScanned ?: "N/A"}</div>
+                                     class="col-2 my-auto p-1 overridewrap">${basketItem.barcodeScanned ?: "N/A"}</div>
 
                                 <div id="totalquantity-id-${line + 1}" class="col-05 my-auto">N/A</div>
 
@@ -409,14 +425,14 @@
                             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
                                 <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum}</div>
 
-                                <div id="type-id-${line + 1}" class="col-05 my-auto"><g:message
+                                <div id="type-id-${line + 1}" class="col-07 my-auto"><g:message
                                         code="BasketItemType.${basketItem.type}"/></div>
 
                                 <div id="entrymethod-id-${line + 1}"
                                      class="col-1 my-auto">${basketItem.scanned ? "Scanned" : "Key-in"}</div>
 
                                 <div id="productcode-id-${line + 1}"
-                                     class="col-2 my-auto p-1"><g:message
+                                     class="col-2 my-auto p-1 overridewrap"><g:message
                                         code="PPItemType.${basketItem.itemType}"/></div>
 
                                 <div id="productdescription-id-${line + 1}"
@@ -425,7 +441,7 @@
                                 </div>
 
                                 <div id="barcode-id-${line + 1}"
-                                     class="col-2 my-auto p-1">${basketItem.barcodeScanned ?: "N/A"}</div>
+                                     class="col-2 my-auto p-1 overridewrap">${basketItem.barcodeScanned ?: "N/A"}</div>
 
                                 <div id="totalquantity-id-${line + 1}"
                                      class="col-05 my-auto">N/A</div>
@@ -463,20 +479,20 @@
                             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
                                 <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum}</div>
 
-                                <div id="type-id-${line + 1}" class="col-05 my-auto"><g:message
+                                <div id="type-id-${line + 1}" class="col-07 my-auto"><g:message
                                         code="BasketItemType.${basketItem.type}"/></div>
 
                                 <div id="entrymethod-id-${line + 1}"
                                      class="col-1 my-auto">${basketItem.scanned ? "Scanned" : "Key-in"}</div>
 
                                 <div id="productcode-id-${line + 1}"
-                                     class="col-2 my-auto">N/A</div>
+                                     class="col-2 my-auto overridewrap">N/A</div>
 
                                 <div id="productdescription-id-${line + 1}"
                                      class="col-3 my-auto">${basketItem.discountPercentage}% Discount</div>
 
                                 <div id="barcode-id-${line + 1}"
-                                     class="col-2 my-auto">N/A</div>
+                                     class="col-2 my-auto overridewrap">N/A</div>
 
                                 <div id="totalquantity-id-${line + 1}"
                                      class="col-05 my-auto">${basketItem.qty ?: "N/A"}</div>
