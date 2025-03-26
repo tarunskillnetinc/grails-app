@@ -1,7 +1,4 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%@ page import="uk.co.wonderlane.wlpos.enums.BasketItemType" %>
-<%@ page import="uk.co.wonderlane.wlpos.enums.TenderType" %>
-<%@ page import="uk.co.wonderlane.wlpos.enums.BasketItemType" %>
 
 <html>
 <head>
