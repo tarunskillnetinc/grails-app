@@ -240,6 +240,7 @@
                     <g:set var="discount_total" value="${0}"/>
                     <g:set var="staff_discount_total" value="${0}"/>
                     <g:set var="grand_total" value="${0}"/>
+                    <g:set var="promotion_total" value="${0}"/>
 
                     <g:each in="${basketItems}" var="basketItem" status="seqNum">
                         <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.ProductBasketItem}">
@@ -361,6 +362,8 @@
                                 <div id="totalprice-id-${line + 1}" class="col-1 my-auto"><g:formatNumber
                                         number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></div>
 
+                                <g:set var="promotion_total" value="${promotion_total + basketItem.total}"/>
+
                                 <div id="vat-id-${line + 1}" class="col-1 my-auto">N/A</div>
 
                                 <div id="ageverification-id-${line + 1}" class="col-1 my-auto">-</div>
@@ -458,13 +461,19 @@
                     <div class="row">
                         <div class="col-6 text-right font-weight-bold">Staff Discount:</div>
 
-                        <div class="col-6">1.23 TODO</div>
+                        <div class="col-6"><g:formatNumber number="${staff_discount_total}" type="currency"/></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Discount Totals:</div>
+
+                        <div class="col-6"><g:formatNumber number="${discount_total}" type="currency"/></div>
                     </div>
 
                     <div class="row">
                         <div class="col-6 text-right font-weight-bold">Promotion Savings:</div>
 
-                        <div class="col-6">4.56 TODO</div>
+                        <div class="col-6"><g:formatNumber number="${promotion_total}" type="currency"/></div>
                     </div>
                 </div>
             </div>
