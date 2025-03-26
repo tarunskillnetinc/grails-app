@@ -1,4 +1,3 @@
-
 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
     <div class="card-header pointer" id="storeAdditionalDetails" data-toggle="collapse" data-target="#collapseStoreAdditionalDetails" aria-expanded="true" aria-controls="collapseStoreAdditionalDetails">
         <div class="row">
@@ -13,7 +12,13 @@
 
     <div id="collapseStoreAdditionalDetails" class="collapse" aria-labelledby="storeAdditionalDetails" data-parent="#accordion">
         <div class="card-body py-5">
-            <div class="col-12">
+            <div class="col-12" id="storeAdditionalDetailsContainer">
+                <g:render template="storeAdditionalDetail" model="[storeAdditionalDetails: storeAdditionalDetails]" />
+            </div>
+            <div class="col-5 col-lg-4 offset-lg-3 col-form-label text-right pr-4 mr-3">
+                <button type="button" class="btn btn-wl p-1" onclick="addStoreAdditionalDetail(null, null, null)">
+                    Add additional store fields
+                </button>
             </div>
         </div>
     </div>

@@ -11,6 +11,7 @@
     <script type="text/javascript">
         var getStoresUrl = "${createLink(controller: 'store', action: 'ajaxGetStores')}"
         var deleteStoreUrl = "${createLink(controller: 'store', action: 'ajaxDeleteStore')}"
+        var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
 
         var globalSortParams = null;
 
@@ -192,5 +193,6 @@
             </div>
         </div>
     </section>
+
 </body>
 </html>

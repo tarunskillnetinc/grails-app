@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
@@ -10,7 +11,6 @@ import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 import java.math.MathContext
 import java.math.RoundingMode
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 class StoreController {
@@ -69,7 +69,12 @@ class StoreController {
 
             def (stores, storeCount) = storeService.searchStores(springSecurityService.principal.retailerId, storeNumberFilter, storeNameFilter, showDeletedFilter, sortParams)
 
-            render(template: "storeSearchResults", model: [stores: stores, totalResults: storeCount, sortParams: sortParams, storeNameFilter: storeNameFilter ?: "", storeNumberFilter: storeNumberFilter ?: "", showDeletedFilter: showDeletedFilter])
+            render(template: "storeSearchResults", model: [stores: stores,
+                                                           totalResults: storeCount,
+                                                           sortParams: sortParams,
+                                                           storeNameFilter: storeNameFilter ?: "",
+                                                           storeNumberFilter: storeNumberFilter ?: "",
+                                                           showDeletedFilter: showDeletedFilter])
         } catch (Exception e) {
             render status: 500, text:" Error searching for stores."
         }
@@ -138,7 +143,8 @@ class StoreController {
          max                         : params.max,
          offset                      : params.offset,
          sort                        : params.sort,
-         order                       : params.order]
+         order                       : params.order,
+         storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList())]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -149,7 +155,12 @@ class StoreController {
             def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
             def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
 
-            render(view: "add", model: [store : newStoreCommand, parentStores: parentStores, storeTypes: storeTypes, priceBands: priceBands, ranges: ranges])
+            render(view: "add", model: [store : newStoreCommand,
+                                        parentStores: parentStores,
+                                        storeTypes: storeTypes,
+                                        priceBands: priceBands,
+                                        ranges: ranges,
+                                        storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails)])
         } else {
             // Validated.
             def storeCopyingConfigFrom = null
@@ -193,6 +204,9 @@ class StoreController {
 
             store.config = storeConfig
 
+            String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(newStoreCommand?.storeAdditionalDetails)
+            store.additionalDetails = storeAdditionalDetailJson
+
             storeService.saveStore(store)
 
             flash.message = "Store created successfully."
@@ -227,7 +241,9 @@ class StoreController {
 
             bindData(storeConfig, storeCommand.config)
 
-            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig))
+            String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(storeCommand?.storeAdditionalDetails)
+
+            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson)
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
@@ -260,8 +276,17 @@ class StoreController {
                                            availableProductRanges      : availableProductRanges,
                                            availableParentStores       : availableParentStores,
                                            availablePrintReceiptOptions: PrintReceiptOption.values(),
-                                           viewOptions                 : viewOptions])
+                                           viewOptions                 : viewOptions,
+                                           storeAdditionalDetails      : storeService.sortAdditionalDetails(storeCommand?.storeAdditionalDetails)])
         }
+    }
+
+    def ajaxAddStoreAdditionalDetail() {
+        render(template: "addStoreAdditionalDetail", model: [index : params?.index, description: params?.description, value: params?.value])
+    }
+
+    def ajaxSaveStoreAdditionalDetail(AddStoreAdditionalDetailCommand additionalDetailCommand) {
+        render(template: "storeAdditionalDetail", model: [storeAdditionalDetails: storeService.sortAdditionalDetails(additionalDetailCommand?.storeAdditionalDetails)])
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
@@ -330,6 +355,8 @@ class NewStoreCommand implements Validateable {
     Range range
     PriceBand priceBand
 
+    List<StoreAdditionalDetailCommand> storeAdditionalDetails
+
     static constraints = {
         storeNumber nullable: false,blank: false, min:1, max: 999999, validator: { val, obj ->
             def existingStore = obj.storeService.getStoreByStoreNumber(obj.springSecurityService.principal.retailerId, val)
@@ -386,6 +413,21 @@ class NewStoreCommand implements Validateable {
         copyConfigFrom nullable: true
         range nullable: true
         priceBand nullable: true
+        storeAdditionalDetails nullable: true, validator: { val, obj ->
+            if (val) {
+                def hasErrors = false
+                val.eachWithIndex { storeAdditionalDetail, index ->
+                    if (storeAdditionalDetail && !storeAdditionalDetail.validate()) {
+                        hasErrors = true
+                    }
+                }
+                if (hasErrors) {
+                    return ['storeCommand.storeAdditionalDetails.validator.error']
+                }
+            }
+            return true
+        }
+
     }
 }
 
@@ -398,6 +440,7 @@ class StoreCommand implements Validateable {
     boolean deleted
 
     StoreConfigCommand config
+    List<StoreAdditionalDetailCommand> storeAdditionalDetails
 
     static constraints = {
         id nullable: true
@@ -406,6 +449,20 @@ class StoreCommand implements Validateable {
         range nullable: false
         retailerStoreId nullable: true
         config nullable: false
+        storeAdditionalDetails nullable: true, validator: { val, obj ->
+            if (val) {
+                def hasErrors = false
+                val.eachWithIndex { storeAdditionalDetail, index ->
+                    if (storeAdditionalDetail && !storeAdditionalDetail.validate()) {
+                        hasErrors = true
+                    }
+                }
+                if (hasErrors) {
+                    return ['storeCommand.storeAdditionalDetails.validator.error']
+                }
+            }
+            return true
+        }
     }
 }
 
@@ -506,4 +563,27 @@ class StoreConfigCommand implements Validateable {
     private boolean isValidHexCode(String s) {
         return s.chars().allMatch({ c -> "0123456789ABCDEFabcdef".indexOf(c) >= 0 });
     }
+}
+
+class StoreAdditionalDetailCommand implements Validateable {
+    String description
+    String value
+
+    static constraints = {
+        description nullable: true, validator: { val, obj ->
+            if (val != null && val.length() > 20 ) {
+                return ['signifier.pattern.charLength']
+            }
+        }
+
+        value nullable: true, validator: { val, obj ->
+            if (val != null && val.length() > 240 ) {
+                return ['signifier.pattern.charLength']
+            }
+        }
+    }
+}
+
+class AddStoreAdditionalDetailCommand implements Validateable {
+    List<StoreAdditionalDetailCommand> storeAdditionalDetails
 }

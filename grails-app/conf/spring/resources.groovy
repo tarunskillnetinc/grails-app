@@ -176,6 +176,7 @@ beans = {
                     grailsApplication.config.getProperty('mysql.wlpos.database'))) {
 
         springSecurityService = ref('springSecurityService')
+        gsonProvider = ref("gsonProvider")
     }
 
     retailerConfigService(RetailerConfigService,
