@@ -96,12 +96,6 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-6 text-right font-weight-bold">Transaction Number:</div>
-
-                        <div class="col-6">${receipt.transactionId}</div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-6 text-right font-weight-bold">Store:</div>
 
                         <div class="col-6">${store.config.storeName} - ${store.config.storeNumber}</div>
@@ -362,9 +356,9 @@
                                 <div id="unitprice-id-${line + 1}" class="col-1 my-auto">-</div>
 
                                 <div id="totalprice-id-${line + 1}" class="col-1 my-auto"><g:formatNumber
-                                        number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></div>
+                                        number="${-basketItem.totalSavings ?: BigDecimal.ZERO}" type="currency"/></div>
 
-                                <g:set var="promotion_total" value="${promotion_total + basketItem.total}"/>
+                                <g:set var="promotion_total" value="${promotion_total + basketItem.totalSavings}"/>
 
                                 <div id="vat-id-${line + 1}" class="col-1 my-auto">N/A</div>
 
@@ -381,7 +375,7 @@
                             </div>
 
                             <g:set var="pre_discount_total"
-                                   value="${pre_discount_total + (basketItem.total ?: BigDecimal.ZERO)}"/>
+                                   value="${pre_discount_total - (basketItem.totalSavings ?: BigDecimal.ZERO)}"/>
                             <g:set var="line" value="${line + 1}"/>
                         </g:if>
 
@@ -596,6 +590,13 @@
                         <g:set var="line" value="${line + 1}"/>
                     </g:if>
                 </g:each>
+                <g:if test="${line == 0}">
+                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
+                        <div id="no-tender" class="col-12 my-auto">
+                            <div class="mx-auto">No Tender Details</div>
+                        </div>
+                    </div>
+                </g:if>
             </div>
         </div>
     </div>
