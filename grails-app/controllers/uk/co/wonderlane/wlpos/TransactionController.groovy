@@ -10,6 +10,9 @@ import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 class TransactionController {
 
     def transactionService
+    def springSecurityService
+    def storeService
+    def basketTransactionService
     int lastShownReceiptId
 
     def index() {
@@ -17,6 +20,43 @@ class TransactionController {
         DateTime endDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         [startDate: startDate, endDate: endDate]
+    }
+
+    def details() {
+        try {
+            def receiptId
+            if (params.receiptId) {
+                receiptId = Integer.parseInt(params.receiptId)
+            }
+
+            Receipt receipt = transactionService.getReceipt(receiptId)
+            Store store = storeService.getStoreByStoreNumber(receipt.retailerId, receipt.storeId)
+            def basketTransaction = basketTransactionService.getBasketTransactionByReceipt(receipt, store)
+            User user = User.findByRetailerIdAndUsername(receipt.retailerId, receipt.usersName)
+
+            if (!user) { // The user appears to have disappeared. Unlikely event.
+                def basketuser = basketTransaction?.getUser()
+
+                user = new User()
+                user.setName(basketuser?.name)
+                user.setId(basketuser?.id)
+            }
+
+            [
+                    user                 : user,
+                    basketTransaction    : basketTransaction,
+                    basket               : basketTransaction.basket,
+                    basketItems          : basketTransaction.basket.basketItems,
+                    store                : store,
+                    receipt: receipt
+            ]
+        }
+        catch (Exception ex) {
+            def inputErrors = "Transaction details could not be fetched.<br/>"
+            inputErrors += "<pre>" + exceptionToString(ex) + "</pre>"
+            flash.error = "The selected transaction is not able to be viewed on this page and may be older data."
+            [exception: inputErrors]
+        }
     }
 
     def ajaxGetReceipts() {
@@ -99,7 +139,7 @@ class TransactionController {
                                              containsModifiers: receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
                                              firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
                                              maxTotalLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
-                                             maxVatLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
+                                             maxVatLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
     }
 
     def ajaxGetReceiptByTransaction(int transactionId, int storeId, int terminalId) {
@@ -111,6 +151,12 @@ class TransactionController {
                                                 maxTotalLength       : receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
                                                 maxVatLength         : receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
         }
+    }
+
+    private def exceptionToString(Exception e) {
+        def sw = new StringWriter()
+        e.printStackTrace(new PrintWriter(sw))
+        return sw.toString()
     }
 
     def saveReceiptPrinted(){

@@ -38,8 +38,10 @@
             <div id="date-generated-${i + 1}" class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm" date="${item.receipt.dateGenerated?.toDate()}" timeZone="Europe/London" /></div>
             <div id="payment-method-${i + 1}" class="col-2 my-auto"><g:message code="TransactionPaymentMethodType.${item.receipt.paymentMethod}" /></div>
             <div id="view-${i + 1}" class="col-2 my-auto text-center">
-                <button id="receipt-${i + 1}" class="btn btn-wl mx-2" onclick="showReceiptModal(${item.receipt.id});">Receipt</button>
-                <button id="details-${i + 1}" class="btn btn-info mx-2" onclick="">Details</button>
+                <button id="receipt-${i + 1}" class="btn btn-wl mx-2"
+                        onclick="showReceiptModal(${item.receipt.id});">Receipt</button>
+                <button id="details-${i + 1}" class="btn btn-info mx-2"
+                        onclick='window.location = "${createLink(controller: 'transaction', action: 'details', params:[receiptId : item.receipt.id] )}"'>Details</button>
             </div>
         </div>
     </g:each>
