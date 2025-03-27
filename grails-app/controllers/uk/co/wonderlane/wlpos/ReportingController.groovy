@@ -1984,7 +1984,7 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(g.message(code: "DeliveryStatus.${delivery?.status}"))
             stringBuilder.append(",")
-            stringBuilder.append(delivery?.dateStarted?.toString("dd/MM/yyyy")) // Using Date started as the date of the delivery.
+            stringBuilder.append(!delivery?.startDate?.toString("dd/MM/yyyy").isEmpty() ? delivery?.startDate?.toString("dd/MM/yyyy") : delivery?.dateStarted?.toString("dd/MM/yyyy")) // Using Date started as the date of the delivery.
             stringBuilder.append(",")
             stringBuilder.append(delivery?.supplierName)
             stringBuilder.append(",")
