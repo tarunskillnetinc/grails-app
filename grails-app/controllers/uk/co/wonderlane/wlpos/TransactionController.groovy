@@ -40,6 +40,7 @@ class TransactionController {
                 user = new User()
                 user.setName(basketuser?.name)
                 user.setId(basketuser?.id)
+                user.setRetailerUserId(basketUser?.retailerUserId)
             }
 
             [
