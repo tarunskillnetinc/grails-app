@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="uk.co.wonderlane.wlpos.entities.basketv2.CardTenderBasketItem; uk.co.wonderlane.wlpos.entities.basketv2.TenderBasketItem; uk.co.wonderlane.wlpos.entities.basketv2.DiscountBasketItem; uk.co.wonderlane.wlpos.entities.basketv2.SimpleDiscountBasketItem; uk.co.wonderlane.wlpos.entities.basketv2.PayPointBasketItem; uk.co.wonderlane.wlpos.entities.basketv2.PromotionBasketItem; uk.co.wonderlane.wlpos.entities.basketv2.ReduceToClearBasketItem; uk.co.wonderlane.wlpos.entities.basketv2.RefundBasketItem; uk.co.wonderlane.wlpos.entities.basketv2.ProductBasketItem" contentType="text/html;charset=UTF-8" %>
 
 <html>
 <head>
@@ -273,7 +273,7 @@ overridewrap {
                     <g:set var="promotion_total" value="${0}"/>
 
                     <g:each in="${basketItems}" var="basketItem" status="seqNum">
-                        <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.ProductBasketItem}">
+                        <g:if test="${basketItem instanceof ProductBasketItem}">
                             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
                                 <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum}</div>
 
@@ -339,7 +339,7 @@ overridewrap {
                                     </g:else>
                                 </div>
 
-                                <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.RefundBasketItem}">
+                                <g:if test="${basketItem instanceof RefundBasketItem}">
                                     <div id="returnreason-id-${line + 1}"
                                          class="col-1 my-auto">${basketItem.refundReason?.description}</div>
                                 </g:if>
@@ -358,7 +358,7 @@ overridewrap {
                                     </div>
                                 </g:else>
 
-                                <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.ReduceToClearBasketItem}">
+                                <g:if test="${basketItem instanceof ReduceToClearBasketItem}">
                                     <div id="rtc-id-${line + 1}" class="col-05 my-auto">&#10003;</div>
                                 </g:if>
                                 <g:else>
@@ -372,7 +372,7 @@ overridewrap {
                             <g:set var="line" value="${line + 1}"/>
                         </g:if>
 
-                        <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.PromotionBasketItem}">
+                        <g:if test="${basketItem instanceof PromotionBasketItem}">
                             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
                                 <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum}</div>
 
@@ -418,7 +418,7 @@ overridewrap {
                             <g:set var="line" value="${line + 1}"/>
                         </g:if>
 
-                        <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.PayPointBasketItem}">
+                        <g:if test="${basketItem instanceof PayPointBasketItem}">
                             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
                                 <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum}</div>
 
@@ -472,7 +472,7 @@ overridewrap {
 
                 <!-- this assumes we can have more than one SimpleDiscountBasketItem -->
                     <g:each in="${basketItems}" var="basketItem" status="seqNum">
-                        <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.SimpleDiscountBasketItem || basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.DiscountBasketItem}">
+                        <g:if test="${basketItem instanceof SimpleDiscountBasketItem || basketItem instanceof DiscountBasketItem}">
                             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
                                 <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum}</div>
 
@@ -529,7 +529,7 @@ overridewrap {
 
                                 <div id="ageverification-id-${line + 1}" class="col-05 my-auto">-</div>
 
-                                <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.RefundBasketItem}">
+                                <g:if test="${basketItem instanceof RefundBasketItem}">
                                     <div id="returnreason-id-${line + 1}"
                                          class="col-1 my-auto">${basketItem.refundReason?.description}</div>
                                 </g:if>
@@ -600,7 +600,7 @@ overridewrap {
 
                 <g:set var="line" value="${0}"/>
                 <g:each in="${basketItems}" var="basketItem" status="seqNum">
-                    <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.TenderBasketItem}">
+                    <g:if test="${basketItem instanceof TenderBasketItem}">
                         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
                             <div id="sequence-id-${line + 1}" class="col-2 my-auto">${seqNum}</div>
 
@@ -616,14 +616,14 @@ overridewrap {
                             <div id="tendervalue-id-${line + 1}" class="col-2 my-auto"><g:formatNumber
                                     number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></div>
 
-                            <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CardTenderBasketItem}">
+                            <g:if test="${basketItem instanceof CardTenderBasketItem}">
                                 <div id="pan-id-${line + 1}" class="col-3 my-auto">${basketItem.pan}</div>
                             </g:if>
                             <g:else>
                                 <div id="pan-id-${line + 1}" class="col-3 my-auto">-</div>
                             </g:else>
 
-                            <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.CardTenderBasketItem}">
+                            <g:if test="${basketItem instanceof CardTenderBasketItem}">
                                 <div id="tenderstatus-id-${line + 1}"
                                      class="col-2 my-auto">${basketItem.voided ? "Voided" : "Success"}</div>
                             </g:if>
