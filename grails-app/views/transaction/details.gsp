@@ -472,7 +472,7 @@ overridewrap {
 
                 <!-- this assumes we can have more than one SimpleDiscountBasketItem -->
                     <g:each in="${basketItems}" var="basketItem" status="seqNum">
-                        <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.SimpleDiscountBasketItem}">
+                        <g:if test="${basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.SimpleDiscountBasketItem || basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.DiscountBasketItem}">
                             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
                                 <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum}</div>
 
@@ -485,11 +485,24 @@ overridewrap {
                                 <div id="productcode-id-${line + 1}"
                                      class="col-2 my-auto overridewrap">N/A</div>
 
-                                <div id="productdescription-id-${line + 1}"
-                                     class="col-3 my-auto">${basketItem.discountPercentage}% Discount</div>
+                                <div id="productdescription-id-${line + 1}" class="col-3 my-auto">
+                                    <g:if test="basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.DiscountBasketItem}">
+                                        ${basketItem.discountPercentage}% Discount
+                                    </g:if>
+                                    <g:else>
+                                        ${basketItem.receiptDescription}
+                                    </g:else>
+                                </div>
 
                                 <div id="barcode-id-${line + 1}"
-                                     class="col-2 my-auto overridewrap">N/A</div>
+                                     class="col-2 my-auto overridewrap">
+                                    <g:if test="basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.DiscountBasketItem}">
+                                        N/A
+                                    </g:if>
+                                    <g:else>
+                                        ${basketItem.cardNumber}
+                                    </g:else>
+                                </div>
 
                                 <div id="totalquantity-id-${line + 1}"
                                      class="col-05 my-auto">${basketItem.qty ?: "N/A"}</div>
