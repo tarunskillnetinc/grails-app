@@ -455,13 +455,13 @@ class ProductController extends BaseController {
 
         render "OK"
     }
-    
+
     def updateOrCreateMessage(UpdateMessageCommand command) {
         def product = command.product
         def messageText = command.messageText
         def messageId = command.messageId
         def messageType = command.messageType
-        
+
         def message = messageId ? Message.get(messageId) : null
 
         if (message) {
@@ -475,41 +475,41 @@ class ProductController extends BaseController {
         } else {
             if (messageText != null) {
                 message = new Message(
-                    retailerId: springSecurityService.principal.retailerId,
-                    text: messageText,
-                    retailerMessageCode: "",
-                    displayOncePerItem: true
+                        retailerId: springSecurityService.principal.retailerId,
+                        text: messageText,
+                        retailerMessageCode: "",
+                        displayOncePerItem: true
                 )
-                
+
                 messageService.saveMessage(message)
-    
+
                 // Create a new ProductMessage to link the message to the product
                 def productMessage = new ProductMessage(product: product, message: message, type: messageType)
                 productMessageService.saveProductMessage(productMessage)
             }
         }
     }
-    
+
     def updateProductMessages(Product product, ProductCommand editedProduct) {
         updateOrCreateMessage(new UpdateMessageCommand(
-            product: product,
-            messageText: editedProduct.saleMessage,
-            messageId: editedProduct.saleMessageId,
-            messageType: ProductMessageType.SALE
+                product: product,
+                messageText: editedProduct.saleMessage,
+                messageId: editedProduct.saleMessageId,
+                messageType: ProductMessageType.SALE
         ))
 
         updateOrCreateMessage(new UpdateMessageCommand(
-            product: product,
-            messageText: editedProduct.refundMessage,
-            messageId: editedProduct.refundMessageId,
-            messageType: ProductMessageType.REFUND
+                product: product,
+                messageText: editedProduct.refundMessage,
+                messageId: editedProduct.refundMessageId,
+                messageType: ProductMessageType.REFUND
         ))
 
         updateOrCreateMessage(new UpdateMessageCommand(
-            product: product,
-            messageText: editedProduct.scoSaleMessage,
-            messageId: editedProduct.scoSaleMessageId,
-            messageType: ProductMessageType.SCO
+                product: product,
+                messageText: editedProduct.scoSaleMessage,
+                messageId: editedProduct.scoSaleMessageId,
+                messageType: ProductMessageType.SCO
         ))
     }
 
@@ -725,7 +725,7 @@ class ProductController extends BaseController {
 
         if (!product.hasErrors()) {
             updateProductMessages(product, editedProduct)
-            
+
             if (productService.isSingleStageSel() || !changeAffectsSel) {
                 List<RangeProduct> unrangedRangeProducts = []
                 def currentRangeProducts = RangeProduct.findAllByProductId(product.id)
@@ -936,6 +936,7 @@ class ProductController extends BaseController {
                 newVariant.heightCm = editedVariant.heightCm
                 newVariant.widthCm = editedVariant.widthCm
                 newVariant.depthCm = editedVariant.depthCm
+                newVariant.excludeFromInventoryCount = product.variants?.any { it.excludeFromInventoryCount } ?: false
 
                 editedVariant.packs?.each { editedPack ->
                     Pack newPack = new Pack()
@@ -1005,7 +1006,7 @@ class ProductController extends BaseController {
                 existingVariant.barcodez.add(barcode)
 
                 if (!StringUtils.isEmpty(barcode.barcode) && !barcode.validate()) {
-                     handleBarcodeValidation(barcode, product)
+                    handleBarcodeValidation(barcode, product)
                 }
             } else { // If barcode do exists change update existing values
 
@@ -1751,7 +1752,7 @@ class ProductController extends BaseController {
     def ajaxAddVariant(AddVariantCommand cmd, boolean isNewVariant) {
         def unitsOfMeasure = UnitOfMeasure.findAllByRetailerId(springSecurityService.principal.retailerId)
 
-	    def wacValue = BigDecimal.ZERO
+        def wacValue = BigDecimal.ZERO
         if (cmd.storeId) {
             wacValue = cmd.weightedAverageCostPrice
         } else if (springSecurityService.principal.storeId == null && cmd.sku) {
@@ -2003,6 +2004,9 @@ class ProductController extends BaseController {
                 productVariant = existingVariants.get(variant.sku)
             } else {
                 productVariant = new ProductVariant()
+            }
+            if (existingVariants.containsKey(variant.sku)) {
+                productVariant.excludeFromInventoryCount = existingVariants.get(variant.sku).excludeFromInventoryCount
             }
             productVariant.id = variant.id
             productVariant.storeId = springSecurityService.principal.storeId
@@ -2408,6 +2412,7 @@ class ProductVariantCommand {
     BigDecimal widthCm
     BigDecimal depthCm
     String extras
+    boolean excludeFromInventoryCount
 
     Collection<PackCommand> packs = new ArrayList<>()
     Collection<BarcodeCommand> barcodez = new ArrayList<>()
