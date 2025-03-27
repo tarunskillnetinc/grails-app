@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
-import org.springframework.security.core.context.SecurityContextHolder
 
 /**
  * Service for handling physical inventory count exclusion logic.
@@ -14,7 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder
  * - Tracks invalid SKUs that couldn't be processed
  *
  * @author Tarun Singh
- * @version 1.0
+ * @version 2.0
  */
 @Transactional
 class PhysicalInventoryExclusionService {
@@ -28,16 +27,21 @@ class PhysicalInventoryExclusionService {
         ]
         skus.each { sku ->
             try {
-                def productVariant = productService.getProductVariant(sku.toLong())
-                // Check if the product variant belongs to the current user's retailer
-                if (productVariant) {
-                    productVariant.excludeFromInventoryCount = true
-                    productVariant.save(flush: true)
+                long numericSku = sku.toLong()
+                List<ProductVariant> variantList = productService.getAllProductVariantsBySkuForCurrentRetailer(numericSku)
+                if (!variantList.isEmpty()) {
+                    variantList.each { productVariant ->
+                        productVariant.excludeFromInventoryCount = true
+                        productVariant.save(flush: true, failOnError: true)
+                    }
                 } else {
                     results.invalidSkus << sku
                 }
             } catch (NumberFormatException e) {
-                log.debug("Invalid SKU format: ${sku} - ${e.message}")
+                log.error("Invalid SKU format: {}", sku, e)
+                results.invalidSkus << sku
+            } catch (Exception ex) {
+                log.error("Error processing SKU: {}", sku, ex)
                 results.invalidSkus << sku
             }
         }

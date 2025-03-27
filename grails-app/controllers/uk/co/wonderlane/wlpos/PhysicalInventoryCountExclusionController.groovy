@@ -15,7 +15,7 @@ import org.apache.commons.io.input.XmlStreamReader
  * - Results display and export
  *
  * @author Tarun Singh
- * @version 1.0
+ * @version 2.0
  */
 class PhysicalInventoryCountExclusionController {
 
@@ -26,7 +26,7 @@ class PhysicalInventoryCountExclusionController {
     def ajaxCSVCountExclusionUpload() {
         def file = request.getFile('file')
         String importError
-        def results = [:]
+        def skus = []
 
         // Validate file extension
         if (!file.originalFilename.toLowerCase().endsWith('.csv')) {
@@ -48,25 +48,16 @@ class PhysicalInventoryCountExclusionController {
                             (fileBytes[0] & 0xFF) == 0xEF &&
                             (fileBytes[1] & 0xFF) == 0xBB &&
                             (fileBytes[2] & 0xFF) == 0xBF) {
-                        // Byte array is UTF-8 with BOM display error
                         importError = 'Could not import file please ensure the file is using UTF-8 without BOM for encoding'
                     } else {
-                        // Process the CSV file
+                        // Parse the CSV file
                         def inputStream = file.inputStream
-                        importError = validateImport(file)
-                        if (!importError) {
-                            List<String> skus = []
-
-                            inputStream.eachLine { line ->
-                                line.split(',')*.trim().each { sku ->
-                                    if (sku) {
-                                        skus << sku
-                                    }
+                        inputStream.eachLine { line ->
+                            line.split(',')*.trim().each { sku ->
+                                if (sku) {
+                                    skus << sku
                                 }
                             }
-
-                            results = physicalInventoryExclusionService.processExclusionList(skus)
-                            session.results = results
                         }
                     }
                 }
@@ -75,8 +66,25 @@ class PhysicalInventoryCountExclusionController {
                 importError = "Error occurred during processing of file"
             }
         }
+        session.skus = skus
+        // Render the importResults template for preview
+        render(template: "importResults", model: [successful: !importError, importError: importError, skus: skus, preview: true])
+    }
 
-        render(template: "importResults", model: [successful: !importError, importError: importError, results: results])
+    def confirmImport() {
+        try {
+            def skus = session.skus
+            if (!skus || skus.isEmpty()) {
+                render(template: "importResults", model: [successful: false, importError: "No SKUs available for import", preview: false])
+                return
+            }
+            def results = physicalInventoryExclusionService.processExclusionList(skus)
+            session.results = results
+
+            render(template: "importResults", model: [successful: true, results: results, preview: false])
+        } catch (Exception e) {
+            render(status: 500, text: "An error occurred: ${e.message}")
+        }
     }
 
     private static String validateImport(file) {

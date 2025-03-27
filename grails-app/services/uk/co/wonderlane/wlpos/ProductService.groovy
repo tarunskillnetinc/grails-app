@@ -62,6 +62,15 @@ class ProductService extends MySqlDal {
         }?.find()
     }
 
+    def getAllProductVariantsBySkuForCurrentRetailer(long sku) {
+        return ProductVariant.withCriteria(sort: "effectiveDate", order: "desc") {
+            eq("sku", sku)
+            product {
+                eq("retailerId", springSecurityService.principal.retailerId)
+            }
+        }?.asList()
+    }
+
     uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant(int storeId, int productVariantId) throws SQLException {
         Connection conn
         CallableStatement cstmt
