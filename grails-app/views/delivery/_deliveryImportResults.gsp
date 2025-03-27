@@ -12,6 +12,7 @@
 
 <div id="validation-results">
     <g:if test="${!deliveries || deliveries?.size() == 0}">
+        <div id="no-rows-test" hidden></div>
     </g:if>
 
     <g:each in="${deliveries}" var="delivery" status="i">
@@ -22,6 +23,9 @@
         </div>
     </g:each>
     <g:if test="${deliveries.any {delivery -> !delivery.valid}}">
-        <div id="invalid-test" hidden></div>
+        <div id="any-invalid-test" hidden></div>
+    </g:if>
+    <g:if test="${deliveries.every {delivery -> !delivery.valid}}">
+        <div id="all-invalid-test" hidden></div>
     </g:if>
 </div>
