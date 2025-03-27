@@ -108,8 +108,12 @@ overridewrap {
 </section>
 
 <section id="errors-container" class="container-fluid">
+    <g:if test="${flash.error}">
+        <div id="error-message" class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
+    </g:if>
 </section>
 
+<g:if test="${!flash.error}">
 <section id="transactions-container" class="container-fluid">
     <div class="container" id="transaction-header-details">
         <div class="row mt-3">
@@ -698,49 +702,7 @@ overridewrap {
         </div>
     </div>
 </section>
+</g:if>
 
-<section id="receipt-modal" class="container-fluid">
-    <!-- Receipt modal -->
-    <div class="modal fade" id="receiptModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Receipt Viewer</h2>
-                </div>
-
-                <div id="receiptModalContent"></div>
-
-                <div class="modal-footer">
-                    <button type="button" id="printReceiptButton" class="btn btn-info mr-auto"
-                            onclick="printReceipt();">Print</button>
-                    <button type="button" id="closeReceiptModalButton" class="btn btn-secondary"
-                            data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section id="receipt-details-modal" class="container-fluid">
-    <!-- Receipt modal -->
-    <div class="modal fade" id="receiptDetailsModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel"
-         aria-hidden="true">
-        <div class="superlarge-modal-dialog modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Transaction Details</h2>
-                </div>
-
-                <div id="receiptDetailsModalContent"></div>
-
-                <div class="modal-footer">
-                    <button type="button" id="closeReceiptDetailsModalButton" class="btn btn-secondary"
-                            data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 </body>
 </html>
