@@ -235,6 +235,32 @@ class StoreController {
         }
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def addSpecialOpeningHours() {
+        def store = storeService.getStore(springSecurityService.principal.retailerId, params.storeId as int)
+
+        def specialOpeningHour = new OpeningTimeOverride(
+                date: new LocalDate(params.date),
+                description: params.description,
+                startTime: params.startTime ? new LocalTime(params.startTime) : null,
+                endTime: params.endTime ? new LocalTime(params.endTime) : null,
+                close: params.closed as boolean
+        )
+
+        store.addToSpecialOpeningHours(specialOpeningHour)
+        storeService.saveStore(store)
+
+        render(contentType: 'application/json') {
+            success = true
+            message = "Special opening hours added successfully."
+        }
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def loadAddSpecialOpeningHoursTemplate() {
+        render template: 'addSpecialOpeningHours'
+    }
+
     def save(StoreCommand storeCommand) {
         def store
 
