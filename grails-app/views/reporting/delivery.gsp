@@ -174,14 +174,14 @@
                                     <g:checkBox name="columns" id="columnsSku" class="form-check-input"
                                                 value="sku"
                                                 checked="${!userColumns || userColumns?.columns?.find { it.column == 'sku' }?.enabled}"/>
-                                    <label class="form-check-label" for="columnsSku">${retailer?.config?.retailerTerminologyConfig?.productTerm} SKU</label>
+                                    <label class="form-check-label" for="columnsSku">Product SKU</label>
                                 </div>
 
                                 <div class="form-group form-check">
                                     <g:checkBox name="columns" id="columnsDescription" class="form-check-input"
                                                 value="description"
                                                 checked="${!userColumns || userColumns?.columns?.find { it.column == 'description' }?.enabled}"/>
-                                    <label class="form-check-label" for="columnsDescription">${retailer?.config?.retailerTerminologyConfig?.productTerm} Description</label>
+                                    <label class="form-check-label" for="columnsDescription">Product Description</label>
                                 </div>
 
                                 <div class="form-group form-check">
