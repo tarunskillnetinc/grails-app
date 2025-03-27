@@ -153,11 +153,13 @@ overridewrap {
                 <h4 class="mx-auto">Operator Details</h4>
 
                 <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-6 text-right font-weight-bold">Operator:</div>
+                    <g:if test="${user.retailerUserId}">
+                        <div class="row">
+                            <div class="col-6 text-right font-weight-bold">Operator:</div>
 
-                        <div class="col-6">${user.retailerUserId}</div>
-                    </div>
+                            <div class="col-6">${user.retailerUserId}</div>
+                        </div>
+                    </g:if>
 
                     <div class="row">
                         <div class="col-6 text-right font-weight-bold">Operator Name:</div>
@@ -165,11 +167,13 @@ overridewrap {
                         <div class="col-6">${user.name}</div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-6 text-right font-weight-bold">Operator Role:</div>
+                    <g:if test="${user.role}">
+                        <div class="row">
+                            <div class="col-6 text-right font-weight-bold">Operator Role:</div>
 
-                        <div class="col-6"><g:message code="Role.${user.role}"/></div>
-                    </div>
+                            <div class="col-6"><g:message code="Role.${user.role}"/></div>
+                        </div>
+                    </g:if>
                 </div>
             </div>
         </div>
