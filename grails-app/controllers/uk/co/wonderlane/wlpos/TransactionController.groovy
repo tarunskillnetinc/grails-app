@@ -5,6 +5,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import uk.co.wonderlane.wlpos.entities.basketv2.BasketUser
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 
 class TransactionController {
@@ -32,15 +33,16 @@ class TransactionController {
             Receipt receipt = transactionService.getReceipt(receiptId)
             Store store = storeService.getStoreByStoreNumber(receipt.retailerId, receipt.storeId)
             def basketTransaction = basketTransactionService.getBasketTransactionByReceipt(receipt, store)
-            User user = User.findByRetailerIdAndUsername(receipt.retailerId, receipt.usersName)
+            BasketUser basketuser = basketTransaction?.getUser()
+
+            def user = User.findByRetailerIdAndUsername(receipt.retailerId, basketuser.username)
+            // Assuming that I'm using the User from the DB in priority.
 
             if (!user) { // The user appears to have disappeared. Unlikely event.
-                def basketuser = basketTransaction?.getUser()
-
                 user = new User()
                 user.setName(basketuser?.name)
                 user.setId(basketuser?.id)
-                user.setRetailerUserId(basketUser?.retailerUserId)
+                user.setRetailerUserId(basketuser?.retailerUserId)
             }
 
             [
@@ -56,7 +58,12 @@ class TransactionController {
             def inputErrors = "Transaction details could not be fetched.<br/>"
             inputErrors += "<pre>" + exceptionToString(ex) + "</pre>"
             flash.error = "The selected transaction is not able to be viewed on this page and may be older data."
-            [exception: inputErrors]
+
+            if (Environment.current == Environment.DEVELOPMENT) {
+                render(status: HttpStatus.BAD_REQUEST.code, inputErrors)
+            } else {
+                [exception: inputErrors]
+            }
         }
     }
 

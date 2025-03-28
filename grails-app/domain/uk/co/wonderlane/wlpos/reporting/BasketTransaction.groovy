@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos.reporting
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import uk.co.wonderlane.wlpos.User
 
 class BasketTransaction {
 
@@ -14,6 +15,7 @@ class BasketTransaction {
     Integer tillId
     Integer transactionId
     String transactionSource
+    User user
 
     public BasketTransaction() {}
 
@@ -28,6 +30,7 @@ class BasketTransaction {
         transactionId(readOnly: true)
         transactionObject(readOnly: true)
         transactionSource(readOnly: true)
+        user(readOnly: true)
     }
 
     static mapping = {
@@ -46,6 +49,8 @@ class BasketTransaction {
         transactionObject column: "`transactionObject`", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         transactionSource column: "transactionSource"
     }
+
+    static transients = ["user"]
 
 
 }
