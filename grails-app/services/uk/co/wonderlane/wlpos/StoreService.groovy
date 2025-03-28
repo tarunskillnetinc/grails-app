@@ -2,8 +2,14 @@ package uk.co.wonderlane.wlpos
 
 import com.google.gson.reflect.TypeToken
 import grails.gorm.transactions.Transactional
+import org.joda.time.DateTimeConstants
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.entities.OpeningHours
+import uk.co.wonderlane.wlpos.entities.OpeningTime
+import uk.co.wonderlane.wlpos.entities.OpeningTimeOverride
 import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
 
 import java.lang.reflect.Type
@@ -99,12 +105,12 @@ class StoreService extends MySqlDal {
     // Needs to not be transactional otherwise Hibernate tries to save the store object rather than allowing the stored procedure to do it (well, it does both).
     @Transactional (readOnly = true)
     def saveStore(Store store) {
-        return doSaveStore(store, store.configString, store.additionalDetails)
+        return doSaveStore(store, store.configString, store.additionalDetails, store.openingHoursString)
     }
 
-    private void doSaveStore(def store, String configString, String storeAdditionalDetail) {
+    private void doSaveStore(def store, String configString, String storeAdditionalDetail, String openingHours) {
         Connection conn = getConnection()
-        CallableStatement cstmt = conn.prepareCall("{ call saveStore(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+        CallableStatement cstmt = conn.prepareCall("{ call saveStore(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
             if (store.id && store.id > 0) {
@@ -126,6 +132,7 @@ class StoreService extends MySqlDal {
             cstmt.setBoolean(8, store.deleted)
             cstmt.setString(9, configString)
             cstmt.setString(10, storeAdditionalDetail)
+            cstmt.setString(11, openingHours)
             cstmt.executeUpdate()
 
             def resultSet = cstmt.getResultSet()
@@ -152,6 +159,63 @@ class StoreService extends MySqlDal {
         return details.sort { a, b ->
             (a?.description ?: "").compareToIgnoreCase(b?.description ?: "")
         }
+    }
+
+    def getOpeningHoursAsJson(StoreOpeningHoursCommand storeOpeningHoursCommand) {
+        OpeningHours openingHours = new OpeningHours()
+        if (storeOpeningHoursCommand != null) {
+            storeOpeningHoursCommand.getRegularHours()?.forEach {regHours -> {
+                switch (regHours.day) {
+                    case "Monday":
+                        openingHours.monday = regularHoursMap(regHours)
+                        break
+                    case "Tuesday":
+                        openingHours.tuesday = regularHoursMap(regHours)
+                        break
+                    case "Wednesday":
+                        openingHours.wednesday = regularHoursMap(regHours)
+                        break
+                    case "Thursday":
+                        openingHours.thursday = regularHoursMap(regHours)
+                        break
+                    case "Friday":
+                        openingHours.friday = regularHoursMap(regHours)
+                        break
+                    case "Saturday":
+                        openingHours.saturday = regularHoursMap(regHours)
+                        break
+                    case "Sunday":
+                        openingHours.sunday = regularHoursMap(regHours)
+                        break
+                }
+            }}
+
+            openingHours.specialOpeningHours = new ArrayList<>()
+            storeOpeningHoursCommand.getSpecialOpeningHours()?.forEach {specialHours ->{
+                openingHours.specialOpeningHours.add(openingHoursOverrideMap(specialHours))
+            }}
+        }
+        return openingHours
+    }
+
+    private OpeningTime regularHoursMap(OpeningTimeCommand openingTimeCommand) {
+        OpeningTime openingTime = new OpeningTime()
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm")
+        openingTime.startTime = openingTimeCommand.startTime ? formatter.parseLocalTime(openingTimeCommand.startTime) : null
+        openingTime.endTime = openingTimeCommand.endTime ? formatter.parseLocalTime(openingTimeCommand.endTime) : null
+        openingTime.close = openingTimeCommand.close
+        return openingTime
+    }
+
+    private OpeningTimeOverride openingHoursOverrideMap(OpeningTimeOverrideCommand openingTimeOverrideCommand) {
+        DateTimeFormatter formatterDate = DateTimeFormat.forPattern("yyyy-MM-dd");
+        DateTimeFormatter formatterTime = DateTimeFormat.forPattern("HH:mm")
+        OpeningTimeOverride openingTimeOverride = new OpeningTimeOverride()
+        openingTimeOverride.date = openingTimeOverrideCommand.date ? formatterDate.parseLocalDate(openingTimeOverrideCommand.date) : null
+        openingTimeOverride.startTime = openingTimeOverrideCommand.startTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.startTime) : null
+        openingTimeOverride.endTime = openingTimeOverrideCommand.endTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.endTime) : null
+        openingTimeOverride.close = openingTimeOverrideCommand.close
+        return openingTimeOverride
     }
 
     private List<StoreAdditionalDetail> convertToStoreAdditionalDetailList(List<StoreAdditionalDetailCommand> storeAdditionalDetails) {

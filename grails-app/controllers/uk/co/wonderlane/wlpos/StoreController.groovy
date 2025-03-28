@@ -6,6 +6,7 @@ import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
+import uk.co.wonderlane.wlpos.entities.OpeningHours
 import uk.co.wonderlane.wlpos.entities.OpeningTime
 import uk.co.wonderlane.wlpos.entities.OpeningTimeOverride
 import uk.co.wonderlane.wlpos.entities.StoreConfig
@@ -228,6 +229,8 @@ class StoreController {
             String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(newStoreCommand?.storeAdditionalDetails)
             store.additionalDetails = storeAdditionalDetailJson
 
+            store.setOpeningHours(storeService.getOpeningHoursAsJson(newStoreCommand.storeOpeningHoursCommand))
+
             storeService.saveStore(store)
 
             flash.message = "Store created successfully."
@@ -401,6 +404,7 @@ class NewStoreCommand implements Validateable {
     Integer copyConfigFrom
     Range range
     PriceBand priceBand
+    StoreOpeningHoursCommand storeOpeningHoursCommand
 
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
 
@@ -460,6 +464,7 @@ class NewStoreCommand implements Validateable {
         copyConfigFrom nullable: true
         range nullable: true
         priceBand nullable: true
+        storeOpeningHoursCommand nullable: true
         storeAdditionalDetails nullable: true, validator: { val, obj ->
             if (val) {
                 def hasErrors = false
@@ -488,6 +493,7 @@ class StoreCommand implements Validateable {
 
     StoreConfigCommand config
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
+    StoreOpeningHoursCommand storeOpeningHoursCommand
 
     static constraints = {
         id nullable: true
@@ -637,7 +643,7 @@ class AddStoreAdditionalDetailCommand implements Validateable {
 
 class StoreOpeningHoursCommand {
     List<OpeningTimeCommand> regularHours;
-    private List<OpeningTimeOverrideCommand> specialOpeningHours;
+    List<OpeningTimeOverrideCommand> specialOpeningHours;
 }
 
 class OpeningTimeCommand {
@@ -648,9 +654,9 @@ class OpeningTimeCommand {
 }
 
 class OpeningTimeOverrideCommand {
-    private String date;
-    private String description;
-    private String startTime;
-    private String endTime;
-    private boolean close;
+    String date;
+    String description;
+    String startTime;
+    String endTime;
+    boolean close;
 }

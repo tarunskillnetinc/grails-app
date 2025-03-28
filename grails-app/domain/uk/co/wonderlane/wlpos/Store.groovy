@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import com.google.gson.reflect.TypeToken
+import uk.co.wonderlane.wlpos.entities.OpeningHours
 import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
 import uk.co.wonderlane.wlpos.entities.StoreConfig
 
@@ -26,6 +27,7 @@ class Store {
     String retailerStoreId
     boolean deleted
     String additionalDetails
+    String openingHours
 
     // This constructor is required or dependency injection (springSecurityService) breaks.
     public Store() {}
@@ -48,6 +50,7 @@ class Store {
         retailerStoreId column: "retailerStoreId"
         deleted column: "deleted"
         additionalDetails column: "additionaldetails", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        openingHours column: "openingHours", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
     }
 
     static constraints = {
@@ -65,6 +68,7 @@ class Store {
         retailerStoreId nullable: true
         deleted nullable: false
         additionalDetails nullable: true
+        openingHours nullable: true
     }
 
     def colorCodeValidator(String colorCode) {
@@ -105,6 +109,18 @@ class Store {
 
     String getConfigString() {
         return config
+    }
+
+    OpeningHours getOpeningHours() {
+        return gsonProvider.gson.fromJson(this.openingHours, OpeningHours.class)
+    }
+
+    void setOpeningHours(OpeningHours openingHours) {
+        this.openingHours = gsonProvider.gson.toJson(openingHours)
+    }
+
+    String getOpeningHoursString() {
+        return openingHours
     }
 
     List<StoreAdditionalDetail> getAdditionalDetailsList() {
