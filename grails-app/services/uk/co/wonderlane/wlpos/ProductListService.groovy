@@ -512,7 +512,7 @@ class ProductListService extends MySqlDal {
         productListItemGroup.setId(rs.getInt("id"))
         productListItemGroup.setProductListId(rs.getInt("productListId"))
         productListItemGroup.setUniqueIdentifier(rs.getString("uniqueIdentifier"))
-        productListItemGroup.setEffectiveDate(new DateTime(rs.getDate("effectiveDate")))
+        productListItemGroup.setEffectiveDate(new DateTime(rs.getTimestamp("effectiveDate")).withZoneRetainFields(DateTimeZone.UTC))
         return productListItemGroup
     }
 
