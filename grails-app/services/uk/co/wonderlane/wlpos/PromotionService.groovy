@@ -62,7 +62,7 @@ class PromotionService {
             lte("startDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay())
             or {
                 isNull("endDate")
-                gte("endDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().plusDays(1))
+                gte("endDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay())
             }
             if (springSecurityService.principal.storeId) {
                 stores {
