@@ -58,8 +58,12 @@ class TransactionController {
             def inputErrors = "Transaction details could not be fetched.<br/>"
             inputErrors += "<pre>" + exceptionToString(ex) + "</pre>"
             flash.error = "The selected transaction is not able to be viewed on this page and may be older data."
-            //[exception: inputErrors]
-            render(status: HttpStatus.BAD_REQUEST.code, inputErrors)
+
+            if (Environment.current == Environment.DEVELOPMENT) {
+                render(status: HttpStatus.BAD_REQUEST.code, inputErrors)
+            } else {
+                [exception: inputErrors]
+            }
         }
     }
 
