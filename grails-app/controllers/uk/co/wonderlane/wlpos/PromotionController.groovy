@@ -189,7 +189,7 @@ class PromotionController {
             }
 
             bindData(promotion, promotionCommand)
-
+            promotion.setEndDate(promotion.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59)) //Set end date time to 23:59:59
             promotion.updateDatetime = DateTime.now(DateTimeZone.UTC)
             promotion.retailerId = springSecurityService.principal.retailerId
 
