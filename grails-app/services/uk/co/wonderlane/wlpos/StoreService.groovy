@@ -2,7 +2,6 @@ package uk.co.wonderlane.wlpos
 
 import com.google.gson.reflect.TypeToken
 import grails.gorm.transactions.Transactional
-import org.joda.time.DateTimeConstants
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
@@ -98,8 +97,8 @@ class StoreService extends MySqlDal {
         return [stores, storeCount.first()]
     }
 
-    def saveStore(StoreCommand store, String configString, String storeAdditionalDetail) {
-        return doSaveStore(store, configString, storeAdditionalDetail)
+    def saveStore(StoreCommand store, String configString, String storeAdditionalDetail, String openingHoursString) {
+        return doSaveStore(store, configString, storeAdditionalDetail, openingHoursString)
     }
 
     // Needs to not be transactional otherwise Hibernate tries to save the store object rather than allowing the stored procedure to do it (well, it does both).
@@ -161,7 +160,7 @@ class StoreService extends MySqlDal {
         }
     }
 
-    def getOpeningHoursAsJson(StoreOpeningHoursCommand storeOpeningHoursCommand) {
+    def getOpeningHoursAsObject(StoreOpeningHoursCommand storeOpeningHoursCommand) {
         OpeningHours openingHours = new OpeningHours()
         if (storeOpeningHoursCommand != null) {
             storeOpeningHoursCommand.getRegularHours()?.forEach {regHours -> {
@@ -198,6 +197,56 @@ class StoreService extends MySqlDal {
         return openingHours
     }
 
+
+    StoreOpeningHoursCommand convertToStoreOpeningHoursCommand(OpeningHours openingHours) {
+        StoreOpeningHoursCommand command = new StoreOpeningHoursCommand()
+
+        // Convert regular hours
+        List<OpeningTimeCommand> regularHours = new ArrayList<>();
+        addOpeningTimeToCmd(regularHours, "Monday", openingHours.getMonday())
+        addOpeningTimeToCmd(regularHours, "Tuesday", openingHours.getTuesday())
+        addOpeningTimeToCmd(regularHours, "Wednesday", openingHours.getWednesday())
+        addOpeningTimeToCmd(regularHours, "Thursday", openingHours.getThursday())
+        addOpeningTimeToCmd(regularHours, "Friday", openingHours.getFriday())
+        addOpeningTimeToCmd(regularHours, "Saturday", openingHours.getSaturday())
+        addOpeningTimeToCmd(regularHours, "Sunday", openingHours.getSunday())
+        command.setRegularHours(regularHours)
+
+        // Convert special opening hours
+        List<OpeningTimeOverrideCommand> specialHours = new ArrayList<>();
+        if (openingHours.getSpecialOpeningHours() != null) {
+            for (OpeningTimeOverride override : openingHours.getSpecialOpeningHours()) {
+                OpeningTimeOverrideCommand overrideCommand = new OpeningTimeOverrideCommand()
+                overrideCommand.description = override.description
+                overrideCommand.setDate(override.getDate().toString("yyyy-MM-dd"))
+                overrideCommand.setStartTime(override.getStartTime() != null ? override.getStartTime().toString("HH:mm") : null)
+                overrideCommand.setEndTime(override.getEndTime() != null ? override.getEndTime().toString("HH:mm") : null)
+                overrideCommand.setClose(override.isClose())
+                specialHours.add(overrideCommand)
+            }
+        }
+        command.setSpecialOpeningHours(specialHours)
+
+        return command
+    }
+
+    private void addOpeningTimeToCmd(List<OpeningTimeCommand> regularHours, String day, OpeningTime openingTime) {
+        OpeningTimeCommand command = new OpeningTimeCommand()
+        command.setDay(day)
+
+        if (openingTime != null) {
+            command.setStartTime(openingTime.getStartTime() != null ? openingTime.getStartTime().toString("HH:mm") : null)
+            command.setEndTime(openingTime.getEndTime() != null ? openingTime.getEndTime().toString("HH:mm") : null)
+            command.setClose(openingTime.isClose())
+        } else {
+            command.setStartTime(null)
+            command.setEndTime(null)
+            command.setClose(false)
+        }
+
+        regularHours.add(command)
+    }
+
     private OpeningTime regularHoursMap(OpeningTimeCommand openingTimeCommand) {
         OpeningTime openingTime = new OpeningTime()
         DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm")
@@ -211,6 +260,7 @@ class StoreService extends MySqlDal {
         DateTimeFormatter formatterDate = DateTimeFormat.forPattern("yyyy-MM-dd");
         DateTimeFormatter formatterTime = DateTimeFormat.forPattern("HH:mm")
         OpeningTimeOverride openingTimeOverride = new OpeningTimeOverride()
+        openingTimeOverride.description = openingTimeOverrideCommand.description
         openingTimeOverride.date = openingTimeOverrideCommand.date ? formatterDate.parseLocalDate(openingTimeOverrideCommand.date) : null
         openingTimeOverride.startTime = openingTimeOverrideCommand.startTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.startTime) : null
         openingTimeOverride.endTime = openingTimeOverrideCommand.endTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.endTime) : null

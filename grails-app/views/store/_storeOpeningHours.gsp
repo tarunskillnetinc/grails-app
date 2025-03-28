@@ -49,7 +49,7 @@
                     </thead>
                     <tbody>
                     <g:each in="${storeOpeningHoursCommand?.specialOpeningHours}" var="special" status="i">
-                        <tr>
+                        <tr  id="special-hour-row-${i}">
                             <td>
                                 ${special?.description}
                                 <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].description" value="${special?.description}" />
@@ -73,8 +73,8 @@
                                 </div>
                             </td>
                             <td class="text-center align-middle">
-                                <a href="#" onclick="editSpecialHour(${i})" class="btn btn-sm btn-wl mr-1">Edit</a>
-                                <a href="#" onclick="deleteSpecialHour(${i})" class="btn btn-sm btn-danger">Delete</a>
+                                <a href="#" onclick="editSpecialHour(${i})" class="btn btn-sm btn-wl mr-1 fixed-width-btn">Edit</a>
+                                <a href="#" onclick="deleteSpecialHour(${i})" class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
                             </td>
                         </tr>
                     </g:each>
@@ -161,10 +161,36 @@
         margin-top: 2rem;
     }
 }
+
+.fixed-width-btn {
+    width: 80px;  /* Adjust this value as needed */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 5px;  /* Add some vertical spacing between buttons if they wrap */
+    height: 30px;  /* Set a fixed height for the buttons */
+    padding: 0;  /* Remove default padding */
+    line-height: 1;  /* Reset line height */
+    vertical-align: middle;
+}
 </style>
 
 <script>
     let specialHoursCount = ${storeOpeningHoursCommand?.specialOpeningHours?.size() ?: 0};
+
+    let specialOpeningHours = [];
+
+    // Populate the array from the server-side data
+    <g:each in="${storeOpeningHoursCommand?.specialOpeningHours}" var="hour" status="i">
+    specialOpeningHours.push({
+        date: "${hour.date}",
+        description: "${hour.description}",
+        startTime: "${hour.startTime}",
+        endTime: "${hour.endTime}",
+        close: ${hour.close}
+    });
+    </g:each>
 
     function setupAllTimeInputs() {
         const timeInputs = document.querySelectorAll('.time-input');
@@ -203,14 +229,6 @@
         });
     }
 
-    function toggleSpecialTimeFields() {
-        const isClosed = document.getElementById('specialClosedCheckbox').checked;
-        const timeFieldsStart = document.getElementById('specialTimeFieldsStart');
-        const timeFieldsEnd = document.getElementById('specialTimeFieldsEnd');
-        timeFieldsStart.style.display = isClosed ? 'none' : 'block';
-        timeFieldsEnd.style.display = isClosed ? 'none' : 'block';
-    }
-
     function addSpecialHour() {
         $.ajax({
             url: '/store/loadAddSpecialOpeningHoursTemplate',
@@ -225,9 +243,40 @@
         });
     }
 
-    function createNewRow(data, index) {
-        const row = document.createElement('tr');
-        row.setAttribute('data-index', index);
+    function editSpecialHour(index) {
+        let specialOpeningHour = specialOpeningHours[index];
+
+        // Convert the JavaScript object to a JSON string and encode it for URL
+        let specialOpeningHourJson = encodeURIComponent(JSON.stringify(specialOpeningHour));
+
+        $.ajax({
+            url: '/store/loadEditSpecialOpeningHoursTemplate',
+            method: 'GET',
+            data: {
+                specialOpeningHour: specialOpeningHourJson,
+                openingHourIndex: index
+            },
+            success: function(response) {
+                $('#addSpecialOpeningHoursModalContainer').html(response);
+                $('#addSpecialOpeningHoursModal').modal('show');
+            },
+            error: function(xhr, status, error) {
+                console.error("Error loading modal content:", error);
+            }
+        });
+    }
+
+    function createOrUpdateRow(data, index) {
+        const rowIndex = 'special-hour-row-' + index;
+
+        const existingRow = document.getElementById(rowIndex);
+        const row = existingRow || document.createElement('tr');
+        row.id = rowIndex;
+        if (existingRow) {
+            while (row.firstChild) {
+                row.removeChild(row.firstChild);
+            }
+        }
 
         // Description cell
         const descCell = document.createElement('td');
@@ -293,32 +342,49 @@
         actionsCell.className = 'text-center align-middle';
         const editBtn = document.createElement('a');
         editBtn.href = '#';
-        editBtn.className = 'btn btn-sm btn-wl mr-1';
+        editBtn.className = 'btn btn-sm btn-wl mr-1 fixed-width-btn';
         editBtn.textContent = 'Edit';
         editBtn.onclick = function() { editSpecialHour(index); };
         const deleteBtn = document.createElement('a');
         deleteBtn.href = '#';
-        deleteBtn.className = 'btn btn-sm btn-danger';
+        deleteBtn.className = 'btn btn-sm btn-danger fixed-width-btn';
         deleteBtn.textContent = 'Delete';
         deleteBtn.onclick = function() { deleteSpecialHour(index); };
         actionsCell.appendChild(editBtn);
         actionsCell.appendChild(deleteBtn);
         row.appendChild(actionsCell);
 
-        return row;
+        return existingRow ? null : row;
     }
 
     document.addEventListener('saveSpecialHours', function(e) {
         const data = e.detail;
+        if (data.specialOpeningHoursIndex !== undefined && data.specialOpeningHoursIndex !== -1) {
+            createOrUpdateRow(data, data.specialOpeningHoursIndex);
 
-        // Create a new row for the table
-        const newRow = createNewRow(data, specialHoursCount);
+            specialOpeningHours[data.specialOpeningHoursIndex] = {
+                date: data.date,
+                description: data.description,
+                startTime: data.startTime,
+                endTime: data.endTime,
+                close: data.closed
+            };
+        } else {
+            const newRow = createOrUpdateRow(data, specialHoursCount);
+            if (newRow) {
+                document.querySelector('.right-table tbody').appendChild(newRow);
+            }
 
-        // Append the new row to the table
-        document.querySelector('.right-table tbody').appendChild(newRow);
+            specialOpeningHours.push({
+                date: data.date,
+                description: data.description,
+                startTime: data.startTime,
+                endTime: data.endTime,
+                close: data.closed
+            });
 
-        // Increment the special hours count
-        specialHoursCount++;
+            specialHoursCount++;
+        }
     });
 
 
@@ -330,14 +396,13 @@
         $('#specialEndTime').val('');
     }
 
-    function editSpecialHour(index) {
-        // Implement edit functionality
-        console.log("Edit special hour at index:", index);
-    }
-
     function deleteSpecialHour(index) {
         if (confirm("Are you sure you want to delete this special opening hour?")) {
-            const row = document.querySelector(`input[name="specialOpeningHours[${index}].description"]`).closest('tr');
+            // Remove from the specialOpeningHours array
+            specialOpeningHours.splice(index, 1);
+
+            // Remove the row from the table
+            const row = document.getElementById('special-hour-row-' + index);
             if (row) {
                 row.remove();
                 // Reindex the remaining rows
@@ -347,21 +412,32 @@
     }
 
     function reindexSpecialHours() {
-        const rows = document.querySelectorAll('.right-table tbody tr');
+        const rows = document.querySelectorAll('table.right-table tbody tr');
         rows.forEach((row, index) => {
-            const inputs = row.querySelectorAll('input[name^="specialOpeningHours["]');
+            // Update row ID
+            row.id = 'special-hour-row-' + index;
+
+            // Update input names
+            const inputs = row.querySelectorAll('input[name^="storeOpeningHoursCommand.specialOpeningHours["]');
             inputs.forEach(input => {
                 const name = input.getAttribute('name');
-                const newName = name.replace(/\[\d+\]/, `[${index}]`);
+                const newName = name.replace(/\[\d+\]/, '[' + index + ']');
                 input.setAttribute('name', newName);
             });
-            const editBtn = row.querySelector('a.btn-primary');
+
+            // Update onclick handlers
+            const editBtn = row.querySelector('a.btn-wl');
             const deleteBtn = row.querySelector('a.btn-danger');
-            editBtn.setAttribute('onclick', `editSpecialHour(${index})`);
-            deleteBtn.setAttribute('onclick', `deleteSpecialHour(${index})`);
+
+            if (editBtn) editBtn.setAttribute('onclick', 'editSpecialHour('+index+')');
+            if (deleteBtn) deleteBtn.setAttribute('onclick', 'deleteSpecialHour('+index+')');
         });
+
+        // Update the count
         specialHoursCount = rows.length;
     }
+
+
 
     document.addEventListener('DOMContentLoaded', function() {
         setupAllTimeInputs();
@@ -377,5 +453,8 @@
             event.preventDefault();
             addSpecialHour();
         });
+
     });
+
+
 </script>

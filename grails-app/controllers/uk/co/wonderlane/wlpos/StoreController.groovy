@@ -4,10 +4,9 @@ package uk.co.wonderlane.wlpos
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
+import groovy.json.JsonSlurper
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
-import uk.co.wonderlane.wlpos.entities.OpeningHours
-import uk.co.wonderlane.wlpos.entities.OpeningTime
 import uk.co.wonderlane.wlpos.entities.OpeningTimeOverride
 import uk.co.wonderlane.wlpos.entities.StoreConfig
 import uk.co.wonderlane.wlpos.entities.SyncMessage
@@ -165,7 +164,8 @@ class StoreController {
          offset                      : params.offset,
          sort                        : params.sort,
          order                       : params.order,
-         storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList())]
+         storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList()),
+         storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours())]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -229,7 +229,7 @@ class StoreController {
             String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(newStoreCommand?.storeAdditionalDetails)
             store.additionalDetails = storeAdditionalDetailJson
 
-            store.setOpeningHours(storeService.getOpeningHoursAsJson(newStoreCommand.storeOpeningHoursCommand))
+            store.setOpeningHours(storeService.getOpeningHoursAsObject(newStoreCommand.storeOpeningHoursCommand))
 
             storeService.saveStore(store)
 
@@ -261,7 +261,37 @@ class StoreController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def loadAddSpecialOpeningHoursTemplate() {
-        render template: 'addSpecialOpeningHours'
+        render (template: 'addEditSpecialOpeningHours', model:[openingHourIndexItem:-1])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def loadEditSpecialOpeningHoursTemplate() {
+        def specialOpeningHourJson = params.specialOpeningHour
+        def openingHourIndex = params.openingHourIndex ? Integer.parseInt(params.openingHourIndex) : null
+
+        if (specialOpeningHourJson) {
+            try {
+                String decodedJson = URLDecoder.decode(specialOpeningHourJson, "UTF-8")
+
+                def jsonSlurper = new JsonSlurper()
+                def hourObject = jsonSlurper.parseText(decodedJson)
+
+                def specialOpeningHour = new OpeningTimeOverrideCommand(
+                        date: hourObject.date,
+                        description: hourObject.description,
+                        startTime: hourObject.startTime,
+                        endTime: hourObject.endTime,
+                        close: hourObject.close as boolean
+                )
+
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: specialOpeningHour, openingHourIndexItem: openingHourIndex])
+            } catch (Exception e) {
+                log.error("Error parsing specialOpeningHour JSON: ${e.message}", e)
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndex: openingHourIndexItem, error: "Invalid data format"])
+            }
+        } else {
+            render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex])
+        }
     }
 
     def save(StoreCommand storeCommand) {
@@ -293,7 +323,9 @@ class StoreController {
 
             String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(storeCommand?.storeAdditionalDetails)
 
-            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson)
+            String storeOpeningHours = gsonProvider.gson.toJson(storeService.getOpeningHoursAsObject(storeCommand.storeOpeningHoursCommand))
+
+            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours)
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
@@ -516,6 +548,7 @@ class StoreCommand implements Validateable {
             }
             return true
         }
+        storeOpeningHoursCommand nullable: true
     }
 }
 
