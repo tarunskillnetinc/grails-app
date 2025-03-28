@@ -59,11 +59,7 @@ class TransactionController {
             inputErrors += "<pre>" + exceptionToString(ex) + "</pre>"
             flash.error = "The selected transaction is not able to be viewed on this page and may be older data."
 
-            if (Environment.current == Environment.DEVELOPMENT) {
-                render(status: HttpStatus.BAD_REQUEST.code, inputErrors)
-            } else {
-                [exception: inputErrors]
-            }
+            [exception: inputErrors]
         }
     }
 
