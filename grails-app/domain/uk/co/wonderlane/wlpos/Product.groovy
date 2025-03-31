@@ -20,7 +20,7 @@ class Product {
     String receiptDescription
     Category category
     boolean weightedItem
-    boolean openPrice
+    Boolean openPrice
     boolean zeroPrice
     boolean pricePerKg
     boolean snappyProduct
