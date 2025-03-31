@@ -270,6 +270,8 @@ class AmendableOrderService extends MySqlPoolDal {
         void convertQuantitiesToPackNumbers() {
             demand = demand?.divide(packQuantity, 3 , RoundingMode.HALF_UP)
             available = available?.divide(packQuantity, 3, RoundingMode.HALF_UP)
+            originalOrderQuantity = originalOrderQuantity?.divide(packQuantity, RoundingMode.HALF_UP)
+            amendedOrderQuantity = amendedOrderQuantity?.divide(packQuantity, RoundingMode.HALF_UP)
         }
 
         static constraints = {
