@@ -40,7 +40,7 @@ class TenderTypeService {
         return [results, totalCount]
     }
 
-    def overrideTenderButton(List<Button> buttonList, Button newButton) {
+    def overrideButton(List<Button> buttonList, Button newButton) {
         def existingIndex = buttonList.findIndexOf { it.id == newButton.overrideId }
 
         if (existingIndex != -1) {
@@ -48,7 +48,7 @@ class TenderTypeService {
         }
     }
 
-    def addTenderButtonIfNotExist(List<Button> buttonList, Button newButton) {
+    def addButtonIfNotExist(List<Button> buttonList, Button newButton) {
         def existingIndex = buttonList.findIndexOf { it.row == newButton.row && it.column == newButton.column }
 
         if (existingIndex == -1) {
@@ -69,7 +69,7 @@ class TenderTypeService {
                 buttonGrid.buttons?.each { Button button ->
                     if (button.storeId == null || button.storeId == springSecurityService.principal.storeId) {
                         if (button.overrideId == null) {
-                            addTenderButtonIfNotExist(activeButtons, button)
+                            addButtonIfNotExist(activeButtons, button)
                         }
                     }
                 }
@@ -82,7 +82,7 @@ class TenderTypeService {
                 buttonGrid.buttons?.each { Button button ->
                     if (button.storeId == null || button.storeId == springSecurityService.principal.storeId) {
                         if (button.overrideId != null) {
-                          overrideTenderButton(activeButtons, button)
+                          overrideButton(activeButtons, button)
                         }
                     }
                 }
