@@ -47,7 +47,7 @@ class Store {
         updatedUserId column: "updatedUserId"
         retailerStoreId column: "retailerStoreId"
         deleted column: "deleted"
-        additionalDetails column: "additionaldetails", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        additionalDetails column: "additionalDetails", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
     }
 
     static constraints = {
