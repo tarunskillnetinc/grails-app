@@ -163,7 +163,20 @@ class ReasonCodeController {
             return
         }
         reasonCodeService.saveReasonCode(rc)
-        sendSyncMessage(rc, false)
+        try {
+            sendSyncMessage(rc, false)
+        } catch (Exception e){
+            errors.add("Reason code saved but rabbit sync failed.")
+            render(template: "addEditReasonCode", model: [
+                    retailerId: springSecurityService.principal.retailerId,
+                    editing: !newEntry,
+                    reasonCode: rc,
+                    errors: toJson(errors),
+                    renderErrors: true,
+            ])
+            return
+        }
+
         render "OK"
     }
 
