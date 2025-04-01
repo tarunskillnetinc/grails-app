@@ -31,7 +31,7 @@ class PhysicalInventoryExclusionService {
                 List<ProductVariant> variantList = productService.getAllProductVariantsBySkuForCurrentRetailer(numericSku)
                 if (!variantList.isEmpty()) {
                     variantList.each { productVariant ->
-                        productVariant.excludeFromInventoryCount = true
+                        productVariant.excludeFromStockTake = true
                         productVariant.save(flush: true, failOnError: true)
                     }
                 } else {

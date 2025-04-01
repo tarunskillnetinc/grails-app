@@ -936,7 +936,7 @@ class ProductController extends BaseController {
                 newVariant.heightCm = editedVariant.heightCm
                 newVariant.widthCm = editedVariant.widthCm
                 newVariant.depthCm = editedVariant.depthCm
-                newVariant.excludeFromInventoryCount = product.variants?.any { it.excludeFromInventoryCount } ?: false
+                newVariant.excludeFromStockTake = product.variants?.any { it.excludeFromStockTake } ?: false
 
                 editedVariant.packs?.each { editedPack ->
                     Pack newPack = new Pack()
@@ -2008,7 +2008,7 @@ class ProductController extends BaseController {
                 productVariant = new ProductVariant()
             }
             if (existingVariants.containsKey(variant.sku)) {
-                productVariant.excludeFromInventoryCount = existingVariants.get(variant.sku).excludeFromInventoryCount
+                productVariant.excludeFromStockTake = existingVariants.get(variant.sku).excludeFromStockTake
             }
             productVariant.id = variant.id
             productVariant.storeId = springSecurityService.principal.storeId
@@ -2414,7 +2414,7 @@ class ProductVariantCommand {
     BigDecimal widthCm
     BigDecimal depthCm
     String extras
-    boolean excludeFromInventoryCount
+    boolean excludeFromStockTake
 
     Collection<PackCommand> packs = new ArrayList<>()
     Collection<BarcodeCommand> barcodez = new ArrayList<>()

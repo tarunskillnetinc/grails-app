@@ -39,7 +39,7 @@ class ProductVariant implements Serializable {
     BigDecimal widthCm
     BigDecimal depthCm
     String extras
-    boolean excludeFromInventoryCount
+    boolean excludeFromStockTake
 
     Collection<Pack> packs = new ArrayList<>()
 //    Collection<ProductGroup> tags = new ArrayList<>()
@@ -88,7 +88,7 @@ class ProductVariant implements Serializable {
         widthCm column: "widthCm"
         depthCm column: "depthCm"
         extras column: "extras", sqlType: "json"
-        excludeFromInventoryCount column: "excludeFromInventoryCount"
+        excludeFromStockTake column: "excludeFromStockTake"
     }
 
     static constraints = {
@@ -123,7 +123,7 @@ class ProductVariant implements Serializable {
         delete bindable: true
         barcodez bindable: true
         locationz bindable: true
-        excludeFromInventoryCount nullable: false
+        excludeFromStockTake nullable: false
     }
 
     static int countMatchingSkusForRetailer(Long sku, Integer retailerId) {
