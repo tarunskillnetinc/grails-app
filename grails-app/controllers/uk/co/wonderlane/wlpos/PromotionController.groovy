@@ -279,8 +279,6 @@ class PromotionController {
         SyncMessage syncMessage = new SyncMessage(SyncMessageType.PROMOTION, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
         syncMessage.setInsert(true)
 
-        // TODO This doesn't appear to take into account the actual stores selected from the list yet?
-
         uk.co.wonderlane.wlpos.entities.Promotion tillPromo = promotion.getPromotion()
 
         List<uk.co.wonderlane.wlpos.entities.PromotionGroup> tagGroups = new ArrayList<>();
@@ -327,10 +325,12 @@ class PromotionController {
 
         syncMessage.setPromotion(tillPromo)
 
+        // Only Send sync message to selected stores
         if(promotion.stores != null){
             promotion.stores?.each { store ->
 
                 syncMessage.setStoreId(store.id)
+                syncMessage.setStoreNumber(store.config.storeNumber)
 
                 rabbitService.sendMessage(syncMessage);
             }
@@ -642,7 +642,14 @@ class PromotionCommand implements Validateable {
         description nullable: false, size: 1..200
         receiptDescription nullable: false, size: 1..50
         startDate nullable: false
-        endDate nullable: true
+        endDate nullable: true, validator: { val, obj ->
+            if (val == null) {
+                return 'promotionCommand.endDateNull'
+            }
+            if (val < obj.startDate) {
+                return 'promotionCommand.endDateBeforeStartDate'
+            }
+        }
         type nullable: false
         amount nullable: true, validator: {val, obj ->
             if (obj.type == PromotionType.FIXED_PRICE) {

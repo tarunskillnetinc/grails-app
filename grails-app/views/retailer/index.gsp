@@ -14,7 +14,7 @@
                 return '${message(code:'retailer.logo.maxsize', default:"Image file size too large")}'
             }
             if (input.files[0].type !== "image/png") {
-                return '${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}'
+                return '${message(code:'button.error.incompatible.message', args:['.png','image '], default:"Image incorrect file type. Please use .png.")}'
             }
         }
 
@@ -371,6 +371,13 @@
                                         <div class="btn btn-danger" id="reset-rabbitmq-receipts-exchange-button" onclick="$('#rabbitMqReceiptsExchange').val('')">Reset</div>
                                     </div>
                                 </div>
+                                
+                                <div class="form-group row">
+                                    <label for="amenableOrdersEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Amendable Orders Enabled</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="amendableOrdersEnabled" id="amendableOrdersEnabled" ${retailer?.config?.amendableOrdersEnabled ? 'checked' : ''} />
+                                    </div>
+                                </div>
 
                                 <div class="form-group row">
                                     <label for="alcoholMinimumPriceMultiplier" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Alcohol Minimum Price Multiplier (%)</label>
@@ -379,6 +386,13 @@
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-alcoholMinimumPriceMultiplier-button" onclick="$('#alcoholMinimumPriceMultiplier').val('')">Reset</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="receiptInBranchOrders" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Receipt in Branch Orders</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="receiptInBranchOrders" id="receiptInBranchOrders" ${retailer?.config?.receiptInBranchOrders ? 'checked' : ''} />
                                     </div>
                                 </div>
 
@@ -969,6 +983,13 @@
                                     <g:field class="col-5 form-control bottom-border" name="loyaltyConfig.loyaltyPointValue"  id="loyaltyPointValue" type="number" value="${retailer?.config?.loyaltyRetailerConfig?.loyaltyPointValue}" readonly="${!retailer?.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? 'true' : 'false'}"/>
                                 </div>
                                 <div class="form-group row"><div class="btn btn-danger" id="reset-loyaltyPointValue-term-button" onclick="resetLoyaltyPointValue()" >Reset</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="enableCharityOrganisationFlag" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Enable Charity Organisation</label>
+                                <div class="col-7 col-lg-4">
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" id="enableCharityOrganisationFlag" name="charityEnabled"  ${retailer?.config?.charityEnabled ? "checked" : ""} />
                                 </div>
                             </div>
 

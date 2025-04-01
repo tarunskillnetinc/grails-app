@@ -1,6 +1,9 @@
 package uk.co.wonderlane.wlpos
 
+import grails.gorm.transactions.Transactional
 import grails.util.Pair
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import org.springframework.context.MessageSource
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.servlet.support.RequestContextUtils as RCU
@@ -11,7 +14,7 @@ import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import static groovy.json.JsonOutput.toJson
 
 class ReasonCodeController {
-
+    def reasonCodeHistoryService
     def springSecurityService
     def rabbitService
     ReasonCodeService reasonCodeService
@@ -23,6 +26,7 @@ class ReasonCodeController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSearch() {
         int offset = params.offset ? Integer.parseInt(params.offset) : 0
+        Boolean includeDeleted = params.deleted == "true"
         int max = params.max ? Integer.parseInt(params.max) : 50
         int retailerId = springSecurityService.principal.retailerId
         String typeStr = params.type
@@ -35,7 +39,13 @@ class ReasonCodeController {
             type = ReasonCodeType.PAID_OUT
         }
 
-        Pair<Integer, List<ReasonCode>> searchResults = reasonCodeService.getReasonCodesOfType(retailerId, type, offset, max, params.sortColumn ?: "description", params.sortOrder ?: "asc")
+        Pair<Integer, List<ReasonCode>> searchResults
+        if (includeDeleted) {
+            searchResults = reasonCodeService.getReasonCodesOfTypeIncludingDeleted(retailerId, type)
+        } else {
+            searchResults = reasonCodeService.getReasonCodesOfType(retailerId, type)
+        }
+
         render(template: "reasonCodeSearchResults", model: [
                 reasonCodes: searchResults.getbValue(),
                 max: max,
@@ -67,6 +77,25 @@ class ReasonCodeController {
                 errors: toJson([]),
                 renderErrors: false,
         ])
+    }
+
+    @Transactional
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSaveReorderReasonCode() {
+        def newOrder = params.getOrDefault("order[]", [])
+
+        int priority = 1
+        for (String reasonCodeOrder : newOrder) {
+            Integer reasonCodeId = reasonCodeOrder.toInteger()
+            ReasonCode code = ReasonCode.get(reasonCodeId)
+            if (code != null) {
+                code.setPriority(priority++)
+                code.save(flush: true, failOnError: true)
+                sendSyncMessage(code, false)
+            }
+        }
+
+        render "OK"
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -117,7 +146,7 @@ class ReasonCodeController {
                 sendSyncMessage(duplicateReasonCode, false)
                 render "OK"
                 return
-            } else if (duplicateReasonCode.code == rc.code) {
+            } else if (duplicateReasonCode.code == rc.code && duplicateReasonCode.additionalFunctionality == rc.additionalFunctionality && duplicateReasonCode.type == rc.type) {
                 String errorMessageCode = rc.type == ReasonCodeType.PRODUCT_LIST ? 'reasonCode.code.product.list.duplicate.error' : 'reasonCode.code.duplicate.error'
                 errors.add(messageSource.getMessage(errorMessageCode, null, locale))
             }
@@ -157,6 +186,23 @@ class ReasonCodeController {
         rc.deleted = true
         reasonCodeService.saveReasonCode(rc)
         sendSyncMessage(rc, true)
+        render "OK"
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxReinstateReasonCode() {
+        ReasonCode rc
+        if (!paramIsNullOrEmpty(params, "id", ["", "0"])) {
+            rc = ReasonCode.get(params.id.toString().toInteger())
+        }
+        if (rc == null) {
+            render "Error occurred trying to reinstate reason code."
+            return
+        }
+
+        rc.deleted = false
+        reasonCodeService.saveReasonCode(rc)
+        sendSyncMessage(rc, false)
         render "OK"
     }
 
