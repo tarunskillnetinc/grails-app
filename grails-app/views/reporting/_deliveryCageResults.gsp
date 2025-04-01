@@ -48,7 +48,7 @@
                 <div id="processingDate-${i + 1}" class="col-6 my-auto">${cage?.effectiveDate}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "cases" }?.enabled}">
-                <div id="cases-${i + 1}" class="col-2 my-auto">${cage?.totalCases}</div>
+                <div id="cases-${i + 1}" class="col-2 my-auto">${cage?.totalCaseQuantity}</div>
             </g:if>
         </div>
     </g:each>
