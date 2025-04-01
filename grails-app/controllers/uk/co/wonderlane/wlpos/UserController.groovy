@@ -360,7 +360,7 @@ class UserController {
     }
 
     private getStores(){
-        return storeService.getActiveStores(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + "-" + it.config.storeName }
+        return storeService.getStore(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + "-" + it.config.storeName }
     }
 }
 
