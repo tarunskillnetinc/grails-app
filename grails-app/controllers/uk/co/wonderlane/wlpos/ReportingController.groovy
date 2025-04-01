@@ -1986,7 +1986,11 @@ class ReportingController {
             stringBuilder.append(",")
             // The below code is planning to use start date if populated (deliveries created through intergration route)
             // and will use date started for deliveries that have been created through application (has no start date)
-            stringBuilder.append(!delivery?.startDate?.toString("dd/MM/yyyy").isEmpty() ? delivery?.startDate?.toString("dd/MM/yyyy") : delivery?.dateStarted?.toString("dd/MM/yyyy")) // Using Date started as the date of the delivery.
+            if (delivery?.startDate?.toString("dd/MM/yyyy").isEmpty() && delivery?.dateStarted?.toString("dd/MM/yyyy").isEmpty() ) {
+                stringBuilder.append("N/A")
+            } else {
+                stringBuilder.append(delivery?.dateStarted?.toString("dd/MM/yyyy").isEmpty() ? delivery?.startDate?.toString("dd/MM/yyyy") : delivery?.dateStarted?.toString("dd/MM/yyyy")) // Using Date started as the date of the delivery.
+            }
             stringBuilder.append(",")
             stringBuilder.append(delivery?.supplierName)
             stringBuilder.append(",")
