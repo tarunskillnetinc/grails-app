@@ -53,6 +53,7 @@ class DeliveryController {
         if (hasValidBranchOrders && branchOrderList.size() > 1) {
             validationResult = INVALID_MULTIPLE_MATCHES
         } else if (hasValidBranchOrders && branchOrderList.first().status == ProductListStatus.COMPLETE) {
+            hasValidBranchOrders = false
             validationResult = INVALID_DELIVERY_ALREADY_COMPLETE
         } else if (hasValidBranchOrders && !supplierReferenceAlreadyExists) {
             session.VALIDDELIVERIES.add(branchOrderList.first())
