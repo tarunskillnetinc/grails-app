@@ -33,18 +33,32 @@ function filter(inputName, dropDownName) {
 
 function updateFields(selectElement) {
     clearOldFlashMessages();
-    updateTextField(selectElement, 'storeIdInput');
     updateHiddenField(selectElement);
+    // Update the selected store display field
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    if (selectedOption && selectedOption.value !== '0') {
+        document.getElementById('selectedStoreDisplay').value = selectedOption.text;
+    } else {
+        document.getElementById('selectedStoreDisplay').value = 'No Home Store';
+    }
 }
-
-function updateTextField(selectElement, elementId) {
-    var selectedText = selectElement.options[selectElement.selectedIndex].text;
-    document.getElementById(elementId).value = selectedText;
-}
-
 
 function updateHiddenField(selectElement) {
     document.getElementsByName('defaultStoreId')[0].value = selectElement.value;
+}
+
+function clearStoreSearch() {
+    clearOldFlashMessages();
+
+    // Clear the hidden field value
+    document.getElementById('defaultStoreId').value = '0';
+
+    // Update the display field
+    document.getElementById('selectedStoreDisplay').value = 'No Home Store';
+
+    // Reset the dropdown selection if needed
+    const dropdown = document.getElementById('defaultStoreIdSelector');
+    dropdown.selectedIndex = -1;
 }
 
 function clearFlashMessages() {
