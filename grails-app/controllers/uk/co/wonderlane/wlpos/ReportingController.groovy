@@ -1988,7 +1988,7 @@ class ReportingController {
             // and will use date started for deliveries that have been created through application (has no start date)
             if (delivery?.startDate == null && delivery?.dateStarted == null) {
                 stringBuilder.append("")
-            } else if (delivery?.startDate == null && delivery?.dateStarted == null) {
+            } else if (delivery?.startDate != null && delivery?.dateStarted != null) {
                 stringBuilder.append(delivery?.dateStarted?.toString("dd/MM/yyyy"))
             } else if (delivery?.startDate != null) {
                 stringBuilder.append(delivery?.startDate?.toString("dd/MM/yyyy"))
