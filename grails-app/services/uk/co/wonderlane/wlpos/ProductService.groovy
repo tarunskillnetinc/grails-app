@@ -489,6 +489,7 @@ class ProductService extends MySqlDal {
         }
 
         String querySelect = "SELECT DISTINCT(p) "
+        String queryCount = "SELECT COUNT(DISTINCT p) "
         String searchQuery = """FROM Product p """
 
         if (springSecurityService.principal.storeId) {
@@ -572,21 +573,23 @@ class ProductService extends MySqlDal {
         }
 
         def products = Product.executeQuery(querySelect + searchQuery, queryParams)
-        def allProducts = Product.executeQuery(querySelect + searchQuery, countQueryParams)
+        int totalProductCount = Product.executeQuery(queryCount + searchQuery, countQueryParams).get(0)
 
+        // todo - Fix required for pending changes!
+        //  this filters after the retrieval so would not have worked across multiple pages!
         if (filterWithPendingChanges) {
             products = products.findAll { product ->
                 product?.getEffectiveDatesForFutureChanges()?.size() > 1
             }
 
-            allProducts = allProducts.findAll { product ->
-                product?.getEffectiveDatesForFutureChanges()?.size() > 1
-            }
+//            allProducts = allProducts.findAll { product ->
+//                product?.getEffectiveDatesForFutureChanges()?.size() > 1
+//            }
         }
 
         def results = [:]
         results.products = products
-        results.totalCount = allProducts.size()
+        results.totalCount = totalProductCount
 
         return results
     }
