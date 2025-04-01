@@ -145,7 +145,7 @@
                                             <span class="mr-2">Selected:</span>
                                             <input type="text" class="form-control mr-2" id="selectedStoreDisplay" readonly
                                                    value="${defaultStore ? defaultStore?.config?.storeNumber + '-' + defaultStore?.config?.storeName : 'No Home Store'}" />
-                                            <button type="button" class="btn btn-danger" onclick="clearStoreSearch()">Remove</button>
+                                            <button type="button" id="removeUserHomeStoreBtn" class="btn btn-danger" onclick="clearStoreSearch()">Remove</button>
                                         </div>
                                         <g:hiddenField name="defaultStoreId" value="${user?.defaultStoreId ?:  0}" />
                                         <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreIdSelector')"  >
