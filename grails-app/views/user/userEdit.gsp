@@ -141,11 +141,14 @@
                                 <label for="defaultStoreId" class="col-4 col-form-label text-right pr-4">Home Store</label>
                                 <div class="col-6">
                                     <div class="dropdown-content">
-                                        <g:hiddenField name="defaultStoreId" value="${user?.defaultStoreId ?:  0}" />
-                                        <div class="d-flex mb-2">
-                                            <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreIdSelector')">
-                                            <button  onclick="return clearStoreSearch();" class="btn btn-danger" style="padding: 2px 8px; margin-left: 5px; font-size: 12px; cursor: pointer;">Remove</button>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="mr-2">Selected:</span>
+                                            <input type="text" class="form-control mr-2" id="selectedStoreDisplay" readonly
+                                                   value="${defaultStore ? defaultStore?.config?.storeNumber + '-' + defaultStore?.config?.storeName : 'No Home Store'}" />
+                                            <button type="button" class="btn btn-danger" onclick="clearStoreSearch()">Remove</button>
                                         </div>
+                                        <g:hiddenField name="defaultStoreId" value="${user?.defaultStoreId ?:  0}" />
+                                        <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreIdSelector')"  >
                                         <g:select id="defaultStoreIdSelector"
                                                   size="6"
                                                   name="defaultStoreIdSelector"

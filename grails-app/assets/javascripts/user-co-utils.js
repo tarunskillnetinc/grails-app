@@ -33,15 +33,15 @@ function filter(inputName, dropDownName) {
 
 function updateFields(selectElement) {
     clearOldFlashMessages();
-    updateTextField(selectElement, 'storeIdInput');
     updateHiddenField(selectElement);
+    // Update the selected store display field
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    if (selectedOption && selectedOption.value !== '0') {
+        document.getElementById('selectedStoreDisplay').value = selectedOption.text;
+    } else {
+        document.getElementById('selectedStoreDisplay').value = 'No Home Store';
+    }
 }
-
-function updateTextField(selectElement, elementId) {
-    var selectedText = selectElement.options[selectElement.selectedIndex].text;
-    document.getElementById(elementId).value = selectedText;
-}
-
 
 function updateHiddenField(selectElement) {
     document.getElementsByName('defaultStoreId')[0].value = selectElement.value;
@@ -50,26 +50,17 @@ function updateHiddenField(selectElement) {
 function clearStoreSearch() {
     clearOldFlashMessages();
 
-    // Clear the search input
-    document.getElementById('storeIdInput').value = '';
+    // Clear the hidden field value
+    document.getElementById('defaultStoreId').value = '0';
 
-    // Reset the dropdown selection
-    var selectElement = document.getElementById('defaultStoreIdSelector');
-    selectElement.selectedIndex = -1;
+    // Update the display field
+    document.getElementById('selectedStoreDisplay').value = 'No Home Store';
 
-    // Update the hidden field value to '0'
-    document.getElementsByName('defaultStoreId')[0].value = '0';
-
-    // Reset the filter to show all options
-    filter('storeIdInput', 'defaultStoreIdSelector');
-
-    // Show all options that might have been hidden by the filter
-    for (var i = 0; i < selectElement.length; i++) {
-        $(selectElement.options[i]).removeAttr('disabled').show();
-    }
-
-    return false;
+    // Reset the dropdown selection if needed
+    const dropdown = document.getElementById('defaultStoreIdSelector');
+    dropdown.selectedIndex = -1;
 }
+
 function clearFlashMessages() {
     $('#alert-success').empty();
     $('#errors-container').empty();
