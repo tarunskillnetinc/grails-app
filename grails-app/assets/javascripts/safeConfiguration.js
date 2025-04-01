@@ -29,6 +29,11 @@ function validateAndSave() {
         errorString = errorString.concat("\nThe description can not be empty.");
     }
 
+    if (description.match("[^\p{L}\d\s_]")) {
+        error = true;
+        errorString = errorString.concat("\nThe description can not contain special characters.");
+    }
+
     var type = $('#type').val();
     if (type === "" || type.trim() === "") {
         error = true;
