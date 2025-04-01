@@ -26,6 +26,19 @@ function saveStoreAdditionalDetail(){
     var updatedDescription = $("#addStoreAdditionalDetailDescription").val()
     var updatedValue = $("#addStoreAdditionalDetailValue").val()
 
+    // Add validation for updatedDescription
+    if (!updatedDescription || updatedDescription.trim() === "") {
+        $("#additional-details-errors-container").html(
+            '<div class="alert alert-danger alert-wl mx-0" role="alert">Description cannot be empty</div>'
+        ).show();
+        $("#addStoreAdditionalDetailDescription").addClass("is-invalid");
+        return; // Stop execution of the function
+    } else {
+        // Clear any previous error message and styling
+        $("#additional-details-errors-container").hide();
+        $("#addStoreAdditionalDetailDescription").removeClass("is-invalid");
+    }
+
     var index = $("#addStoreAdditionalDetailIndex").val()
     if (index === null || index === undefined || index === "") {
         var lastVariantContainer = $("#storeAdditionalDetailsContainer > div:last-child");
@@ -37,7 +50,6 @@ function saveStoreAdditionalDetail(){
     } else {
         index = parseInt(index, 10);
     }
-
 
     params["storeAdditionalDetails[" + index + "].description"] = updatedDescription;
     params["storeAdditionalDetails[" + index + "].value"] = updatedValue;
