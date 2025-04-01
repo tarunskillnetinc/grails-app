@@ -122,7 +122,10 @@
                             <div class="col-6">
                                 <div class="dropdown-content">
                                     <g:hiddenField name="defaultStoreId" value="${isLoggedInFromStoreLevel ? defaultStore?.id : 0}" />
-                                    <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreIdSelector')"  >
+                                    <div class="d-flex mb-2">
+                                        <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreIdSelector')">
+                                        <button  onclick="return clearStoreSearch();" class="btn btn-danger" style="padding: 2px 8px; margin-left: 5px; font-size: 12px; cursor: pointer;">Remove</button>
+                                    </div>
                                     <g:select id="defaultStoreIdSelector"
                                               size="6"
                                               name="defaultStoreIdSelector"

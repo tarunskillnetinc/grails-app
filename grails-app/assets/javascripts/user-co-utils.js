@@ -47,6 +47,29 @@ function updateHiddenField(selectElement) {
     document.getElementsByName('defaultStoreId')[0].value = selectElement.value;
 }
 
+function clearStoreSearch() {
+    clearOldFlashMessages();
+
+    // Clear the search input
+    document.getElementById('storeIdInput').value = '';
+
+    // Reset the dropdown selection
+    var selectElement = document.getElementById('defaultStoreIdSelector');
+    selectElement.selectedIndex = -1;
+
+    // Update the hidden field value to '0'
+    document.getElementsByName('defaultStoreId')[0].value = '0';
+
+    // Reset the filter to show all options
+    filter('storeIdInput', 'defaultStoreIdSelector');
+
+    // Show all options that might have been hidden by the filter
+    for (var i = 0; i < selectElement.length; i++) {
+        $(selectElement.options[i]).removeAttr('disabled').show();
+    }
+
+    return false;
+}
 function clearFlashMessages() {
     $('#alert-success').empty();
     $('#errors-container').empty();
@@ -62,3 +85,4 @@ function clearOldFlashMessages() {
         }
     });
 }
+
