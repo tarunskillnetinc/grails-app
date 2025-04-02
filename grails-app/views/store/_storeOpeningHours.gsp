@@ -342,12 +342,6 @@
         closedCell.appendChild(closedWrapper);
         row.appendChild(closedCell);
 
-        <a href="#" onclick="editSpecialHour(${i})" id="edit-specialOpeningHours[${i}]"
-           class="btn btn-sm btn-wl mr-1 fixed-width-btn">Edit</a>
-        <a href="#" onclick="deleteSpecialHour(${i})" id="delete-specialOpeningHours[${i}]"
-           class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
-    </td>
-
         // Actions cell
         const actionsCell = document.createElement('td');
         actionsCell.className = 'text-center align-middle';

@@ -108,13 +108,13 @@ class StoreController {
 
 
         def initialRegularHours = [
-                new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', close: false),
-                new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', close: false),
-                new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', close: false),
-                new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', close: false),
-                new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', close: false),
-                new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', close: false),
-                new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', close: false)
+                new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
         ]
 
         def storeOpeningHoursCommand = new StoreOpeningHoursCommand(
@@ -683,13 +683,10 @@ class OpeningTimeCommand {
     String day;
     String startTime;
     String endTime;
-    boolean close;
+    boolean closed;
 }
 
-class OpeningTimeOverrideCommand {
+class OpeningTimeOverrideCommand extends OpeningTimeCommand{
     String date;
     String description;
-    String startTime;
-    String endTime;
-    boolean close;
 }

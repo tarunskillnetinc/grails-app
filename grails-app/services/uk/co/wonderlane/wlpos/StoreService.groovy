@@ -252,7 +252,7 @@ class StoreService extends MySqlDal {
         DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm")
         openingTime.startTime = openingTimeCommand.startTime ? formatter.parseLocalTime(openingTimeCommand.startTime) : null
         openingTime.endTime = openingTimeCommand.endTime ? formatter.parseLocalTime(openingTimeCommand.endTime) : null
-        openingTime.close = openingTimeCommand.close
+        openingTime.closed = openingTimeCommand.closed
         return openingTime
     }
 
@@ -264,7 +264,7 @@ class StoreService extends MySqlDal {
         openingTimeOverride.date = openingTimeOverrideCommand.date ? formatterDate.parseLocalDate(openingTimeOverrideCommand.date) : null
         openingTimeOverride.startTime = openingTimeOverrideCommand.startTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.startTime) : null
         openingTimeOverride.endTime = openingTimeOverrideCommand.endTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.endTime) : null
-        openingTimeOverride.close = openingTimeOverrideCommand.close
+        openingTimeOverride.closed = openingTimeOverrideCommand.closed
         return openingTimeOverride
     }
 
