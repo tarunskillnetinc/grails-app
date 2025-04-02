@@ -17,14 +17,14 @@
                         <tr>
                             <td class="align-middle text-center">${hour.day} <input type="hidden" name="storeOpeningHoursCommand.regularHours[${i}].day" value="${hour.day}"></td>
                             <td>
-                                <g:textField name="storeOpeningHoursCommand.regularHours[${i}].startTime" value="${hour.startTime}" class="form-control form-control-sm time-input" placeholder="HH:mm" />
+                                <g:textField name="storeOpeningHoursCommand.regularHours[${i}].startTime" id="storeOpeningHoursCommand.regularHours[${i}].startTime" value="${hour.startTime}" class="form-control form-control-sm time-input" placeholder="HH:mm" />
                             </td>
                             <td>
-                                <g:textField name="storeOpeningHoursCommand.regularHours[${i}].endTime" value="${hour.endTime}" class="form-control form-control-sm time-input" placeholder="HH:mm" />
+                                <g:textField name="storeOpeningHoursCommand.regularHours[${i}].endTime" id="storeOpeningHoursCommand.regularHours[${i}].endTime" value="${hour.endTime}" class="form-control form-control-sm time-input" placeholder="HH:mm" />
                             </td>
                             <td class="align-middle text-center">
                                 <div class="checkbox-wrapper">
-                                    <g:checkBox name="storeOpeningHoursCommand.regularHours[${i}].close" class="form-check-input wl-checkbox" checked="${hour.close}" />
+                                    <g:checkBox name="storeOpeningHoursCommand.regularHours[${i}].close" id="storeOpeningHoursCommand.regularHours[${i}].close" class="form-check-input wl-checkbox" checked="${hour.close}" />
                                 </div>
                             </td>
                         </tr>
@@ -52,29 +52,29 @@
                         <tr  id="special-hour-row-${i}">
                             <td>
                                 ${special?.description}
-                                <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].description" value="${special?.description}" />
+                                <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].description" id="storeOpeningHoursCommand.specialOpeningHours[${i}].description" value="${special?.description}" />
                             </td>
                             <td>
                                 ${special?.date}
-                                <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].date" value="${special?.date}" />
+                                <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].date" id="storeOpeningHoursCommand.specialOpeningHours[${i}].date" value="${special?.date}" />
                             </td>
                             <td>
                                 ${special?.startTime}
-                                <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].startTime" value="${special?.startTime}" />
+                                <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].startTime" id="storeOpeningHoursCommand.specialOpeningHours[${i}].startTime" value="${special?.startTime}" />
                             </td>
                             <td>
                                 ${special?.endTime}
-                                <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].endTime" value="${special?.endTime}" />
+                                <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].endTime" id="storeOpeningHoursCommand.specialOpeningHours[${i}].endTime" value="${special?.endTime}" />
                             </td>
                             <td class="align-middle text-center">
                                 <div class="checkbox-wrapper">
                                     <input type="checkbox" class="form-check-input wl-checkbox" ${special?.close ? 'checked' : ''} disabled />
-                                    <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].close" value="${special?.close}" />
+                                    <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].close" id="storeOpeningHoursCommand.specialOpeningHours[${i}].close" value="${special?.close}" />
                                 </div>
                             </td>
                             <td class="text-center align-middle">
-                                <a href="#" onclick="editSpecialHour(${i})" class="btn btn-sm btn-wl mr-1 fixed-width-btn">Edit</a>
-                                <a href="#" onclick="deleteSpecialHour(${i})" class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
+                                <a href="#" onclick="editSpecialHour(${i})" id="edit-specialOpeningHours[${i}]" class="btn btn-sm btn-wl mr-1 fixed-width-btn">Edit</a>
+                                <a href="#" onclick="deleteSpecialHour(${i})" id="delete-specialOpeningHours[${i}]" class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
                             </td>
                         </tr>
                     </g:each>
@@ -82,7 +82,7 @@
                 </table>
             </div>
             <div class="mt-3">
-                <a href="#" onclick="addSpecialHour()" class="btn btn-wl p-1">Add special opening hours</a>
+                <a href="#" onclick="addSpecialHour()" id="add-special-opening-hours" class="btn btn-wl p-1">Add special opening hours</a>
             </div>
         </div>
     </div>
@@ -284,6 +284,7 @@
         const descInput = document.createElement('input');
         descInput.type = 'hidden';
         descInput.name = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].description';
+        descInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].description';
         descInput.value = data.description;
         descCell.appendChild(descInput);
         row.appendChild(descCell);
@@ -294,6 +295,7 @@
         const dateInput = document.createElement('input');
         dateInput.type = 'hidden';
         dateInput.name = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].date';
+        dateInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].date';
         dateInput.value = data.date;
         dateCell.appendChild(dateInput);
         row.appendChild(dateCell);
@@ -304,6 +306,7 @@
         const startInput = document.createElement('input');
         startInput.type = 'hidden';
         startInput.name = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].startTime';
+        startInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].startTime';
         startInput.value = data.startTime;
         startCell.appendChild(startInput);
         row.appendChild(startCell);
@@ -314,6 +317,7 @@
         const endInput = document.createElement('input');
         endInput.type = 'hidden';
         endInput.name = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].endTime';
+        endInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].endTime';
         endInput.value = data.endTime;
         endCell.appendChild(endInput);
         row.appendChild(endCell);
@@ -331,25 +335,38 @@
         const closedInput = document.createElement('input');
         closedInput.type = 'hidden';
         closedInput.name = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].close';
+        closedInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].close';
         closedInput.value = data.closed;
         closedWrapper.appendChild(closedCheckbox);
         closedWrapper.appendChild(closedInput);
         closedCell.appendChild(closedWrapper);
         row.appendChild(closedCell);
 
+        <a href="#" onclick="editSpecialHour(${i})" id="edit-specialOpeningHours[${i}]"
+           class="btn btn-sm btn-wl mr-1 fixed-width-btn">Edit</a>
+        <a href="#" onclick="deleteSpecialHour(${i})" id="delete-specialOpeningHours[${i}]"
+           class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
+    </td>
+
         // Actions cell
         const actionsCell = document.createElement('td');
         actionsCell.className = 'text-center align-middle';
         const editBtn = document.createElement('a');
         editBtn.href = '#';
+        editBtn.id="edit-specialOpeningHours[" + index + "]";
         editBtn.className = 'btn btn-sm btn-wl mr-1 fixed-width-btn';
         editBtn.textContent = 'Edit';
-        editBtn.onclick = function() { editSpecialHour(index); };
+        editBtn.onclick = function () {
+            editSpecialHour(index);
+        };
         const deleteBtn = document.createElement('a');
         deleteBtn.href = '#';
+        deleteBtn.id="delete-specialOpeningHours[" + index + "]";
         deleteBtn.className = 'btn btn-sm btn-danger fixed-width-btn';
         deleteBtn.textContent = 'Delete';
-        deleteBtn.onclick = function() { deleteSpecialHour(index); };
+        deleteBtn.onclick = function () {
+            deleteSpecialHour(index);
+        };
         actionsCell.appendChild(editBtn);
         actionsCell.appendChild(deleteBtn);
         row.appendChild(actionsCell);
@@ -357,7 +374,7 @@
         return existingRow ? null : row;
     }
 
-    document.addEventListener('saveSpecialHours', function(e) {
+    document.addEventListener('saveSpecialHours', function (e) {
         const data = e.detail;
         if (data.specialOpeningHoursIndex !== undefined && data.specialOpeningHoursIndex !== -1) {
             createOrUpdateRow(data, data.specialOpeningHoursIndex);
