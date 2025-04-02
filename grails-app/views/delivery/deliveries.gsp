@@ -68,6 +68,7 @@
                     },
                     200: function (response) {
                         $('#results-container').html(response)
+                        $("#deliveries-file").val('')
                     }
                 }
             })
