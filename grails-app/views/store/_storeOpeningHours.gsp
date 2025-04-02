@@ -24,7 +24,7 @@
                             </td>
                             <td class="align-middle text-center">
                                 <div class="checkbox-wrapper">
-                                    <g:checkBox name="storeOpeningHoursCommand.regularHours[${i}].close" id="storeOpeningHoursCommand.regularHours[${i}].close" class="form-check-input wl-checkbox" checked="${hour.close}" />
+                                    <g:checkBox name="storeOpeningHoursCommand.regularHours[${i}].closed" id="storeOpeningHoursCommand.regularHours[${i}].closed" class="form-check-input wl-checkbox" checked="${hour.closed}" />
                                 </div>
                             </td>
                         </tr>
@@ -68,8 +68,8 @@
                             </td>
                             <td class="align-middle text-center">
                                 <div class="checkbox-wrapper">
-                                    <input type="checkbox" class="form-check-input wl-checkbox" ${special?.close ? 'checked' : ''} disabled />
-                                    <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].close" id="storeOpeningHoursCommand.specialOpeningHours[${i}].close" value="${special?.close}" />
+                                    <input type="checkbox" class="form-check-input wl-checkbox" ${special?.closed ? 'checked' : ''} disabled />
+                                    <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].closed" id="storeOpeningHoursCommand.specialOpeningHours[${i}].closed" value="${special?.closed}" />
                                 </div>
                             </td>
                             <td class="text-center align-middle">
@@ -188,7 +188,7 @@
         description: "${hour.description}",
         startTime: "${hour.startTime}",
         endTime: "${hour.endTime}",
-        close: ${hour.close}
+        closed: ${hour.closed}
     });
     </g:each>
 
@@ -334,8 +334,8 @@
         closedCheckbox.disabled = true;
         const closedInput = document.createElement('input');
         closedInput.type = 'hidden';
-        closedInput.name = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].close';
-        closedInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].close';
+        closedInput.name = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].closed';
+        closedInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].closed';
         closedInput.value = data.closed;
         closedWrapper.appendChild(closedCheckbox);
         closedWrapper.appendChild(closedInput);
@@ -378,7 +378,7 @@
                 description: data.description,
                 startTime: data.startTime,
                 endTime: data.endTime,
-                close: data.closed
+                closed: data.closed
             };
         } else {
             const newRow = createOrUpdateRow(data, specialHoursCount);
@@ -391,7 +391,7 @@
                 description: data.description,
                 startTime: data.startTime,
                 endTime: data.endTime,
-                close: data.closed
+                closed: data.closed
             });
 
             specialHoursCount++;

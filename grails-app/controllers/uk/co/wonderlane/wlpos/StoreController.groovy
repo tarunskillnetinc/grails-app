@@ -247,7 +247,7 @@ class StoreController {
                 description: params.description,
                 startTime: params.startTime ? new LocalTime(params.startTime) : null,
                 endTime: params.endTime ? new LocalTime(params.endTime) : null,
-                close: params.closed as boolean
+                closed: params.closed as boolean
         )
 
         store.addToSpecialOpeningHours(specialOpeningHour)
@@ -281,7 +281,7 @@ class StoreController {
                         description: hourObject.description,
                         startTime: hourObject.startTime,
                         endTime: hourObject.endTime,
-                        close: hourObject.close as boolean
+                        closed: hourObject.closed as boolean
                 )
 
                 render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: specialOpeningHour, openingHourIndexItem: openingHourIndex])

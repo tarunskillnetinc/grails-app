@@ -21,18 +21,18 @@
                     </div>
                     <div>
                         <div class="form-row mb-2">
-                            <div class="col-md-3" id="specialTimeFieldsStart" style="${specialOpeningHour?.close ? 'display:none;' : ''}">
+                            <div class="col-md-3" id="specialTimeFieldsStart" style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
                                 <label for="specialStartTime">Start time</label>
                                 <input type="text" id="specialStartTime" name="specialStartTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.startTime ?: ''}" />
                             </div>
-                            <div class="col-md-3" id="specialTimeFieldsEnd" style="${specialOpeningHour?.close ? 'display:none;' : ''}">
+                            <div class="col-md-3" id="specialTimeFieldsEnd" style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
                                 <label for="specialEndTime">End time</label>
                                 <input type="text" id="specialEndTime" name="specialEndTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.endTime ?: ''}" />
                             </div>
                             <div class="col-md-6 d-flex align-items-end">
                                 <div class="form-check">
                                     <label class="form-check-label" for="specialClosedCheckbox">Closed</label>
-                                    <input type="checkbox" id="specialClosedCheckbox" name="specialClosed" class="form-check-input wl-checkbox ml-6" onclick="toggleSpecialTimeFields()" ${specialOpeningHour?.close ? 'checked' : ''} />
+                                    <input type="checkbox" id="specialClosedCheckbox" name="specialClosed" class="form-check-input wl-checkbox ml-6" onclick="toggleSpecialTimeFields()" ${specialOpeningHour?.closed ? 'checked' : ''} />
                                 </div>
                             </div>
                         </div>
