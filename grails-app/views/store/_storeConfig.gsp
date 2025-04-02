@@ -189,7 +189,7 @@
                 </div>
             </div>
 
-            <g:render template="sharedStoreConfigurationAccordions" model="[storeAdditionalDetails: storeAdditionalDetails, storeOpeningHoursCommand:storeOpeningHoursCommand]"/>
+            <g:render template="sharedStoreConfigurationAccordionsTop" model="[storeAdditionalDetails: storeAdditionalDetails, storeOpeningHoursCommand:storeOpeningHoursCommand]"/>
 
             <!-- EPOS configuration. -->
             <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">
@@ -299,6 +299,8 @@
                     </div>
                 </div>
             </div>
+
+            <g:render template="sharedStoreConfigurationAccordionsBottom"/>
 
             <!-- Inventory Management configuration. -->
             <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">

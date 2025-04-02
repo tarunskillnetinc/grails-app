@@ -16,8 +16,19 @@
             e.preventDefault()
           }
         });
+
+        // Add event listener for the description field
+        $("#addStoreAdditionalDetailDescription").on('input', function() {
+          // Clear error message when user starts typing
+          $("#additional-details-errors-container").empty().hide();
+          // Remove invalid class from the input
+          $(this).removeClass("is-invalid");
+        });
+
       });
     </script>
+
+    <section id="additional-details-errors-container" class="container-fluid"></section>
 
     <div class="row form-group mb-4 mt-4">
       <g:hiddenField name="addStoreAdditionalDetailIndex" value="${index}" />

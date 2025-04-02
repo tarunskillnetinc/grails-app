@@ -1,8 +1,8 @@
 package uk.co.wonderlane.wlpos
 
 import com.google.gson.reflect.TypeToken
-import uk.co.wonderlane.wlpos.entities.OpeningHours
 import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
+import uk.co.wonderlane.wlpos.entities.OpeningHours
 import uk.co.wonderlane.wlpos.entities.StoreConfig
 
 import java.lang.reflect.Type
@@ -49,7 +49,7 @@ class Store {
         updatedUserId column: "updatedUserId"
         retailerStoreId column: "retailerStoreId"
         deleted column: "deleted"
-        additionalDetails column: "additionaldetails", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        additionalDetails column: "additionalDetails", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         openingHours column: "openingHours", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
     }
 
@@ -124,8 +124,10 @@ class Store {
     }
 
     List<StoreAdditionalDetail> getAdditionalDetailsList() {
-        Type listType = new TypeToken<List<StoreAdditionalDetail>>(){}.getType();
-        return gsonProvider.gson.fromJson(additionalDetails, listType);
+        if (additionalDetails) {
+            return gsonProvider.gson.fromJson(additionalDetails, new TypeToken<List<StoreAdditionalDetail>>(){}.type)
+        }
+        return []
     }
 
     String getAdditionalDetailsString() {

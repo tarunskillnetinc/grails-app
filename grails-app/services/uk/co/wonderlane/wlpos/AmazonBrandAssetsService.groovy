@@ -39,6 +39,8 @@ class AmazonBrandAssetsService implements IBrandAssetsService {
             ke.printStackTrace()
         } catch (S3Exception ignored) {
             return null
+        } catch (Exception ignored) {
+            return null;
         }
 
         return new byte[]{}

@@ -291,7 +291,8 @@
                         </div>
                     </div>
                 </div>
-                <g:render template="sharedStoreConfigurationAccordions" model="[storeAdditionalDetails: storeAdditionalDetails, storeOpeningHoursCommand: storeOpeningHoursCommand]"/>
+                <g:render template="sharedStoreConfigurationAccordionsTop" model="[storeAdditionalDetails: storeAdditionalDetails, storeOpeningHoursCommand: storeOpeningHoursCommand]"/>
+                <g:render template="sharedStoreConfigurationAccordionsBottom"/>
             </div>
         </g:form>
     </section>

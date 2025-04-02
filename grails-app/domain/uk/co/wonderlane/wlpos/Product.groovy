@@ -20,7 +20,7 @@ class Product {
     String receiptDescription
     Category category
     boolean weightedItem
-    boolean openPrice
+    Boolean openPrice
     boolean zeroPrice
     boolean pricePerKg
     boolean snappyProduct
@@ -93,6 +93,7 @@ class Product {
         receiptDescription size: 1..50, blank: false, nullable: false
         discreetMessage size: 0..50, blank: true, nullable: true
         vatPercentageOverride min:0 as BigDecimal, max: 100 as BigDecimal, blank: true, nullable: true, scale: 2
+        openPrice nullable: true
         vatCode nullable: false
         status nullable: false
         category nullable: false, validator: {val, obj ->

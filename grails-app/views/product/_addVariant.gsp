@@ -1,3 +1,4 @@
+<%@ page import="uk.co.wonderlane.wlpos.enums.StockManagementType" %>
 <asset:javascript src="validators/input-validator.js" />
 <div class="modal-header">
     <g:if test="${isEditMode}">
@@ -84,11 +85,10 @@
                 <g:select name="stockManagementType"
                           id="stockManagementType"
                           class="form-control select-border"
-                          from="${uk.co.wonderlane.wlpos.enums.StockManagementType.values()}"
+                          from="${StockManagementType.values()}"
                           valueMessagePrefix="StockManagementType"
                           optionKey="${{it}}"
-                          value="${variant?.stockManagementType}"
-                          noSelection="${[null: 'Select Type']}"/>
+                          value="${variant?.stockManagementType ?: StockManagementType.STANDARD}"/>
             </div>
         </div>
 
