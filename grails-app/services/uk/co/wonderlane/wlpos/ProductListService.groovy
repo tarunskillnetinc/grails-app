@@ -508,11 +508,12 @@ class ProductListService extends MySqlDal {
     }
 
     uk.co.wonderlane.wlpos.entities.wlim.ProductListItemGroup mapProductListItemGroup(ResultSet rs) throws SQLException {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZone(DateTimeZone.UTC)
         uk.co.wonderlane.wlpos.entities.wlim.ProductListItemGroup productListItemGroup = new uk.co.wonderlane.wlpos.entities.wlim.ProductListItemGroup()
         productListItemGroup.setId(rs.getInt("id"))
         productListItemGroup.setProductListId(rs.getInt("productListId"))
         productListItemGroup.setUniqueIdentifier(rs.getString("uniqueIdentifier"))
-        productListItemGroup.setEffectiveDate(new DateTime(rs.getTimestamp("effectiveDate")).withZoneRetainFields(DateTimeZone.UTC))
+        productListItemGroup.setEffectiveDate(DateTime.parse(rs.getString("effectiveDate"), dateFormatter))
         return productListItemGroup
     }
 
