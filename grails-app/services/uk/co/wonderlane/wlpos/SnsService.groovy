@@ -15,13 +15,13 @@ import uk.co.wonderlane.wlpos.entities.supplier.Supplier
 class SnsService {
     def springSecurityService
     def snsClient
-    def supplierTopic
+    def eventTopic
     def gsonProvider
 
     def publishSupplierAdd(Supplier supplier) {
         def notification = new SupplierTaskEventMessage(springSecurityService.principal.retailerId, TaskEventMessageActionType.ADD, supplier)
         PublishRequest request = PublishRequest.builder()
-                .topicArn( generateTopicArn(supplierTopic))
+                .topicArn( generateTopicArn(eventTopic))
                 .message(gsonProvider.getGson().toJson(notification, TaskEventMessage.class))
                 .messageAttributes(Map.of("retailerId", MessageAttributeValue.builder().dataType("Number").stringValue((String) springSecurityService.principal.retailerId).build()))
                 .build()
@@ -32,7 +32,7 @@ class SnsService {
     def publishSupplierDelete(Supplier supplier) {
         def notification = new SupplierTaskEventMessage(springSecurityService.principal.retailerId, TaskEventMessageActionType.DELETE, supplier)
         PublishRequest request = PublishRequest.builder()
-                .topicArn( generateTopicArn(supplierTopic))
+                .topicArn( generateTopicArn(eventTopic))
                 .message(gsonProvider.getGson().toJson(notification, TaskEventMessage.class))
                 .messageAttributes(Map.of("retailerId", MessageAttributeValue.builder().dataType("Number").stringValue((String) springSecurityService.principal.retailerId).build()))
                 .build()

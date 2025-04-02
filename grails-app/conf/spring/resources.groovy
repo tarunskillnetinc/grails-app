@@ -444,6 +444,6 @@ beans = {
         springSecurityService = ref('springSecurityService')
         snsClient = ref("snsClient")
         gsonProvider = ref("gsonProvider")
-        supplierTopic = grailsApplication.config.getProperty("sns.supplierTopic")
+        eventTopic = grailsApplication.config.getProperty("sns.eventTopic")
     }
 }
