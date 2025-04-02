@@ -33,18 +33,19 @@ function filter(inputName, dropDownName) {
 
 function updateFields(selectElement) {
     clearOldFlashMessages();
-    updateHiddenField(selectElement);
     // Update the selected store display field
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     if (selectedOption && selectedOption.value !== '0') {
+        updateHiddenFieldValue(selectedOption.value);
         document.getElementById('selectedStoreDisplay').value = selectedOption.text;
     } else {
+        updateHiddenFieldValue('0');
         document.getElementById('selectedStoreDisplay').value = 'No Home Store';
     }
 }
 
-function updateHiddenField(selectElement) {
-    document.getElementsByName('defaultStoreId')[0].value = selectElement.value;
+function updateHiddenFieldValue(elementValue) {
+    document.getElementsByName('defaultStoreId')[0].value = elementValue
 }
 
 function clearStoreSearch() {
