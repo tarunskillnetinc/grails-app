@@ -5,6 +5,7 @@
     <title>Add Store</title>
     <asset:javascript src="validators/input-validator.js" />
     <asset:javascript src="storeCommonUtils.js" />
+    <asset:javascript src="inert.min.js" />
 
     <script type="text/javascript">
 
@@ -45,6 +46,12 @@
                 priceBandSelectDiv.hide();
             }
         }
+
+        $(document).ready(function() {
+            $(document).on('click', '#addSpecialOpeningHoursModal', function(event) {
+                event.stopPropagation();
+            });
+        });
     </script>
 </head>
 <body>
@@ -284,7 +291,7 @@
                         </div>
                     </div>
                 </div>
-                <g:render template="sharedStoreConfigurationAccordionsTop" model="[storeAdditionalDetails: storeAdditionalDetails]"/>
+                <g:render template="sharedStoreConfigurationAccordionsTop" model="[storeAdditionalDetails: storeAdditionalDetails, storeOpeningHoursCommand: storeOpeningHoursCommand]"/>
                 <g:render template="sharedStoreConfigurationAccordionsBottom"/>
             </div>
         </g:form>

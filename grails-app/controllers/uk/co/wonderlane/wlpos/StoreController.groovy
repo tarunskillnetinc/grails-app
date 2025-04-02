@@ -4,6 +4,10 @@ package uk.co.wonderlane.wlpos
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
+import groovy.json.JsonSlurper
+import org.joda.time.LocalDate
+import org.joda.time.LocalTime
+import uk.co.wonderlane.wlpos.entities.OpeningTimeOverride
 import uk.co.wonderlane.wlpos.entities.StoreConfig
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
@@ -102,7 +106,23 @@ class StoreController {
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
 
-        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges]
+
+        def initialRegularHours = [
+                new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
+        ]
+
+        def storeOpeningHoursCommand = new StoreOpeningHoursCommand(
+                regularHours: initialRegularHours,
+                specialOpeningHours: []
+        )
+
+        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand     : storeOpeningHoursCommand]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -144,7 +164,8 @@ class StoreController {
          offset                      : params.offset,
          sort                        : params.sort,
          order                       : params.order,
-         storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList())]
+         storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList()),
+         storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours())]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -160,7 +181,8 @@ class StoreController {
                                         storeTypes: storeTypes,
                                         priceBands: priceBands,
                                         ranges: ranges,
-                                        storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails)])
+                                        storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails)
+            ])
         } else {
             // Validated.
             def storeCopyingConfigFrom = null
@@ -207,10 +229,68 @@ class StoreController {
             String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(newStoreCommand?.storeAdditionalDetails)
             store.additionalDetails = storeAdditionalDetailJson
 
+            store.setOpeningHours(storeService.getOpeningHoursAsObject(newStoreCommand.storeOpeningHoursCommand))
+
             storeService.saveStore(store)
 
             flash.message = "Store created successfully."
             redirect (action: "config", id: store.id)
+        }
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def addSpecialOpeningHours() {
+        def store = storeService.getStore(springSecurityService.principal.retailerId, params.storeId as int)
+
+        def specialOpeningHour = new OpeningTimeOverride(
+                date: new LocalDate(params.date),
+                description: params.description,
+                startTime: params.startTime ? new LocalTime(params.startTime) : null,
+                endTime: params.endTime ? new LocalTime(params.endTime) : null,
+                closed: params.closed as boolean
+        )
+
+        store.addToSpecialOpeningHours(specialOpeningHour)
+        storeService.saveStore(store)
+
+        render(contentType: 'application/json') {
+            success = true
+            message = "Special opening hours added successfully."
+        }
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def loadAddSpecialOpeningHoursTemplate() {
+        render (template: 'addEditSpecialOpeningHours', model:[openingHourIndexItem:-1])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def loadEditSpecialOpeningHoursTemplate() {
+        def specialOpeningHourJson = params.specialOpeningHour
+        def openingHourIndex = params.openingHourIndex ? Integer.parseInt(params.openingHourIndex) : null
+
+        if (specialOpeningHourJson) {
+            try {
+                String decodedJson = URLDecoder.decode(specialOpeningHourJson, "UTF-8")
+
+                def jsonSlurper = new JsonSlurper()
+                def hourObject = jsonSlurper.parseText(decodedJson)
+
+                def specialOpeningHour = new OpeningTimeOverrideCommand(
+                        date: hourObject.date,
+                        description: hourObject.description,
+                        startTime: hourObject.startTime,
+                        endTime: hourObject.endTime,
+                        closed: hourObject.closed as boolean
+                )
+
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: specialOpeningHour, openingHourIndexItem: openingHourIndex])
+            } catch (Exception e) {
+                log.error("Error parsing specialOpeningHour JSON: ${e.message}", e)
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndex: openingHourIndexItem, error: "Invalid data format"])
+            }
+        } else {
+            render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex])
         }
     }
 
@@ -243,7 +323,9 @@ class StoreController {
 
             String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(storeCommand?.storeAdditionalDetails)
 
-            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson)
+            String storeOpeningHours = gsonProvider.gson.toJson(storeService.getOpeningHoursAsObject(storeCommand.storeOpeningHoursCommand))
+
+            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours)
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
@@ -354,6 +436,7 @@ class NewStoreCommand implements Validateable {
     Integer copyConfigFrom
     Range range
     PriceBand priceBand
+    StoreOpeningHoursCommand storeOpeningHoursCommand
 
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
 
@@ -413,6 +496,7 @@ class NewStoreCommand implements Validateable {
         copyConfigFrom nullable: true
         range nullable: true
         priceBand nullable: true
+        storeOpeningHoursCommand nullable: true
         storeAdditionalDetails nullable: true, validator: { val, obj ->
             if (val) {
                 def hasErrors = false
@@ -441,6 +525,7 @@ class StoreCommand implements Validateable {
 
     StoreConfigCommand config
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
+    StoreOpeningHoursCommand storeOpeningHoursCommand
 
     static constraints = {
         id nullable: true
@@ -463,6 +548,7 @@ class StoreCommand implements Validateable {
             }
             return true
         }
+        storeOpeningHoursCommand nullable: true
     }
 }
 
@@ -586,4 +672,21 @@ class StoreAdditionalDetailCommand implements Validateable {
 
 class AddStoreAdditionalDetailCommand implements Validateable {
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
+}
+
+class StoreOpeningHoursCommand {
+    List<OpeningTimeCommand> regularHours;
+    List<OpeningTimeOverrideCommand> specialOpeningHours;
+}
+
+class OpeningTimeCommand {
+    String day;
+    String startTime;
+    String endTime;
+    boolean closed;
+}
+
+class OpeningTimeOverrideCommand extends OpeningTimeCommand{
+    String date;
+    String description;
 }

@@ -3,7 +3,11 @@ package uk.co.wonderlane.wlpos
 import com.google.gson.*
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.joda.time.LocalDate
+import org.joda.time.LocalTime
 import org.joda.time.format.ISODateTimeFormat
+import uk.co.wonderlane.wlpos.adapters.LocalDateTypeAdapter
+import uk.co.wonderlane.wlpos.adapters.LocalTimeTypeAdapter
 import uk.co.wonderlane.wlpos.entities.basketv2.BasketItem
 import uk.co.wonderlane.wlpos.entities.event.message.TaskEventMessage
 import uk.co.wonderlane.wlpos.entities.transactionv2.Transaction
@@ -37,6 +41,8 @@ class GsonProvider {
                 .registerTypeAdapter(uk.co.wonderlane.wlpos.entities.transaction.Transaction.class, new PropertyBasedInterfaceMarshal())
                 .registerTypeAdapter(BasketItem.class, new PropertyBasedInterfaceMarshal())
                 .registerTypeAdapter(Transaction.class, new PropertyBasedInterfaceMarshal())
+                .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
+                .registerTypeAdapter(LocalTime.class, new LocalTimeTypeAdapter())
                 .create()
     }
 
