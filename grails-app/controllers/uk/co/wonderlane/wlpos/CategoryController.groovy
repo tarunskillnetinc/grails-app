@@ -105,7 +105,7 @@ class CategoryController extends BaseController {
         blankCategory.restrictions.discountAllowed = true
         blankCategory.restrictions.maximumMarkdownPercentage = new BigDecimal(90).setScale(2, RoundingMode.HALF_UP)
         blankCategory.restrictions.quantityChangeAllowed = true
-        blankCategory.restrictions.quantityChangeRestriction = 5
+        blankCategory.restrictions.quantityChangeRestriction = 0
         blankCategory.restrictions.promptedDaysFrom = 7
         blankCategory.restrictions.stockClassification = StockClassification.STANDARD
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
