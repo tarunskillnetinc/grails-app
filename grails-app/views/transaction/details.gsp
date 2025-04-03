@@ -343,7 +343,8 @@ overridewrap {
 
                                 <g:if test="${basketItem.qty}">
                                     <div id="unitprice-id-${line + 1}" class="col-1 my-auto"><g:formatNumber
-                                            number="${basketItem.total / basketItem.qty}" type="currency"/></div>
+                                            number="${basketItem.product.variants[0].retailPrice}"
+                                            type="currency"/></div>
                                 </g:if>
                                 <g:else>
                                     <div id="unitprice-id-${line + 1}" class="col-1 my-auto">-</div>
@@ -397,7 +398,7 @@ overridewrap {
                                         -
                                     </g:if>
                                     <g:elseif test="${basketItem.markdownAmount}">
-                                        <g:formatNumber number="${basketItem.markdownAmount}" type="currency"/>
+                                        <g:formatNumber number="${-basketItem.markdownAmount}" type="currency"/>
                                     </g:elseif>
                                     <g:else>
                                         -
