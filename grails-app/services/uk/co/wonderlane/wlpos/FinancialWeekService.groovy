@@ -122,9 +122,8 @@ class FinancialWeekService extends MySqlDal {
 
                     if (lineErrors.isEmpty()) {
                         LocalDate date = parseDate(startDate)
-                        Date convertedDate = Date.valueOf(date)
                         int weekNumber = weekNumberStr as int
-                        financialWeeks << new FinancialWeek(startDate: convertedDate, financialYear: financialYear, weekNumber: weekNumber, retailerId: retailerId)
+                        financialWeeks << new FinancialWeek(startDate: date, financialYear: financialYear, weekNumber: weekNumber, retailerId: retailerId)
                     } else{
                         errors.addAll(lineErrors)
                     }
