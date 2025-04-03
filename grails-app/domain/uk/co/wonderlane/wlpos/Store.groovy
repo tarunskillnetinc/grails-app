@@ -112,7 +112,10 @@ class Store {
     }
 
     OpeningHours getOpeningHours() {
-        return gsonProvider.gson.fromJson(this.openingHours, OpeningHours.class)
+        if (this.openingHours != null) {
+            return gsonProvider.gson.fromJson(this.openingHours, OpeningHours.class)
+        }
+        return null
     }
 
     void setOpeningHours(OpeningHours openingHours) {

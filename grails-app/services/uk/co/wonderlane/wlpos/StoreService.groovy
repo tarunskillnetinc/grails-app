@@ -202,30 +202,43 @@ class StoreService extends MySqlDal {
         StoreOpeningHoursCommand command = new StoreOpeningHoursCommand()
 
         // Convert regular hours
-        List<OpeningTimeCommand> regularHours = new ArrayList<>();
-        addOpeningTimeToCmd(regularHours, "Monday", openingHours.getMonday())
-        addOpeningTimeToCmd(regularHours, "Tuesday", openingHours.getTuesday())
-        addOpeningTimeToCmd(regularHours, "Wednesday", openingHours.getWednesday())
-        addOpeningTimeToCmd(regularHours, "Thursday", openingHours.getThursday())
-        addOpeningTimeToCmd(regularHours, "Friday", openingHours.getFriday())
-        addOpeningTimeToCmd(regularHours, "Saturday", openingHours.getSaturday())
-        addOpeningTimeToCmd(regularHours, "Sunday", openingHours.getSunday())
-        command.setRegularHours(regularHours)
+        if (openingHours != null) {
+            List<OpeningTimeCommand> regularHours = new ArrayList<>();
+            addOpeningTimeToCmd(regularHours, "Monday", openingHours.getMonday())
+            addOpeningTimeToCmd(regularHours, "Tuesday", openingHours.getTuesday())
+            addOpeningTimeToCmd(regularHours, "Wednesday", openingHours.getWednesday())
+            addOpeningTimeToCmd(regularHours, "Thursday", openingHours.getThursday())
+            addOpeningTimeToCmd(regularHours, "Friday", openingHours.getFriday())
+            addOpeningTimeToCmd(regularHours, "Saturday", openingHours.getSaturday())
+            addOpeningTimeToCmd(regularHours, "Sunday", openingHours.getSunday())
+            command.setRegularHours(regularHours)
 
-        // Convert special opening hours
-        List<OpeningTimeOverrideCommand> specialHours = new ArrayList<>();
-        if (openingHours.getSpecialOpeningHours() != null) {
-            for (OpeningTimeOverride override : openingHours.getSpecialOpeningHours()) {
-                OpeningTimeOverrideCommand overrideCommand = new OpeningTimeOverrideCommand()
-                overrideCommand.description = override.description
-                overrideCommand.setDate(override.getDate().toString("yyyy-MM-dd"))
-                overrideCommand.setStartTime(override.getStartTime() != null ? override.getStartTime().toString("HH:mm") : null)
-                overrideCommand.setEndTime(override.getEndTime() != null ? override.getEndTime().toString("HH:mm") : null)
-                overrideCommand.setClosed(override.isClosed())
-                specialHours.add(overrideCommand)
+            // Convert special opening hours
+            List<OpeningTimeOverrideCommand> specialHours = new ArrayList<>();
+            if (openingHours.getSpecialOpeningHours() != null) {
+                for (OpeningTimeOverride override : openingHours.getSpecialOpeningHours()) {
+                    OpeningTimeOverrideCommand overrideCommand = new OpeningTimeOverrideCommand()
+                    overrideCommand.description = override.description
+                    overrideCommand.setDate(override.getDate().toString("yyyy-MM-dd"))
+                    overrideCommand.setStartTime(override.getStartTime() != null ? override.getStartTime().toString("HH:mm") : null)
+                    overrideCommand.setEndTime(override.getEndTime() != null ? override.getEndTime().toString("HH:mm") : null)
+                    overrideCommand.setClosed(override.isClosed())
+                    specialHours.add(overrideCommand)
+                }
             }
+            command.setSpecialOpeningHours(specialHours)
+        } else {
+            command.setRegularHours([
+                    new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: false),
+                    new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: false),
+                    new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: false),
+                    new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: false),
+                    new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: false),
+                    new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
+                    new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
+            ])
         }
-        command.setSpecialOpeningHours(specialHours)
+
 
         return command
     }
