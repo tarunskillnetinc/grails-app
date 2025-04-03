@@ -45,13 +45,19 @@ class TransactionController {
                 user.setRetailerUserId(basketuser?.retailerUserId)
             }
 
+            def eventLines = []
+            basketTransaction?.getBasket()?.getTillControlEvents()?.forEach { event ->
+                eventLines.add([eventType : event.type, overrideUsersName : event.overrideUser?.name?: user?.name])
+            }
+
             [
                     user                 : user,
                     basketTransaction    : basketTransaction,
                     basket               : basketTransaction.basket,
                     basketItems          : basketTransaction.basket.basketItems,
                     store                : store,
-                    receipt: receipt
+                    receipt              : receipt,
+                    eventLines           : eventLines
             ]
         }
         catch (Exception ex) {

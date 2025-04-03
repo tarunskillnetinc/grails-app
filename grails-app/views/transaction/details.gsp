@@ -114,7 +114,7 @@ overridewrap {
 </section>
 
 <g:if test="${!flash.error}">
-<section id="transactions-container" class="container-fluid">
+<section id="transactions-container" class="container-fluid mb-5">
     <div class="container" id="transaction-header-details">
         <div class="row mt-3">
             <div class="col-md-6 card p-2 mr-auto">
@@ -153,11 +153,11 @@ overridewrap {
                 <h4 class="mx-auto">Operator Details</h4>
 
                 <div class="col-md-12">
-                    <g:if test="${user.retailerUserId}">
+                    <g:if test="${user.username}">
                         <div class="row">
                             <div class="col-6 text-right font-weight-bold">Operator:</div>
 
-                            <div class="col-6">${user.retailerUserId}</div>
+                            <div class="col-6">${user.username}</div>
                         </div>
                     </g:if>
 
@@ -186,13 +186,13 @@ overridewrap {
                     <div class="row">
                         <div class="col-6 text-right font-weight-bold">Loyalty Number:</div>
 
-                        <div class="col-6">${basket.loyaltyMemberDetails?.memberId ?: "N/A"}</div>
+                        <div class="col-6">${basket.loyaltyMemberDetails?.memberId ?: "-"}</div>
                     </div>
 
                     <div class="row">
                         <div class="col-6 text-right font-weight-bold">Discount Card:</div>
 
-                        <div class="col-6">${basket.loyaltyMemberDetails?.guId ?: "N/A"}</div>
+                        <div class="col-6">${basket.loyaltyMemberDetails?.guId ?: "-"}</div>
                     </div>
 
                     <div class="row">
@@ -210,8 +210,7 @@ overridewrap {
                     <div class="row">
                         <div class="col-6 text-right font-weight-bold">Transaction Type:</div>
 
-                        <div class="col-6"><g:message
-                                code="TransactionPaymentMethodType.${receipt.paymentMethod}"/></div>
+                        <div class="col-6">Retail</div>
                     </div>
 
                     <div class="row">
@@ -232,7 +231,7 @@ overridewrap {
 
         <div class="row">
             <div class="pt-4 pb-2 w-100">
-                <h4>Product Details:</h4>
+                <h4>Product Details</h4>
 
                 <div id="transaction-details-table" class="table-responsive">
                     <div class="row mt-2 pb-2 ml-0 mr-0 table-wl bottom-border">
@@ -258,7 +257,7 @@ overridewrap {
 
                         <div class="col-05 font-weight-bold ">Age<br/>Check</div>
 
-                        <div class="col-1 font-weight-bold">Return<br/>Reason</div>
+                        <div class="col-1 font-weight-bold">Reason<br/>Code</div>
 
                         <div class="col-1 font-weight-bold">Price<br/>Change</div>
 
@@ -276,14 +275,13 @@ overridewrap {
                     <g:set var="line" value="${0}"/>
                     <g:set var="pre_discount_total" value="${0}"/>
                     <g:set var="discount_total" value="${0}"/>
-                    <g:set var="staff_discount_total" value="${0}"/>
                     <g:set var="grand_total" value="${0}"/>
                     <g:set var="promotion_total" value="${0}"/>
 
                     <g:each in="${basketItems}" var="basketItem" status="seqNum">
                         <g:if test="${basketItem instanceof ProductBasketItem || basketItem instanceof PaidInBasketItem || basketItem instanceof PaidOutBasketItem}">
                             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
-                                <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum}</div>
+                                <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum + 1}</div>
 
                                 <div id="type-id-${line + 1}" class="col-07 my-auto">
                                     <g:if test="${basketItem instanceof PaidInBasketItem}">
@@ -340,7 +338,7 @@ overridewrap {
                                 </div>
 
                                 <div id="totalquantity-id-${line + 1}"
-                                     class="col-05 my-auto">${basketItem.qty ?: "N/A"}</div>
+                                     class="col-05 my-auto">${basketItem.qty ?: "-"}</div>
 
                                 <g:if test="${basketItem.qty}">
                                     <div id="unitprice-id-${line + 1}" class="col-1 my-auto"><g:formatNumber
@@ -355,7 +353,7 @@ overridewrap {
 
                                 <div id="vat-id-${line + 1}" class="col-1 my-auto">
                                     <g:if test="${basketItem instanceof PaidInBasketItem || basketItem instanceof PaidOutBasketItem}">
-                                        N/A
+                                        -
                                     </g:if>
                                     <g:elseif test="${basketItem.priceDetails && basketItem.priceDetails.size() > 0}">
                                         <g:set var="vat_individual_total" value="${0}"/>
@@ -366,7 +364,7 @@ overridewrap {
                                         <g:formatNumber number="${vat_individual_total}" type="currency"/>
                                     </g:elseif>
                                     <g:else>
-                                        N/A
+                                        -
                                     </g:else>
                                 </div>
 
@@ -390,18 +388,18 @@ overridewrap {
                                          class="col-1 my-auto">${basketItem.refundReason?.description}</div>
                                 </g:if>
                                 <g:else>
-                                    <div id="returnreason-id-${line + 1}" class="col-1 my-auto">N/A</div>
+                                    <div id="returnreason-id-${line + 1}" class="col-1 my-auto">-</div>
                                 </g:else>
 
                                 <div id="pricechange-id-${seqNum + 1}" class="col-1 my-auto">
                                     <g:if test="${basketItem instanceof PaidInBasketItem || basketItem instanceof PaidOutBasketItem}">
-                                        N/A
+                                        -
                                     </g:if>
                                     <g:elseif test="${basketItem.markdownAmount}">
                                         <g:formatNumber number="${basketItem.markdownAmount}" type="currency"/>
                                     </g:elseif>
                                     <g:else>
-                                        N/A
+                                        -
                                     </g:else>
                                 </div>
 
@@ -421,23 +419,23 @@ overridewrap {
 
                         <g:if test="${basketItem instanceof PromotionBasketItem}">
                             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
-                                <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum}</div>
+                                <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum + 1}</div>
 
                                 <div id="type-id-${line + 1}" class="col-07 my-auto"><g:message
                                         code="BasketItemType.${basketItem.type}"/></div>
 
                                 <div id="entrymethod-id-${line + 1}"
-                                     class="col-1 my-auto">${basketItem.scanned ?: "N/A"}</div>
+                                     class="col-1 my-auto">${basketItem.scanned ?: "-"}</div>
 
-                                <div id="productcode-id-${line + 1}" class="col-2 my-auto p-1 overridewrap">N/A</div>
+                                <div id="productcode-id-${line + 1}" class="col-2 my-auto p-1 overridewrap">-</div>
 
                                 <div id="productdescription-id-${line + 1}"
                                      class="col-3 my-auto p-1">${basketItem.promotion?.description}</div>
 
                                 <div id="barcode-id-${line + 1}"
-                                     class="col-2 my-auto p-1 overridewrap">${basketItem.barcodeScanned ?: "N/A"}</div>
+                                     class="col-2 my-auto p-1 overridewrap">${basketItem.barcodeScanned ?: "-"}</div>
 
-                                <div id="totalquantity-id-${line + 1}" class="col-05 my-auto">N/A</div>
+                                <div id="totalquantity-id-${line + 1}" class="col-05 my-auto">-</div>
 
                                 <div id="unitprice-id-${line + 1}" class="col-1 my-auto">-</div>
 
@@ -446,18 +444,18 @@ overridewrap {
 
                                 <g:set var="promotion_total" value="${promotion_total + basketItem.totalSavings}"/>
 
-                                <div id="vat-id-${line + 1}" class="col-1 my-auto">N/A</div>
+                                <div id="vat-id-${line + 1}" class="col-1 my-auto">-</div>
 
                                 <div id="ageverification-id-${line + 1}" class="col-05 my-auto">-</div>
 
-                                <div id="returnreason-id-${line + 1}" class="col-1 my-auto">N/A</div>
+                                <div id="returnreason-id-${line + 1}" class="col-1 my-auto">-</div>
 
-                                <div id="pricechange-id-${line + 1}" class="col-1 my-auto">N/A</div>
+                                <div id="pricechange-id-${line + 1}" class="col-1 my-auto">-</div>
 
                                 <div id="rtc-id-${line + 1}" class="col-05 my-auto">-</div>
 
                                 <div id="promotionstype-id-${line + 1}"
-                                     class="col-1 my-auto">${basketItem.promotion?.type?.friendlyName ?: "N/A"}</div>
+                                     class="col-1 my-auto">${basketItem.promotion?.type?.friendlyName ?: "-"}</div>
                             </div>
 
                             <g:set var="pre_discount_total"
@@ -467,7 +465,7 @@ overridewrap {
 
                         <g:if test="${basketItem instanceof PayPointBasketItem}">
                             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
-                                <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum}</div>
+                                <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum + 1}</div>
 
                                 <div id="type-id-${line + 1}" class="col-07 my-auto"><g:message
                                         code="BasketItemType.${basketItem.type}"/></div>
@@ -485,10 +483,10 @@ overridewrap {
                                 </div>
 
                                 <div id="barcode-id-${line + 1}"
-                                     class="col-2 my-auto p-1 overridewrap">${basketItem.barcodeScanned ?: "N/A"}</div>
+                                     class="col-2 my-auto p-1 overridewrap">${basketItem.barcodeScanned ?: "-"}</div>
 
                                 <div id="totalquantity-id-${line + 1}"
-                                     class="col-05 my-auto">N/A</div>
+                                     class="col-05 my-auto">-</div>
 
                                 <div id="unitprice-id-${line + 1}" class="col-1 my-auto">-</div>
 
@@ -496,15 +494,15 @@ overridewrap {
                                         number="${basketItem.total ?: BigDecimal.ZERO}" type="currency"/></div>
 
                                 <div id="vat-id-${line + 1}" class="col-1 my-auto">
-                                    N/A
+                                    -
                                 </div>
 
                                 <div id="ageverification-id-${line + 1}" class="col-05 my-auto">-</div>
 
-                                <div id="returnreason-id-${line + 1}" class="col-1 my-auto">N/A</div>
+                                <div id="returnreason-id-${line + 1}" class="col-1 my-auto">-</div>
 
                                 <div id="pricechange-id-${line + 1}" class="col-1 my-auto">
-                                    N/A
+                                    -
                                 </div>
 
                                 <div id="rtc-id-${line + 1}" class="col-05 my-auto">-</div>
@@ -521,7 +519,7 @@ overridewrap {
                     <g:each in="${basketItems}" var="basketItem" status="seqNum">
                         <g:if test="${basketItem instanceof SimpleDiscountBasketItem || basketItem instanceof DiscountBasketItem}">
                             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
-                                <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum}</div>
+                                <div id="sequence-id-${line + 1}" class="col-05 my-auto">${seqNum + 1}</div>
 
                                 <div id="type-id-${line + 1}" class="col-07 my-auto"><g:message
                                         code="BasketItemType.${basketItem.type}"/></div>
@@ -530,7 +528,7 @@ overridewrap {
                                      class="col-1 my-auto">${basketItem.scanned ? "Scanned" : "Key-in"}</div>
 
                                 <div id="productcode-id-${line + 1}"
-                                     class="col-2 my-auto overridewrap">N/A</div>
+                                     class="col-2 my-auto overridewrap">-</div>
 
                                 <div id="productdescription-id-${line + 1}" class="col-3 my-auto">
                                     <g:if test="basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.DiscountBasketItem}">
@@ -544,7 +542,7 @@ overridewrap {
                                 <div id="barcode-id-${line + 1}"
                                      class="col-2 my-auto overridewrap">
                                     <g:if test="basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.DiscountBasketItem}">
-                                        N/A
+                                        -
                                     </g:if>
                                     <g:else>
                                         ${basketItem.cardNumber}
@@ -552,7 +550,7 @@ overridewrap {
                                 </div>
 
                                 <div id="totalquantity-id-${line + 1}"
-                                     class="col-05 my-auto">${basketItem.qty ?: "N/A"}</div>
+                                     class="col-05 my-auto">${basketItem.qty ?: "-"}</div>
 
                                 <g:if test="${basketItem.qty}">
                                     <div id="unitprice-id-${line + 1}" class="col-1 my-auto"><g:formatNumber
@@ -571,7 +569,7 @@ overridewrap {
                                         number="${-current_discount_amount}" type="currency"/></div>
 
                                 <div id="vat-id-${line + 1}" class="col-1 my-auto">
-                                    N/A
+                                    -
                                 </div>
 
                                 <div id="ageverification-id-${line + 1}" class="col-05 my-auto">-</div>
@@ -581,11 +579,11 @@ overridewrap {
                                          class="col-1 my-auto">${basketItem.refundReason?.description}</div>
                                 </g:if>
                                 <g:else>
-                                    <div id="returnreason-id-${line + 1}" class="col-1 my-auto">N/A</div>
+                                    <div id="returnreason-id-${line + 1}" class="col-1 my-auto">-</div>
                                 </g:else>
 
                                 <div id="pricechange-id-${line + 1}" class="col-1 my-auto">
-                                    N/A
+                                    -
                                 </div>
 
                                 <div id="rtc-id-${line + 1}" class="col-05 my-auto">-</div>
@@ -601,15 +599,9 @@ overridewrap {
 
         <div class="row">
             <div class="card mt-3 mb-3 p-2 col-md-4">
-                <h4 class="mx-auto">Transaction Discount Totals</h4>
+                <h4 class="mx-auto">Transaction Totals</h4>
 
                 <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-6 text-right font-weight-bold">Staff Discount:</div>
-
-                        <div class="col-6"><g:formatNumber number="${staff_discount_total}" type="currency"/></div>
-                    </div>
-
                     <div class="row">
                         <div class="col-6 text-right font-weight-bold">Discount Totals:</div>
 
@@ -624,6 +616,23 @@ overridewrap {
                 </div>
             </div>
         </div>
+
+        <g:if test="${!eventLines.isEmpty()}">
+            <div class="row">
+                <div class="card mt-3 mb-3 p-2 col-md-4">
+                    <h4 class="mx-auto">Till Events/Actions</h4>
+
+                    <g:each in="${eventLines}" var="event" status="i">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div id="eventType-${i+1}" class="col-6 text-right font-weight-bold"><g:message code="TillControlEventType.${event?.eventType}"/></div>
+                                <div id="eventUser-${i+1}" class="col-6">${event?.overrideUsersName}</div>
+                            </div>
+                        </div>
+                    </g:each>
+                </div>
+            </div>
+        </g:if>
 
         <div class="row">
             <div class="pt-2 pb-2 w-75">
@@ -649,7 +658,7 @@ overridewrap {
                 <g:each in="${basketItems}" var="basketItem" status="seqNum">
                     <g:if test="${basketItem instanceof TenderBasketItem}">
                         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
-                            <div id="sequence-id-${line + 1}" class="col-2 my-auto">${seqNum}</div>
+                            <div id="sequence-id-${line + 1}" class="col-2 my-auto">${seqNum + 1}</div>
 
                             <div id="tender-id-${line + 1}" class="col-2 my-auto">
                                 <g:if test="${basketItem.tenderType}"><!-- tendertype might not be a legal value -->
