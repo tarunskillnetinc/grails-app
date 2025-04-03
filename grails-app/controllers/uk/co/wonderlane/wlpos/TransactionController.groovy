@@ -6,6 +6,7 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.basketv2.BasketUser
+import uk.co.wonderlane.wlpos.entities.basketv2.DiscountBasketItem
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 
 class TransactionController {
@@ -50,6 +51,13 @@ class TransactionController {
                 eventLines.add([eventType : event.type, overrideUsersName : event.overrideUser?.name?: user?.name])
             }
 
+            def discountCard = "-"
+            basketTransaction?.getBasket()?.getBasketItems()?.forEach { item ->
+                if (item instanceof DiscountBasketItem) {
+                    discountCard = item.cardNumber
+                }
+            }
+
             [
                     user                 : user,
                     basketTransaction    : basketTransaction,
@@ -57,7 +65,8 @@ class TransactionController {
                     basketItems          : basketTransaction.basket.basketItems,
                     store                : store,
                     receipt              : receipt,
-                    eventLines           : eventLines
+                    eventLines  : eventLines,
+                    discountCard: discountCard
             ]
         }
         catch (Exception ex) {

@@ -110,6 +110,7 @@ overridewrap {
 <section id="errors-container" class="container-fluid">
     <g:if test="${flash.error}">
         <div id="error-message" class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
+        ${exception}
     </g:if>
 </section>
 
@@ -192,7 +193,7 @@ overridewrap {
                     <div class="row">
                         <div class="col-6 text-right font-weight-bold">Discount Card:</div>
 
-                        <div class="col-6">${basket.loyaltyMemberDetails?.guId ?: "-"}</div>
+                        <div class="col-6">${discountCard}</div>
                     </div>
 
                     <div class="row">
@@ -530,9 +531,9 @@ overridewrap {
                                 <div id="productcode-id-${line + 1}"
                                      class="col-2 my-auto overridewrap">-</div>
 
-                                <div id="productdescription-id-${line + 1}" class="col-3 my-auto">
+                                <div id="productdescription-id-${line + 1}" class="col-3 my-auto p-1">
                                     <g:if test="basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.DiscountBasketItem}">
-                                        ${basketItem.discountPercentage}% Discount
+                                        ${basketItem.receiptDescription}
                                     </g:if>
                                     <g:else>
                                         ${basketItem.receiptDescription}
@@ -540,9 +541,9 @@ overridewrap {
                                 </div>
 
                                 <div id="barcode-id-${line + 1}"
-                                     class="col-2 my-auto overridewrap">
+                                     class="col-2 my-auto p-1 overridewrap">
                                     <g:if test="basketItem instanceof uk.co.wonderlane.wlpos.entities.basketv2.DiscountBasketItem}">
-                                        -
+                                        ${basketItem.cardNumber}
                                     </g:if>
                                     <g:else>
                                         ${basketItem.cardNumber}
