@@ -19,6 +19,7 @@ import java.sql.SQLIntegrityConstraintViolationException
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
@@ -122,9 +123,10 @@ class FinancialWeekService extends MySqlDal {
 
                     if (lineErrors.isEmpty()) {
                         LocalDate date = parseDate(startDate)
+                        Date convertedDate = Date.valueOf(date)
                         int weekNumber = weekNumberStr as int
-                        financialWeeks << new FinancialWeek(startDate: date, financialYear: financialYear, weekNumber: weekNumber, retailerId: retailerId)
-                    } else{
+                        financialWeeks << new FinancialWeek(startDate: convertedDate, financialYear: financialYear, weekNumber: weekNumber, retailerId: retailerId)
+                    } else {
                         errors.addAll(lineErrors)
                     }
                 } catch (Exception ex) {
@@ -444,20 +446,23 @@ class FinancialWeekService extends MySqlDal {
     }
 
     private LocalDate parseDate(String dateStr) throws ParseException {
-        DateTimeFormatter formatter_YYYY_MM_DD = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-        DateTimeFormatter formatter_DD_MM_YYYY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        try { // Try to parse the date with the "dd/MM/yyyy" format
-            return LocalDate.parse(dateStr, formatter_YYYY_MM_DD)
+        DateTimeFormatter formatter_YYYY_MM_DD = DateTimeFormatter.ofPattern("yyyy/MM/dd").withZone(ZoneOffset.UTC);
+        DateTimeFormatter formatter_DD_MM_YYYY = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneOffset.UTC);
+        try {
+            // Try to parse the date with the "yyyy/MM/dd" format
+            return LocalDate.parse(dateStr, formatter_YYYY_MM_DD);
         } catch (DateTimeParseException e) {
-            try { // If parsing fails, try the second format
-                return LocalDate.parse(dateStr, formatter_DD_MM_YYYY)
+            try {
+                // If parsing fails, try the second format
+                return LocalDate.parse(dateStr, formatter_DD_MM_YYYY);
             } catch (DateTimeParseException ex) {
-                throw new DateTimeParseException("Financial week - Invalid date format: " + dateStr, dateStr, 0)  // If both formats fail, throw an exception
+                // If both formats fail, throw an exception
+                throw new DateTimeParseException("Financial week - Invalid date format: " + dateStr, dateStr, 0);
             }
         } catch (DateTimeParseException ex) {
-            throw new DateTimeParseException("Financial week - Date parsing error: " + dateStr, dateStr, 0)
+            throw new DateTimeParseException("Financial week - Date parsing error: " + dateStr, dateStr, 0);
         } catch (Exception ex) {
-            throw new IllegalArgumentException("Financial week - date parsing unexpected error: " + dateStr)
+            throw new IllegalArgumentException("Financial week - date parsing unexpected error: " + dateStr);
         }
     }
 
