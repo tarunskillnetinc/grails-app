@@ -110,7 +110,7 @@ overridewrap {
 <section id="errors-container" class="container-fluid">
     <g:if test="${flash.error}">
         <div id="error-message" class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
-        ${exception}
+        <pre>${exception}</pre>
     </g:if>
 </section>
 
@@ -526,15 +526,31 @@ overridewrap {
 
                 <div class="col-md-12">
                     <div class="row">
-                        <div class="col-6 text-right font-weight-bold">Discount Totals:</div>
+                        <div class="col-6 text-right font-weight-bold">Sub Total:</div>
 
-                        <div class="col-6"><g:formatNumber number="${discount_total}" type="currency"/></div>
+                        <div class="col-6"><g:formatNumber number="${receipt.transactionAmount}" type="currency"/></div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-6 text-right font-weight-bold">Promotion Savings:</div>
+                    <g:each in="${discountItems}" var="discountItem" status="i">
+                        <div class="row">
+                            <div class="col-6 text-right">${discountItem.description}</div>
 
-                        <div class="col-6"><g:formatNumber number="${promotion_total}" type="currency"/></div>
+                            <div class="col-6"><g:formatNumber number="${discountItem.amount}" type="currency"/></div>
+                        </div>
+                    </g:each>
+
+                    <g:each in="${promotionItems}" var="promotionItem" status="i">
+                        <div class="row">
+                            <div class="col-6 text-right">${promotionItem.description}</div>
+
+                            <div class="col-6"><g:formatNumber number="${promotionItem.amount}" type="currency"/></div>
+                        </div>
+                    </g:each>
+
+                    <div class="row">
+                        <div class="col-6 text-right font-weight-bold">Total:</div>
+
+                        <div class="col-6"><g:formatNumber number="${postDiscountsTotal}" type="currency"/></div>
                     </div>
                 </div>
             </div>

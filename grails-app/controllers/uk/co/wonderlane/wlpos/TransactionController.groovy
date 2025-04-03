@@ -7,6 +7,8 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.basketv2.BasketUser
 import uk.co.wonderlane.wlpos.entities.basketv2.DiscountBasketItem
+import uk.co.wonderlane.wlpos.entities.basketv2.PromotionBasketItem
+import uk.co.wonderlane.wlpos.entities.basketv2.SimpleDiscountBasketItem
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 
 class TransactionController {
@@ -22,6 +24,11 @@ class TransactionController {
         DateTime endDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         [startDate: startDate, endDate: endDate]
+    }
+
+    class DiscountItem {
+        String description
+        BigDecimal amount;
     }
 
     def details() {
@@ -58,6 +65,43 @@ class TransactionController {
                 }
             }
 
+            def postDiscountsTotal = receipt.transactionAmount;
+
+            def discountItems = []
+            basketTransaction?.getBasket()?.getBasketItems()?.forEach { item ->
+                if (item instanceof DiscountBasketItem || item instanceof SimpleDiscountBasketItem) {
+                    def discountItem = new DiscountItem()
+                    discountItem.description = item.receiptDescription
+
+                    if (item.total) {
+                        discountItem.amount = -item.total
+                        postDiscountsTotal -= item.total
+                    } else if (item.discountPercentage) {
+                        BigDecimal percentage = new BigDecimal(item.discountPercentage).divide(new BigDecimal(100))
+                        def discountAmount = receipt.transactionAmount * percentage
+
+                        discountItem.amount = -discountAmount
+                        postDiscountsTotal -= discountAmount
+                    }
+
+                    discountItems.add(discountItem)
+                }
+            }
+
+            def promotionItems = []
+            basketTransaction?.getBasket()?.getBasketItems()?.forEach { item ->
+                if (item instanceof PromotionBasketItem) {
+                    def promotionItem = new DiscountItem()
+                    promotionItem.description = item.promotion.receiptDescription
+
+                    promotionItem.amount = -item.totalSavings
+                    postDiscountsTotal -= item.totalSavings
+
+                    promotionItems.add(promotionItem)
+                }
+            }
+
+
             [
                     user                 : user,
                     basketTransaction    : basketTransaction,
@@ -66,7 +110,10 @@ class TransactionController {
                     store                : store,
                     receipt              : receipt,
                     eventLines  : eventLines,
-                    discountCard: discountCard
+                    discountCard      : discountCard,
+                    discountItems     : discountItems,
+                    promotionItems    : promotionItems,
+                    postDiscountsTotal: postDiscountsTotal
             ]
         }
         catch (Exception ex) {
