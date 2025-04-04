@@ -20,8 +20,11 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
 import java.time.format.DateTimeParseException
+import java.time.temporal.ChronoField
 
 @Transactional
 class FinancialWeekService extends MySqlDal {
@@ -37,9 +40,6 @@ class FinancialWeekService extends MySqlDal {
    @Transactional('transactions')
    saveFinancialWeeksInBatches(List<FinancialWeek> financialWeeks, List<String> errors) {
         try {
-            financialWeeks.each { financialWeek ->
-                log.info("Saving date: ${financialWeek.startDate}")
-            }
             FinancialWeek.saveAll(financialWeeks)// Save all financial weeks in this batch
             // Flush the session to write changes to the database
             FinancialWeek.withSession { session ->
@@ -125,10 +125,9 @@ class FinancialWeekService extends MySqlDal {
                     List<String> lineErrors = validateCsvDataRow(lineNumber, startDate, weekNumberStr, financialYear)
 
                     if (lineErrors.isEmpty()) {
-                        LocalDate date = parseDate(startDate)
-                        Date convertedDate = Date.valueOf(date)
+                        ZonedDateTime date = parseDate(startDate)
+                        Date convertedDate = new Date(date.toInstant().toEpochMilli())
                         int weekNumber = weekNumberStr as int
-                        log.info("start date = " + date + "converted date = " + convertedDate);
                         financialWeeks << new FinancialWeek(startDate: convertedDate, financialYear: financialYear, weekNumber: weekNumber, retailerId: retailerId)
                     } else {
                         errors.addAll(lineErrors)
@@ -449,16 +448,27 @@ class FinancialWeekService extends MySqlDal {
         return errors
     }
 
-    private LocalDate parseDate(String dateStr) throws ParseException {
-        DateTimeFormatter formatter_YYYY_MM_DD = DateTimeFormatter.ofPattern("yyyy/MM/dd").withZone(ZoneOffset.UTC);
-        DateTimeFormatter formatter_DD_MM_YYYY = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneOffset.UTC);
+    private ZonedDateTime parseDate(String dateStr) throws ParseException {
+        DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+        builder.appendPattern("dd/MM/yyyy");
+        builder.parseDefaulting(ChronoField.HOUR_OF_DAY, 0);
+        builder.parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0);
+        builder.parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0);
+        DateTimeFormatter formatter_DD_MM_YYYY = builder.toFormatter().withZone(ZoneOffset.UTC);
+
+        DateTimeFormatterBuilder builder_YYYY_MM_DD = new DateTimeFormatterBuilder();
+        builder_YYYY_MM_DD.appendPattern("yyyy/MM/dd");
+        builder_YYYY_MM_DD.parseDefaulting(ChronoField.HOUR_OF_DAY, 0);
+        builder_YYYY_MM_DD.parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0);
+        builder_YYYY_MM_DD.parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0);
+        DateTimeFormatter formatter_YYYY_MM_DD = builder.toFormatter().withZone(ZoneOffset.UTC);
         try {
             // Try to parse the date with the "yyyy/MM/dd" format
-            return LocalDate.parse(dateStr, formatter_YYYY_MM_DD);
+            return ZonedDateTime.parse(dateStr, formatter_YYYY_MM_DD);
         } catch (DateTimeParseException e) {
             try {
                 // If parsing fails, try the second format
-                return LocalDate.parse(dateStr, formatter_DD_MM_YYYY);
+                return ZonedDateTime.parse(dateStr, formatter_DD_MM_YYYY);
             } catch (DateTimeParseException ex) {
                 // If both formats fail, throw an exception
                 throw new DateTimeParseException("Financial week - Invalid date format: " + dateStr, dateStr, 0);
