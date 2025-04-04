@@ -17,6 +17,7 @@ class TransactionBasketItem {
     String ageVerification
     String returnReason
     BigDecimal priceChange
+    String voided
     String rtc
     String promotionsType
 }

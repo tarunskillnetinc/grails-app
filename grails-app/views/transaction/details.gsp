@@ -269,91 +269,100 @@ overridewrap {
 
                         <g:set var="line" value="${0}"/>
 
-                        <g:each in="${transactionBasketItems.sort()}" var="basketItemEntry" status="seqNum">
-
-                            <g:set var="basketItem" value="${(TransactionBasketItem) basketItemEntry.value}"/>
-
-                            <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
-                                <div id="sequence-id-${line + 1}" class="col-05 my-auto">
-                                    ${seqNum + 1}
-                                </div>
-
-                                <div id="type-id-${line + 1}" class="col-07 my-auto">
-                                    <g:message code="${basketItem.type}"/>
-                                </div>
-
-                                <div id="entrymethod-id-${line + 1}" class="col-1 my-auto">
-                                    ${basketItem.entryMethod}
-                                </div>
-
-                                <div id="productcode-id-${line + 1}" class="col-2 my-auto p-1 overridewrap">
-                                    ${basketItem.productCode}
-                                </div>
-
-                                <div id="productdescription-id-${line + 1}" class="col-3 my-auto p-1">
-                                    ${basketItem.productDescription}
-                                </div>
-
-                                <div id="barcode-id-${line + 1}" class="col-2 my-auto p-1 overridewrap">
-                                    ${basketItem.barcode}
-                                </div>
-
-                                <div id="totalquantity-id-${line + 1}" class="col-05 my-auto">
-                                    ${basketItem.qty}
-                                </div>
-
-                                <div id="unitprice-id-${line + 1}" class="col-1 my-auto">
-                                    <g:if test="${basketItem.unitPrice}">
-                                        <g:formatNumber
-                                                number="${basketItem.unitPrice}"
-                                                type="currency"/>
-                                    </g:if>
-                                    <g:else>
-                                        -
-                                    </g:else>
-                                </div>
-
-                                <div id="totalprice-id-${line + 1}" class="col-1 my-auto">
-                                    <g:formatNumber number="${basketItem.totalPrice}" type="currency"/>
-                                </div>
-
-                                <div id="vat-id-${line + 1}" class="col-1 my-auto">
-                                    <g:if test="${basketItem.vat}">
-                                        <g:formatNumber number="${basketItem.vat}" type="currency"/>
-                                    </g:if>
-                                    <g:else>
-                                        -
-                                    </g:else>
-                                </div>
-
-                                <div id="ageverification-id-${line + 1}" class="col-05 my-auto">
-                                    ${basketItem.ageVerification ?: "-"}
-                                </div>
-
-                                <div id="returnreason-id-${line + 1}" class="col-1 my-auto">
-                                    ${basketItem.returnReason}
-                                </div>
-
-                                <div id="pricechange-id-${line + 1}" class="col-1 my-auto">
-                                    <g:if test="${basketItem.priceChange}">
-                                        <g:formatNumber number="${-basketItem.priceChange}" type="currency"/>
-                                    </g:if>
-                                    <g:else>
-                                        -
-                                    </g:else>
-                                </div>
-
-                                <div id="rtc-id-${line + 1}" class="col-05 my-auto">
-                                    ${basketItem.rtc}
-                                </div>
-
-                                <div id="promotionstype-id-${line + 1}" class="col-1 my-auto">
-                                    ${basketItem.promotionsType}
+                        <g:if test="${transactionBasketItems.size() == 0}">
+                            <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped0 hoverable">
+                                <div id="nocontent" class="my-auto ml-auto mr-auto">
+                                    No basket items present
                                 </div>
                             </div>
+                        </g:if>
+                        <g:else>
+                            <g:each in="${transactionBasketItems.sort()}" var="basketItemEntry" status="seqNum">
 
-                            <g:set var="line" value="${line + 1}"/>
-                        </g:each>
+                                <g:set var="basketItem" value="${(TransactionBasketItem) basketItemEntry.value}"/>
+
+                                <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
+                                    <div id="sequence-id-${line + 1}" class="col-05 my-auto">
+                                        ${seqNum + 1}
+                                    </div>
+
+                                    <div id="type-id-${line + 1}" class="col-07 my-auto">
+                                        <g:message code="${basketItem.type}"/>
+                                    </div>
+
+                                    <div id="entrymethod-id-${line + 1}" class="col-1 my-auto">
+                                        ${basketItem.entryMethod}
+                                    </div>
+
+                                    <div id="productcode-id-${line + 1}" class="col-2 my-auto p-1 overridewrap">
+                                        ${basketItem.productCode}
+                                    </div>
+
+                                    <div id="productdescription-id-${line + 1}" class="col-3 my-auto p-1">
+                                        ${basketItem.productDescription}
+                                    </div>
+
+                                    <div id="barcode-id-${line + 1}" class="col-2 my-auto p-1 overridewrap">
+                                        ${basketItem.barcode}
+                                    </div>
+
+                                    <div id="totalquantity-id-${line + 1}" class="col-05 my-auto">
+                                        ${basketItem.qty}
+                                    </div>
+
+                                    <div id="unitprice-id-${line + 1}" class="col-1 my-auto">
+                                        <g:if test="${basketItem.unitPrice}">
+                                            <g:formatNumber
+                                                    number="${basketItem.unitPrice}"
+                                                    type="currency"/>
+                                        </g:if>
+                                        <g:else>
+                                            -
+                                        </g:else>
+                                    </div>
+
+                                    <div id="totalprice-id-${line + 1}" class="col-1 my-auto">
+                                        <g:formatNumber number="${basketItem.totalPrice}" type="currency"/>
+                                    </div>
+
+                                    <div id="vat-id-${line + 1}" class="col-1 my-auto">
+                                        <g:if test="${basketItem.vat}">
+                                            <g:formatNumber number="${basketItem.vat}" type="currency"/>
+                                        </g:if>
+                                        <g:else>
+                                            -
+                                        </g:else>
+                                    </div>
+
+                                    <div id="ageverification-id-${line + 1}" class="col-05 my-auto">
+                                        ${basketItem.ageVerification ?: "-"}
+                                    </div>
+
+                                    <div id="returnreason-id-${line + 1}" class="col-1 my-auto">
+                                        ${basketItem.returnReason}
+                                    </div>
+
+                                    <div id="pricechange-id-${line + 1}" class="col-1 my-auto">
+                                        <g:if test="${basketItem.priceChange}">
+                                            <g:formatNumber number="${-basketItem.priceChange}" type="currency"/>
+                                        </g:if>
+                                        <g:else>
+                                            -
+                                        </g:else>
+                                    </div>
+
+                                    <div id="rtc-id-${line + 1}" class="col-05 my-auto">
+                                        ${basketItem.rtc}
+                                    </div>
+
+                                    <div id="promotionstype-id-${line + 1}" class="col-1 my-auto">
+                                        ${basketItem.promotionsType}
+                                    </div>
+                                </div>
+
+                                <g:set var="line" value="${line + 1}"/>
+                            </g:each>
+                        </g:else>
                     </div>
                 </div>
             </div>

@@ -61,6 +61,10 @@ class TransactionController {
                     transactionBasketItem.type = "BasketItemType." + basketItem.type
                 }
 
+                if (basketItem.voided) {
+                    transactionBasketItem.type = "Voided"
+                }
+
                 transactionBasketItem.entryMethod = basketItem.scanned ? "Scanned" : "Key-in"
 
                 if (basketItem instanceof ProductBasketItem) {
@@ -173,6 +177,7 @@ class TransactionController {
                 transactionBasketItem.priceChange = null
                 transactionBasketItem.rtc = "-"
                 transactionBasketItem.promotionsType = "-"
+                transactionBasketItem.voided = "-"
 
                 transactionBasketItems[transactionBasketItem.seqNum] = transactionBasketItem
 
