@@ -37,6 +37,9 @@ class FinancialWeekService extends MySqlDal {
    @Transactional('transactions')
    saveFinancialWeeksInBatches(List<FinancialWeek> financialWeeks, List<String> errors) {
         try {
+            financialWeeks.each { financialWeek ->
+                log.info("Saving date: ${financialWeek.startDate}")
+            }
             FinancialWeek.saveAll(financialWeeks)// Save all financial weeks in this batch
             // Flush the session to write changes to the database
             FinancialWeek.withSession { session ->
@@ -125,6 +128,7 @@ class FinancialWeekService extends MySqlDal {
                         LocalDate date = parseDate(startDate)
                         Date convertedDate = Date.valueOf(date)
                         int weekNumber = weekNumberStr as int
+                        log.info("start date = " + date + "converted date = " + convertedDate);
                         financialWeeks << new FinancialWeek(startDate: convertedDate, financialYear: financialYear, weekNumber: weekNumber, retailerId: retailerId)
                     } else {
                         errors.addAll(lineErrors)
