@@ -128,7 +128,7 @@ class TransactionController {
                 if (basketItem instanceof PaidInBasketItem || basketItem instanceof PaidOutBasketItem) {
                     transactionBasketItem.priceChange = null
                 } else if (basketItem.markdownAmount) {
-                    transactionBasketItem.priceChange = -basketItem.markdownAmount
+                    transactionBasketItem.priceChange = basketItem.markdownAmount
                 } else {
                     transactionBasketItem.priceChange = null
                 }
