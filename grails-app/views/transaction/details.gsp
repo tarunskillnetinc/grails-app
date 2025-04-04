@@ -428,8 +428,6 @@ overridewrap {
                     <div class="col-3 font-weight-bold">Card Number</div>
 
                     <div class="col-2 font-weight-bold">Tender Status</div>
-
-                    <div class="col-1 font-weight-bold">Change</div>
                 </div>
             </div>
 
@@ -438,6 +436,8 @@ overridewrap {
                 <g:if test="${basketItem instanceof TenderBasketItem}">
                     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
                         <div id="sequence-id-${line + 1}" class="col-2 my-auto">${seqNum + 1}</div>
+
+                        <g:set var="lastSeqNum" value="${seqNum + 1}"/>
 
                         <div id="tender-id-${line + 1}" class="col-2 my-auto">
                             <g:if test="${basketItem.tenderType}"><!-- tendertype might not be a legal value -->
@@ -465,24 +465,30 @@ overridewrap {
                         <g:else>
                             <div id="tenderstatus-id-${line + 1}" class="col-2 my-auto">-</div>
                         </g:else>
-
-                        <div id="change-id-${line + 1}" class="col-1 my-auto">
-                            <g:if test="${basketItem instanceof TenderBasketItem}">
-                                <g:if test="${basketItem.cashTender}">
-                                    <g:formatNumber number="${basket.change ?: BigDecimal.ZERO}" type="currency"/>
-                                </g:if>
-                                <g:else>
-                                    -
-                                </g:else>
-                            </g:if>
-                            <g:else>
-                                -
-                            </g:else>
-                        </div>
                     </div>
                     <g:set var="line" value="${line + 1}"/>
                 </g:if>
             </g:each>
+
+            <g:if test="${basket.change}">
+                <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
+                    <div id="sequence-id-${line + 1}" class="col-2 my-auto">${lastSeqNum + 1}</div>
+
+                    <div id="tender-id-${line + 1}" class="col-2 my-auto">
+                        Change
+                    </div>
+
+                    <div id="tendervalue-id-${line + 1}" class="col-2 my-auto">
+                        <g:formatNumber number="${basket.change}" type="currency"/>
+                    </div>
+
+                    <div id="pan-id-${line + 1}" class="col-3 my-auto">-</div>
+
+                    <div id="tenderstatus-id-${line + 1}" class="col-2 my-auto">-</div>
+                </div>
+                <g:set var="line" value="${line + 1}"/>
+            </g:if>
+
             <g:if test="${line == 0}">
                 <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
                     <div id="no-tender" class="col-12 my-auto">
