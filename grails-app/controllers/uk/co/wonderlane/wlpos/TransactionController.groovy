@@ -254,21 +254,24 @@ class TransactionController {
                 }
             }
 
+            def grandTotal = postDiscountsTotal
+
             [
-                    user             : user,
-                    basketTransaction: basketTransaction,
-                    basket           : basketTransaction.basket,
+                    user              : user,
+                    basketTransaction : basketTransaction,
+                    basket            : basketTransaction.basket,
                     basketItems           : basketTransaction.basket.basketItems,
                     transactionBasketItems: basketItemsEtc.transactionBasketItems,
-                    store            : store,
-                    receipt          : receipt,
-                    eventLines       : eventLines,
-                    discountCard     : discountCard,
-                    discountItems    : discountItems,
-                    promotionItems   : promotionItems,
-                    preDiscountTotal : basketItemsEtc.preDiscountTotal,
+                    store             : store,
+                    receipt           : receipt,
+                    eventLines        : eventLines,
+                    discountCard      : discountCard,
+                    discountItems     : discountItems,
+                    promotionItems    : promotionItems,
+                    preDiscountTotal  : basketItemsEtc.preDiscountTotal,
                     discountableAmount: basketItemsEtc.discountableAmount,
-                    postDiscountsTotal: postDiscountsTotal
+                    postDiscountsTotal: postDiscountsTotal,
+                    grandTotal        : grandTotal
             ]
         }
         catch (Exception ex) {

@@ -224,7 +224,7 @@ overridewrap {
                     <div class="col-6 text-right font-weight-bold">Transaction Total:</div>
 
                     <div class="col-6"><g:formatNumber
-                            number="${receipt.transactionAmount ?: BigDecimal.ZERO}" type="currency"/></div>
+                            number="${grandTotal ?: BigDecimal.ZERO}" type="currency"/></div>
                 </div>
             </div>
         </div>
