@@ -369,19 +369,19 @@ overridewrap {
                     <div class="col-6"><g:formatNumber number="${preDiscountTotal}" type="currency"/></div>
                 </div>
 
-                <g:each in="${discountItems}" var="discountItem" status="i">
-                    <div class="row">
-                        <div class="col-6 text-right">${discountItem.description}</div>
-
-                        <div class="col-6"><g:formatNumber number="${discountItem.amount}" type="currency"/></div>
-                    </div>
-                </g:each>
-
                 <g:each in="${promotionItems}" var="promotionItem" status="i">
                     <div class="row">
                         <div class="col-6 text-right">${promotionItem.description}</div>
 
                         <div class="col-6"><g:formatNumber number="${promotionItem.amount}" type="currency"/></div>
+                    </div>
+                </g:each>
+
+                <g:each in="${discountItems}" var="discountItem" status="i">
+                    <div class="row">
+                        <div class="col-6 text-right">${discountItem.description}</div>
+
+                        <div class="col-6"><g:formatNumber number="${discountItem.amount}" type="currency"/></div>
                     </div>
                 </g:each>
 

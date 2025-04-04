@@ -16,6 +16,8 @@ import uk.co.wonderlane.wlpos.entities.basketv2.PromotionBasketItem
 import uk.co.wonderlane.wlpos.entities.basketv2.ReduceToClearBasketItem
 import uk.co.wonderlane.wlpos.entities.basketv2.RefundBasketItem
 import uk.co.wonderlane.wlpos.entities.basketv2.SimpleDiscountBasketItem
+import uk.co.wonderlane.wlpos.entities.transactionv2.BasketTransaction
+import uk.co.wonderlane.wlpos.entities.transactionv2.TillControlEvent
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 import uk.co.wonderlane.wlpos.reporting.TransactionBasketItem
 
@@ -42,6 +44,7 @@ class TransactionController {
     private def populateTransactionBasketItems(List<BasketItem> basketItems) {
         Map<Integer, TransactionBasketItem> transactionBasketItems = [:]
         BigDecimal pre_discount_total = 0
+        BigDecimal discountableAmount = 0
         def priorAddedSeqNum = 0
 
         basketItems.eachWithIndex { basketItem, seqNum ->
@@ -142,6 +145,9 @@ class TransactionController {
 
                 priorAddedSeqNum = transactionBasketItem.seqNum
 
+                if (basketItem.product?.restrictions?.discountAllowed && basketItem.product?.restrictions?.discountAllowed == true) {
+                    discountableAmount = discountableAmount + basketItem.total
+                }
                 pre_discount_total = pre_discount_total + basketItem.total
             }
 
@@ -172,11 +178,12 @@ class TransactionController {
 
                 priorAddedSeqNum = transactionBasketItem.seqNum
 
+                discountableAmount = discountableAmount + basketItem.total
                 pre_discount_total = pre_discount_total + basketItem.total
             }
         }
 
-        return [transactionBasketItems: transactionBasketItems, preDiscountTotal: pre_discount_total]
+        return [transactionBasketItems: transactionBasketItems, preDiscountTotal: pre_discount_total, discountableAmount: discountableAmount]
     }
 
     def details() {
@@ -206,37 +213,11 @@ class TransactionController {
                 eventLines.add([eventType: event.type, overrideUsersName: event.overrideUser?.name ?: user?.name])
             }
 
-            def discountCard = "-"
-            basketTransaction?.getBasket()?.getBasketItems()?.forEach { item ->
-                if (item instanceof DiscountBasketItem) {
-                    discountCard = item.cardNumber
-                }
-            }
-
+            def discountCard = fetchDiscountCard(basketTransaction)
             def basketItemsEtc = populateTransactionBasketItems(basketTransaction?.getBasket()?.getBasketItems())
 
             def postDiscountsTotal = basketItemsEtc.preDiscountTotal
-
-            def discountItems = []
-            basketTransaction?.getBasket()?.getBasketItems()?.forEach { item ->
-                if (item instanceof DiscountBasketItem || item instanceof SimpleDiscountBasketItem) {
-                    def discountItem = new DiscountItem()
-                    discountItem.description = item.receiptDescription
-
-                    if (item.total) {
-                        discountItem.amount = -item.total
-                        postDiscountsTotal -= item.total
-                    } else if (item.discountPercentage) {
-                        BigDecimal percentage = new BigDecimal(item.discountPercentage).divide(new BigDecimal(100))
-                        def discountAmount = receipt.transactionAmount * percentage
-
-                        discountItem.amount = -discountAmount
-                        postDiscountsTotal -= discountAmount
-                    }
-
-                    discountItems.add(discountItem)
-                }
-            }
+            def discountableAmount = basketItemsEtc.discountableAmount
 
             def promotionItems = []
             basketTransaction?.getBasket()?.getBasketItems()?.forEach { item ->
@@ -248,6 +229,28 @@ class TransactionController {
                     postDiscountsTotal -= item.totalSavings
 
                     promotionItems.add(promotionItem)
+                }
+            }
+
+            def discountItems = []
+            basketTransaction?.getBasket()?.getBasketItems()?.forEach { item ->
+                if (item instanceof DiscountBasketItem || item instanceof SimpleDiscountBasketItem) {
+                    def discountItem = new DiscountItem()
+                    discountItem.description = item.receiptDescription
+
+                    if (item.total) {
+                        discountItem.amount = -item.total
+                        postDiscountsTotal -= item.total
+                    } else if (item.discountPercentage) { // calculate the amount the discount card will yield.
+                        BigDecimal percentage = new BigDecimal(item.discountPercentage).divide(new BigDecimal(100))
+                        def discountAmount = discountableAmount * percentage
+
+                        discountItem.amount = -discountAmount
+                        postDiscountsTotal -= discountAmount
+                        discountableAmount -= discountAmount
+                    }
+
+                    discountItems.add(discountItem)
                 }
             }
 
@@ -264,6 +267,7 @@ class TransactionController {
                     discountItems    : discountItems,
                     promotionItems   : promotionItems,
                     preDiscountTotal : basketItemsEtc.preDiscountTotal,
+                    discountableAmount: basketItemsEtc.discountableAmount,
                     postDiscountsTotal: postDiscountsTotal
             ]
         }
@@ -274,6 +278,16 @@ class TransactionController {
 
             [exception: inputErrors]
         }
+    }
+
+    private String fetchDiscountCard(BasketTransaction basketTransaction) {
+        def discountCard = "-"
+        basketTransaction?.getBasket()?.getBasketItems()?.forEach { item ->
+            if (item instanceof DiscountBasketItem) {
+                discountCard = item.cardNumber
+            }
+        }
+        return discountCard
     }
 
     def ajaxGetReceipts() {
