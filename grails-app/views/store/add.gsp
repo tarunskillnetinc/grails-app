@@ -4,8 +4,14 @@
     <meta name="layout" content="main" />
     <title>Add Store</title>
     <asset:javascript src="validators/input-validator.js" />
+    <asset:javascript src="storeCommonUtils.js" />
+    <asset:javascript src="inert.min.js" />
 
     <script type="text/javascript">
+
+        var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
+        var saveStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxSaveStoreAdditionalDetail')}"
+
         function typeChanged() {
             var selectedType = $("#type option:selected").val();
 
@@ -40,6 +46,12 @@
                 priceBandSelectDiv.hide();
             }
         }
+
+        $(document).ready(function() {
+            $(document).on('click', '#addSpecialOpeningHoursModal', function(event) {
+                event.stopPropagation();
+            });
+        });
     </script>
 </head>
 <body>
@@ -113,7 +125,7 @@
                                 <div class="form-group row">
                                     <label for="storeNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store Number*</label>
                                     <div class="col-7 col-lg-2">
-                                        <g:field type="number" min="0" max="999999999" maxlength="9" name="storeNumber" value="${store?.storeNumber}"  class="form-control bottom-border" onkeydown="acceptMaxNumberValue(event, 999999999);" />
+                                        <g:field type="number" min="0" max="999999" maxlength="6" name="storeNumber" value="${store?.storeNumber}"  class="form-control bottom-border" onkeydown="acceptMaxNumberValue(event, 999999);" />
                                     </div>
                                 </div>
 
@@ -177,6 +189,13 @@
                                 </div>
 
                                 <div class="form-group row">
+                                    <label for="addressLine3" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Address Line 3</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="addressLine3" maxlength="20" value="${store?.addressLine3}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
                                     <label for="addressTown" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Town / City</label>
                                     <div class="col-7 col-lg-4">
                                         <g:textField name="addressTown" maxlength="20" value="${store?.addressTown}" class="form-control bottom-border" />
@@ -211,6 +230,50 @@
                                     </div>
                                 </div>
 
+                                <div class="form-group row">
+                                    <label for="alternativePhoneNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Alternative Phone Number</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="alternativePhoneNumber" maxlength="12" value="${store?.phoneNumber}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="emailAddress" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Email Address</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="emailAddress" maxlength="254" value="${store?.emailAddress}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="netSalesArea" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Net Sales Area</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="netSalesArea" maxlength="20" value="${store?.netSalesArea}" class="form-control bottom-border"
+                                                     onkeydown="acceptFloat(event)"
+                                                     onkeyup="validateFloatQuantity(this, 0, 999999.9999, 4)" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="anaCode" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">ANA Code</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="anaCode" maxlength="30" value="${store?.anaCode}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="longitude" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Longitude</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="longitude" maxlength="20" value="${store?.longitude}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="latitude" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Latitude</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="latitude" maxlength="20" value="${store?.latitude}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
                                 <div id="parent-store-select" class="form-group row" style="display: none;">
                                     <label for="parentStoreId" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Parent Store</label>
 
@@ -228,8 +291,19 @@
                         </div>
                     </div>
                 </div>
+                <g:render template="sharedStoreConfigurationAccordionsTop" model="[storeAdditionalDetails: storeAdditionalDetails, storeOpeningHoursCommand: storeOpeningHoursCommand]"/>
+                <g:render template="sharedStoreConfigurationAccordionsBottom"/>
             </div>
         </g:form>
     </section>
+
+    <section id="addStoreAdditionalDetails-modal" class="container-fluid">
+        <div class="modal fade" id="addStoreAdditionalDetailsModal" tabindex="-1" role="dialog" aria-labelledby="addStoreAdditionalDetailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                <div id="addStoreAdditionalDetailsContent" class="modal-content"></div>
+            </div>
+        </div>
+    </section>
+
 </body>
 </html>

@@ -7,6 +7,7 @@
 
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
+        <asset:javascript src="user-co-utils.js"/>
 
         <script type='text/javascript'>
             $(function() {
@@ -20,7 +21,14 @@
                     orientation: "bottom auto"
                 });
             });
-        </script>
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var selectElement = document.getElementById('defaultStoreIdSelector');
+                updateFields(selectElement);
+            });
+
+
+    </script>
     </head>
 
     <body>
@@ -51,72 +59,129 @@
                 </div>
             </div>
 
-            <g:if test="${flash.message}">
-                <section id="errors-container">
-                    <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+            <g:if test="${flash.error}">
+                <section id="errors-container" data-flash-message="${flash.error ? 'true' : 'false'}">
+                    <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
                 </section>
             </g:if>
-
-            <g:hasErrors bean="${user}">
-                <section id="errors-container">
-                    <div class="alert alert-danger alert-wl mx-0" role="alert">
-                        <g:renderErrors bean="${user}" as="list" />
-                    </div>
-                </section>
-            </g:hasErrors>
+            <g:else>
+                <g:if test="${user}">
+                    <g:hasErrors bean="${user}">
+                        <section id="errors-container" data-flash-message="${flash.error ? 'true' : 'false'}">
+                            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                                <g:renderErrors bean="${user}" as="list" />
+                            </div>
+                        </section>
+                    </g:hasErrors>
+                </g:if>
+            </g:else>
 
             <g:form name="add-user-form" action="save" novalidate="novalidate" class="mt-4">
                 <g:hiddenField name="id" value="${user?.id ?: 0}" />
 
-                <div class="form-group row col-12 col-lg-6">
-                    <label for="username" class="col-4 col-form-label text-right pr-4">Username</label>
-                    <g:textField name="username" class="col-5 form-control bottom-border" value="${user?.username}" autocomplete="off" />
-                </div>
+                <div class="row">
+                    <div class="col-md-6 mt-5">
+                        <!-- Left column -->
+                        <div class="form-group row">
+                            <label for="username" class="col-4 col-form-label text-right pr-4">Username</label>
+                            <div class="col-6">
+                                <g:textField name="username" class="form-control bottom-border" value="${user?.username}" autocomplete="off" />
+                            </div>
+                        </div>
 
-                <div class="form-group row col-12 col-lg-6">
-                    <label for="password" class="col-4 col-form-label text-right pr-4">Password</label>
-                    <g:passwordField name="password" class="col-5 form-control bottom-border" value="${user?.password}" />
-                </div>
+                        <div class="form-group row mt-3">
+                            <label for="name" class="col-4 col-form-label text-right pr-4">Name</label>
+                            <div class="col-6">
+                                <g:textField name="name" class="form-control bottom-border" value="${user?.name}" autocomplete="off" />
+                            </div>
+                        </div>
 
-                <div class="form-group row col-12 col-lg-6">
-                    <label for="confirmPassword" class="col-4 col-form-label text-right pr-4">Confirm Password</label>
-                    <g:passwordField name="confirmPassword" class="col-5 form-control bottom-border" value="${user?.confirmPassword}" />
-                </div>
+                        <div class="form-group row mt-3">
+                            <label for="password" class="col-4 col-form-label text-right pr-4">Password</label>
+                            <div class="col-6">
+                                <g:passwordField name="password" class="form-control bottom-border" value="${user?.password}" />
+                            </div>
+                        </div>
 
-                <div class="form-group row col-12 col-lg-6">
-                    <label for="name" class="col-4 col-form-label text-right pr-4">Name</label>
-                    <g:textField name="name" class="col-5 form-control bottom-border" value="${user?.name}" autocomplete="off" />
-                </div>
+                        <div class="form-group row mt-3">
+                            <label for="confirmPassword" class="col-4 col-form-label text-right pr-4">Confirm Password</label>
+                            <div class="col-6">
+                                <g:passwordField name="confirmPassword" class="form-control bottom-border" value="${user?.confirmPassword}" />
+                            </div>
+                        </div>
 
-                <div class="form-group row col-12 col-lg-6">
-                    <label for="dateOfBirth" class="col-4 col-form-label text-right pr-4">Date of Birth</label>
+                        <div class="form-group row mt-3">
+                            <label for="dateOfBirth" class="col-4 col-form-label text-right pr-4">Date of Birth</label>
+                            <div class="col-6">
+                                <g:textField name="dateOfBirth" type="text" class="form-control bottom-border" value="${user?.dateOfBirth ? user?.dateOfBirth?.format('dd/MM/yyyy') : null}" autocomplete="off" />
+                            </div>
+                        </div>
 
-                    <g:textField name="dateOfBirth" type="text" class="col-5 form-control bottom-border" value="${user?.dateOfBirth ? user?.dateOfBirth?.format('dd/MM/yyyy') : null}" autocomplete="off" />
-                </div>
+                        <div class="form-group row mt-3">
+                            <label for="defaultStoreId" class="col-4 col-form-label text-right pr-4">Home Store</label>
+                            <div class="col-6">
+                                <div class="dropdown-content">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="mr-2">Selected:</span>
+                                        <input type="text" class="form-control mr-2" id="selectedStoreDisplay" readonly
+                                               value="${defaultStore ? defaultStore?.config?.storeNumber + '-' + defaultStore?.config?.storeName : 'No Home Store'}" />
+                                        <button type="button" id="removeUserHomeStoreBtn" class="btn btn-danger" onclick="clearStoreSearch()">Remove</button>
+                                    </div>
+                                    <g:hiddenField name="defaultStoreId" value="${isLoggedInFromStoreLevel ? defaultStore?.id : 0}" />
+                                    <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreIdSelector')"  >
+                                    <g:select id="defaultStoreIdSelector"
+                                              size="6"
+                                              name="defaultStoreIdSelector"
+                                              style="overflow-y: scroll; overflow-x: hidden;"
+                                              from="${stores}"
+                                              onchange="updateFields(this);"
+                                              onclick="updateFields(this);"
+                                              optionValue="${{it?.config?.storeNumber + '-' + it?.config?.storeName}}"
+                                              value="${user?.defaultStoreId ?: (isLoggedInFromStoreLevel ? defaultStore?.id : 0)}"
+                                              optionKey="${{it?.id}}"
+                                              class="form-control select-border"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="form-group form-check row col-12 col-lg-6">
-                    <label for="active" class="col-4 col-form-label text-right pr-4">Active</label>
-                    <g:checkBox name="active" class="col-1 form-check-input wl-checkbox" checked="${user?.active || !user}" />
-                </div>
+                    <div class="col-md-6 mt-5">
+                        <!-- Right column -->
+                        <div class="form-group row">
+                            <label for="active" class="col-4 col-form-label text-right pr-4">Active</label>
+                            <div class="col-6">
+                                <g:checkBox name="active" class="ml-1 form-check-input wl-checkbox" checked="${user?.active || !user}" />
+                            </div>
+                        </div>
 
-                <div class="form-group form-check row col-12 col-lg-6">
-                    <label for="ageRelatedSaleAllowed" class="col-4 col-form-label text-right pr-4">Age Related Sale Allowed</label>
-                    <g:checkBox name="ageRelatedSaleAllowed" class="col-1 form-check-input wl-checkbox" checked="${user?.ageRelatedSaleAllowed || !user}" />
-                </div>
+                        <div class="form-group row mt-3">
+                            <label for="ageRelatedSaleAllowed" class="col-4 col-form-label text-right pr-4">Age Related Sale Allowed</label>
+                            <div class="col-6">
+                                <g:checkBox name="ageRelatedSaleAllowed" class="ml-1 form-check-input wl-checkbox" checked="${user?.ageRelatedSaleAllowed || !user}" />
+                            </div>
+                        </div>
 
-                <div class="form-group row col-12 col-lg-6">
-                    <label for="securityKey" class="col-4 col-form-label text-right pr-4">Security Key</label>
-                    <g:textField name="securityKey" class="col-5 form-control bottom-border" value="${user?.securityKey}" autocomplete="off" />
-                </div>
+                        <div class="form-group row mt-3">
+                            <label for="securityKey" class="col-4 col-form-label text-right pr-4">Security Key</label>
+                            <div class="col-6">
+                                <g:textField name="securityKey" class="form-control bottom-border" value="${user?.securityKey}" autocomplete="off" />
+                            </div>
+                        </div>
 
-                <div class="form-group row col-12 col-lg-6">
-                    <label for="role" class="col-4 col-form-label text-right pr-4">Role</label>
-                    <g:select name="role" class="col-3 form-control select-border" from="${roleValues}" value="${user?.role}" valueMessagePrefix="Role" />
-                </div>
+                        <div class="form-group row mt-3">
+                            <label for="role" class="col-4 col-form-label text-right pr-4">Role</label>
+                            <div class="col-6">
+                                <g:select name="role" class="form-control select-border" from="${roleValues}" value="${user?.role}" valueMessagePrefix="Role" />
+                            </div>
+                        </div>
 
-                <div class="form-group row col-12 col-lg-6">
-                    <label for="retailerUserId" class="col-4 col-form-label text-right pr-4">Retailer User ID</label>
-                    <g:textField name="retailerUserId" class="col-5 form-control bottom-border" value="${user?.retailerUserId}" autocomplete="off" />
+                        <div class="form-group row mt-3">
+                            <label for="retailerUserId" class="col-4 col-form-label text-right pr-4">Retailer User ID</label>
+                            <div class="col-6">
+                                <g:textField name="retailerUserId" class="form-control bottom-border" value="${user?.retailerUserId}" autocomplete="off" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </g:form>
         </section>

@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 
-class ReceiptControllerSpec extends Specification implements ControllerUnitTest<ReceiptController> {
+class TransactionControllerSpec extends Specification implements ControllerUnitTest<TransactionController> {
 
 
     //-------------------------------index function Unit tests----------------------------//
@@ -30,7 +30,7 @@ class ReceiptControllerSpec extends Specification implements ControllerUnitTest<
 
     void "should retrieve receipts on request"() {
         given:
-        controller.receiptService = Stub(ReceiptService) {
+        controller.transactionService = Stub(TransactionService) {
             getReceipts(_, _, _, _, _, _) >> new FakeSearchResultList()
         }
         params.offset = offset
@@ -74,7 +74,7 @@ class ReceiptControllerSpec extends Specification implements ControllerUnitTest<
         testReceipt.receiptLines.add(basketItem)
         testReceipt.receiptLines.add(vatItem)
 
-        controller.receiptService = Stub(ReceiptService) {
+        controller.transactionService = Stub(TransactionService) {
             getReceipt(_) >> testReceipt
         }
 
@@ -99,7 +99,7 @@ class ReceiptControllerSpec extends Specification implements ControllerUnitTest<
         Receipt testReceipt = new Receipt()
         testReceipt.receiptLines = new HashSet<>()
 
-        controller.receiptService = Stub(ReceiptService) {
+        controller.transactionService = Stub(TransactionService) {
             getReceipt(_) >> testReceipt
         }
 

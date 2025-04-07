@@ -7,11 +7,11 @@
 
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
+        <asset:javascript src="user-co-utils.js"/>
 
         <script type='text/javascript'>
 
             $(document).ready(function() {
-
                 $('#dateOfBirth').datepicker({
                     format: "dd/mm/yyyy",
                     weekStart: 1,
@@ -25,13 +25,22 @@
             });
 
             function ConfirmUserDelete() {
+                clearOldFlashMessages();
                 var result = confirm("Are you sure you want to delete this user?");
                 if (result) {
                     document.location.href='${createLink(action:'deleteUser', id: user?.id)}';
                 }
             }
 
-        </script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var selectElement = document.getElementById('defaultStoreIdSelector');
+                updateFields(selectElement);
+            });
+
+
+
+
+    </script>
 
     </head>
 
@@ -61,12 +70,12 @@
 
                     <g:if test="${!isUserReadOnly}">
                         <button id="delete-btn" class="btn btn-danger" name="delete" onclick="ConfirmUserDelete()">Delete</button>
-                        <button id="save-btn" class="btn btn-success" name="save" onclick="$('#edit-user-form').submit();">Save</button>
+                        <button id="save-btn" class="btn btn-success" name="save" onclick="validateAndSubmitUserEdit( ${isLoggedInFromStoreLevel}, ${defaultStore?.id});">Save</button>
                         <button id="reset-password" class="btn btn-warning" name="reset-password" onclick="document.location.href='${createLink(action:'changePassword', params: [id: user?.id, name : user?.name] )}';">Reset Password</button>
                     </g:if>
                     <g:else>
                         <button id="delete-btn" class="btn btn-danger" name="delete" disabled onclick="ConfirmUserDelete()">Delete</button>
-                        <button id="save-btn" class="btn btn-success" name="save" disabled onclick="$('#edit-user-form').submit();">Save</button>
+                        <button id="save-btn" class="btn btn-success" name="save" disabled onclick="validateAndSubmitUserEdit( ${isLoggedInFromStoreLevel}, ${defaultStore?.id});">Save</button>
                         <button id="reset-password" class="btn btn-warning" name="reset-password" disabled onclick="document.location.href='${createLink(action:'changePassword', params: [id: user?.id, name : user?.name])}';">Reset Password</button>
                     </g:else>
 
@@ -74,73 +83,129 @@
             </div>
 
             <g:if test="${flash.message}">
-                <div class="alert alert-success alert-wl" role="alert">${flash.message}</div>
+                <div class="alert alert-success alert-wl" role="alert" data-flash-message="${flash.message ? 'true' : 'false'}">${flash.message}</div>
             </g:if>
-
-            <g:if test="${flash.error}">
-                <section id="errors-container">
+            <g:elseif test="${flash.error}">
+                <section id="errors-container" data-flash-message="${flash.error ? 'true' : 'false'}">
                     <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
                 </section>
-            </g:if>
+            </g:elseif>
+            <g:else>
+                <g:if test="${user}">
+                    <g:hasErrors bean="${user}">
+                        <section id="errors-container">
+                            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                                <g:renderErrors bean="${user}" as="list" />
+                            </div>
+                        </section>
+                    </g:hasErrors>
+                </g:if>
+            </g:else>
 
-            <g:hasErrors bean="${user}">
-                <section id="errors-container">
-                    <div class="alert alert-danger alert-wl mx-0" role="alert">
-                        <g:renderErrors bean="${user}" as="list" />
-                    </div>
-                </section>
-            </g:hasErrors>
 
             <g:if test="${user}">
                 <g:form name="edit-user-form" action="editSelectedUser" novalidate="novalidate" class="mt-4">
+                    <div class="row">
+                        <div class="col-md-6  mt-5">
+                            <!-- Left column -->
 
-                    <div class="form-group row col-12 col-lg-6 mt-4">
-                        <label for="id" class="col-4 col-form-label text-right pr-4">ID</label>
-                        <g:textField name="id" class="col-5 form-control bottom-border" value="${user?.id}" readonly="true"/>
+                            <div class="form-group row">
+                                <label for="id" class="col-4 col-form-label text-right pr-4">ID</label>
+                                <div class="col-6">
+                                    <g:textField name="id" class="form-control bottom-border" value="${user?.id}" readonly="true"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-3">
+                                <label for="username" class="col-4 col-form-label text-right pr-4">Username</label>
+                                <div class="col-6">
+                                    <g:textField name="username" class="form-control bottom-border" value="${user?.username}" readonly="true"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row  mt-3">
+                                <label for="name" class="col-4 col-form-label text-right pr-4">Name</label>
+                                <div class="col-6">
+                                    <g:textField name="name" class="form-control bottom-border" value="${user?.name}" readonly="${isUserReadOnly}"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-3">
+                                <label for="dateOfBirth" class="col-4 col-form-label text-right pr-4">Date of Birth</label>
+                                <div class="col-6">
+                                    <g:textField name="dateOfBirth" class="form-control bottom-border" value="${g.formatDate(format: "dd/MM/yyyy", date: user?.dateOfBirth)}" disabled="${isUserReadOnly}"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row  mt-3">
+                                <label for="defaultStoreId" class="col-4 col-form-label text-right pr-4">Home Store</label>
+                                <div class="col-6">
+                                    <div class="dropdown-content">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="mr-2">Selected:</span>
+                                            <input type="text" class="form-control mr-2" id="selectedStoreDisplay" readonly
+                                                   value="${defaultStore ? defaultStore?.config?.storeNumber + '-' + defaultStore?.config?.storeName : 'No Home Store'}" />
+                                            <button type="button" id="removeUserHomeStoreBtn" class="btn btn-danger" onclick="clearStoreSearch()">Remove</button>
+                                        </div>
+                                        <g:hiddenField name="defaultStoreId" value="${user?.defaultStoreId ?:  0}" />
+                                        <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','defaultStoreIdSelector')"  >
+                                        <g:select id="defaultStoreIdSelector"
+                                                  size="6"
+                                                  name="defaultStoreIdSelector"
+                                                  style="overflow-y: scroll; overflow-x: hidden;"
+                                                  from="${stores}" optionValue="${{it.config.storeNumber + '-' + it.config.storeName}}"
+                                                  value="${user?.defaultStoreId}"
+                                                  onchange="updateFields(this);"
+                                                  onclick="updateFields(this);"
+                                                  optionKey="${{it?.id}}"
+                                                  class="form-control select-border"
+                                                  disabled="${isUserReadOnly}" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6  mt-5">
+                            <!-- Right column -->
+                            <div class="form-group row">
+                                <label for="active" class="col-4 col-form-label text-right pr-4">Active</label>
+                                <div class="col-6">
+                                    <g:checkBox name="active" class="ml-0 form-check-input wl-checkbox" checked="${user?.active}" disabled="${isUserReadOnly}"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-3">
+                                <label for="ageRelatedSaleAllowed" class="col-4 col-form-label text-right pr-4">Age Related Sale Allowed</label>
+                                <div class="col-6">
+                                    <g:checkBox name="ageRelatedSaleAllowed" class="ml-0 form-check-input wl-checkbox" checked="${user?.ageRelatedSaleAllowed || !user}" disabled="${isUserReadOnly}"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row  mt-3">
+                                <label for="securityKey" class="col-4 col-form-label text-right pr-4">Security Key</label>
+                                <div class="col-6">
+                                    <g:textField name="securityKey" class="form-control bottom-border" value="${user?.securityKey}" readonly="${isUserReadOnly}"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row  mt-3">
+                                <label for="role" class="col-4 col-form-label text-right pr-4">Role</label>
+                                <div class="col-6">
+                                    <g:select name="role" class="form-control select-border" from="${roleValues}" value="${user?.role}" disabled="${isUserReadOnly}" valueMessagePrefix="Role"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row  mt-3">
+                                <label for="retailerUserId" class="col-4 col-form-label text-right pr-4">Retailer User ID</label>
+                                <div class="col-6">
+                                    <g:textField name="retailerUserId" class="form-control bottom-border" value="${user?.retailerUserId}" readonly="${isUserReadOnly}"/>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="form-group row col-12 col-lg-6">
-                        <label for="username" class="col-4 col-form-label text-right pr-4">Username</label>
-                        <g:textField name="username" class="col-5 form-control bottom-border" value="${user?.username}" readonly="true"/>
-                    </div>
-
-                    <div class="form-group row col-12 col-lg-6">
-                        <label for="name" class="col-4 col-form-label text-right pr-4">Name</label>
-                        <g:textField name="name" class="col-5 form-control bottom-border" value="${user?.name}" readonly="${isUserReadOnly}"/>
-                    </div>
-
-                    <div class="form-group row col-12 col-lg-6">
-                        <label for="dateOfBirth" class="col-4 col-form-label text-right pr-4">Date of Birth</label>
-                        <g:textField name="dateOfBirth" class="col-5 form-control bottom-border" value="${g.formatDate(format: "dd/MM/yyyy", date: user?.dateOfBirth)}" readonly="${isUserReadOnly}"/>
-                    </div>
-
-                    <div class="form-group form-check row col-12 col-lg-6">
-                        <label for="active" class="col-4 col-form-label text-right pr-4">Active</label>
-                        <g:checkBox name="active" class="col-1 form-check-input wl-checkbox" checked="${user?.active || !user}" disabled="${isUserReadOnly}"/>
-                    </div>
-
-                    <div class="form-group form-check row col-12 col-lg-6">
-                        <label for="ageRelatedSaleAllowed" class="col-4 col-form-label text-right pr-4">Age Related Sale Allowed</label>
-                        <g:checkBox name="ageRelatedSaleAllowed" class="col-1 form-check-input wl-checkbox" checked="${user?.ageRelatedSaleAllowed || !user}" disabled="${isUserReadOnly}"/>
-                    </div>
-
-                    <div class="form-group row col-12 col-lg-6">
-                        <label for="securityKey" class="col-4 col-form-label text-right pr-4">Security Key</label>
-                        <g:textField name="securityKey" class="col-5 form-control bottom-border" value="${user?.securityKey}" readonly="${isUserReadOnly}"/>
-                    </div>
-
-                    <div class="form-group row col-12 col-lg-6">
-                        <label for="role" class="col-4 col-form-label text-right pr-4">Role</label>
-                        <g:select name="role" class="col-3 form-control select-border" from="${roleValues}" value="${user?.role}" readonly="${isUserReadOnly}" valueMessagePrefix="Role"/>
-                    </div>
-
-                    <div class="form-group row col-12 col-lg-6">
-                        <label for="retailerUserId" class="col-4 col-form-label text-right pr-4">Retailer User ID</label>
-                        <g:textField name="retailerUserId" class="col-5 form-control bottom-border" value="${user?.retailerUserId}" readonly="${isUserReadOnly}"/>
-                    </div>
-
                 </g:form>
             </g:if>
+
         </section>
     </body>
 </html>

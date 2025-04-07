@@ -5,15 +5,19 @@
     <title>Store Configuration</title>
 
     <asset:stylesheet src="multi-select-checks.css" />
-
     <asset:javascript src="validators/input-validator.js"/>
     <asset:javascript src="store-settings/color-pick.js" />
     <asset:javascript src="popper.min.js" />
     <asset:javascript src="multi-select-checks.js" />
     <asset:javascript src="money-mask.js" />
     <asset:javascript src="numberHelper.js" />
+    <asset:javascript src="storeCommonUtils.js" />
 
     <script type="text/javascript">
+
+        var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
+        var saveStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxSaveStoreAdditionalDetail')}"
+
         function updateColorIndicator(color, indicatorId) {
             var colorPickerElement = document.getElementById(indicatorId);
             colorPickerElement.value = "#" + color; // Prepend "#" to the color value
@@ -38,6 +42,9 @@
             });
 
         });
+
+
+
     </script>
 
     <style>
@@ -129,5 +136,14 @@
     <g:else>
         <g:render template="storeConfig" model='${pageScope}'/>
     </g:else>
+
+    <section id="addStoreAdditionalDetails-modal" class="container-fluid">
+        <div class="modal fade" id="addStoreAdditionalDetailsModal" tabindex="-1" role="dialog" aria-labelledby="addStoreAdditionalDetailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                <div id="addStoreAdditionalDetailsContent" class="modal-content"></div>
+            </div>
+        </div>
+    </section>
+
 </body>
 </html>

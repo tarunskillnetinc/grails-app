@@ -50,19 +50,19 @@ class UserServiceSpec extends Specification implements ServiceUnitTest<UserServi
         service.springSecurityService = getFakeSpringSecurityService()
 
         when: 'loadUserByUsername action is executed'
-        def users = service.getUsers(searchTerm, 0, 100)
+        def users = service.getUsers(userNameFilter, homeStoreFilter, isActive, 0, 100)
 
         then: 'loadUserByUsername results are correct'
         users != null
         users.size() > 0
 
         where: 'Pass following input parameters'
-        ID | searchTerm
-        1  | 'testUser'
-        2  | 'test'
-        3  | 'User'
-        4  | 't'
-        5  | 'U'
+        ID | userNameFilter | homeStoreFilter | isActive
+        1  | 'testUser'     | 1               | true
+        2  | 'test'         | 2               | true
+        3  | 'User'         | 3               | true
+        4  | 't'            | 4               | true
+        5  | 'U'            | 5               | true
     }
 
     //---------------------------------------- Calling save user Action ---------------------------------------------//
