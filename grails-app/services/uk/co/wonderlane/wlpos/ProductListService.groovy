@@ -444,15 +444,11 @@ class ProductListService extends MySqlDal {
         String parentTypeString = rs.getString("parentType")
         productList.setParentType(parentTypeString != null ? ProductListType.valueOf(parentTypeString) : null)
 
-        productList.setDateStarted(DateTime.parse(rs.getString("dateStarted"), dateFormatter))
-        if (rs.wasNull()) {
-            productList.setDateStarted(null)
-        }
+        String dateStarted = rs.getString("dateStarted")
+        productList.setDateStarted(rs.wasNull() ? null : DateTime.parse(dateStarted, dateFormatter))
 
-        productList.setDateCompleted(DateTime.parse(rs.getString("dateCompleted"), dateFormatter))
-        if (rs.wasNull()) {
-            productList.setDateCompleted(null)
-        }
+        String dateCompleted = rs.getString("dateCompleted")
+        productList.setDateCompleted(rs.wasNull() ? null : DateTime.parse(dateCompleted, dateFormatter))
 
         productList.setOwnerUserId(rs.getString("ownerUserId"))
 
@@ -479,15 +475,12 @@ class ProductListService extends MySqlDal {
         }
 
         productList.setStockAdjustedOnCompletion(rs.getBoolean("stockAdjustedOnCompletion"))
-        productList.setStartDate(DateTime.parse(rs.getString("startDate"), dateFormatter))
-        if (rs.wasNull()) {
-            productList.setStartDate(null)
-        }
 
-        productList.setStartDate(DateTime.parse(rs.getString("endDate"), dateFormatter))
-        if (rs.wasNull()) {
-            productList.setEndDate(null)
-        }
+        String startDate = rs.getString("startDate")
+        productList.setStartDate(rs.wasNull() ? null : DateTime.parse(startDate, dateFormatter))
+
+        String endDate = rs.getString("endDate")
+        productList.setEndDate(rs.wasNull() ? null : DateTime.parse(endDate, dateFormatter))
 
         productList.setSupplierId(rs.getString("supplierId") as Integer)
         if (rs.wasNull()) {
