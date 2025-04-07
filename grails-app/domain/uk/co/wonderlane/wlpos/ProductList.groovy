@@ -30,10 +30,10 @@ class ProductList {
     Integer destinationStoreId
     String retailerListId
 
-    Collection<ProductListItem> productListItems = new ArrayList<>()
     Collection<ProductListItemGroup> productListItemGroups = new ArrayList<>()
+    Collection<ProductListItem> productListItems = new ArrayList<>()
 
-    static hasMany = [ productListItems: ProductListItem, productListItemGroups: ProductListItemGroup ]
+    static hasMany = [ productListItemGroups: ProductListItemGroup,  productListItems: ProductListItem ]
 
     static transients = [ 'totalQuantity', 'totalValue', 'totalPackLines', 'totalCost']
 

@@ -68,13 +68,19 @@
                     },
                     200: function (response) {
                         $('#results-container').html(response)
+                        $("#deliveries-file").val('')
                     }
                 }
             })
         }
 
         function onImport() {
-            if (document.getElementById("invalid-test") != null) {
+            if (document.getElementById("no-rows-test") != null || document.getElementById("all-invalid-test")) {
+                alert("No valid deliveries to import")
+                return
+            }
+
+            if (document.getElementById("any-invalid-test") != null) {
                 if (!confirm("There are some invalid deliveries, do you still want to import?")) {
                     return
                 }
