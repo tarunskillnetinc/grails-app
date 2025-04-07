@@ -241,6 +241,8 @@ class ReportingController {
                             "quantity": BigDecimal.ZERO
                     )
 
+                    groupedSale.refundQuantity = BigDecimal.ZERO
+
                     salesGroup.value.each {
                         if (it.quantity < 0) {
                             groupedSale.refundQuantity -= it.quantity

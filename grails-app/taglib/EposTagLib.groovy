@@ -155,7 +155,7 @@ class EposTagLib {
 
                 break
             case ReportType.CHARITY_DONATIONS:
-                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All Charity Donations</li>"""
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Charity Donations</li>"""
 
                 break
             case ReportType.ORDERS:
