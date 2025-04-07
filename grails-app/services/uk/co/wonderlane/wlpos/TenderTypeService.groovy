@@ -40,19 +40,59 @@ class TenderTypeService {
         return [results, totalCount]
     }
 
+    def overrideButton(List<Button> buttonList, Button newButton) {
+        def existingIndex = buttonList.findIndexOf { it.id == newButton.overrideId }
+
+        if (existingIndex != -1) {
+            buttonList[existingIndex] = newButton;
+        }
+    }
+
+    def addButtonIfNotExist(List<Button> buttonList, Button newButton) {
+        def existingIndex = buttonList.findIndexOf { it.row == newButton.row && it.column == newButton.column }
+
+        if (existingIndex == -1) {
+            buttonList.add(newButton);
+        }
+    }
+
     def getApplicableTenderTypes() {
         def tenderTypes = TenderType.findAllByRetailerId(springSecurityService.principal.retailerId)
         def buttonGrids = ButtonGrid.findAllByRetailerIdAndType(springSecurityService.principal.retailerId, ButtonGridType.TENDER)
 
         def applicableTenderTypes = []
+        def activeButtons = [];
 
+        //Build a list of non-overridden buttons
         buttonGrids?.each { ButtonGrid buttonGrid ->
             if (buttonGrid.storeId == null || buttonGrid.storeId == springSecurityService.principal.storeId) {
                 buttonGrid.buttons?.each { Button button ->
-                    if (button.type == ButtonType.TENDER && (button.storeId == null || button.storeId == springSecurityService.principal.storeId) && button.tenderType) {
-                        applicableTenderTypes.add(tenderTypes?.find { it.id == button.tenderType.id })
+                    if (button.storeId == null || button.storeId == springSecurityService.principal.storeId) {
+                        if (button.overrideId == null) {
+                            addButtonIfNotExist(activeButtons, button)
+                        }
                     }
                 }
+            }
+        }
+
+        //Replace existing buttons entries with any overrides.
+        buttonGrids?.each { ButtonGrid buttonGrid ->
+            if (buttonGrid.storeId == null || buttonGrid.storeId == springSecurityService.principal.storeId) {
+                buttonGrid.buttons?.each { Button button ->
+                    if (button.storeId == null || button.storeId == springSecurityService.principal.storeId) {
+                        if (button.overrideId != null) {
+                          overrideButton(activeButtons, button)
+                        }
+                    }
+                }
+            }
+        }
+
+        //Pull the tenders from the active tender buttons
+        activeButtons?.each { Button button ->
+            if (button.type == ButtonType.TENDER && button.tenderType) {
+                applicableTenderTypes.add(tenderTypes?.find { it.id == button.tenderType.id })
             }
         }
 

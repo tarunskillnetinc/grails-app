@@ -27,7 +27,6 @@
     <g:hiddenField name="addPack[${packIndex}].barcodes" value="${barcodes}"/>
     <g:hiddenField name="addPack[${packIndex}].primaryCase" value="${pack?.primaryCase}"/>
 
-
     <g:if test="${pack?.supplier?.symbolGroupId}">
         <g:hiddenField name="addPack[${packIndex}].supplier.id" value="${pack?.supplier?.id}" />
     </g:if>
@@ -82,8 +81,8 @@
 
     <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
         <div class="col-4 my-auto font-weight-bold">&nbsp;</div>
-        <div class="col-4 my-auto font-weight-bold"></div>
-        <div class="col-4 my-auto font-weight-bold">Min Alcohol Unit Price</div>
+        <div class="col-4 my-auto font-weight-bold">Height</div>
+        <div class="col-4 my-auto font-weight-bold">Width</div>
     </div>
 
     <div class="row mx-4 pt-4 pb-2 wl-striped${packIndex % 2}">
@@ -93,72 +92,12 @@
                 <label class="form-check-label font-weight-bold">Preferred Pack</label>
             </div>
         </div>
-        <div class="input-group col-4 my-auto"></div>
         <div class="input-group col-4 my-auto">
-            <div class="input-group-prepend">
-                <span class="input-group-text">&pound;</span>
-            </div>
-            <g:textField value="${pack?.minAlcoholUnitPrice?pack?.minAlcoholUnitPrice:""}"
-                         class="form-control mask-money disabled-input" name="addPack[${packIndex}].minAlcoholUnitPrice" disabled maxlength="10" />
-        </div>
-    </div>
-
-    <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
-        <div class="col-4 my-auto font-weight-bold">&nbsp;</div>
-        <div class="col-4 my-auto font-weight-bold">Price Marked Type</div>
-        <div class="col-4 my-auto font-weight-bold">Price Marked Value</div>
-    </div>
-
-    <div class="row mx-4 py-2 wl-striped${packIndex % 2}">
-
-        <div id="setPriceMarked${packIndex}" class="col-4 mr-0 d-flex align-items-center">
-            <div class="form-check form-check-inline">
-                <g:checkBox name="addPack[${packIndex}].priceMarked" id="addPack[${packIndex}].priceMarked" class="form-check-input wl-checkbox" checked="${pack?.priceMarked}"  onchange="togglePriceMarkedFields(${packIndex})" />
-                <label class="form-check-label font-weight-bold">Price Marked Pack</label>
-            </div>
-        </div>
-        <div class="col-4 mr-0 d-flex align-items-center">
-            <g:hiddenField name="addPack[${packIndex}].priceMarkedType" class="form-control" id="addPack[${packIndex}].priceMarkedType"  value="${pack?.priceMarkedType?.name() ?: 'VALUE'}" valueMessagePrefix="PriceMarkedType"/>
-            <div class="d-flex justify-content-start">
-                <div class="form-check d-flex align-items-center mr-3">
-                    <g:radio class="form-check-input wl-radio disabled-input" name="addPack[${packIndex}].priceMarkedTypeDummy" type="radio" value="VALUE" checked="${pack?.priceMarkedType == null || pack?.priceMarkedType?.name() == 'VALUE'}" onchange="updatePriceMarkedType(${packIndex}, 'VALUE')" />
-                    <label class="form-check-label mb-0 ml-2">Value</label>
-                </div>
-                <div class="form-check d-flex align-items-center">
-                    <g:radio class="form-check-input wl-radio disabled-input" type="radio" name="addPack[${packIndex}].priceMarkedTypeDummy"  value="PERCENTAGE" checked="${pack?.priceMarkedType?.name() == 'PERCENTAGE'}" onchange="updatePriceMarkedType(${packIndex}, 'PERCENTAGE')" />
-                    <label class="form-check-label mb-0 ml-2">Percentage</label>
-                </div>
-            </div>
-        </div>
-        <div class="input-group col-4 my-auto">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="priceMarkedSymbolPrefix${packIndex}" style="${(pack?.priceMarkedType == null || pack?.priceMarkedType?.name() == 'VALUE') ? '' : 'display: none;'}">
-                    £
-                </span>
-            </div>
-            <g:textField name="addPack[${packIndex}].priceMarkedValue" value="${pack?.priceMarkedValue}"
-                         class="form-control mask-money disabled-input" maxlength="10"/>
-            <div class="input-group-append">
-                <span class="input-group-text" id="priceMarkedSymbolSuffix${packIndex}" style="${(pack?.priceMarkedType != null && pack?.priceMarkedType?.name() == 'PERCENTAGE') ? '' : 'display: none;'}">
-                    %
-                </span>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
-        <div class="col-4 my-auto font-weight-bold">Length</div>
-        <div class="col-4 my-auto font-weight-bold">Width</div>
-        <div class="col-4 my-auto font-weight-bold">Height</div>
-    </div>
-
-    <div class="row mx-4 py-2 wl-striped${packIndex % 2}">
-        <div class="input-group col-4 my-auto">
-            <input id="addPack[${packIndex}].lengthCm" value="${pack?.lengthCm}" type="text"
-                         class="form-control text-right" maxlength="7"
+            <input id="addPack[${packIndex}].heightCm" value="${pack?.heightCm}" type="text"
+                   class="form-control text-right" maxlength="7"
                    onkeydown="acceptFloat(event)" onkeyup="validateFloatQuantity(this, 0, 999.99, 2)"/>
             <div class="input-group-append">
-                <span class="input-group-text" id="lengthCmSymbolSuffix${packIndex}">
+                <span class="input-group-text" id="heightCmSymbolSuffix${packIndex}">
                     Cm
                 </span>
             </div>
@@ -173,23 +112,25 @@
                 </span>
             </div>
         </div>
+    </div>
+
+    <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
+        <div class="col-4 my-auto font-weight-bold">Length</div>
+        <div class="col-4 my-auto font-weight-bold">Weight</div>
+        <div class="col-4 my-auto font-weight-bold">Pack Status</div>
+    </div>
+
+    <div class="row mx-4 py-2 wl-striped${packIndex % 2}">
         <div class="input-group col-4 my-auto">
-            <input id="addPack[${packIndex}].heightCm" value="${pack?.heightCm}" type="text"
-                   class="form-control text-right" maxlength="7"
+            <input id="addPack[${packIndex}].lengthCm" value="${pack?.lengthCm}" type="text"
+                         class="form-control text-right" maxlength="7"
                    onkeydown="acceptFloat(event)" onkeyup="validateFloatQuantity(this, 0, 999.99, 2)"/>
             <div class="input-group-append">
-                <span class="input-group-text" id="heightCmSymbolSuffix${packIndex}">
+                <span class="input-group-text" id="lengthCmSymbolSuffix${packIndex}">
                     Cm
                 </span>
             </div>
         </div>
-    </div>
-
-    <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
-        <div class="col-4 my-auto font-weight-bold">Weight</div>
-    </div>
-
-    <div class="row mx-4 py-2 wl-striped${packIndex % 2}">
         <div class="input-group col-4 my-auto">
             <input id="addPack[${packIndex}].weightKg" value="${pack?.weightKg}" type="text"
                    class="form-control text-right" maxlength="7"
@@ -200,11 +141,16 @@
                 </span>
             </div>
         </div>
+        <div class="input-group col-4 my-auto">
+            <g:select name="addPack[${packIndex}].status" from="${statuses}" value="${pack?.status ?: 'ACTIVE'}"
+                      valueMessagePrefix="PackStatus" class="form-control select-border"/>
+        </div>
     </div>
+
 
     <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
         <div class="col-4 my-auto font-weight-bold">Barcodes</div>
-        <div class="col-4 my-auto font-weight-bold">Status</div>
+        <div class="col-4 my-auto font-weight-bold"></div>
     </div>
 
     <div class="row mx-4 py-2 wl-striped${packIndex % 2}">
@@ -221,10 +167,7 @@
                 </div>
             </g:each>
         </div>
-        <div class="col-4">
-            <g:select name="addPack[${packIndex}].status" from="${statuses}" value="${pack?.status ?: 'ACTIVE'}"
-                      valueMessagePrefix="PackStatus" class="form-control select-border"/>
-        </div>
+        <div class="col-4"></div>
     </div>
 
     <div class="row mx-4 py-2 wl-striped${packIndex % 2}">
@@ -243,11 +186,6 @@
 </div>
 
 <script type="text/javascript">
-
-    $('input[name$="].priceMarked"]').each(function() {
-        var packIndex = this.name.match(/\[(\d+)\]/)[1];
-        togglePriceMarkedFields(packIndex);
-    });
 
     function addPackSupplierChanged(packIndex) {
         $("#addPack\\[" +packIndex +"\\]\\.supplier\\.name").val($("#addPack\\[" +packIndex +"\\]\\.supplier\\.id option:selected").text());

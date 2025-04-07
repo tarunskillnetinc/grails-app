@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "1.15.13-SNAPSHOT"
+version "1.15.25-SNAPSHOT"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"idea"
@@ -58,57 +58,58 @@ repositories {
 
 dependencies {
     developmentOnly "org.springframework.boot:spring-boot-devtools"
-    implementation "org.springframework.boot:spring-boot-starter-log4j2"
+    implementation "org.springframework.boot:spring-boot-starter-log4j2:2.7.18"
     modules {
         module("org.springframework.boot:spring-boot-starter-logging") {
             replacedBy("org.springframework.boot:spring-boot-starter-log4j2", "Use Log4j2 instead of Logback")
         }
     }
-    implementation ("org.springframework.boot:spring-boot-autoconfigure") {
+    implementation ("org.springframework.boot:spring-boot-autoconfigure:2.7.18") {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
 
-    implementation 'uk.co.wonderlane.wlpos:Common:1.17.6-SNAPSHOT'
+    implementation 'uk.co.wonderlane.wlpos:Common:1.17.9-SNAPSHOT'
 
-    implementation "org.grails:grails-core"
-    implementation ("org.springframework.boot:spring-boot-starter-actuator")
-    implementation ("org.springframework.boot:spring-boot-starter-tomcat")
-    implementation "org.grails:grails-web-boot"
-    implementation "org.grails:grails-logging"
-    implementation "org.grails:grails-plugin-rest"
-    implementation "org.grails:grails-plugin-databinding"
-    implementation "org.grails:grails-plugin-i18n"
-    implementation "org.grails:grails-plugin-services"
-    implementation "org.grails:grails-plugin-url-mappings"
-    implementation "org.grails:grails-plugin-interceptors"
+    implementation "org.grails:grails-core:6.1.2"
+    implementation ("org.springframework.boot:spring-boot-starter-actuator:2.7.18")
+    implementation ("org.springframework.boot:spring-boot-starter-tomcat:2.7.18")
+    implementation "org.grails:grails-web-boot:6.1.2"
+    implementation "org.grails:grails-logging:6.1.2"
+    implementation "org.grails:grails-plugin-rest:6.1.2"
+    implementation "org.grails:grails-plugin-databinding:6.1.2"
+    implementation "org.grails:grails-plugin-i18n:6.1.2"
+    implementation "org.grails:grails-plugin-services:6.1.2"
+    implementation "org.grails:grails-plugin-url-mappings:6.1.2"
+    implementation "org.grails:grails-plugin-interceptors:6.1.2"
 //    implementation 'org.grails.plugins:cache:5.0.1'
-    implementation "org.grails.plugins:async:4.0.0"
-    implementation "org.grails.plugins:scaffolding"
-    implementation "org.grails.plugins:events"
-    implementation "org.grails.plugins:hibernate5"
-    implementation "org.hibernate:hibernate-core:5.6.11.Final"
-    implementation "org.grails.plugins:gsp"
-    compileOnly "io.micronaut:micronaut-inject-groovy"
+    implementation "org.grails.plugins:async:5.0.2"
+    implementation "org.grails.plugins:scaffolding:5.0.1"
+    implementation "org.grails.plugins:events:5.0.2"
+    implementation "org.grails.plugins:hibernate5:8.1.0"
+    implementation "org.hibernate:hibernate-core:5.6.15.Final"
+    implementation "org.grails.plugins:gsp:6.2.1"
+    compileOnly "io.micronaut:micronaut-inject-groovy:3.10.4"
     console "org.grails:grails-console"
     profile "org.grails.profiles:web"
     runtimeOnly 'org.glassfish.web:el-impl:2.2.1-b05'
-    implementation "org.grails.plugins:spring-security-core:5.2.1"
-    implementation group: "com.rabbitmq", name: "amqp-client", version: "5.5.3"
-    implementation group: "com.google.code.gson", name: "gson", version: "2.8.9"
+    implementation "org.grails.plugins:spring-security-core:6.1.1"
+    implementation group: "com.rabbitmq", name: "amqp-client", version: "5.21.0"
+    implementation group: "com.google.code.gson", name: "gson", version: "2.10.1"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
     runtimeOnly 'com.bertramlabs.plugins:asset-pipeline-grails:3.4.7'
     runtimeOnly 'org.codehaus.groovy:groovy-dateutil'
-    implementation 'mysql:mysql-connector-java:8.0.32'
+    implementation 'com.mysql:mysql-connector-j:8.2.0'
     implementation 'joda-time:joda-time:2.12.2'
     implementation group: 'org.jadira.usertype', name: 'usertype.core', version: '6.0.1.GA' // Mappings for Joda time to Hibernate.
     implementation 'org.grails.plugins:remote-pagination:0.5.0'
-    implementation 'com.google.zxing:core:3.5.1'
-    implementation 'com.google.zxing:javase:3.5.1'
-    implementation 'org.apache.pdfbox:pdfbox:2.0.27'
-    implementation 'org.apache.pdfbox:pdfbox-tools:2.0.27'
-    implementation 'com.opencsv:opencsv:5.7.1'
-    implementation 'software.amazon.awssdk:s3:2.20.26'
-    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'com.google.zxing:core:3.5.3'
+    implementation 'com.google.zxing:javase:3.5.3'
+    implementation 'org.apache.pdfbox:pdfbox:2.0.32'
+    implementation 'org.apache.pdfbox:pdfbox-tools:2.0.32'
+    implementation 'com.opencsv:opencsv:5.9'
+    implementation 'software.amazon.awssdk:s3:2.25.19'
+    implementation 'software.amazon.awssdk:sns:2.25.19'
+    implementation 'commons-io:commons-io:2.16.0'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-joda', version: '2.12.2'
 
     testImplementation "io.micronaut:micronaut-inject-groovy"

@@ -1,31 +1,3 @@
-<script>
-    $(document).ready(function () {
-        $('label[for="descriptionFilter"]').text("Cage Barcode")
-        $('#cageDeliveryFilter').show()
-        $('#directDeliveryFilter').hide()
-    })
-
-    function loadDeliveryCage(cageId) {
-        $.ajax({
-            url: '${createLink(action:'deliveryCage')}',
-            method: 'GET',
-            data: {
-                cageId: cageId,
-                storeId: ${storeId},
-                supplierId: ${supplierId},
-                startDate: '${startDate?.toString("dd/MM/yyyy")}',
-                endDate: '${endDate?.toString("dd/MM/yyyy")}',
-                descriptionFilter: '${descriptionFilter}'
-            },
-            success: function(response) {
-                $("#results-container").html(response);
-            },
-            error: function(xhr, status, error) {
-                console.error("An error occurred: " + error);
-            }
-        });
-    }
-</script>
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "cageBarcode" }?.enabled}">
         <div class="col-2 font-weight-bold"><a id="cageBarcode" href="#" onclick="getReportData({
@@ -66,15 +38,17 @@
 
     <g:each in="${cages}" var="cage" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" style="cursor: pointer;" title="Click to view"
-             onclick="loadDeliveryCage(${cage.id})">
-        <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "cageBarcode" }?.enabled}">
+             onclick="document.location.href = '${createLink(action:'delivery', params: [productListId: delivery.id,
+             storeId: storeId, supplierId: supplierId, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy"), cageId: cage.id])}';">
+
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "cageBarcode" }?.enabled}">
                 <div id="cageBarcode-${i + 1}" class="col-2 my-auto">${cage?.uniqueIdentifier}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "processingDate" }?.enabled}">
                 <div id="processingDate-${i + 1}" class="col-6 my-auto">${cage?.effectiveDate}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "cases" }?.enabled}">
-                <div id="cases-${i + 1}" class="col-2 my-auto">${cage?.totalCases}</div>
+                <div id="cases-${i + 1}" class="col-2 my-auto">${cage?.totalCaseQuantity}</div>
             </g:if>
         </div>
     </g:each>

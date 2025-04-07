@@ -173,11 +173,24 @@ class EposTagLib {
                 break
             case ReportType.DELIVERY:
                 out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"deliveries", params:[storeId: attrs.storeId, supplierId: attrs.supplierId, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "Deliveries Report" }}"""
+                if (attrs.cageId) {
+                    out << """<li id="breadcrumb-3" class="breadcrumb-item">${g.link(action:"deliveryCage", params:[productListId: attrs.productListId, productListItemId: attrs.productListItemId, storeId: attrs.storeId, supplierId: attrs.supplierId, descriptionFilter: attrs.descriptionFilter, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "${attrs.supplierName} (${attrs.deliveryDate?.toString("dd/MM/yyyy") ?: 'Unknown date'})" }}"""
+                }
+                out << """<li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${attrs.uniqueIdentifier} (${attrs.deliveryDate?.toString("dd/MM/yyyy") ?: 'Unknown date'})</li>"""
+                break
+            case ReportType.DELIVERY_CAGE:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"deliveries", params:[storeId: attrs.storeId, supplierId: attrs.supplierId, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "Deliveries Report" }}"""
                 out << """<li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${attrs.supplierName} (${attrs.deliveryDate?.toString("dd/MM/yyyy") ?: 'Unknown date'})</li>"""
                 break
 
             case ReportType.DELIVERY_ITEM:
                 out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"deliveries", params:[productListId: attrs.productListId, storeId: attrs.storeId, supplierId: attrs.supplierId, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "Deliveries Report" }}"""
+                if (attrs.cageId) {
+                    out << """<li id="breadcrumb-3" class="breadcrumb-item">${g.link(action:"deliveryCage", params:[productListId: attrs.productListId, productListItemId: attrs.productListItemId, storeId: attrs.storeId, supplierId: attrs.supplierId, descriptionFilter: attrs.descriptionFilter, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) {"${attrs.supplierName} (${attrs.deliveryDate?.toString("dd/MM/yyyy") ?: 'Unknown date'})" }}"""
+                    out << """<li id="breadcrumb-3" class="breadcrumb-item">${g.link(action:"delivery", params:[productListId: attrs.productListId, productListItemId: attrs.productListItemId, storeId: attrs.storeId, supplierId: attrs.supplierId, descriptionFilter: attrs.descriptionFilter, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy'), cageId: attrs.cageId]) { "${attrs.uniqueIdentifier} (${attrs.deliveryDate?.toString("dd/MM/yyyy") ?: 'Unknown date'})"  }}"""
+                    out << """<li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${attrs.productDescription}</li>"""
+                    break
+                }
                 out << """<li id="breadcrumb-3" class="breadcrumb-item">${g.link(action:"delivery", params:[productListId: attrs.productListId, productListItemId: attrs.productListItemId, storeId: attrs.storeId, supplierId: attrs.supplierId, descriptionFilter: attrs.descriptionFilter, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "${attrs.supplierName} (${attrs.deliveryDate?.toString("dd/MM/yyyy") ?: 'Unknown date'})" }}"""
                 out << """<li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${attrs.productDescription}</li>"""
 

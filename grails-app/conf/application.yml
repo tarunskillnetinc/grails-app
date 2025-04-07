@@ -52,22 +52,22 @@ grails:
             csv: text/csv
             form: application/x-www-form-urlencoded
             html:
-              - text/html
-              - application/xhtml+xml
+                - text/html
+                - application/xhtml+xml
             js: text/javascript
             json:
-              - application/json
-              - text/json
+                - application/json
+                - text/json
             multipartForm: multipart/form-data
             pdf: application/pdf
             rss: application/rss+xml
             text: text/plain
             hal:
-              - application/hal+json
-              - application/hal+xml
+                - application/hal+json
+                - application/hal+xml
             xml:
-              - text/xml
-              - application/xml
+                - text/xml
+                - application/xml
     urlmapping:
         cache:
             maxsize: 1000
@@ -441,6 +441,9 @@ environments:
             buttonImageBucket: "persephone-retail-platform-button-images"
             brandAssetsBucket: "persephone-retail-platform-brand-assets"
 
+        sns:
+            eventTopic: 'persephone-event-topic'
+
         server:
             port: 5000
         grails:
@@ -541,6 +544,9 @@ environments:
             receiptImageBucket: "cerberus-retail-platform-receipt-images"
             buttonImageBucket: "cerberus-retail-platform-button-images"
             brandAssetsBucket: "cerberus-retail-platform-brand-assets"
+
+        sns:
+            eventTopic: 'cerberus-event-topic'
 
         server:
             port: 5000
@@ -648,10 +654,120 @@ environments:
             buttonImageBucket: "zagreus-retail-platform-button-images"
             brandAssetsBucket: "zagreus-retail-platform-brand-assets"
 
+        sns:
+            eventTopic: 'zagreus-event-topic'
+
         server:
             port: 5000
         grails:
             serverURL: "https://zagreus.trustretail-test.com"
+
+    ares:
+        dataSource:
+            pooled: true
+            dbCreate: "validate"
+            url: "jdbc:mysql://retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/ares-wlpos"
+            driverClassName: "com.mysql.cj.jdbc.Driver"
+            dialect: org.hibernate.dialect.MySQLInnoDBDialect
+            username: "cloudoffice"
+            password: "CdtfudWdnGVS87IKs7dV"
+            properties:
+              <<: *databaseDefaultProperties
+
+        dataSources:
+            reporting:
+              pooled: true
+              dbCreate: "validate"
+              url: "jdbc:mysql://retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/ares-reporting"
+              driverClassName: "com.mysql.cj.jdbc.Driver"
+              dialect: org.hibernate.dialect.MySQLInnoDBDialect
+              username: "cloudoffice"
+              password: "CdtfudWdnGVS87IKs7dV"
+              properties:
+                <<: *databaseDefaultProperties
+
+            reportingReadOnly:
+              pooled: true
+              dbCreate: "validate"
+              url: "jdbc:mysql://retail-platform.cluster-ro-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/ares-reporting"
+              driverClassName: "com.mysql.cj.jdbc.Driver"
+              dialect: org.hibernate.dialect.MySQLInnoDBDialect
+              username: "cloudoffice"
+              password: "CdtfudWdnGVS87IKs7dV"
+              properties:
+                <<: *databaseDefaultProperties
+
+            transactions:
+              pooled: true
+              dbCreate: "validate"
+              url: "jdbc:mysql://retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/ares-transactions"
+              driverClassName: "com.mysql.cj.jdbc.Driver"
+              dialect: org.hibernate.dialect.MySQLInnoDBDialect
+              username: "cloudoffice"
+              password: "CdtfudWdnGVS87IKs7dV"
+              properties:
+                <<: *databaseDefaultProperties
+
+            loyalty:
+              pooled: true
+              dbCreate: "validate"
+              url: "jdbc:mysql://retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/ares-loyalty"
+              driverClassName: "com.mysql.cj.jdbc.Driver"
+              dialect: org.hibernate.dialect.MySQLInnoDBDialect
+              username: "cloudoffice"
+              password: "CdtfudWdnGVS87IKs7dV"
+              properties:
+                <<: *databaseDefaultProperties
+
+        rabbitmq:
+            host: b-8a4cc67f-a559-41ea-98d3-d3949bc49275.mq.eu-west-1.amazonaws.com
+            port: 5671
+            apiProtocol: https
+            apiPort: 443
+            virtualHost: "Ares"
+            username: retailplatform
+            password: twP0KDKRsXJt6eQ7F8vy
+            useSsl: true
+            senderExchange: Processing
+            exportExchange: Trigger
+
+        mysql:
+            wlpos:
+              host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+              port: 3306
+              username: cloudoffice
+              password: CdtfudWdnGVS87IKs7dV
+              database: ares-wlpos
+            transactions:
+              host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+              port: 3306
+              username: cloudoffice
+              password: CdtfudWdnGVS87IKs7dV
+              database: ares-transactions
+            loyalty:
+              host: localhost
+              port: 3306
+              username: root
+              password: Pa**W0rd01
+              database: ares-loyalty
+
+        wlpos:
+            defaultImageBucket: "ares-retail-platform-default-images"
+            cfdImageBucket: "ares-retail-platform-customer-display-images"
+            customerDisplayImageBucket: "ares-retail-platform-customer-display-images"
+            receiptImageBucket: "ares-retail-platform-receipt-images"
+            receipt_headerImageBucket: "ares-retail-platform-receipt-images"
+            receipt_footerImageBucket: "ares-retail-platform-receipt-images"
+            buttonImageBucket: "ares-retail-platform-button-images"
+            brandAssetsBucket: "ares-retail-platform-brand-assets"
+
+        sns:
+            eventTopic: 'ares-event-topic'
+
+        server:
+            port: 5000
+        grails:
+            serverURL: "https://ares.trustretail-test.com"
 
     preprod:
         dataSource:
@@ -1080,3 +1196,7 @@ wlpos:
     loyaltyTransactionService: "LoyaltyTransactionService"
     loyaltyOfferService: "LoyaltyOfferService"
     loyaltyOfferAllocationService: "LoyaltyOfferAllocationService"
+
+sns:
+    region: "eu-west-1"
+    eventTopic: "event-topic"

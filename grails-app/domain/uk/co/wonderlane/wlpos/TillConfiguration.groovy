@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.enums.TillType
 
 class TillConfiguration {
 
@@ -11,6 +12,7 @@ class TillConfiguration {
     int storeId // Actually store number.
     int tillId
     String serialNumber
+    TillType type
     String description
     String scpTxnEndIndicator
     String pposControlBar
@@ -37,6 +39,7 @@ class TillConfiguration {
         storeId column: "storeId", sqlType: "smallint"
         tillId column: "tillId"
         serialNumber column: "serialNumber"
+        type column: "type", sqlType: "text", enumType: "string"
         description column: "description"
         scpTxnEndIndicator column: "scpTxnEndIndicator"
         pposControlBar column: "pposControlBar"

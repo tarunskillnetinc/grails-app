@@ -27,7 +27,6 @@
         <div class="col-3 my-auto">${supplierPriceUpdate.sku} - ${supplierPriceUpdate.description}</div>
         <div class="col-1 my-auto text-center">${supplierPriceUpdate.quantity}</div>
         <div class="col-1 my-auto text-center">${supplierPriceUpdate.effectiveDate.toString("dd/MM/yyyy")}</div>
-        <div class="col-1 my-auto text-center">${supplierPriceUpdate.priceMarked ? "Yes" : "No"}</div>
         <div class="col-1 my-auto text-center"><g:formatNumber number="${supplierPriceUpdate.oldPackPrice}" type="currency" /></div>
         <div class="col-1 my-auto text-center"><g:formatNumber number="${supplierPriceUpdate.newPackPrice}" type="currency" /></div>
         <div class="col-1 my-auto text-center"><g:formatNumber number="${supplierPriceUpdate.recommendedRetailPrice}" type="currency" /></div>

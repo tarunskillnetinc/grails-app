@@ -73,7 +73,7 @@
 
             <div id="collapseCategoryRestrictions" class="collapse collapsed" aria-labelledby="categoryRestrictions" data-parent="#accordion">
                 <div class="card-body py-5">
-                    <div id="productHistoryContainer" style="max-height: 300px; overflow-x: auto; overflow-y: auto;">
+                    <div id="productHistoryContainer" style="max-height: 300px; overflow-x: hidden; overflow-y: auto;">
                         <div id="restrictions">
                             <g:render template="restrictions" model="[category: category]"></g:render>
                         </div>

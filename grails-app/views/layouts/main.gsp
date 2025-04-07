@@ -210,7 +210,7 @@
 
                             <g:link elementId="till-control-events-dropdown" controller="reporting" action="tillControlEvents" class="dropdown-item">Till Control Events</g:link>
                             <a id="journal" class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Journal</a>
-                            <g:link elementId="receipt-viewer-dropdown" controller="receipt" action="index" class="dropdown-item">Receipt Viewer</g:link>
+                            <g:link elementId="transaction-search-dropdown" controller="transaction" action="index" class="dropdown-item">Transaction Search</g:link>
                         </div>
                     </li>
 
@@ -274,7 +274,7 @@
                                     <g:link elementId="product-groups-dropdown" controller="productGroup" class="dropdown-item">Product Groups</g:link>
                                 </g:if>
 
-                                <g:link elementId="delivery-dropdown" controller="delivery" class="dropdown-item">Deliveries</g:link>
+                                <g:link elementId="delivery-dropdown" controller="delivery" class="${sec.loggedInUserInfo(field: 'retailer.config.receiptInBranchOrders').toBoolean() ? 'dropdown-item' : 'dropdown-item disabled'}">Deliveries</g:link>
                             </sec:ifAnyGranted>
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>

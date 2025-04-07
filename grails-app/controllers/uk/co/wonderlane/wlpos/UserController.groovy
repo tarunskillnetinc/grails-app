@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import grails.databinding.BindingFormat
 import org.apache.commons.lang.StringUtils
+import org.springframework.validation.BindingResult
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.Role
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
@@ -9,21 +10,43 @@ import uk.co.wonderlane.wlpos.enums.SyncMessageType
 class UserController {
 
     def springSecurityService
-
     def userService
     def rabbitService
-    def gsonProvider
+    def storeService
 
     def index() {
-        [users: userService.getUsers("", 0, 50), searchTerm: ""]
+        boolean isLoggedInFromStoreLevel = false
+        Store defaultStore = null
+        if (springSecurityService.principal.storeId != null){
+            isLoggedInFromStoreLevel = true
+            defaultStore = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        }
+        def stores = getStores()
+        List<User> users = userService.getUsers("", defaultStore?.id, false,  0, 50) as List<User>
+        [users: users, userNameFilter: "", homeStoreFilter: "", showInactiveUserFilter: false, stores: stores,
+         isLoggedInFromStoreLevel: isLoggedInFromStoreLevel, defaultStore:defaultStore, offset: 0, max: 50]
     }
 
-    def ajaxGetUsers(String searchTerm, int offset, int max) {
-        render (template: "userSearchResults", model: [users: userService.getUsers(searchTerm, offset, max), searchTerm: searchTerm])
+    def ajaxGetUsers() {
+        Integer homeStoreFilter = -1
+        String userNameFilter = params.userNameFilter
+        if (params.homeStoreFilter && params.homeStoreFilter.isNumber()) {
+            homeStoreFilter = Integer.parseInt(params.homeStoreFilter)
+        }
+        Integer offset = (params.offset != null && params.offset != "") ? Integer.parseInt(params.offset) : 0
+        Integer max = (params.max != null && params.max != "") ? Integer.parseInt(params.max) : 50
+        Boolean showInactiveUsers = params.showInactiveUserFilter != null ? Boolean.valueOf(params.showInactiveUserFilter) : false
+        List<User> users = userService.getUsers(userNameFilter, homeStoreFilter, showInactiveUsers, offset, max) as List<User>
+        render (template: "userSearchResults", model: [ users: users,
+                                                        userNameFilter: userNameFilter,
+                                                        homeStoreFilter: homeStoreFilter,
+                                                        showInactiveUserFilter: showInactiveUsers,
+                                                        offset: offset,
+                                                        max: max])
     }
 
     def add() {
-        [roleValues: getEligibleUserRoles()]
+        renderAddUser(null)
     }
 
     def userEdit() {
@@ -34,12 +57,14 @@ class UserController {
         User user = userService.getUser(Integer.parseInt(params.id))
 
         if (!user) {
-            user = null
             flash.error = "User not found."
+            redirect (action: "index")
+            return
         }
 
-        [user: user, isUserReadOnly: isUserReadOnly(user), roleValues: getEligibleUserRoles(user?.getRole())]
+        renderUserEdit(null, user)
     }
+
 
     def changePassword() {
         if (!params.id || !params.id.isNumber() || params.id.length() > 8) {
@@ -49,158 +74,213 @@ class UserController {
         User user = userService.getUser(Integer.parseInt(params.id))
 
         if (!user) {
-            user = null
             flash.error = "User not found."
-            [user: user, isUserReadOnly: isUserReadOnly(user), roleValues: getEligibleUserRoles(user?.getRole())]
-        } else {
-            render(view: "changePassword", model: [userId: params.id, name : params.name,  isUserReadOnly: isUserReadOnly(user)])
+            redirect (action: "index")
+            return
         }
 
+        render(view: "changePassword", model: [userId: params.id, name : params.name,  isUserReadOnly: isUserReadOnly(user)])
     }
 
     def save(SaveUserCommand saveUserCommand) {
-        saveUserCommand.retailerId = springSecurityService.principal.retailerId
-        saveUserCommand.defaultStoreId = 0
-
-        if (saveUserCommand.validate()) {
-            User user = saveUserCommand.id ? User.get(saveUserCommand.id) : new User()
-            user.properties = saveUserCommand.properties
-            userService.saveUser(user)
-
-            flash.message = "User saved successfully"
-
-            pushUserUpdatesToMq(user, true)
-
-            redirect (action: "index")
-        } else {
-            render (view: "add", model: [user: saveUserCommand, roleValues: getEligibleUserRoles()])
+        try {
+            saveUserCommand.retailerId = springSecurityService.principal.retailerId
+            if (saveUserCommand?.validate()) {
+                User user = saveUserCommand.id ? User.get(saveUserCommand.id) : new User()
+                user.properties = saveUserCommand.properties
+                userService.saveUser(user)
+                flash.message = "User saved successfully"
+                pushUserUpdatesToMq(user, true)
+                redirect (action: "index")
+            } else {
+                renderAddUser(saveUserCommand)
+            }
+        } catch (Exception ex) {
+            log.error("Error saving user, Exception " + ex)
+            flash.error = "Unknown error when adding user"
+            renderAddUser(saveUserCommand)
         }
     }
 
     //This method is responsible for edit selected user
     def editSelectedUser(SaveUserCommand saveUserCommand) {
-        boolean isValidToEdit = true
+        User user = null
+        try {
+            if (saveUserCommand != null && Integer.parseInt(saveUserCommand.getId().toString()) > 0){
+                //Load user --> Before this method invoke verify user exists, Therefore chances of user not exists is very less
+                user = User.get(saveUserCommand.getId())
 
-        if (saveUserCommand != null && saveUserCommand.getId() != null && Integer.parseInt(saveUserCommand.getId().toString()) > 0){
+                if (!user){
+                    flash.error = "User not found. Failed to edit"
+                    redirect(action: "index")
+                    return
+                } else if (!isValidToEdit(saveUserCommand)) {
+                    flash.error = "Logged in user has no permission to promote user to ${saveUserCommand?.role}"
+                    redirect(action: "index")
+                    return
+                } else if (!isLoggedInFromValidLocation(user)){ //Only HO logged in user has permission to edit user
+                    flash.error = "User does not have permission for edit"
+                    redirect(action: "index")
+                    return
+                }
 
-            //Load user --> Before this method invoke verify user exists, Therefore chances of user not exists is very less
-            User user = User.get(saveUserCommand.getId())
-
-            if (!user){
-                flash.error = "User not found. Failed to delete"
-                isValidToEdit = false
-            } else if (!isValidUserToUpdate(saveUserCommand?.getRole())){ //Check logged in user has permission to update user role
-                String errorMessage = "Logged in user has no permission to promote user to " + saveUserCommand?.getRole()?.toString()
-                flash.error = errorMessage
-                isValidToEdit = false
-            } else if (isLoggedInAsStoreUser()){ //Check logged in user logged as store user or HO user
-                flash.error = "Store user does not have permission for edit user"
-                isValidToEdit = false
-            }
-
-            if (isValidToEdit){
-
-                //Set pre existing values to save user object
                 saveUserCommand.retailerId = user.retailerId
-                saveUserCommand.defaultStoreId = user.getDefaultStoreId()
-                saveUserCommand.password = user.getPassword()
-                saveUserCommand.confirmPassword = user.getPassword()
+                saveUserCommand.password = user.password
+                saveUserCommand.confirmPassword = user.password
 
                 //Check for user parameters validations
                 if (saveUserCommand.validate()) {
-
-                    //Update user values to pass parameters
                     user.properties = saveUserCommand.properties
-
                     //Save user object
                     userService.saveUser(user)
-
                     pushUserUpdatesToMq(user, true)
-
                     flash.message = "User saved successfully"
-
                     redirect (action: "index")
                 } else {
-                    render (view: "userEdit", model: [user: saveUserCommand, roleValues: getEligibleUserRoles(user?.getRole()), isUserReadOnly: isUserReadOnly(user)])
+                    renderUserEdit(saveUserCommand, user)
                 }
             } else {
-                render (view: "userEdit", model: [user: saveUserCommand, roleValues: getEligibleUserRoles(user?.getRole()), isUserReadOnly: isUserReadOnly(user)])
+                flash.error = "Edit user request has no id"
+                redirect (action: "index")
             }
-
-        } else {
-            redirect (action: "index")
+        } catch (Exception ex) {
+            log.error("Error editing selected user ${saveUserCommand?.id}, Exception " + ex)
+            flash.error = "Unknown error when editing user"
+            renderUserEdit(saveUserCommand, user)
         }
     }
 
     //This method is responsible for delete selected user
     def deleteUser() {
-        boolean isValidToDelete = true
+        User user = null
+        try {
+            //Load user --> Before this method invoke verify user exists, Therefore chances of user not exists is very less
+            user = User.get(params.id)
 
-        //Load user --> Before this method invoke verify user exists, Therefore chances of user not exists is very less
-        User user = User.get(params.id)
+            if (!user) { //If user does not exist on DB
+                flash.error = "User not found. Failed to edit"
+                redirect(action: "index")
+                return
+            }
 
-        if (!user) { //If user does not exist on DB
-            flash.error = "User not found. Failed to delete"
-            isValidToDelete = false
-        } else if (!isValidUserToUpdate(user?.getRole())) { //Check if action perform user is eligible for delete user
-            String errorMessage = "Logged in user has no permission to delete " + user.getRole().toString()
-            flash.error = errorMessage
-            isValidToDelete = false
-        } else if (isLoggedInAsStoreUser()){ //Only HO logged in user has permission to edit user
-            flash.error = "Store user does not have permission for delete"
-            isValidToDelete = false
-        }
+            if (!isValidUserToUpdate(user?.getRole())) { //Check if action perform user is eligible for delete user
+                String errorMessage = "Logged in user has no permission to delete " + user.getRole().toString()
+                flash.error = errorMessage
+                renderUserEdit(null, user)
+                return
+            } else if (!isLoggedInFromValidLocation(user)){ //Only HO logged in user has permission to edit user
+                flash.error = "Store user does not have permission for delete"
+                renderUserEdit(null, user)
+                return
+            }
 
-        if (isValidToDelete) {
             userService.deleteUser(user)
             pushUserUpdatesToMq(user, false)
             flash.message = "User deleted successfully"
             redirect(action: "index")
-        } else {
-            render(view: "userEdit", model: [user: user, isUserReadOnly: isUserReadOnly(user), roleValues: getEligibleUserRoles(user?.getRole())])
+        } catch (Exception ex) {
+            log.error("Error deleting user, Exception " + ex)
+            flash.error = "Unknown error when editing user"
+            renderUserEdit(null, user)
         }
     }
 
     //This method is responsible for change user password
     def editUserPassword(SaveUserPasswordCommand saveUserPasswordCommand) {
-        if (saveUserPasswordCommand != null && saveUserPasswordCommand.getId() != null && Integer.parseInt(saveUserPasswordCommand.getId().toString()) > 0){
-            def isValidToChangePassword = true
+        User user = null
+        try {
+            if (saveUserPasswordCommand != null && saveUserPasswordCommand.getId() != null && Integer.parseInt(saveUserPasswordCommand.getId().toString()) > 0){
+                def isValidToChangePassword = true
 
-            //Load user
-            User user = User.get(saveUserPasswordCommand.getId())
+                //Load user
+                user = User.get(saveUserPasswordCommand.getId())
 
-            if (!user){
-                flash.error = "User not found. Failed to delete"
-                isValidToChangePassword = false
-            } else if (!isValidUserToUpdate(user?.getRole())){ //Check logged in user has permission to update user role
-                String errorMessage = "Logged in user has no permission to change password of " + user?.getRole()?.toString()
-                flash.error = errorMessage
-                isValidToChangePassword = false
-            } else if (isLoggedInAsStoreUser()){ //Check logged in user logged as store user or HO user
-                flash.error = "Store user does not have permission for change user password"
-                isValidToChangePassword = false
-            }
+                if (!user){
+                    flash.error = "User not found. Failed to delete"
+                    redirect(action: "index")
+                    return
+                }
 
-            if (saveUserPasswordCommand.validate() && isValidToChangePassword) {
-                user.password = saveUserPasswordCommand.getPassword()
+                if (!isValidUserToUpdate(user?.getRole())){ //Check logged in user has permission to update user role
+                    String errorMessage = "Logged in user has no permission to change password of " + user?.getRole()?.toString()
+                    flash.error = errorMessage
+                    isValidToChangePassword = false
+                } else if (!isLoggedInFromValidLocation(user)){ //Check logged in user logged as store user or HO user
+                    flash.error = "Store user does not have permission for change user password"
+                    isValidToChangePassword = false
+                }
 
-                //Save user object
-                userService.saveUser(user)
+                if (saveUserPasswordCommand.validate() && isValidToChangePassword) {
+                    user.password = saveUserPasswordCommand.getPassword()
 
-                //Push notification to MQ
-                pushUserUpdatesToMq(user, true)
+                    //Save user object
+                    userService.saveUser(user)
 
-                flash.message = "User password saved successfully"
+                    //Push notification to MQ
+                    pushUserUpdatesToMq(user, true)
 
-                redirect(action: "index")
+                    flash.message = "User password saved successfully"
+
+                    redirect(action: "index")
+                } else {
+                    render(view: "changePassword", model: [saveUserPasswordCommand: saveUserPasswordCommand,
+                                                           userId: saveUserPasswordCommand.getId(),
+                                                           name: saveUserPasswordCommand.getName(),
+                                                           isUserReadOnly: isUserReadOnly(user)])
+                }
+
             } else {
-                render(view: "changePassword", model: [saveUserPasswordCommand: saveUserPasswordCommand, userId: saveUserPasswordCommand.getId(), name: saveUserPasswordCommand.getName(), isUserReadOnly: isUserReadOnly(user)])
+                flash.error = "Edit user password request has no valid id"
+                redirect(action: "index")
             }
-
-        } else {
-
+        } catch (Exception ex) {
+            log.error("Error editing user password for user ${user?.id}, Exception " + ex)
+            flash.error = "Unknown error when editing user password"
             redirect(action: "index")
         }
+
+    }
+
+
+    private boolean isValidToEdit(SaveUserCommand saveUserCommand) {
+        if (!isValidUserToUpdate(saveUserCommand?.role)) {
+            return false
+        }
+        return true
+    }
+
+    private void renderUserEdit(SaveUserCommand saveUserCommand, User user) {
+        boolean isLoggedInFromStoreLevel = false
+        Store defaultStore = null
+        if (springSecurityService.principal.storeId != null) {
+            isLoggedInFromStoreLevel = true
+            defaultStore = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        }
+        def stores = getStores()
+        render(view: "userEdit", model: [
+                user: saveUserCommand ?: user,
+                isUserReadOnly: isUserReadOnly(user),
+                roleValues: getEligibleUserRoles(user?.role),
+                stores: stores,
+                isLoggedInFromStoreLevel: isLoggedInFromStoreLevel,
+                defaultStore: defaultStore
+        ])
+    }
+
+    private void renderAddUser(SaveUserCommand saveUserCommand){
+        boolean isLoggedInFromStoreLevel = false
+        Store defaultStore = null
+        if (springSecurityService.principal.storeId != null){
+            isLoggedInFromStoreLevel = true
+            defaultStore = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        }
+        def stores = getStores()
+        render(view: "add", model:  [user: saveUserCommand,
+                                     stores: stores,
+                                     roleValues: getEligibleUserRoles(),
+                                     isLoggedInFromStoreLevel: isLoggedInFromStoreLevel,
+                                     defaultStore: defaultStore])
+
     }
 
     //Check logged in user rank and updating user rank
@@ -218,11 +298,11 @@ class UserController {
 
     //Check selected user is eligible to edit or delete
     private boolean isUserReadOnly(User user) {
-        boolean isLoggedInFromHO = false
+        boolean isLoggedInFromValidLocationToEdit = false
 
         //Check logged in user logged in HO level
-        if (springSecurityService.principal.storeId == null){
-            isLoggedInFromHO = true
+        if ((springSecurityService.principal.storeId == null) || (springSecurityService.principal.storeId == user?.defaultStoreId)){
+            isLoggedInFromValidLocationToEdit = true
         }
 
         //Currently allow user to edit/ delete only if
@@ -230,7 +310,7 @@ class UserController {
         // 2. Logged in user should logged in HO level
         // 3. Editing user should not be logged in user
         // 4. Should be lower rank user than logged in user
-        if (user && user?.getId() != springSecurityService.principal.id && isLoggedInFromHO && isValidUserToUpdate(user?.getRole())) {
+        if (user && user?.getId() != springSecurityService.principal.id && isLoggedInFromValidLocationToEdit && isValidUserToUpdate(user?.getRole())) {
             return false
         }
         return true
@@ -260,12 +340,9 @@ class UserController {
     }
 
     //Method to return logged in type (Store user / HO)
-    private boolean isLoggedInAsStoreUser(){
-        if (springSecurityService.principal.storeId == null){
-            return false
-        }
-
-        return true
+    private boolean isLoggedInFromValidLocation(User user){
+        //Check logged in user logged in HO level or from same store as default store
+        return ((springSecurityService.principal.storeId == null) || (springSecurityService.principal.storeId == user?.defaultStoreId))
     }
 
     //This method is to send updated request to MQ
@@ -280,6 +357,10 @@ class UserController {
         syncMessage.setUsers(users)
 
         rabbitService.sendMessage(syncMessage)
+    }
+
+    private getStores(){
+        return storeService.getStores(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + "-" + it.config.storeName }
     }
 }
 
@@ -336,6 +417,7 @@ class SaveUserCommand {
                 return true
             }
         }
+
     }
 }
 
