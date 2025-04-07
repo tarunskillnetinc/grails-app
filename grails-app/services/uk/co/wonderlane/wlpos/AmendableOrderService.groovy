@@ -183,7 +183,7 @@ class AmendableOrderService extends MySqlPoolDal {
                         deliveryDate: tuple[6],
                         originalOrderQuantity: tuple[9],
                         amendedOrderQuantity: tuple[7],
-                        messages: getMessageForAmendedLine(productProxy)
+                        messages: getMessageForAmendedLine(productProxy, store.id)
                 )
 
                 amendedLine.convertQuantitiesToPackNumbers()
@@ -198,8 +198,8 @@ class AmendableOrderService extends MySqlPoolDal {
         }
     }
 
-    private String getMessageForAmendedLine(Product product) {
-        return promotionService.getPromotionsForProduct(product.id).any() ? "ON PROMOTION" : null
+    private String getMessageForAmendedLine(Product product, int storeId) {
+        return promotionService.getPromotionsForProduct(product.id, storeId).any() ? "ON PROMOTION" : null
     }
 
     private ResultTransformer getOrderSearchResultTransformer() {
@@ -270,6 +270,8 @@ class AmendableOrderService extends MySqlPoolDal {
         void convertQuantitiesToPackNumbers() {
             demand = demand?.divide(packQuantity, 3 , RoundingMode.HALF_UP)
             available = available?.divide(packQuantity, 3, RoundingMode.HALF_UP)
+            originalOrderQuantity = originalOrderQuantity?.divide(packQuantity, 3, RoundingMode.HALF_UP)
+            amendedOrderQuantity = amendedOrderQuantity?.divide(packQuantity, 3, RoundingMode.HALF_UP)
         }
 
         static constraints = {

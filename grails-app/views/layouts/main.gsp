@@ -274,7 +274,7 @@
                                     <g:link elementId="product-groups-dropdown" controller="productGroup" class="dropdown-item">Product Groups</g:link>
                                 </g:if>
 
-                                <g:link elementId="delivery-dropdown" controller="delivery" class="dropdown-item">Deliveries</g:link>
+                                <g:link elementId="delivery-dropdown" controller="delivery" class="${sec.loggedInUserInfo(field: 'retailer.config.receiptInBranchOrders').toBoolean() ? 'dropdown-item' : 'dropdown-item disabled'}">Deliveries</g:link>
                             </sec:ifAnyGranted>
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>

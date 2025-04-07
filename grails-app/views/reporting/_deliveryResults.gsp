@@ -1,10 +1,3 @@
-<script>
-    $(document).ready(function () {
-        $('label[for="descriptionFilter"]').text("Description")
-        $('#cageDeliveryFilter').hide()
-        $('#directDeliveryFilter').show()
-    })
-</script>
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "sku" }?.enabled}">
         <div class="col-2 font-weight-bold"><a id="sku" href="#" onclick="getReportData({
@@ -54,7 +47,7 @@
     <g:each in="${items}" var="item" status="i">
         <g:set var="isWeighted" value="${item?.productVariant?.product?.weightedItem ?: false}"/>
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" style="cursor: pointer;" title="Click to view"
-             onclick="document.location.href='${createLink(action:'deliveryPackLines', params: [productListId: item.productList.id, productListItemId: item.id, storeId: storeId, supplierId: supplierId, descriptionFilter: descriptionFilter, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy")])}';">
+             onclick="document.location.href='${createLink(action:'deliveryPackLines', params: [productListId: item.productList.id, productListItemId: item.id, storeId: storeId, supplierId: supplierId, descriptionFilter: descriptionFilter, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy"), cageId: cageId, ])}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "sku" }?.enabled}">
                 <div id="sku-${i + 1}" class="col-2 my-auto">${item?.productVariant?.sku}</div>
             </g:if>

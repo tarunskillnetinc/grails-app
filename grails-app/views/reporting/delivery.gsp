@@ -41,7 +41,7 @@
         }
 
         function acceptDeliveryButtonPressed() {
-            $("#confirmModalContent").html("Are you sure you wish to accept this delivery?");
+            $("#confirmModalContent").html("Are you sure you wish to receipt this delivery?");
 
             var confirmModalYesButton = $('#confirmModalYesButton');
             var confirmModalNoButton = $('#confirmModalNoButton');
@@ -92,7 +92,7 @@
 
 <body>
     <section id="reporting-container" class="container-fluid">
-        <g:reportBreadcrumb reportType="${reportType}" supplierName="${delivery?.supplierReference}" deliveryDate="${delivery?.dateStarted}" supplierId="${supplierId}" storeId="${storeId}" startDate="${startDate}" endDate="${endDate}" />
+        <g:reportBreadcrumb reportType="${reportType}" supplierName="${delivery?.supplierReference}" deliveryDate="${delivery?.dateStarted}" supplierId="${supplierId}" storeId="${storeId}" startDate="${startDate}" endDate="${endDate}" cageId="${cageId}" productListId="${delivery.id}" uniqueIdentifier="${delivery.productListItemGroups.find{it.id == Integer.valueOf(cageId as String)}?.uniqueIdentifier}" />
 
         <div class="header-wl mt-3">
             <h2 class="mx-auto">Delivery Report</h2>
@@ -122,7 +122,7 @@
                             <g:hiddenField name="endDate" value="${endDate?.toString("dd/MM/yyyy")}" />
                             <g:hiddenField name="supplierId" value="${supplierId}" />
                             <g:hiddenField name="storeId" value="${storeId}" />
-                            <g:hiddenField name="caged" value="${caged}" />
+                            <g:hiddenField name="cageId" value="${cageId}" />
 
                             <div class="form-group row">
                                 <label for="descriptionFilter" class="col-2 col-form-label-sm text-right">Description</label>
@@ -196,30 +196,6 @@
                                                 value="totalCost"
                                                 checked="${!userColumns || userColumns?.columns?.find { it.column == 'totalCost' }?.enabled}"/>
                                     <label class="form-check-label" for="columnsLineValue">Total Cost</label>
-                                </div>
-                            </div>
-
-                            <div id="cageDeliveryFilter">
-                                <div class="form-group form-check">
-                                    <g:checkBox name="columns" id="columnsCageBarcode" class="form-check-input"
-                                                value="cageBarcode"
-                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'cageBarcode' }?.enabled}"/>
-                                    <label class="form-check-label" for="cageBarcode">Cage Barcode</label>
-                                </div>
-
-                                <div class="form-group form-check">
-                                    <g:checkBox name="columns" id="columnsProcessingDate" class="form-check-input"
-                                                value="processingDate"
-                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'processingDate' }?.enabled}"/>
-                                    <label class="form-check-label" for="columnsProcessingDate">Processing Date</label>
-                                </div>
-
-                                <div class="form-group form-check">
-                                    <g:checkBox name="columns" id="columnsCases" class="form-check-input"
-                                                value="cases"
-                                                checked="${!userColumns || userColumns?.columns?.find { it.column == 'cases' }?.enabled}"/>
-                                    <label class="form-check-label"
-                                           for="columnsCases">${retailer?.config?.retailerTerminologyConfig?.packTerm}s in the Cage</label>
                                 </div>
                             </div>
 
