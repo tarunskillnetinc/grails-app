@@ -62,7 +62,7 @@
                     <div class="input-group col-6">
                         <g:textField id="suppliername" name="name" value="${supplier?.name}"
                                      class="form-control bottom-border"
-                                     maxlength="50"/>
+                                     maxlength="60"/>
                     </div>
                 </div>
             </div>
