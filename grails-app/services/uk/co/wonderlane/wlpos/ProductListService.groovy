@@ -431,6 +431,7 @@ class ProductListService extends MySqlDal {
     }
 
     uk.co.wonderlane.wlpos.entities.wlim.ProductList mapProductList(ResultSet rs) throws SQLException {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZone(DateTimeZone.UTC)
         uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = new uk.co.wonderlane.wlpos.entities.wlim.ProductList()
         productList.setOrderId(rs.getInt("orderId") != 0 ? rs.getInt("orderId") : 0)
         productList.setId(rs.getInt("id"))
@@ -443,12 +444,12 @@ class ProductListService extends MySqlDal {
         String parentTypeString = rs.getString("parentType")
         productList.setParentType(parentTypeString != null ? ProductListType.valueOf(parentTypeString) : null)
 
-        productList.setDateStarted(new DateTime(rs.getTimestamp("dateStarted")).withZoneRetainFields(DateTimeZone.UTC))
+        productList.setDateStarted(DateTime.parse(rs.getString("dateStarted"), dateFormatter))
         if (rs.wasNull()) {
             productList.setDateStarted(null)
         }
 
-        productList.setDateCompleted(new DateTime(rs.getTimestamp("dateCompleted")).withZoneRetainFields(DateTimeZone.UTC))
+        productList.setDateCompleted(DateTime.parse(rs.getString("dateCompleted"), dateFormatter))
         if (rs.wasNull()) {
             productList.setDateCompleted(null)
         }
@@ -478,12 +479,12 @@ class ProductListService extends MySqlDal {
         }
 
         productList.setStockAdjustedOnCompletion(rs.getBoolean("stockAdjustedOnCompletion"))
-        productList.setStartDate(new DateTime(rs.getTimestamp("startDate")).withZoneRetainFields(DateTimeZone.UTC))
+        productList.setStartDate(DateTime.parse(rs.getString("startDate"), dateFormatter))
         if (rs.wasNull()) {
             productList.setStartDate(null)
         }
 
-        productList.setEndDate(new DateTime(rs.getTimestamp("endDate")).withZoneRetainFields(DateTimeZone.UTC))
+        productList.setStartDate(DateTime.parse(rs.getString("endDate"), dateFormatter))
         if (rs.wasNull()) {
             productList.setEndDate(null)
         }
