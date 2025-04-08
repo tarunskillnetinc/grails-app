@@ -115,6 +115,8 @@ class AmendableOrderController extends BaseController {
         if (saveCommand.validate()) {
             saveCommand.amendedLines.forEach {
                 if (it.amendedOrderQuantity) {
+                    // Multiple by pack quantity to get the productlistitem quantity (in singles)
+                    it.amendedOrderQuantity = it.amendedOrderQuantity.multiply(it.packQuantity)
                     amendableOrderService.saveAmendedQuantity(it)
                 }
             }

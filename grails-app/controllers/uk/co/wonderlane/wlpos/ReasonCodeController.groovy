@@ -146,7 +146,7 @@ class ReasonCodeController {
                 sendSyncMessage(duplicateReasonCode, false)
                 render "OK"
                 return
-            } else if (duplicateReasonCode.code == rc.code) {
+            } else if (duplicateReasonCode.code == rc.code && duplicateReasonCode.additionalFunctionality == rc.additionalFunctionality && duplicateReasonCode.type == rc.type) {
                 String errorMessageCode = rc.type == ReasonCodeType.PRODUCT_LIST ? 'reasonCode.code.product.list.duplicate.error' : 'reasonCode.code.duplicate.error'
                 errors.add(messageSource.getMessage(errorMessageCode, null, locale))
             }
@@ -163,7 +163,20 @@ class ReasonCodeController {
             return
         }
         reasonCodeService.saveReasonCode(rc)
-        sendSyncMessage(rc, false)
+        try {
+            sendSyncMessage(rc, false)
+        } catch (Exception e){
+            errors.add("Reason code saved but rabbit sync failed.")
+            render(template: "addEditReasonCode", model: [
+                    retailerId: springSecurityService.principal.retailerId,
+                    editing: !newEntry,
+                    reasonCode: rc,
+                    errors: toJson(errors),
+                    renderErrors: true,
+            ])
+            return
+        }
+
         render "OK"
     }
 

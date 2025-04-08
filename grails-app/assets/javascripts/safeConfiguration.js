@@ -1,7 +1,7 @@
 function searchSafe(sortParams, isForceButtonClick) {
     $("#search-results").hide();
     $("#loading-indicator").show();
-    var inactiveSafes = $('#inactiveSafes').prop("checked");
+    let inactiveSafes = $('#inactiveSafes').prop("checked");
     if (isForceButtonClick){
         hideMessages()
     }
@@ -20,22 +20,29 @@ function searchSafe(sortParams, isForceButtonClick) {
 }
 
 function validateAndSave() {
-    var error = false;
-    var errorString = "";
+    let error = false;
+    let errorString = "";
 
-    var description = $('#description').val();
+    const description = $('#description').val();
     if (description === "" || description.trim() === "") {
         error = true;
         errorString = errorString.concat("\nThe description can not be empty.");
     }
 
-    var type = $('#type').val();
+    const specialChars =
+        /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+    if (specialChars.test(description)) {
+        error = true;
+        errorString = errorString.concat("\nThe description can not contain special characters.");
+    }
+
+    const type = $('#type').val();
     if (type === "" || type.trim() === "") {
         error = true;
         errorString = errorString.concat("\nThe safe type can not be empty. Please select type.");
     }
 
-    var safeStatus = $('input[name="active"]:checked').val();
+    const safeStatus = $('input[name="active"]:checked').val();
     if (safeStatus === undefined) {
         error = true;
         errorString = errorString.concat("\nThe safe status must be selected.");
@@ -74,7 +81,7 @@ function updatePrimarySafe(selectedSafeId, selectedDescription) {
 
 function handleSafeRowClickEvent(event, url) {
     if (!event.target.closest('button')) { // Check if the click didn't come from the button
-        var tempLink = document.createElement('a'); // Create a temporary anchor element
+        let tempLink = document.createElement('a'); // Create a temporary anchor element
         tempLink.href = url;
         addInactiveSafesParam(tempLink); // Use addInactiveSafesParam to modify the URL
         document.location.href = tempLink.href; // Navigate to the modified URL
@@ -88,22 +95,22 @@ function handleCancelAddSafe(url) {
 }
 
 function cancelAddSafeView(url) {
-    var tempLink = document.createElement('a'); // Create a temporary anchor element
+    let tempLink = document.createElement('a'); // Create a temporary anchor element
     tempLink.href = url;
     addInactiveSafesParam(tempLink); // Use addInactiveSafesParam to modify the URL
     document.location.href = tempLink.href; // Navigate to the modified URL
 }
 
 function addInactiveSafesParam(link) {
-    var inactiveSafesElement = document.getElementById('inactiveSafes');
-    var inactiveSafes;
+    let inactiveSafesElement = document.getElementById('inactiveSafes');
+    let inactiveSafes;
 
     if (inactiveSafesElement.type === 'checkbox') {
         inactiveSafes = $('#inactiveSafes').prop("checked");
     } else {
         inactiveSafes = $('#inactiveSafes').val()
     }
-    var url = link.href;
+    let url = link.href;
     url += (url.indexOf('?') !== -1 ? '&' : '?') + 'inactiveSafes=' + inactiveSafes;
     link.href = url;
     return true;

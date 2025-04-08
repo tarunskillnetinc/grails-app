@@ -7,6 +7,7 @@ class ProductListItemGroup {
     int id
     String uniqueIdentifier
     DateTime effectiveDate
+    Collection<ProductListItem> productListItems = new ArrayList<>()
 
     static belongsTo = [ productList: ProductList ]
 

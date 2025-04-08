@@ -373,7 +373,7 @@
                                 </div>
                                 
                                 <div class="form-group row">
-                                    <label for="amenableOrderEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Amendable Orders Enabled</label>
+                                    <label for="amenableOrdersEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Amendable Orders Enabled</label>
                                     <div class="col-7 col-lg-4">
                                         <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="amendableOrdersEnabled" id="amendableOrdersEnabled" ${retailer?.config?.amendableOrdersEnabled ? 'checked' : ''} />
                                     </div>
@@ -386,6 +386,13 @@
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-alcoholMinimumPriceMultiplier-button" onclick="$('#alcoholMinimumPriceMultiplier').val('')">Reset</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="receiptInBranchOrders" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Receipt in Branch Orders</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="receiptInBranchOrders" id="receiptInBranchOrders" ${retailer?.config?.receiptInBranchOrders ? 'checked' : ''} />
                                     </div>
                                 </div>
 

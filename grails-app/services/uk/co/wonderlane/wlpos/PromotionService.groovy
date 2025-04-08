@@ -33,7 +33,7 @@ class PromotionService {
         }
     }
 
-    def getPromotionsForProduct(int productId) {
+    def getPromotionsForProduct(int productId, Integer storeId = null) {
         Product product = Product.findByIdAndRetailerId(productId, springSecurityService.principal.retailerId)
 
         if (!product) {
@@ -62,9 +62,13 @@ class PromotionService {
             lte("startDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay())
             or {
                 isNull("endDate")
-                gte("endDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().plusDays(1))
+                gte("endDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay())
             }
-            if (springSecurityService.principal.storeId) {
+            if (storeId) {
+                stores {
+                    inList("id", storeId)
+                }
+            } else if (springSecurityService.principal.storeId) {
                 stores {
                     inList("id", springSecurityService.principal.storeId)
                 }
