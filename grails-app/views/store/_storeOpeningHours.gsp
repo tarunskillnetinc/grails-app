@@ -50,19 +50,19 @@
                     <tbody>
                     <g:each in="${storeOpeningHoursCommand?.specialOpeningHours}" var="special" status="i">
                         <tr  id="special-hour-row-${i}">
-                            <td>
+                            <td class="align-middle text-center">
                                 ${special?.description}
                                 <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].description" id="storeOpeningHoursCommand.specialOpeningHours[${i}].description" value="${special?.description}" />
                             </td>
-                            <td>
+                            <td class="align-middle text-center">
                                 ${special?.date}
                                 <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].date" id="storeOpeningHoursCommand.specialOpeningHours[${i}].date" value="${special?.date}" />
                             </td>
-                            <td>
+                            <td class="align-middle text-center">
                                 ${special?.startTime}
                                 <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].startTime" id="storeOpeningHoursCommand.specialOpeningHours[${i}].startTime" value="${special?.startTime}" />
                             </td>
-                            <td>
+                            <td class="align-middle text-center">
                                 ${special?.endTime}
                                 <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].endTime" id="storeOpeningHoursCommand.specialOpeningHours[${i}].endTime" value="${special?.endTime}" />
                             </td>
@@ -198,6 +198,7 @@
     }
 
     function setupTimeInput(input) {
+        // Keep the input event for formatting only
         input.addEventListener('input', function(e) {
             let value = e.target.value.replace(/[^0-9]/g, '');
 
@@ -218,69 +219,18 @@
             }
 
             e.target.value = value;
-
-            if (value && /^([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
-                const lowerCaseId = input.id.toLowerCase();
-
-                if (lowerCaseId.includes('starttime')) {
-                    // Find the corresponding end time input by replacing "start" with "end"
-                    const endTimeId = input.id.replace(/starttime/i, function(match) {
-                        return match.replace(/start/i, 'end');
-                    });
-                    const endTimeInput = document.getElementById(endTimeId);
-
-                    // If end time is empty, auto-fill it with start time + 1 minute
-                    if (endTimeInput && !endTimeInput.value) {
-                        let [hours, minutes] = value.split(':').map(Number);
-                        minutes += 1;
-                        if (minutes >= 60) {
-                            minutes = 0;
-                            hours += 1;
-                        }
-                        if (hours >= 24) {
-                            hours = 0;
-                        }
-
-                        const newEndTime = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
-                        endTimeInput.value = newEndTime;
-                        endTimeInput.setAttribute('data-auto-filled', 'true');
-                    }
-                } else if (lowerCaseId.includes('endtime')) {
-                    // Find the corresponding start time input by replacing "end" with "start"
-                    const startTimeId = input.id.replace(/endtime/i, function(match) {
-                        return match.replace(/end/i, 'start');
-                    });
-                    const startTimeInput = document.getElementById(startTimeId);
-
-                    if (startTimeInput && !startTimeInput.value) {
-                        let [hours, minutes] = value.split(':').map(Number);
-                        minutes -= 1;
-                        if (minutes < 0) {
-                            minutes = 59;
-                            hours -= 1;
-                        }
-                        if (hours < 0) {
-                            hours = 23;
-                        }
-
-                        const newStartTime = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
-
-                        startTimeInput.value = newStartTime;
-                        startTimeInput.setAttribute('data-auto-filled', 'true');
-                    }
-                }
-            }
         });
 
+        // Move the automatic time update logic to the blur event
         input.addEventListener('blur', function(e) {
             const value = e.target.value;
+
             if (value && !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
                 alert('Please enter a valid time in HH:mm format');
                 e.target.value = '';
 
-                // Clear auto-filled counterpart if needed
+                // Clear auto-filled related fields
                 const lowerCaseId = input.id.toLowerCase();
-
                 if (lowerCaseId.includes('starttime')) {
                     const endTimeId = input.id.replace(/starttime/i, function(match) {
                         return match.replace(/start/i, 'end');
@@ -300,6 +250,53 @@
                     if (startTimeInput && startTimeInput.getAttribute('data-auto-filled') === 'true') {
                         startTimeInput.value = '';
                         startTimeInput.removeAttribute('data-auto-filled');
+                    }
+                }
+            } else if (value) {
+                // Only perform auto-fill on blur if the value is valid
+                const lowerCaseId = input.id.toLowerCase();
+
+                if (lowerCaseId.includes('starttime')) {
+                    const endTimeId = input.id.replace(/starttime/i, function(match) {
+                        return match.replace(/start/i, 'end');
+                    });
+                    const endTimeInput = document.getElementById(endTimeId);
+
+                    if (endTimeInput && !endTimeInput.value) {
+                        let [hours, minutes] = value.split(':').map(Number);
+                        minutes += 1;
+                        if (minutes >= 60) {
+                            minutes = 0;
+                            hours += 1;
+                        }
+                        if (hours >= 24) {
+                            hours = 0;
+                        }
+
+                        const newEndTime = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+                        endTimeInput.value = newEndTime;
+                        endTimeInput.setAttribute('data-auto-filled', 'true');
+                    }
+                } else if (lowerCaseId.includes('endtime')) {
+                    const startTimeId = input.id.replace(/endtime/i, function(match) {
+                        return match.replace(/end/i, 'start');
+                    });
+                    const startTimeInput = document.getElementById(startTimeId);
+
+                    if (startTimeInput && !startTimeInput.value) {
+                        let [hours, minutes] = value.split(':').map(Number);
+                        minutes -= 1;
+                        if (minutes < 0) {
+                            minutes = 59;
+                            hours -= 1;
+                        }
+                        if (hours < 0) {
+                            hours = 23;
+                        }
+
+                        const newStartTime = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+                        startTimeInput.value = newStartTime;
+                        startTimeInput.setAttribute('data-auto-filled', 'true');
                     }
                 }
             }
