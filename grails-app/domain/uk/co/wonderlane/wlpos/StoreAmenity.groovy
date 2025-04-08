@@ -3,7 +3,7 @@ package uk.co.wonderlane.wlpos
 class StoreAmenity implements Serializable {
 
     String additionalDetail
-    int count
+    Integer count
     String availability
     static belongsTo = [amenity: Amenity, store: Store]
 

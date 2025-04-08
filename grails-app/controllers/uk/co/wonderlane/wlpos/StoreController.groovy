@@ -167,7 +167,7 @@ class StoreController {
          storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList()),
          storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours()),
          amenities                   : storeService.getAmenitiesList(springSecurityService.principal.retailerId),
-         storeAmenities              : storeService.getStoreAmenitiesList(springSecurityService.principal.storeId)
+         storeAmenities              : storeService.getStoreAmenitiesList(store?.id)
         ]
     }
 
@@ -714,8 +714,19 @@ class OpeningTimeOverrideCommand extends OpeningTimeCommand{
     String description;
 }
 
+class AmenityCommand {
+    int id
+    String retailerId
+    String name
+}
+
 class StoreAmenitiesCommand {
-    String description
-    String quantity
-    List<OpeningTimeCommand> amenityOpenTime;
+    String additionalDetails
+    String count
+    OpeningTimeCommand availability
+    AmenityCommand amenity
+}
+
+class selectAmenities {
+    List<StoreAmenitiesCommand> amenities
 }

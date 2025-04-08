@@ -101,18 +101,42 @@ function closeStoreAdditionalDetailAddModal() {
     }
 }
 
+// function addAmenities(index, description, value) {
+//     var selectedAmenityId = $("#amenitiesSelector").val();
+//     // Only proceed if an amenity is selected
+//     if (!selectedAmenityId || selectedAmenityId === '') {
+//         alert("Please select an amenity first");
+//         return;
+//     }
+//     $("#addAmenitiesContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+//     $('#addAmenitiesModal').modal({show: true, backdrop: 'static', keyboard: false});
+//     var params = {
+//         amenityId: selectedAmenityId  // Add the selected amenity ID to the params
+//     }
+//     $.ajax({
+//         url: addAmenity,
+//         method: "GET",
+//         data: params,
+//         success: function (resp) {
+//             $("#addAmenitiesContent").html(resp);
+//         }
+//     });
+// }
+
 function addAmenities(index, description, value) {
-    var selectedAmenityId = $("#amenitiesSelector").val();
-    // Only proceed if an amenity is selected
-    if (!selectedAmenityId || selectedAmenityId === '') {
-        alert("Please select an amenity first");
-        return;
-    }
-    $("#addAmenitiesContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-    $('#addAmenitiesModal').modal({show: true, backdrop: 'static', keyboard: false});
-    var params = {
-        amenityId: selectedAmenityId  // Add the selected amenity ID to the params
-    }
+    const selectedCheckboxes = $('input[name="amenities"]:checked');
+    var params = {}
+
+    // Extract just the IDs into an array
+    const selectedIds = selectedCheckboxes.map(function() {
+        return $(this).val();
+    }).get();
+
+    // If you need to add each ID individually with an index
+    selectedIds.forEach((id, index) => {
+        params["amenities[" + index + "].amenityId"] = id;
+    });
+
     $.ajax({
         url: addAmenity,
         method: "GET",
