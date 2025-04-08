@@ -16,18 +16,25 @@
                         </div>
                         <div class="col-md-6">
                             <label for="specialDate">Date</label>
-                            <input type="date" id="specialDate" name="specialDate" class="form-control" value="${specialOpeningHour?.date ?: ''}" />
+                            <input
+                                    type="date"
+                                    id="specialDate"
+                                    name="specialDate"
+                                    class="form-control"
+                                    value="${specialOpeningHour?.date ?: ''}"
+                                    required
+                            />
                         </div>
                     </div>
                     <div>
                         <div class="form-row mb-2">
                             <div class="col-md-3" id="specialTimeFieldsStart" style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
-                                <label for="specialStartTime">Start time</label>
-                                <input type="text" id="specialStartTime" name="specialStartTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.startTime ?: ''}" />
+                                <label for="special-startTime">Start time</label>
+                                <input type="text" id="special-startTime" name="special-startTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.startTime ?: ''}" />
                             </div>
                             <div class="col-md-3" id="specialTimeFieldsEnd" style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
-                                <label for="specialEndTime">End time</label>
-                                <input type="text" id="specialEndTime" name="specialEndTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.endTime ?: ''}" />
+                                <label for="special-endTime">End time</label>
+                                <input type="text" id="special-endTime" name="special-endTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.endTime ?: ''}" />
                             </div>
                             <div class="col-md-6 d-flex align-items-end">
                                 <div class="form-check">
@@ -52,77 +59,63 @@
 
 <script>
     var modal = document.getElementById('addSpecialOpeningHoursModal');
+
     $(modal).on('hidden.bs.modal', function (event) {
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open');
     });
 
-    $(modal).on('shown.bs.modal', function (event) {
-        // Setup time inputs when modal is shown
-        setupTimeInput(document.getElementById('specialStartTime'));
-        setupTimeInput(document.getElementById('specialEndTime'));
+    $(document).on('shown.bs.modal', '#addSpecialOpeningHoursModal', function() {
+        const startTimeInput = document.getElementById('special-startTime');
+        const endTimeInput = document.getElementById('special-endTime');
+
+        if (startTimeInput) setupTimeInput(startTimeInput);
+        if (endTimeInput) setupTimeInput(endTimeInput);
     });
 
     $('#saveSpecialHoursBtn').on('click', function () {
         const description = $('#specialDescription').val();
         const closed = $('#specialClosedCheckbox').prop('checked');
         const date = $('#specialDate').val();
-        const startTime = $('#specialStartTime').val();
-        const endTime = $('#specialEndTime').val();
+        const startTime = $('#special-startTime').val();
+        const endTime = $('#special-endTime').val();
         const specialOpeningHoursIndex = $('#editIndex').val();
 
-        // Dispatch a custom event with the form data
+        if (!date) {
+            alert('Please select a date. This field is mandatory.');
+            return;
+        }
+
         const event = new CustomEvent('saveSpecialHours', {
             detail: {description, closed, date, startTime, endTime, specialOpeningHoursIndex}
         });
         document.dispatchEvent(event);
 
-        // Close the modal
         $('#addSpecialOpeningHoursModal').modal('hide');
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open');
     });
 
-function toggleSpecialTimeFields() {
-    const isClosed = document.getElementById('specialClosedCheckbox').checked;
-    const timeFieldsStart = document.getElementById('specialTimeFieldsStart');
-    const timeFieldsEnd = document.getElementById('specialTimeFieldsEnd');
-    timeFieldsStart.style.display = isClosed ? 'none' : 'block';
-    timeFieldsEnd.style.display = isClosed ? 'none' : 'block';
-}
+    function toggleSpecialTimeFields() {
+        const isClosed = document.getElementById('specialClosedCheckbox').checked;
+        const timeFieldsStart = document.getElementById('specialTimeFieldsStart');
+        const timeFieldsEnd = document.getElementById('specialTimeFieldsEnd');
+        timeFieldsStart.style.display = isClosed ? 'none' : 'block';
+        timeFieldsEnd.style.display = isClosed ? 'none' : 'block';
+    }
 
-// Add this function to the modal script
-function setupTimeInput(input) {
-    input.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/[^0-9]/g, '');
-
-        if (value.length > 2) {
-            let hours = parseInt(value.slice(0, 2));
-            let minutes = parseInt(value.slice(2));
-
-            hours = Math.min(hours, 23);
-            if (minutes > 59) {
-                minutes = 59;
-            }
-
-            value = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
-        }
-
-        if (value.length > 5) {
-            value = value.slice(0, 5);
-        }
-
-        e.target.value = value;
-    });
-
-    input.addEventListener('blur', function(e) {
-        const value = e.target.value;
-        if (value && !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
-            alert('Please enter a valid time in HH:mm format');
-            e.target.value = '';
-        }
-    });
-}
+    function dateInputSetup() {
+        let specialDateInput = document.getElementById('specialDate');
+        let today = new Date().toISOString().split('T')[0];
+        specialDateInput.min = today;
+        specialDateInput.addEventListener('keydown', function (e) {
+            e.preventDefault();
+        });
+        specialDateInput.addEventListener('click', function () {
+            this.showPicker();
+        });
+    }
+    dateInputSetup();
 </script>
 <style>
 /* Add this to your existing styles */
@@ -160,5 +153,10 @@ function setupTimeInput(input) {
 .form-check-input {
     margin-top: 0;
     margin-right: 5px;
+}
+
+label[for="specialDate"]:after {
+    content: " *";
+    color: red;
 }
 </style>

@@ -218,6 +218,58 @@
             }
 
             e.target.value = value;
+
+            if (value && /^([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
+                const lowerCaseId = input.id.toLowerCase();
+
+                if (lowerCaseId.includes('starttime')) {
+                    // Find the corresponding end time input by replacing "start" with "end"
+                    const endTimeId = input.id.replace(/starttime/i, function(match) {
+                        return match.replace(/start/i, 'end');
+                    });
+                    const endTimeInput = document.getElementById(endTimeId);
+
+                    // If end time is empty, auto-fill it with start time + 1 minute
+                    if (endTimeInput && !endTimeInput.value) {
+                        let [hours, minutes] = value.split(':').map(Number);
+                        minutes += 1;
+                        if (minutes >= 60) {
+                            minutes = 0;
+                            hours += 1;
+                        }
+                        if (hours >= 24) {
+                            hours = 0;
+                        }
+
+                        const newEndTime = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+                        endTimeInput.value = newEndTime;
+                        endTimeInput.setAttribute('data-auto-filled', 'true');
+                    }
+                } else if (lowerCaseId.includes('endtime')) {
+                    // Find the corresponding start time input by replacing "end" with "start"
+                    const startTimeId = input.id.replace(/endtime/i, function(match) {
+                        return match.replace(/end/i, 'start');
+                    });
+                    const startTimeInput = document.getElementById(startTimeId);
+
+                    if (startTimeInput && !startTimeInput.value) {
+                        let [hours, minutes] = value.split(':').map(Number);
+                        minutes -= 1;
+                        if (minutes < 0) {
+                            minutes = 59;
+                            hours -= 1;
+                        }
+                        if (hours < 0) {
+                            hours = 23;
+                        }
+
+                        const newStartTime = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+
+                        startTimeInput.value = newStartTime;
+                        startTimeInput.setAttribute('data-auto-filled', 'true');
+                    }
+                }
+            }
         });
 
         input.addEventListener('blur', function(e) {
@@ -225,6 +277,31 @@
             if (value && !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
                 alert('Please enter a valid time in HH:mm format');
                 e.target.value = '';
+
+                // Clear auto-filled counterpart if needed
+                const lowerCaseId = input.id.toLowerCase();
+
+                if (lowerCaseId.includes('starttime')) {
+                    const endTimeId = input.id.replace(/starttime/i, function(match) {
+                        return match.replace(/start/i, 'end');
+                    });
+                    const endTimeInput = document.getElementById(endTimeId);
+
+                    if (endTimeInput && endTimeInput.getAttribute('data-auto-filled') === 'true') {
+                        endTimeInput.value = '';
+                        endTimeInput.removeAttribute('data-auto-filled');
+                    }
+                } else if (lowerCaseId.includes('endtime')) {
+                    const startTimeId = input.id.replace(/endtime/i, function(match) {
+                        return match.replace(/end/i, 'start');
+                    });
+                    const startTimeInput = document.getElementById(startTimeId);
+
+                    if (startTimeInput && startTimeInput.getAttribute('data-auto-filled') === 'true') {
+                        startTimeInput.value = '';
+                        startTimeInput.removeAttribute('data-auto-filled');
+                    }
+                }
             }
         });
     }
