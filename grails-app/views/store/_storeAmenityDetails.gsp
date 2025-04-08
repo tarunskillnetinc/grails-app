@@ -1,41 +1,41 @@
 <style>
-.amenities-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-}
+    .amenities-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+    }
 
-.amenity-column {
-    flex: 0 0 48%;
-    min-width: 300px;
-    max-width: 450px;
-}
+    .amenity-column {
+        flex: 0 0 48%;
+        min-width: 300px;
+        max-width: 450px;
+    }
 
-.amenity-item {
-    background-color: #f9f9f9;
-    padding: 5px;
-    margin-bottom: 10px;
-    text-align: left;
-}
+    .amenity-item {
+        background-color: #f9f9f9;
+        padding: 5px;
+        margin-bottom: 10px;
+        text-align: left;
+    }
 
-.amenity-name {
-    font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 5px;
-}
+    .amenity-name {
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
 
-.amenity-detail {
-    margin-bottom: 3px;
-}
+    .amenity-detail {
+        margin-bottom: 3px;
+    }
 
-.hours-list {
-    margin-top: 5px;
-    padding-left: 15px;
-}
+    .hours-list {
+        margin-top: 5px;
+        padding-left: 15px;
+    }
 </style>
 
 <div class="amenities-container">
