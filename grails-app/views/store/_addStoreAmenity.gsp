@@ -29,37 +29,38 @@
                 <div class="form-group row mt-3">
                     <label for="addAmenityAvailableHours" class="col-4 col-form-label-mandatory text-right" style="text-align: right; padding-right: 15px;">Available hours</label>
                     <div class="col-8" style="padding-left: 8px;">
-                        <g:each var="openingTime" in="${initialRegularHours}">
-                            <div class="d-flex align-items-center mb-3">
-                                <!-- Spacer div to align with Description input box -->
-                                <div style="width: 30px;"></div>
+                        <!-- Grid layout for fixed positioning -->
+                        <div style="display: grid; grid-template-columns: 30px 40px 100px 120px 50px 120px; grid-gap: 15px; width: 100%;">
+                            <g:each var="openingTime" in="${initialRegularHours}">
+                                <!-- Spacer -->
+                                <div style="grid-column: 1; display: flex; align-items: center;"></div>
 
-                                <!-- Checkbox - aligned with Description input -->
-                                <div class="me-3 d-flex align-items-center justify-content-center" style="height: 38px; padding-right: 5px">
-                                    <g:checkBox name="${openingTime.day}_closed" value="${openingTime.closed}" class="form-check-input" style="width: 20px; height: 20px; cursor: pointer;" />
+                                <!-- Checkbox -->
+                                <div style="grid-column: 2; display: flex; align-items: center; justify-content: center;">
+                                    <g:checkBox name="${openingTime.day}_closed" value="${openingTime.closed}" class="form-check-input" style="width: 20px; height: 20px; cursor: pointer; margin: 0;" />
                                 </div>
 
-                                <!-- Day name - aligned with other elements -->
-                                <div class="me-3 d-flex align-items-center" style="width: 100px; height: 38px; padding-right: 5px;">
-                                    <span class="form-control-plaintext">${openingTime.day}</span>
+                                <!-- Day name - with text overflow handling -->
+                                <div style="grid-column: 3; display: flex; align-items: center; overflow: hidden;">
+                                    <span class="form-control-plaintext" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${openingTime.day}</span>
                                 </div>
 
                                 <!-- Start Time -->
-                                <div class="me-2" style="width: 120px; padding-right: 5px">
+                                <div style="grid-column: 4;">
                                     <g:textField name="${openingTime.day}_startTime" value="${openingTime.startTime}" placeholder="Start Time" class="form-control"/>
                                 </div>
 
-                                <!-- "to" label - centered vertically with more padding -->
-                                <div class="me-2 d-flex align-items-center" style="height: 38px; padding: 0 5px 0 10px;">
-                                    <span style="margin: 0 5px;"> to </span>
+                                <!-- "to" label -->
+                                <div style="grid-column: 5; display: flex; align-items: center; justify-content: center;">
+                                    <span>to</span>
                                 </div>
 
                                 <!-- End Time -->
-                                <div style="width: 120px;">
+                                <div style="grid-column: 6;">
                                     <g:textField name="${openingTime.day}_endTime" value="${openingTime.endTime}" placeholder="End Time" class="form-control"/>
                                 </div>
-                            </div>
-                        </g:each>
+                            </g:each>
+                        </div>
                     </div>
                 </div>
             </div>
