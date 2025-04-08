@@ -12,6 +12,7 @@
         var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
         var saveStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxSaveStoreAdditionalDetail')}"
         var addAmenity = "${createLink(controller: 'store', action: 'ajaxAddAmenities')}"
+        var addStoreAmenities = "${createLink(controller: 'store', action: 'ajaxAddStoreAmenity')}"
 
         function typeChanged() {
             var selectedType = $("#type option:selected").val();

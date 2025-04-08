@@ -384,7 +384,14 @@ class StoreController {
                 new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
                 new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
         ]
-        render(template: "addStoreAmenity", model: [initialRegularHours: initialRegularHours])
+        Integer amenityId = params.amenityId != null ? Integer.parseInt(params.amenityId) : -1
+        Amenity selectedAmenity = Amenity.findById(amenityId)
+        render(template: "addStoreAmenity", model: [initialRegularHours: initialRegularHours,
+                                                    selectedAmenity: selectedAmenity])
+    }
+
+    def ajaxAddStoreAmenity(StoreAmenitiesCommand storeAmenitiesCommand){
+
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
@@ -705,4 +712,10 @@ class OpeningTimeCommand {
 class OpeningTimeOverrideCommand extends OpeningTimeCommand{
     String date;
     String description;
+}
+
+class StoreAmenitiesCommand {
+    String description
+    String quantity
+    List<OpeningTimeCommand> amenityOpenTime;
 }
