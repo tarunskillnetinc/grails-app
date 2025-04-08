@@ -27,7 +27,7 @@
 
 <body>
 <section id="reporting-container" class="container-fluid">
-    <g:reportBreadcrumb reportType="${reportType}" supplierName="${delivery?.supplierReference}" productListId="${productListId}" productListItemId="${productListItemId}" deliveryDate="${delivery?.dateStarted}" supplierId="${supplierId}" storeId="${storeId}" startDate="${startDate}" endDate="${endDate}" descriptionFilter="${descriptionFilter}" productDescription="${productListItem?.productVariant?.product?.description}" />
+    <g:reportBreadcrumb reportType="${reportType}" supplierName="${delivery?.supplierReference}" productListId="${productListId}" productListItemId="${productListItemId}" deliveryDate="${delivery?.dateStarted}" supplierId="${supplierId}" storeId="${storeId}" startDate="${startDate}" endDate="${endDate}" descriptionFilter="${descriptionFilter}" productDescription="${productListItem?.productVariant?.product?.description}" cageId="${cageId}" uniqueIdentifier="${delivery.productListItemGroups.find{it.id == Integer.valueOf(cageId as String)}?.uniqueIdentifier}" />
 
     <div class="header-wl mt-3">
         <h2 class="mx-auto">Delivery Report</h2>

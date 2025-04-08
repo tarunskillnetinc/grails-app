@@ -255,7 +255,7 @@
                                         <div class="dropdown-menu" aria-labelledby="cashManagementDropdown">
                                             <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
                                                 <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true,onlyRetailerLevel:false]" class="dropdown-item">Cash Management Configuration</g:link>
+                                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" params="[isStoreLevelLogin:true,onlyRetailerLevel:false]" class="dropdown-item">Cash Management Configuration</g:link>
                                                 </g:if>
                                             </sec:ifAnyGranted>
                                             <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
@@ -274,7 +274,7 @@
                                     <g:link elementId="product-groups-dropdown" controller="productGroup" class="dropdown-item">Product Groups</g:link>
                                 </g:if>
 
-                                <g:link elementId="delivery-dropdown" controller="delivery" class="dropdown-item">Deliveries</g:link>
+                                <g:link elementId="delivery-dropdown" controller="delivery" class="${sec.loggedInUserInfo(field: 'retailer.config.receiptInBranchOrders').toBoolean() ? 'dropdown-item' : 'dropdown-item disabled'}">Deliveries</g:link>
                             </sec:ifAnyGranted>
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>

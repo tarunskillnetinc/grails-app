@@ -17,9 +17,9 @@ class CashManagementController {
 
     def index(Integer storeId, String storeNumber, String storeName) {
         CashManagement cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
-                storeId)
-        def storeLevelExist = storeId != null && cashManagement != null
-        def onlyRetailerLevel = storeId == null;
+                springSecurityService.principal.storeId)
+        def storeLevelExist = springSecurityService.principal.storeId != null && cashManagement != null
+        def onlyRetailerLevel = springSecurityService.principal.storeId == null;
         def isStoreLevelLogin = null;
         if (params.onlyRetailerLevel) {
             onlyRetailerLevel = Boolean.parseBoolean(params.onlyRetailerLevel)
@@ -27,18 +27,15 @@ class CashManagementController {
         if (params.storeLevelExist) {
             storeLevelExist = Boolean.parseBoolean(params.storeLevelExist)
         }
-        if (params.storeId) {
-            storeId = Integer.parseInt(params.storeId)
-        }
         if (params.isStoreLevelLogin) {
             isStoreLevelLogin = Boolean.parseBoolean(params.isStoreLevelLogin)
         }
-        if (storeId != null && cashManagement == null) {
+        if (springSecurityService.principal.storeId != null && cashManagement == null) {
             cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
                     null)
         }
-        if (storeId != null && storeNumber == null) {
-            def store = storeService.getStore(springSecurityService.principal.retailerId, storeId)
+        if (springSecurityService.principal.storeId != null && storeNumber == null) {
+            def store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
             storeNumber = store?.config?.storeNumber
             storeName = store?.config?.storeName
         }
@@ -50,11 +47,11 @@ class CashManagementController {
             cashManagementConfigViewAdapter.setSafeAutoSnapshotDaysFormat(cashManagementConfigViewAdapter.getSafeAutoSnapshotDays())
             cashManagementConfigViewAdapter.setTillShiftsAutoCloseDaysFormat(cashManagementConfigViewAdapter.getTillShiftsAutoCloseDays())
         }
-        if (storeId != null && (!isStoreLevelLogin || params.isStoreLevelLogin==null)) {
+        if (springSecurityService.principal.storeId != null && (!isStoreLevelLogin || params.isStoreLevelLogin==null)) {
             // Render the example template when storeLevelExist is false
-            render(template: "/cashManagement/cashManagement", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false, storeId:storeId, storeNumber:storeNumber, storeName:storeName])
+            render(template: "/cashManagement/cashManagement", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false, storeId:springSecurityService.principal.storeId, storeNumber:storeNumber, storeName:storeName])
         } else {
-            [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: onlyRetailerLevel, isStoreLevelLogin:isStoreLevelLogin,  storeId:storeId, storeNumber:storeNumber, storeName:storeName]
+            [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: onlyRetailerLevel, isStoreLevelLogin:isStoreLevelLogin,  storeId:springSecurityService.principal.storeId, storeNumber:storeNumber, storeName:storeName]
         }
     }
 
@@ -129,12 +126,12 @@ class CashManagementController {
 
         if (errorMessages != null && !errorMessages.isEmpty()) {
             flash.error = errorMessages
-            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.modelStoreLevelExist, storeId:cashManagementFormData.storeId, isStoreLevelLogin:cashManagementFormData.modelIsStoreLevelLogin])
+            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.modelStoreLevelExist, isStoreLevelLogin:cashManagementFormData.modelIsStoreLevelLogin])
         } else {
             cashManagementService.saveCashManagement(cashManagementFormData.toConfig(), cashManagementFormData.storeId)
 
             flash.message = ["Configuration saved successfully."]
-            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.storeId != null, storeId:cashManagementFormData.storeId, isStoreLevelLogin:cashManagementFormData.modelIsStoreLevelLogin])
+            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.storeId != null, isStoreLevelLogin:cashManagementFormData.modelIsStoreLevelLogin])
         }
     }
 
@@ -165,17 +162,14 @@ class CashManagementController {
         cashManagementFormData.safeAutoSnapshotTime = cashManagementConfig.getSafeAutoSnapshotTime()
     }
 
-    def deleteStoreLevelConfig(Integer storeId) {
-        if (params.storeId) {
-            storeId = Integer.parseInt(params.storeId)
-        }
+    def deleteStoreLevelConfig() {
         Boolean isStoreLevelLogin = null;
         if (params.isStoreLevelLogin) {
             isStoreLevelLogin = Boolean.parseBoolean(params.isStoreLevelLogin)
         }
-        cashManagementService.deleteStoreLevelConfig(storeId)
+        cashManagementService.deleteStoreLevelConfig(springSecurityService.principal.storeId)
         flash.message = ["Successfully reverted to retailer level."]
-        redirect(action: "index", params:[isStoreLevelLogin:isStoreLevelLogin, storeId: storeId])
+        redirect(action: "index", params:[isStoreLevelLogin:isStoreLevelLogin])
     }
 
 }
