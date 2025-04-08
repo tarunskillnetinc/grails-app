@@ -1,0 +1,213 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<html>
+<head>
+    <meta name="layout" content="main" />
+
+    <title>Physical Inventory Count Exclusion</title>
+
+    <asset:javascript src="jquery-ui.js" />
+    <asset:stylesheet src="jquery-ui.css" />
+
+    <asset:stylesheet src="bootstrap-datepicker3.min.css" />
+    <asset:javascript src="bootstrap-datepicker.min.js" />
+    <asset:javascript src="moment-with-locales.min.js"/>
+
+    <script type="application/javascript">
+        function selectExclusionUploadFile() {
+            $("#csvFileUploadInput").trigger('click');
+        }
+
+        function setPreventWindowNavigation(value) {
+            window.onbeforeunload = function() {
+                return value;
+            };
+        }
+
+        function resetMessages() {
+            $('#successMessage').hide();
+            $('#failureMessage').hide();
+        }
+
+        function uploadExclusionFile() {
+            setPreventWindowNavigation(true)
+            resetMessages();
+            $("#uploadResults").html("<div class=\"modal-body\">"
+                + "<div class=\"row mb-4\"><div class=\"col-12\"><h3 class=\"text-center\">Please wait uploading file...</h3></div></div>"
+                + "<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+
+            const uploadButton = document.getElementById('uploadHardwareBtn');
+            uploadButton.disabled = true;
+            uploadButton.innerHTML = "Uploading...";
+            let url = "${createLink(controller: 'physicalInventoryCountExclusion', action: 'ajaxCSVUpload')}";
+
+            const file = $('#csvFileUploadInput').get(0).files[0]
+
+            if (!file) {
+                handleUploadError(uploadButton, "No file selected. Please choose a file.");
+                return;
+            }
+
+            const fileName = file.name;
+            const fileExtension = fileName.split('.').pop().toLowerCase();
+
+            if (fileExtension !== 'csv') {
+                handleUploadError(uploadButton, "Incorrect file format. Please upload a valid .csv file.");
+                return;
+            }
+
+            let jForm = new FormData();
+            jForm.append("file", file);
+
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: jForm,
+                mimeType: "multipart/form-data",
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function(resp) {
+                    $("#uploadResults").html(resp);
+                    uploadButton.disabled = false
+                    uploadButton.innerHTML = "Upload Exclusion List"
+                    bindUploadButtons()
+                    resetFileUploadInput();
+                    setPreventWindowNavigation(null);
+                },
+                error: function (resp) {
+                    if (resp.status === 413) {
+                        handleUploadError(uploadButton, "File size too large. Please try again.")
+                    } else {
+                        handleUploadError(uploadButton, "There was an error completing the import. Please ensure the file is valid.")
+                    }
+                }
+            });
+        }
+
+        function handleUploadError(uploadButton, msg) {
+            $("#uploadResults").html("");
+            uploadButton.disabled = false
+            uploadButton.innerHTML = "Upload Hardware"
+            showErrorAlert(msg)
+            resetFileUploadInput();
+            setPreventWindowNavigation(null);
+        }
+
+        function showErrorAlert(msg) {
+            $('#failureMessage').show();
+            $('#failureMessage').text(msg)
+        }
+
+        function showSuccessAlert() {
+            $('#successMessage').show();
+            $('#successMessage').text("Exclusion list import completed successfully");
+        }
+
+        function resetFileUploadInput() {
+            $('#csvFileUploadInput').get(0).value = null
+        }
+
+        function bindUploadButtons() {
+            $("#uploadSave").click(function () {
+                $("#uploadResults").html("<div class=\"modal-body\">"
+                    + "<div class=\"row mb-4\"><div class=\"col-12\"><h3 class=\"text-center\">Please wait importing results...</h3></div></div>"
+                    + "<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                let url = "${createLink(controller: 'physicalInventoryCountExclusion', action:'confirmImport')}";
+                const uploadButton = document.getElementById('uploadHardwareBtn');
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    mimeType: "multipart/form-data",
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function (resp) {
+                        $("#uploadResults").html("");// Stop spinner as it has finished
+                        uploadButton.disabled = false
+                        uploadButton.innerHTML = "Upload Exclusion List"
+                        showSuccessAlert()
+                        resetFileUploadInput();
+                        setPreventWindowNavigation(null);
+                    },
+                    error: function (data) {
+                        if (data.status === 413) {
+                            $("#uploadResults").html(""); // Stop spinner as it has errored
+                            const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
+                            uploadButton.disabled = false
+                            uploadButton.innerHTML = "Upload Hardware"
+                            showErrorAlert("File size too large. Please try again.")
+                            resetFileUploadInput();
+                            setPreventWindowNavigation(null);
+                        } else if (!data.status === 504) {
+                            $("#uploadResults").html(""); // Stop spinner as it has errored
+                            const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
+                            uploadButton.disabled = false
+                            uploadButton.innerHTML = "Upload Hardware"
+                            showErrorAlert("There was an error completing the import. Please try again.")
+                            resetFileUploadInput();
+                            setPreventWindowNavigation(null);
+                        } else {
+                            $("#uploadResults").html(""); // Stop spinner as it has errored
+                            uploadButton.disabled = false
+                            uploadButton.innerHTML = "Upload Hardware"
+                            showErrorAlert("Server Timeout")
+                            resetFileUploadInput();
+                            setPreventWindowNavigation(null);
+                        }
+
+                    }
+                });
+            });
+
+            $("#uploadCancel").click(function () {
+                resetMessages();
+                $("#uploadResults").html("");
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <section id="breadcrumb-container" class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <div class="row mt-4">
+                <div class="col">
+                    <ol class="breadcrumb">
+                        <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Physical Inventory Count Exclusion</li>
+                    </ol>
+                </div>
+            </div>
+        </nav>
+    </section>
+
+    <section id="hardwareUpload" class="container-fluid">
+        <div class="row header-wl mt-3">
+            <div class="col-8 offset-2">
+                <h2 id="page-title" class="mx-auto my-auto">Physical Inventory Count Exclusion</h2>
+            </div>
+            <div class="col-2 text-right d-inline-flex flex-row justify-content-end">
+
+                <button class="btn btn-wl p-2 ml-2" onclick="selectExclusionUploadFile()" id="uploadExclusionBtn">Upload Exclusion List</button>
+                <input type="file" name="file" accept=".csv,.CSV"
+                       id="csvFileUploadInput" style="display:none" oninput="uploadHardwareImportFile()" oncancel="resetHardwareInput()">
+            </div>
+        </div>
+    </section>
+
+    <section id="alerts-container" class="container-fluid">
+        <div class="alert alert-success alert-wl mx-0" role="alert" id="successMessage" style="display: none"></div>
+        <div class="alert alert-danger alert-wl mx-0" role="alert" id="failureMessage" style="display: none"></div>
+    </section>
+
+    <section id="uploadResultsSection" class="container-fluid">
+        <div id="uploadResults">
+
+        </div>
+    </section>
+
+    <div id="dialog-csv-upload-error" style="display:none; max-height: 80%">
+        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Error uploading products </p>
+    </div>
+</body>
+</html>

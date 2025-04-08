@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h2>${isAddFloat ? 'Add Float' : 'Cash Lift'}</h2>
+    <h2>${isAddFloat ? 'Add Float' : 'Tender Lift'}</h2>
 </div>
 
 <g:if test="${error}">
@@ -9,7 +9,7 @@
 </g:if>
 
 <div class="modal-body">
-    <div class="text-center mt-4 mb-5"><p>Please complete the ${isAddFloat ? 'add float' : 'cash lift'} process.</p></div>
+    <div class="text-center mt-4 mb-5"><p>Please complete the ${isAddFloat ? 'add float' : 'tender lift'} process.</p></div>
 
     <g:form name="modal-form">
         <div class="row justify-content-center">

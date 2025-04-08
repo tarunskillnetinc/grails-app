@@ -1,13 +1,18 @@
 package uk.co.wonderlane.wlpos
 
+import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.entities.SnappyServiceMessage
 import uk.co.wonderlane.wlpos.entities.SymbolGroupMessage
 import uk.co.wonderlane.wlpos.enums.SnappyMessageType
 import uk.co.wonderlane.wlpos.enums.SymbolGroupMessageType
 import uk.co.wonderlane.wlpos.enums.SymbolGroupSubscriptionStatus
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.supplier.SupplierCaseRate
 import uk.co.wonderlane.wlpos.supplier.SupplierSortParams
 import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
+
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
 
 class SupplierController {
 
@@ -16,18 +21,28 @@ class SupplierController {
     def rabbitService
     def gsonProvider
 
-    private static final SUPPLIER_SORT_COLUMNS = [ "name", "reference", "customerReference", "contactName", "email", "phoneNumber"]
+    private static final SUPPLIER_SORT_COLUMNS = [ "id", "name", "reference", "customerReference", "contactName", "email", "phoneNumber", "deleted" ]
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {}
 
     //This is for load symbol subscription (Affiliation) view initially
     def subscriptions() {}
 
+
     //search for suppliers
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGetSearchSupplier(SupplierSortParams sortParams) {
+        session.SUPPLIER_CUSTOMER_REFERENCE_SEARCH_TERM = params.customerReferenceTerm
+        session.SUPPLIER_REFERENCE_SEARCH_TERM = params.supplierReferenceTerm
+        session.SUPPLIER_NAME_SEARCH_TERM = params.supplierNameTerm
+        session.INCLUDE_DELETED_SUPPLIERS = params.includeDeletedSuppliers
+
         sortParams.validateParams(SUPPLIER_SORT_COLUMNS) //pre process supplier sorting column list
+
         def suppliers = [] //declare supplier list
-        def suppliersResponse = supplierService.getSuppliers(params.searchTerm, params.searchBy, sortParams.offset ? sortParams.offset : 0, sortParams.max ? sortParams.max : 50, sortParams.sortColumn, sortParams.getSortOrder())
+        def suppliersResponse = supplierService.getSuppliers(params.supplierNameTerm, params.supplierReferenceTerm, params.customerReferenceTerm, params.includeDeletedSuppliers,
+                sortParams.offset ? sortParams.offset : 0, sortParams.max ? sortParams.max : 50, sortParams.sortColumn, sortParams.getSortOrder())
         def returnedSuppliers = suppliersResponse?.suppliers
         def totalCount = suppliersResponse?.totalCount
         if (returnedSuppliers != null && returnedSuppliers.size() > 0){
@@ -36,7 +51,6 @@ class SupplierController {
         render(template: "supplierSearchResults",
                 model: [ suppliers: suppliers,
                          searchTerm: params.searchTerm,
-                         searchBy: params.searchBy,
                          max: sortParams.max ?: 50,
                          offset: sortParams.offset,
                          sortParams  : sortParams,
@@ -55,11 +69,13 @@ class SupplierController {
     }
 
     //This will load save supplier view and initially pass enable save
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddSupplier() {
-        render(template: "addSupplier", model: [enableSave : true])
+        render(template: "addSupplier", model: [enableSave: true, isUpdate: false])
     }
 
     //This will load edit supplier with supplier details
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxEditSupplier(int supplierId) {
         boolean enableSave = false; //Initially mark as disable edit
         def supplier = supplierService.getSupplier(supplierId) //Load supplier
@@ -70,24 +86,79 @@ class SupplierController {
                 enableSave = true
             }
         }
-        render(template: "addSupplier", model: [supplier: supplier, enableSave : enableSave])
+
+        SupplierCaseRate[] supplierCaseRates = SupplierCaseRate.getAllCaseRates(springSecurityService.principal.retailerId, supplier)
+
+        render(template: "addSupplier", model: [supplier: supplier, supplierCaseRates: supplierCaseRates, enableSave: enableSave, isUpdate: supplier ? true : false])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSetSupplierDeletedFlag(int supplierId, boolean supplierDeletedFlag) {
+        def supplier = supplierService.getSupplier(supplierId) //Load supplier
+        if (supplier != null) {
+            supplier.deleted = supplierDeletedFlag;
+            supplierService.saveSupplier(supplier)
+            render "OK"
+        }
+    }
+
+    def parseAmount(String value) throws Exception {
+        new BigDecimal(NumberFormat.getInstance(Locale.UK).parse(value)?.toString())
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveSupplier() {
         def supplier
+        def isUpdate
         if (params.id && Integer.parseInt(params.id) > 0) {
             supplier = supplierService.getSupplier(Integer.parseInt(params.id))
+            isUpdate = true
         } else {
             supplier = new Supplier()
             supplier.retailerId = springSecurityService.principal.retailerId
             supplier.storeId = springSecurityService.principal.storeId
+            isUpdate = false
         }
+
+        def newSupplierCaseRate
+
+        if (!(params.caserateeffectivedate?.empty && (params.caserate == null || params.caserate?.empty || params.caserate == "0.00"))) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+            newSupplierCaseRate = new SupplierCaseRate()
+            newSupplierCaseRate.supplier = supplier
+            try {
+                newSupplierCaseRate.caseRateEffectiveDate = dateFormat.parse(params.caserateeffectivedate)
+            }
+            catch (Exception ignored) {
+                newSupplierCaseRate.errors.reject("supplier.suppliercaserate.date.invalid")
+            }
+            try {
+                newSupplierCaseRate.caseRate = parseAmount(params.caserate)
+
+                if (newSupplierCaseRate.caseRate == BigDecimal.ZERO) {
+                    newSupplierCaseRate.errors.reject("supplier.suppliercaserate.caserate.must.be.not.zero")
+                }
+            }
+            catch (Exception ignored) {
+                newSupplierCaseRate.errors.reject("supplier.suppliercaserate.caserate.invalid")
+            }
+        }
+
         bindData(supplier, params)
-        if (supplier.validate()) {
-            supplierService.saveSupplier(supplier)
+        if (supplier.validate() && (newSupplierCaseRate == null || !newSupplierCaseRate.hasErrors())) {
+            supplier = supplierService.saveSupplier(supplier)
+
+            if (newSupplierCaseRate != null) {
+                newSupplierCaseRate.supplier = supplier
+                supplierService.saveSupplierCaseRate(newSupplierCaseRate)
+            } else {
+                supplierService.clearCurrentAndFutureSupplierCaseRates(supplier.id)
+            }
+
             render "OK"
         } else {
-            render(template: "addSupplier", model: [supplier: supplier, enableSave : true])
+            render(template: "addSupplier", model: [supplier: supplier, supplierCaseRate: newSupplierCaseRate, enableSave: true, isUpdate: isUpdate])
         }
     }
 

@@ -125,8 +125,9 @@
                             <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="shelf-edge-labels-dropdown" controller="shelfEdgeLabel" class="dropdown-item">Shelf Edge Labels</g:link>
                             </g:if>
-
-                            <g:link elementId="suppliers-dropdown" controller="supplier" class="dropdown-item">Suppliers</g:link>
+                                <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
+                                    <g:link elementId="suppliers-dropdown" controller="supplier" class="dropdown-item">Supplier Maintenance</g:link>
+                                </sec:ifAnyGranted>
                         </div>
                     </li>
 
@@ -189,6 +190,11 @@
 
                                 <div class="dropdown-divider"></div>
                             </sec:ifAnyGranted>
+
+                            <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.amendableOrdersEnabled').toBoolean()}">
+                                <g:link elementId="amendable-order-dropdown" controller="amendableOrder" action="index" class="dropdown-item">Order Amendments</g:link>
+                                <div class="dropdown-divider"></div>
+                            </g:if>
 
                             <span id="other-reports" class="dropdown-header">Inventory Management Reports</span>
 
@@ -265,9 +271,10 @@
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
                             <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
                                 <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                    <g:link elementId="product-groups-dropdown" controller="productGroup"
-                                            class="dropdown-item">Product Groups</g:link>
+                                    <g:link elementId="product-groups-dropdown" controller="productGroup" class="dropdown-item">Product Groups</g:link>
                                 </g:if>
+
+                                <g:link elementId="delivery-dropdown" controller="delivery" class="${sec.loggedInUserInfo(field: 'retailer.config.receiptInBranchOrders').toBoolean() ? 'dropdown-item' : 'dropdown-item disabled'}">Deliveries</g:link>
                             </sec:ifAnyGranted>
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>
@@ -287,7 +294,6 @@
                             </sec:ifAnyGranted>
 
                             <sec:ifAnyGranted roles='ROLE_ENGINEER'>
-
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                     <g:link elementId="financial-week-dropdown" controller="financialWeek" class="dropdown-item">Financial Weeks</g:link>
                                 </g:if>
@@ -295,6 +301,9 @@
 
                             <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                    <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.charityEnabled').toBoolean()}">
+                                        <g:link elementId="charity-organisations-dropdown" controller="charityOrganisations" class="dropdown-item">Charity Organisations</g:link>
+                                    </g:if>
                                     <div class="dropdown-divider"></div>
 
                                     <span id="product-configuration" class="dropdown-header">Product Configuration</span>
@@ -314,6 +323,7 @@
 
                                     <g:link elementId="retailer-settings-dropdown" controller="retailer" class="dropdown-item">Retailer Configuration</g:link>
                                     <g:link elementId="hardware-import-dropdown" controller="hardwareImport" class="dropdown-item">Hardware Import</g:link>
+                                    <g:link elementId="physical-inventory-count-exclusion-dropdown" controller="physicalInventoryCountExclusion" class="dropdown-item">Physical Inventory Count Exclusion</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
                         </div>
