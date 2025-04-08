@@ -16,6 +16,5 @@ class Amenity {
         name column: "name", sqlType: "varchar(40)"
     }
 
-    static constraints = {
-    }
+    static constraints = {}
 }

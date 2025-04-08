@@ -2,8 +2,6 @@ package uk.co.wonderlane.wlpos
 
 class StoreAmenity implements Serializable {
 
-   // int storeId
-//    int amenityId
     String additionalDetail
     int count
     String availability
@@ -22,6 +20,5 @@ class StoreAmenity implements Serializable {
         availability column: "availability", sqlType: "JSON"
     }
 
-    static constraints = {
-    }
+    static constraints = {}
 }

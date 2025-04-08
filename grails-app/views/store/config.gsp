@@ -17,6 +17,7 @@
 
         var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
         var saveStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxSaveStoreAdditionalDetail')}"
+        var addAmenity = "${createLink(controller: 'store', action: 'ajaxAddAmenities')}"
 
         function updateColorIndicator(color, indicatorId) {
             var colorPickerElement = document.getElementById(indicatorId);
@@ -141,6 +142,14 @@
         <div class="modal fade" id="addStoreAdditionalDetailsModal" tabindex="-1" role="dialog" aria-labelledby="addStoreAdditionalDetailsModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
                 <div id="addStoreAdditionalDetailsContent" class="modal-content"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="addAmenities-modal" class="container-fluid">
+        <div class="modal fade" id="addAmenitiesModal" tabindex="-1" role="dialog" aria-labelledby="addAmenitiesModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                <div id="addAmenitiesContent" class="modal-content"></div>
             </div>
         </div>
     </section>

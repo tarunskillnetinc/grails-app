@@ -100,3 +100,17 @@ function closeStoreAdditionalDetailAddModal() {
         $('#addStoreAdditionalDetailsModal').modal('hide')
     }
 }
+
+function addAmenities(index, description, value) {
+    $("#addAmenitiesContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#addAmenitiesModal').modal({show: true, backdrop: 'static', keyboard: false});
+    var params = {}
+    $.ajax({
+        url: addAmenity,
+        method: "GET",
+        data: params,
+        success: function (resp) {
+            $("#addAmenitiesContent").html(resp);
+        }
+    });
+}

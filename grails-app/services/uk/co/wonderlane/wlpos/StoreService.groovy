@@ -243,6 +243,18 @@ class StoreService extends MySqlDal {
         return command
     }
 
+    List<Amenity> getAmenitiesList(int retailerId){
+        return Amenity.createCriteria().list {
+            eq('retailerId', retailerId)
+            order('name', 'asc')  // Optional: sort by name
+        } as List<Amenity>
+    }
+
+    List<StoreAmenity> getStoreAmenitiesList(Integer storeId){
+        //return StoreAmenity.createCriteria().list {eq('storeId', storeId)} as List<StoreAmenity>
+        return []
+    }
+
     private void addOpeningTimeToCmd(List<OpeningTimeCommand> regularHours, String day, OpeningTime openingTime) {
         OpeningTimeCommand command = new OpeningTimeCommand()
         command.setDay(day)

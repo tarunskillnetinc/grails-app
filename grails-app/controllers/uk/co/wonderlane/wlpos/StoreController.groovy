@@ -122,7 +122,7 @@ class StoreController {
                 specialOpeningHours: []
         )
 
-        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand     : storeOpeningHoursCommand]
+        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand: storeOpeningHoursCommand]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -165,7 +165,10 @@ class StoreController {
          sort                        : params.sort,
          order                       : params.order,
          storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList()),
-         storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours())]
+         storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours()),
+         amenities                   : storeService.getAmenitiesList(springSecurityService.principal.retailerId),
+         storeAmenities              : storeService.getStoreAmenitiesList(springSecurityService.principal.storeId)
+        ]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -369,6 +372,19 @@ class StoreController {
 
     def ajaxSaveStoreAdditionalDetail(AddStoreAdditionalDetailCommand additionalDetailCommand) {
         render(template: "storeAdditionalDetail", model: [storeAdditionalDetails: storeService.sortAdditionalDetails(additionalDetailCommand?.storeAdditionalDetails)])
+    }
+
+    def ajaxAddAmenities(){
+        def initialRegularHours = [
+                new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
+        ]
+        render(template: "addStoreAmenity", model: [initialRegularHours: initialRegularHours])
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
