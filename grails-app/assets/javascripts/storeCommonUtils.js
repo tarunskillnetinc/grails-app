@@ -114,3 +114,13 @@ function addAmenities(index, description, value) {
         }
     });
 }
+
+function closeStoreAmenityAddModal(){
+    if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+        $('#addAmenitiesModal').modal('hide')
+    }
+}
+
+function saveStoreAmenity(){
+
+}
