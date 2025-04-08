@@ -308,7 +308,7 @@
                                 <g:hiddenField name="scoSaleMessageId" value="${product?.scoMessages?.isEmpty() ? '' : product?.scoMessages?.max { it.id }?.id}" />
                             </div>
                             <div class="row mt-1 form-group">
-                                <label for="discreetMessage" class="col-4 col-form-label text-right pr-4">Discreet Message:</label>
+                                <label for="discreetMessage" class="col-4 col-form-label text-right pr-4">CFD Message:</label>
                                 <g:textField maxLength="48" name="discreetMessage" value="${product?.discreetMessage}" class="col-3 form-control" />
                             </div>
                         </div>
