@@ -210,7 +210,6 @@ class SupplierServiceSpec extends Specification implements ServiceUnitTest<Suppl
         resultSetMock.getString("description") >> "Test"
         resultSetMock.getInt("quantity") >> 100
         resultSetMock.getString("effectiveDate") >> "2022-12-05 12:00:00"
-        resultSetMock.getBoolean("priceMarked") >> true
         resultSetMock.getBigDecimal("oldPackPrice") >> BigDecimal.ZERO
         resultSetMock.getBigDecimal("newPackPrice") >> BigDecimal.ZERO
         resultSetMock.getBigDecimal("retailPrice") >> BigDecimal.ZERO

@@ -13,6 +13,7 @@
     <div class="col-1 font-weight-bold text-center">Till Number</div>
     <div class="col-2 font-weight-bold text-center">Description</div>
     <div class="col-2 font-weight-bold text-center">Serial Number</div>
+    <div class="col-1 font-weight-bold text-center">Type</div>
 </div>
 
 <div id="search-results">

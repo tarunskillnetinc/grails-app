@@ -1,3 +1,4 @@
+
 <section id="header-container" class="container-fluid">
     <div class="row header-wl mt-0">
         <div class="col-8 offset-2">
@@ -10,7 +11,7 @@
                     <g:link elementId="cancel-btn" controller="store" action="index" tabindex="-1" role="button" class="btn btn-wl" params="[storeNumberFilter: storeNumberFilter, storeNameFilter: storeNameFilter, showDeletedFilter: showDeletedFilter, max: max, offset: offset, sort: sort, order: order]">Cancel</g:link>
                 </g:if>
                 <g:else>
-                    <g:link elementId="cancel-btn" controller="store" action="config" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
+                    <g:link elementId="cancel-btn" url="/" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
                 </g:else>
             </sec:ifAnyGranted>
             <sec:ifNotGranted roles="ROLE_ENGINEER, ROLE_HEAD_OFFICE">
@@ -98,6 +99,13 @@
                             </div>
 
                             <div class="form-group row">
+                                <label for="config.addressLine3" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Address Line 3</label>
+                                <div class="col-7 col-lg-4">
+                                    <g:textField name="config.addressLine3" maxlength="20" value="${storeSettings?.config?.addressLine3}" class="form-control bottom-border" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
                                 <label for="config.addressTown" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Town / City</label>
                                 <div class="col-7 col-lg-4">
                                     <g:textField name="config.addressTown" maxlength="20" value="${storeSettings?.config?.addressTown}" class="form-control bottom-border" />
@@ -131,10 +139,57 @@
                                     <g:textField name="config.phoneNumber" maxlength="12" value="${storeSettings?.config?.phoneNumber}" class="form-control bottom-border" />
                                 </div>
                             </div>
+
+                            <div class="form-group row">
+                                <label for="config.alternativePhoneNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Alternative Phone Number</label>
+                                <div class="col-7 col-lg-4">
+                                    <g:textField name="config.alternativePhoneNumber" maxlength="12" value="${storeSettings?.config?.alternativePhoneNumber}" class="form-control bottom-border" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="config.emailAddress" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Email Address</label>
+                                <div class="col-7 col-lg-4">
+                                    <g:textField name="config.emailAddress" maxlength="254" value="${storeSettings?.config?.emailAddress}" class="form-control bottom-border" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="config.netSalesArea" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Net Sales Area</label>
+                                <div class="col-7 col-lg-4">
+                                    <g:textField name="config.netSalesArea" maxlength="20" value="${storeSettings?.config?.netSalesArea}" class="form-control bottom-border"
+                                                 onkeydown="acceptFloat(event)"
+                                                 onkeyup="validateFloatQuantity(this, 0, 999999.9999, 4)" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="config.anaCode" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">ANA Code</label>
+                                <div class="col-7 col-lg-4">
+                                    <g:textField name="config.anaCode" maxlength="30" value="${storeSettings?.config?.anaCode}" class="form-control bottom-border" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="config.longitude" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Longitude</label>
+                                <div class="col-7 col-lg-4">
+                                    <g:textField name="config.longitude" maxlength="20" value="${storeSettings?.config?.longitude}" class="form-control bottom-border" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="config.latitude" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Latitude</label>
+                                <div class="col-7 col-lg-4">
+                                    <g:textField name="config.latitude" maxlength="20" value="${storeSettings?.config?.latitude}" class="form-control bottom-border" />
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
+
+            <g:render template="sharedStoreConfigurationAccordionsTop" model="[storeAdditionalDetails: storeAdditionalDetails, storeOpeningHoursCommand:storeOpeningHoursCommand]"/>
 
             <!-- EPOS configuration. -->
             <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">
@@ -244,6 +299,8 @@
                     </div>
                 </div>
             </div>
+
+            <g:render template="sharedStoreConfigurationAccordionsBottom"/>
 
             <!-- Inventory Management configuration. -->
             <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">

@@ -17,14 +17,10 @@
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].maximumOrderQuantity" value="${pack.maximumOrderQuantity}" />
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].allowSubstitutes" value="${pack.allowSubstitutes}" />
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].primaryCase" value="${pack.primaryCase}"/>
-            <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].priceMarked" value="${pack.priceMarked}"/>
-            <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].minAlcoholUnitPrice" value="${pack.minAlcoholUnitPrice}"/>
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].lengthCm" value="${pack.lengthCm}"/>
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].heightCm" value="${pack.heightCm}"/>
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].widthCm" value="${pack.widthCm}"/>
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].weightKg" value="${pack.weightKg}"/>
-            <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].priceMarkedType" value="${pack.priceMarkedType}"/>
-            <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].priceMarkedValue" value="${pack.priceMarkedValue}"/>
 
             <div id="variants[${variantIndex}].packs[${packIndex}].barcodesContainer" class="col-2 my-auto">
             <g:each in="${pack.barcodez ? pack.barcodez : pack.hasProperty("barcodes") ? pack.barcodes : ""}"

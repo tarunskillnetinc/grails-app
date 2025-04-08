@@ -6,7 +6,7 @@ import org.hibernate.Transaction
 import org.joda.time.DateTime
 
 @Transactional("transactions")
-class ReceiptService {
+class TransactionService {
 
     def springSecurityService
     def sessionFactory
@@ -25,7 +25,7 @@ class ReceiptService {
             }
 
             gte("dateGenerated", fromDate)
-            lt("dateGenerated", toDate)
+            lte("dateGenerated", toDate)
 
             if (tillId) {
                 eq("tillId", tillId)
@@ -38,18 +38,32 @@ class ReceiptService {
 
         totalCount = results.totalCount
 
-        return [results, totalCount]
+        // Fetch all stores for this retailer
+        def stores = Store.withNewSession { session ->
+            Store.findAllByRetailerId(springSecurityService.principal.retailerId)
+        }
+
+        // Combine Receipt and Store data
+        def combinedResults = results.collect { receipt ->
+            def store = stores.find { store ->
+                def storeConfig = store.getConfig()
+                storeConfig.storeNumber == receipt.storeId
+            }
+            [receipt: receipt, store: store]
+        }
+
+        return [combinedResults, totalCount]
     }
 
     def getReceipt(int receiptId) {
         def receiptCriteria = Receipt.createCriteria()
 
         return receiptCriteria.get() {
-            eq ("id", receiptId)
-            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("id", receiptId)
+            eq("retailerId", springSecurityService.principal.retailerId)
 
             if (springSecurityService.principal.storeNumber != null) {
-                eq ("storeId", springSecurityService.principal.storeNumber)
+                eq("storeId", springSecurityService.principal.storeNumber)
             }
         }
     }
@@ -58,24 +72,25 @@ class ReceiptService {
         def receiptCriteria = Receipt.createCriteria()
 
         return receiptCriteria.get() {
-            eq ("transactionId", transactionId)
-            eq ("storeId", storeId)
+            eq("transactionId", transactionId)
+            eq("storeId", storeId)
             eq("tillId", tillId)
-            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("retailerId", springSecurityService.principal.retailerId)
         }
     }
-    def saveReceiptPrinted(int receiptId) {
-            Session session = sessionFactory.openSession()
-            Transaction transaction = session.beginTransaction()
-            Receipt receipt = Receipt.get(receiptId)
 
-        if(receipt){
+    def saveReceiptPrinted(int receiptId) {
+        Session session = sessionFactory.openSession()
+        Transaction transaction = session.beginTransaction()
+        Receipt receipt = Receipt.get(receiptId)
+
+        if (receipt) {
             receipt.printed = 1
             receipt.save(flush: true)
         }
 
-            transaction.commit()
-            session.close()
+        transaction.commit()
+        session.close()
 
     }
 }

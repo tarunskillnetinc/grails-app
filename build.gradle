@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "1.15.24-SNAPSHOT"
+version "1.15.25-SNAPSHOT"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"idea"
@@ -68,7 +68,7 @@ dependencies {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
 
-    implementation 'uk.co.wonderlane.wlpos:Common:1.17.8-SNAPSHOT'
+    implementation 'uk.co.wonderlane.wlpos:Common:1.17.9-SNAPSHOT'
 
     implementation "org.grails:grails-core:6.1.2"
     implementation ("org.springframework.boot:spring-boot-starter-actuator:2.7.18")
@@ -108,6 +108,7 @@ dependencies {
     implementation 'org.apache.pdfbox:pdfbox-tools:2.0.32'
     implementation 'com.opencsv:opencsv:5.9'
     implementation 'software.amazon.awssdk:s3:2.25.19'
+    implementation 'software.amazon.awssdk:sns:2.25.19'
     implementation 'commons-io:commons-io:2.16.0'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-joda', version: '2.12.2'
 

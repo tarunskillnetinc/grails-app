@@ -4,6 +4,7 @@ import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import uk.co.wonderlane.wlpos.enums.TillType
 
 import java.security.SecureRandom
 
@@ -14,6 +15,10 @@ class TillAssignmentController {
     def storeService
     def configuration
     def editingTill = false
+    
+    def getTillTypes() {
+        TillType.values()*.name()
+    }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
@@ -88,8 +93,9 @@ class TillAssignmentController {
     def ajaxAddTill() {
         def stores = storeService.getStores(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
         def unassignedSerialNumbers = tillAssignmentService.getUnassignedTillStock()
+        def tillTypes = getTillTypes()
 
-        render(template: "addTill", model: [stores: stores, serialNumbers: unassignedSerialNumbers, enableEdit: false])
+        render(template: "addTill", model: [stores: stores, tillTypes: tillTypes, serialNumbers: unassignedSerialNumbers, enableEdit: false])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -98,6 +104,7 @@ class TillAssignmentController {
         def configuration = TillConfiguration.findByRetailerIdAndStoreIdAndTillId(springSecurityService.principal.retailerId, Integer.parseInt(params.get("storeId").toString()), Integer.parseInt(params.get("tillId").toString()))
         editingTill = true
         def unassignedSerialNumbers = tillAssignmentService.getUnassignedTillStock()
+        def tillTypes = getTillTypes()
 
         // Append the selected Serial Number to the list
         def currentSerial = TillStock.findBySerialNumber(params.get("serialNumber").toString())
@@ -105,7 +112,7 @@ class TillAssignmentController {
             unassignedSerialNumbers.add(currentSerial)
         }
 
-        render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: unassignedSerialNumbers, enableEdit: true])
+        render(template: "addTill", model: [till: configuration, stores: stores, tillTypes: tillTypes, serialNumbers: unassignedSerialNumbers, enableEdit: true])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -130,8 +137,9 @@ class TillAssignmentController {
         if (!addEditTillCommand.validate()) {
             def stores = storeService.getStores(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
             def unusedSerialNumbers = tillAssignmentService.getUnassignedTillStock()
+            def tillTypes = getTillTypes()
 
-            render(status: 500, template: "addTill", model: [till: addEditTillCommand, stores: stores, serialNumbers: unusedSerialNumbers, enableEdit: editingTill])
+            render(status: 500, template: "addTill", model: [till: addEditTillCommand, stores: stores, tillTypes: tillTypes, serialNumbers: unusedSerialNumbers, enableEdit: editingTill])
         } else {
             TillConfiguration till
 
@@ -152,6 +160,7 @@ class TillAssignmentController {
             till.tillId = addEditTillCommand.tillId
             till.description = addEditTillCommand.description
             till.serialNumber = addEditTillCommand.serialNumber
+            till.type = addEditTillCommand.type 
             till.dateTimeUpdated = DateTime.now(DateTimeZone.UTC)
             till.cashManagementEnabled = ("on" == addEditTillCommand.cashManagementEnabled)
 
@@ -248,6 +257,7 @@ class AddEditTillCommand implements Validateable {
     int storeId // Actually store number.
     String description
     String serialNumber
+    TillType type
     String cashManagementEnabled
 
     static constraints = {
@@ -265,7 +275,8 @@ class AddEditTillCommand implements Validateable {
         }
         storeId nullable: false, min: 1 // Actually store number.
         description nullable: true
-        cashManagementEnabled nullable:true
+        type nullable: false
+        cashManagementEnabled nullable: true
         serialNumber nullable: true, validator: { val, obj ->
             if (val) {
                 def existingTills = TillConfiguration.findAllByRetailerIdAndSerialNumber(obj.springSecurityService.principal.retailerId, val)

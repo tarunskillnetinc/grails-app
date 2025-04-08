@@ -232,36 +232,6 @@ function uncheckAllChildCategories(categoryId) {
         selectedCategories.delete(String(childId));
         uncheckAllChildCategories(childId); // Recursively uncheck its children
     });
-
-    // Check if the current category is a child and update its parent
-    var parentId = $('#category-' + categoryId).data('parent-id'); // Get the parent ID from the child checkbox
-
-    if (parentId) {
-        updateParentCheckboxState(parentId); // Reevaluate the parent's state
-    }
-}
-
-function updateParentCheckboxState(parentCategoryId) {
-    var parentCheckbox = $('#category-' + parentCategoryId); // Get the parent checkbox
-    var allUnchecked = true; // Flag to check if all children are unchecked
-
-    // Check all child checkboxes of the parent
-    $(`#categoryContainer-${parentCategoryId} input[name="category.id[]"]`).each(function () {
-        if ($(this).prop('checked')) {
-            allUnchecked = false; // Found a checked child
-        }
-    });
-
-    // Update the parent checkbox state based on the state of its children
-    if (allUnchecked) {
-        parentCheckbox.prop('checked', false); // Uncheck the parent if all children are unchecked
-        unselectedCategories.add(String(parentCategoryId));
-        selectedCategories.delete(String(parentCategoryId));
-    } else {
-        parentCheckbox.prop('checked', true); // Ensure parent is checked if any child is checked
-        selectedCategories.add(String(parentCategoryId));
-        unselectedCategories.delete(String(parentCategoryId));
-    }
 }
 
 // Select all parent categories up the hierarchy

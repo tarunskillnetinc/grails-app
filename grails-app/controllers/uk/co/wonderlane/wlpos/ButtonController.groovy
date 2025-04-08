@@ -142,15 +142,15 @@ class ButtonController {
             }
         }
 
+        if (form.hasErrors()) {
+            renderError(button, form, imageRecord)
+            return
+        }
+
         bindData(button, form)
 
         if (form.exact) {
             button.amount = BigDecimal.ZERO
-        }
-
-        if (form.hasErrors()) {
-            renderError(button, form, imageRecord)
-            return
         }
 
         boolean isHeadOffice = springSecurityService.principal.storeId == null
