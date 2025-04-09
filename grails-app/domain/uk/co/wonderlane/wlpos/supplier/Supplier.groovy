@@ -19,7 +19,7 @@ class Supplier {
     String addressCountry
     String addressPostCode
     SymbolGroup symbolGroup
-    String retailerSupplierId;
+    String retailerSupplierId
     boolean deleted
 
     static mapping = {
@@ -42,27 +42,27 @@ class Supplier {
         addressCountry column: "addressCountry"
         addressPostCode column: "addressPostCode"
         symbolGroup column: "symbolGroupId"
-        retailerSupplierId column: "retailerSupplierId"
+        retailerSupplierId column: "retailerSupplierId", sqlType: "char(15)"
         deleted column: "deleted"
     }
 
     static constraints = {
         storeId nullable: true
-        reference nullable: true, maxSize: 20
+        reference nullable: true, maxSize: 40
         name nullable: false, maxSize: 60
-        contactName nullable: true, maxSize: 40
-        phoneNumber nullable: true, maxSize: 12
+        contactName nullable: true, maxSize: 50
+        phoneNumber nullable: true, maxSize: 30
         email nullable: true, maxSize: 50
         customerReference nullable: true, maxSize: 40
-        addressBuildingNumberOrName nullable: true, maxSize: 40
-        addressLine1 nullable: true, maxSize: 20
-        addressLine2 nullable: true, maxSize: 20
-        addressTown nullable: true, maxSize: 20
-        addressCounty nullable: true, maxSize: 20
-        addressCountry nullable: true, maxSize: 20
-        addressPostCode nullable: true, maxSize: 8
+        addressBuildingNumberOrName nullable: true, maxSize: 45
+        addressLine1 nullable: true, maxSize: 45
+        addressLine2 nullable: true, maxSize: 45
+        addressTown nullable: true, maxSize: 45
+        addressCounty nullable: true, maxSize: 45
+        addressCountry nullable: true, maxSize: 45
+        addressPostCode nullable: true, maxSize: 10
         symbolGroup nullable: true
-        retailerSupplierId nullable: true, maxSize: 15, formula: "cast(retailerSupplierId as CHAR(15))"
+        retailerSupplierId nullable: true, maxSize: 15
         deleted nullable: false
     }
 
@@ -86,7 +86,7 @@ class Supplier {
         supplier.setAddressCountry(addressCountry)
         supplier.setAddressPostCode(addressPostCode)
         supplier.setSymbolGroupId(symbolGroup?.getId())
-
+        supplier.setRetailerSupplierId(retailerSupplierId)
         return supplier
     }
 }

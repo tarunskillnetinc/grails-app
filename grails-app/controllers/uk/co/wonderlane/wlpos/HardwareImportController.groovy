@@ -50,7 +50,8 @@ class HardwareImportController {
                         def serialsInStock = hardwareService.getSerialsInStock()
 
                         rows.forEach({ CSVUploadHardware row ->
-                            if (validSerialNumbersInFile.contains(row.serialNumber?.trim()) || validSerialNumbersInFile.contains(row.serialNumber)) {
+                            if (validSerialNumbersInFile.any { it.toLowerCase() == row.serialNumber?.trim()?.toLowerCase() } ||
+                                    validSerialNumbersInFile.any { it.toLowerCase() == row.serialNumber?.toLowerCase() }) {
                                 // Check that this serial number has not successfully been added before this in the same import
                                 row.validRow = false
                                 row.errorRow = "Invalid - Duplicate serial number in file"
@@ -63,7 +64,8 @@ class HardwareImportController {
                             } else if (row.model.length() > 50) {
                                 row.validRow = false
                                 row.errorRow = "Invalid - Model must be less than 50 characters"
-                            } else if (serialsInStock.contains(row.serialNumber?.trim()) || serialsInStock.contains(row.serialNumber)) {
+                            } else if (serialsInStock.any { it.toLowerCase() == row.serialNumber?.trim()?.toLowerCase() } ||
+                                    serialsInStock.any { it.toLowerCase() == row.serialNumber?.toLowerCase() }) {
                                 row.validRow = false
                                 row.errorRow = "Invalid - Serial number already exists"
                             } else if (!validRegexSerial(row.getSerialNumber())) {

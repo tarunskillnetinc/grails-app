@@ -1,5 +1,6 @@
 import grails.util.Environment
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
@@ -82,6 +83,7 @@ beans = {
 
         springSecurityService = ref('springSecurityService')
         sessionFactory = ref('sessionFactory')
+        snsService = ref('snsService')
     }
 
     charityService(CharityService,
@@ -174,6 +176,7 @@ beans = {
                     grailsApplication.config.getProperty('mysql.wlpos.database'))) {
 
         springSecurityService = ref('springSecurityService')
+        gsonProvider = ref("gsonProvider")
     }
 
     retailerConfigService(RetailerConfigService,
@@ -329,6 +332,15 @@ beans = {
         promotionService = ref("promotionService")
     }
 
+    basketTransactionService(BasketTransactionService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.transactions.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.transactions.port')),
+                    grailsApplication.config.getProperty('mysql.transactions.username'),
+                    grailsApplication.config.getProperty('mysql.transactions.password'),
+                    grailsApplication.config.getProperty('mysql.transactions.database'))) {
+        springSecurityService = ref('springSecurityService')
+        gsonProvider = ref("gsonProvider")
+    }
 
     gsonProvider(GsonProvider)
 
@@ -422,4 +434,16 @@ beans = {
     }
 
     multipartResolver(MaxFileUploadSizeResolver)
+
+    snsClient(SnsClientFactoryBean) {
+        region = Region.of(grailsApplication.config.getProperty('sns.region'))
+        credentialsProvider = DefaultCredentialsProvider.create()
+    }
+
+    snsService(SnsService) {
+        springSecurityService = ref('springSecurityService')
+        snsClient = ref("snsClient")
+        gsonProvider = ref("gsonProvider")
+        eventTopic = grailsApplication.config.getProperty("sns.eventTopic")
+    }
 }

@@ -431,6 +431,7 @@ class ProductListService extends MySqlDal {
     }
 
     uk.co.wonderlane.wlpos.entities.wlim.ProductList mapProductList(ResultSet rs) throws SQLException {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZone(DateTimeZone.UTC)
         uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = new uk.co.wonderlane.wlpos.entities.wlim.ProductList()
         productList.setOrderId(rs.getInt("orderId") != 0 ? rs.getInt("orderId") : 0)
         productList.setId(rs.getInt("id"))
@@ -443,15 +444,11 @@ class ProductListService extends MySqlDal {
         String parentTypeString = rs.getString("parentType")
         productList.setParentType(parentTypeString != null ? ProductListType.valueOf(parentTypeString) : null)
 
-        productList.setDateStarted(new DateTime(rs.getTimestamp("dateStarted")).withZoneRetainFields(DateTimeZone.UTC))
-        if (rs.wasNull()) {
-            productList.setDateStarted(null)
-        }
+        String dateStarted = rs.getString("dateStarted")
+        productList.setDateStarted(rs.wasNull() ? null : DateTime.parse(dateStarted, dateFormatter))
 
-        productList.setDateCompleted(new DateTime(rs.getTimestamp("dateCompleted")).withZoneRetainFields(DateTimeZone.UTC))
-        if (rs.wasNull()) {
-            productList.setDateCompleted(null)
-        }
+        String dateCompleted = rs.getString("dateCompleted")
+        productList.setDateCompleted(rs.wasNull() ? null : DateTime.parse(dateCompleted, dateFormatter))
 
         productList.setOwnerUserId(rs.getString("ownerUserId"))
 
@@ -478,15 +475,12 @@ class ProductListService extends MySqlDal {
         }
 
         productList.setStockAdjustedOnCompletion(rs.getBoolean("stockAdjustedOnCompletion"))
-        productList.setStartDate(new DateTime(rs.getTimestamp("startDate")).withZoneRetainFields(DateTimeZone.UTC))
-        if (rs.wasNull()) {
-            productList.setStartDate(null)
-        }
 
-        productList.setEndDate(new DateTime(rs.getTimestamp("endDate")).withZoneRetainFields(DateTimeZone.UTC))
-        if (rs.wasNull()) {
-            productList.setEndDate(null)
-        }
+        String startDate = rs.getString("startDate")
+        productList.setStartDate(rs.wasNull() ? null : DateTime.parse(startDate, dateFormatter))
+
+        String endDate = rs.getString("endDate")
+        productList.setEndDate(rs.wasNull() ? null : DateTime.parse(endDate, dateFormatter))
 
         productList.setSupplierId(rs.getString("supplierId") as Integer)
         if (rs.wasNull()) {
@@ -508,11 +502,12 @@ class ProductListService extends MySqlDal {
     }
 
     uk.co.wonderlane.wlpos.entities.wlim.ProductListItemGroup mapProductListItemGroup(ResultSet rs) throws SQLException {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZone(DateTimeZone.UTC)
         uk.co.wonderlane.wlpos.entities.wlim.ProductListItemGroup productListItemGroup = new uk.co.wonderlane.wlpos.entities.wlim.ProductListItemGroup()
         productListItemGroup.setId(rs.getInt("id"))
         productListItemGroup.setProductListId(rs.getInt("productListId"))
         productListItemGroup.setUniqueIdentifier(rs.getString("uniqueIdentifier"))
-        productListItemGroup.setEffectiveDate(new DateTime(rs.getTimestamp("effectiveDate")).withZoneRetainFields(DateTimeZone.UTC))
+        productListItemGroup.setEffectiveDate(DateTime.parse(rs.getString("effectiveDate"), dateFormatter))
         return productListItemGroup
     }
 

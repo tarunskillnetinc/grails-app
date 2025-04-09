@@ -51,6 +51,7 @@
                              onkeyup="validateFloatQuantity(this, 0, 999.99, 3)"/>
                 <g:hiddenField name="amendedLines[${counter}].originalOrderQuantity" value="${amendedLine.originalOrderQuantity}" />
                 <g:hiddenField name="amendedLines[${counter}].productListItemId" value="${amendedLine.productListItemId}" />
+                <g:hiddenField name="amendedLines[${counter}].packQuantity" value="${amendedLine.packQuantity}" />
                 <g:set var="counter" value="${counter + 1}" />
             </g:each>
         </div>

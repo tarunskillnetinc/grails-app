@@ -1,8 +1,13 @@
 package uk.co.wonderlane.wlpos
 
+
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
+import groovy.json.JsonSlurper
+import org.joda.time.LocalDate
+import org.joda.time.LocalTime
+import uk.co.wonderlane.wlpos.entities.OpeningTimeOverride
 import uk.co.wonderlane.wlpos.entities.StoreConfig
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
@@ -10,7 +15,6 @@ import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 import java.math.MathContext
 import java.math.RoundingMode
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 class StoreController {
@@ -69,7 +73,12 @@ class StoreController {
 
             def (stores, storeCount) = storeService.searchStores(springSecurityService.principal.retailerId, storeNumberFilter, storeNameFilter, showDeletedFilter, sortParams)
 
-            render(template: "storeSearchResults", model: [stores: stores, totalResults: storeCount, sortParams: sortParams, storeNameFilter: storeNameFilter ?: "", storeNumberFilter: storeNumberFilter ?: "", showDeletedFilter: showDeletedFilter])
+            render(template: "storeSearchResults", model: [stores: stores,
+                                                           totalResults: storeCount,
+                                                           sortParams: sortParams,
+                                                           storeNameFilter: storeNameFilter ?: "",
+                                                           storeNumberFilter: storeNumberFilter ?: "",
+                                                           showDeletedFilter: showDeletedFilter])
         } catch (Exception e) {
             render status: 500, text:" Error searching for stores."
         }
@@ -97,7 +106,23 @@ class StoreController {
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
 
-        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges]
+
+        def initialRegularHours = [
+                new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
+        ]
+
+        def storeOpeningHoursCommand = new StoreOpeningHoursCommand(
+                regularHours: initialRegularHours,
+                specialOpeningHours: []
+        )
+
+        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand     : storeOpeningHoursCommand]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -138,7 +163,9 @@ class StoreController {
          max                         : params.max,
          offset                      : params.offset,
          sort                        : params.sort,
-         order                       : params.order]
+         order                       : params.order,
+         storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList()),
+         storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours())]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -149,7 +176,13 @@ class StoreController {
             def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
             def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
 
-            render(view: "add", model: [store : newStoreCommand, parentStores: parentStores, storeTypes: storeTypes, priceBands: priceBands, ranges: ranges])
+            render(view: "add", model: [store : newStoreCommand,
+                                        parentStores: parentStores,
+                                        storeTypes: storeTypes,
+                                        priceBands: priceBands,
+                                        ranges: ranges,
+                                        storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails)
+            ])
         } else {
             // Validated.
             def storeCopyingConfigFrom = null
@@ -178,18 +211,86 @@ class StoreController {
             storeConfig.addressBuildingNumberOrName = newStoreCommand.addressBuildingNumberOrName
             storeConfig.addressLine1 = newStoreCommand.addressLine1
             storeConfig.addressLine2 = newStoreCommand.addressLine2
+            storeConfig.addressLine3 = newStoreCommand.addressLine3
             storeConfig.addressTown = newStoreCommand.addressTown
             storeConfig.addressCounty = newStoreCommand.addressCounty
             storeConfig.addressCountry = newStoreCommand.addressCountry
             storeConfig.addressPostCode = newStoreCommand.addressPostCode
             storeConfig.phoneNumber = newStoreCommand.phoneNumber
+            storeConfig.alternativePhoneNumber = newStoreCommand.alternativePhoneNumber
+            storeConfig.emailAddress = newStoreCommand.emailAddress
+            storeConfig.anaCode = newStoreCommand.anaCode
+            storeConfig.netSalesArea = newStoreCommand.netSalesArea
+            storeConfig.latitude = newStoreCommand.latitude
+            storeConfig.longitude = newStoreCommand.longitude
 
             store.config = storeConfig
+
+            String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(newStoreCommand?.storeAdditionalDetails)
+            store.additionalDetails = storeAdditionalDetailJson
+
+            store.setOpeningHours(storeService.getOpeningHoursAsObject(newStoreCommand.storeOpeningHoursCommand))
 
             storeService.saveStore(store)
 
             flash.message = "Store created successfully."
             redirect (action: "config", id: store.id)
+        }
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def addSpecialOpeningHours() {
+        def store = storeService.getStore(springSecurityService.principal.retailerId, params.storeId as int)
+
+        def specialOpeningHour = new OpeningTimeOverride(
+                date: new LocalDate(params.date),
+                description: params.description,
+                startTime: params.startTime ? new LocalTime(params.startTime) : null,
+                endTime: params.endTime ? new LocalTime(params.endTime) : null,
+                closed: params.closed as boolean
+        )
+
+        store.addToSpecialOpeningHours(specialOpeningHour)
+        storeService.saveStore(store)
+
+        render(contentType: 'application/json') {
+            success = true
+            message = "Special opening hours added successfully."
+        }
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def loadAddSpecialOpeningHoursTemplate() {
+        render (template: 'addEditSpecialOpeningHours', model:[openingHourIndexItem:-1])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def loadEditSpecialOpeningHoursTemplate() {
+        def specialOpeningHourJson = params.specialOpeningHour
+        def openingHourIndex = params.openingHourIndex ? Integer.parseInt(params.openingHourIndex) : null
+
+        if (specialOpeningHourJson) {
+            try {
+                String decodedJson = URLDecoder.decode(specialOpeningHourJson, "UTF-8")
+
+                def jsonSlurper = new JsonSlurper()
+                def hourObject = jsonSlurper.parseText(decodedJson)
+
+                def specialOpeningHour = new OpeningTimeOverrideCommand(
+                        date: hourObject.date,
+                        description: hourObject.description,
+                        startTime: hourObject.startTime,
+                        endTime: hourObject.endTime,
+                        closed: hourObject.closed as boolean
+                )
+
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: specialOpeningHour, openingHourIndexItem: openingHourIndex])
+            } catch (Exception e) {
+                log.error("Error parsing specialOpeningHour JSON: ${e.message}", e)
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndex: openingHourIndexItem, error: "Invalid data format"])
+            }
+        } else {
+            render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex])
         }
     }
 
@@ -220,7 +321,11 @@ class StoreController {
 
             bindData(storeConfig, storeCommand.config)
 
-            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig))
+            String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(storeCommand?.storeAdditionalDetails)
+
+            String storeOpeningHours = gsonProvider.gson.toJson(storeService.getOpeningHoursAsObject(storeCommand.storeOpeningHoursCommand))
+
+            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours)
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
@@ -253,8 +358,17 @@ class StoreController {
                                            availableProductRanges      : availableProductRanges,
                                            availableParentStores       : availableParentStores,
                                            availablePrintReceiptOptions: PrintReceiptOption.values(),
-                                           viewOptions                 : viewOptions])
+                                           viewOptions                 : viewOptions,
+                                           storeAdditionalDetails      : storeService.sortAdditionalDetails(storeCommand?.storeAdditionalDetails)])
         }
+    }
+
+    def ajaxAddStoreAdditionalDetail() {
+        render(template: "addStoreAdditionalDetail", model: [index : params?.index, description: params?.description, value: params?.value])
+    }
+
+    def ajaxSaveStoreAdditionalDetail(AddStoreAdditionalDetailCommand additionalDetailCommand) {
+        render(template: "storeAdditionalDetail", model: [storeAdditionalDetails: storeService.sortAdditionalDetails(additionalDetailCommand?.storeAdditionalDetails)])
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
@@ -306,15 +420,25 @@ class NewStoreCommand implements Validateable {
     String addressBuildingNumberOrName
     String addressLine1
     String addressLine2
+    String addressLine3
     String addressTown
     String addressCounty
     String addressCountry
     String addressPostCode
     String phoneNumber
+    String alternativePhoneNumber
+    String emailAddress
+    String anaCode
+    String netSalesArea
+    String longitude
+    String latitude
     Integer parentStoreId
     Integer copyConfigFrom
     Range range
     PriceBand priceBand
+    StoreOpeningHoursCommand storeOpeningHoursCommand
+
+    List<StoreAdditionalDetailCommand> storeAdditionalDetails
 
     static constraints = {
         storeNumber nullable: false,blank: false, min:1, max: 999999, validator: { val, obj ->
@@ -329,6 +453,7 @@ class NewStoreCommand implements Validateable {
         addressBuildingNumberOrName nullable: true, maxSize: 30
         addressLine1 nullable: true, maxSize: 20
         addressLine2 nullable: true, maxSize: 20
+        addressLine3 nullable: true, maxSize: 20
         addressTown nullable: true, maxSize: 20
         addressCounty nullable: true, maxSize: 20
         addressCountry nullable: true, maxSize: 20
@@ -341,10 +466,52 @@ class NewStoreCommand implements Validateable {
                 return false
             }
         }
+        alternativePhoneNumber nullable: true, maxSize: 12, validator: {val, obj ->
+            if(val != null && !val.isNumber()){
+                return false
+            }
+        }
+        emailAddress email: true, maxSize: 254, nullable: true
+        anaCode nullable: true, maxSize: 30
+        netSalesArea nullable: true, validator: { val ->
+            if (val == null) return true // Allow null values
+
+            try {
+                BigDecimal value = new BigDecimal(val)
+                if (value >= new BigDecimal("9999999.9999")) {
+                    return false
+                }
+                //Fail if the value has more than 4 decimal places
+                if (value.scale() > 4) {
+                    return false
+                }
+                return true
+            } catch (NumberFormatException e) {
+                return false
+            }
+        }
+        longitude nullable: true, maxSize: 20
+        latitude nullable: true, maxSize: 20
         parentStoreId nullable: true
         copyConfigFrom nullable: true
         range nullable: true
         priceBand nullable: true
+        storeOpeningHoursCommand nullable: true
+        storeAdditionalDetails nullable: true, validator: { val, obj ->
+            if (val) {
+                def hasErrors = false
+                val.eachWithIndex { storeAdditionalDetail, index ->
+                    if (storeAdditionalDetail && !storeAdditionalDetail.validate()) {
+                        hasErrors = true
+                    }
+                }
+                if (hasErrors) {
+                    return ['storeCommand.storeAdditionalDetails.validator.error']
+                }
+            }
+            return true
+        }
+
     }
 }
 
@@ -357,6 +524,8 @@ class StoreCommand implements Validateable {
     boolean deleted
 
     StoreConfigCommand config
+    List<StoreAdditionalDetailCommand> storeAdditionalDetails
+    StoreOpeningHoursCommand storeOpeningHoursCommand
 
     static constraints = {
         id nullable: true
@@ -365,6 +534,21 @@ class StoreCommand implements Validateable {
         range nullable: false
         retailerStoreId nullable: true
         config nullable: false
+        storeAdditionalDetails nullable: true, validator: { val, obj ->
+            if (val) {
+                def hasErrors = false
+                val.eachWithIndex { storeAdditionalDetail, index ->
+                    if (storeAdditionalDetail && !storeAdditionalDetail.validate()) {
+                        hasErrors = true
+                    }
+                }
+                if (hasErrors) {
+                    return ['storeCommand.storeAdditionalDetails.validator.error']
+                }
+            }
+            return true
+        }
+        storeOpeningHoursCommand nullable: true
     }
 }
 
@@ -378,11 +562,18 @@ class StoreConfigCommand implements Validateable {
     String addressBuildingNumberOrName
     String addressLine1
     String addressLine2
+    String addressLine3
     String addressTown
     String addressCounty
     String addressCountry
     String addressPostCode
     String phoneNumber
+    String alternativePhoneNumber
+    String emailAddress
+    String anaCode
+    String netSalesArea
+    String longitude
+    String latitude
     PrintReceiptOption printReceiptOption
     Integer quantityPromptThreshold
     BigDecimal valuePromptThreshold
@@ -401,27 +592,15 @@ class StoreConfigCommand implements Validateable {
     String returnsMessage
 
     static constraints = {
+        importFrom NewStoreCommand, include: [
+                "storeName", "addressBuildingNumberOrName", "addressLine1", "addressLine2", "addressLine3",
+                "addressTown", "addressCounty", "addressCountry", "addressPostCode", "phoneNumber",
+                "alternativePhoneNumber", "emailAddress", "anaCode", "netSalesArea", "longitude", "latitude"]
         storeNumber nullable: true
         storeType nullable: true
         receiptMessage1 nullable: true, maxSize: 100
         receiptMessage2 nullable: true, maxSize: 100
         vatRegistrationNumber nullable: true, maxSize: 45
-        storeName nullable: false, blank: false, maxSize: 30
-        addressBuildingNumberOrName nullable: true, maxSize: 30
-        addressLine1 nullable: true, maxSize: 20
-        addressLine2 nullable: true, maxSize: 20
-        addressTown nullable: true, maxSize: 20
-        addressCounty nullable: true, maxSize: 20
-        addressCountry nullable: true, maxSize: 20
-        addressPostCode nullable: true, maxSize: 8, validator: {val, obj ->
-            if (val != null && Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE).matcher(val).find())
-                return false
-        }
-        phoneNumber nullable: true, maxSize: 12, validator: {val, obj ->
-            if(val != null && !val.isNumber()){
-                return false
-            }
-        }
         printReceiptOption nullable: false
         quantityPromptThreshold nullable: true, min: 1, max: 999
         valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: 9999.99
@@ -470,4 +649,44 @@ class StoreConfigCommand implements Validateable {
     private boolean isValidHexCode(String s) {
         return s.chars().allMatch({ c -> "0123456789ABCDEFabcdef".indexOf(c) >= 0 });
     }
+}
+
+class StoreAdditionalDetailCommand implements Validateable {
+    String description
+    String value
+
+    static constraints = {
+        description nullable: true, validator: { val, obj ->
+            if (val != null && val.length() > 20 ) {
+                return ['signifier.pattern.charLength']
+            }
+        }
+
+        value nullable: true, validator: { val, obj ->
+            if (val != null && val.length() > 240 ) {
+                return ['signifier.pattern.charLength']
+            }
+        }
+    }
+}
+
+class AddStoreAdditionalDetailCommand implements Validateable {
+    List<StoreAdditionalDetailCommand> storeAdditionalDetails
+}
+
+class StoreOpeningHoursCommand {
+    List<OpeningTimeCommand> regularHours;
+    List<OpeningTimeOverrideCommand> specialOpeningHours;
+}
+
+class OpeningTimeCommand {
+    String day;
+    String startTime;
+    String endTime;
+    boolean closed;
+}
+
+class OpeningTimeOverrideCommand extends OpeningTimeCommand{
+    String date;
+    String description;
 }

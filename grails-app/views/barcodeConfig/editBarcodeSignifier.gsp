@@ -269,7 +269,7 @@
             </div>
           </div>
           <div class="form-group row">
-            <label for="patternValue" class="col-2 col-form-label text-right">Pattern</label>
+            <label for="patternValue" class="col-2 col-form-label-mandatory text-right">Pattern</label>
             <div class="col-4">
               <div class="input-group">
                 <sec:ifAnyGranted roles="ROLE_ENGINEER">
@@ -280,7 +280,7 @@
                 </sec:ifNotGranted>
               </div>
             </div>
-            <label for="lengthValue" class="col-2 col-form-label-mandatory text-right">Length</label>
+            <label for="lengthValue" class="col-2 text-right">Length</label>
             <div class="col-4">
               <div class="input-group number-box">
                 <sec:ifAnyGranted roles="ROLE_ENGINEER">

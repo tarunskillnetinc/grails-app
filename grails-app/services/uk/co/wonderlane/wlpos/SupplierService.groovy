@@ -21,6 +21,7 @@ class SupplierService extends MySqlDal {
 
     def springSecurityService
     def sessionFactory
+    def snsService
 
     SupplierService(DatabaseCredentials databaseCredentials) {
         super(databaseCredentials)
@@ -44,11 +45,19 @@ class SupplierService extends MySqlDal {
     }
 
     def saveSupplier(Supplier supplier) {
+        def id = supplier.id
         supplier.save()
+        if (id == 0) {
+            snsService.publishSupplierAdd(supplier.getSupplier())
+        } else if (supplier.deleted) {
+            snsService.publishSupplierDelete(supplier.getSupplier())
+        }
+        return supplier
     }
 
     def deleteSupplier(Supplier supplier) {
         supplier.delete()
+        snsService.publishSupplierDelete(supplier.getSupplier())
     }
 
     def saveSupplierCaseRate(SupplierCaseRate supplierCaseRate) {
@@ -175,7 +184,6 @@ class SupplierService extends MySqlDal {
                     result.description = rs.getString("description")
                     result.quantity = rs.getInt("quantity")
                     result.effectiveDate = DateTime.parse(rs.getString("effectiveDate"), dateFormatter)
-                    result.priceMarked = rs.getBoolean("priceMarked")
                     result.oldPackPrice = rs.getBigDecimal("oldPackPrice")
                     result.newPackPrice = rs.getBigDecimal("newPackPrice")
                     result.retailPrice = rs.getBigDecimal("retailPrice")

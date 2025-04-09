@@ -1,3 +1,4 @@
+<%@ page import="uk.co.wonderlane.wlpos.enums.StockManagementType" %>
 <asset:javascript src="validators/input-validator.js" />
 <div class="modal-header">
     <g:if test="${isEditMode}">
@@ -69,6 +70,7 @@
 
         <div class="row mx-4 pt-4">
             <div class="col-4 my-auto font-weight-bold" data-toggle="tooltip" title="Weighted Average Cost Price">WAC</div>
+            <div class="col-4 my-auto font-weight-bold">Stock Management</div>
         </div>
 
         <div class="row mx-4 py-2">
@@ -76,8 +78,17 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text">&pound;</span>
                 </div>
-                <g:textField name="weightedAverageCostPrice" readonly="true" disabled="true" class="form-control"
+                <g:textField name="weightedAverageCostPrice" readonly="true" disabled="true" class="form-control mask-money"
                              value="${wacValue != BigDecimal.ZERO ? String.format("%,.2f", wacValue) : '-'}" />
+            </div>
+            <div class="input-group col-4 my-auto">
+                <g:select name="stockManagementType"
+                          id="stockManagementType"
+                          class="form-control select-border"
+                          from="${StockManagementType.values()}"
+                          valueMessagePrefix="StockManagementType"
+                          optionKey="${{it}}"
+                          value="${variant?.stockManagementType ?: StockManagementType.STANDARD}"/>
             </div>
         </div>
 
@@ -170,7 +181,7 @@
         </div>
 
         <div class="row mx-4 py-2">
-            <div id="addBarcodesContainer" class="col-5 mr-0">
+            <div id="addBarcodesContainer" class="col-4 mr-0">
                 <g:if test="${!variant.barcodez}">
                     <div id="addBarcode0" class="input-group py-1">
                         <g:render template="addBarcode" model="[index: 0, barcode: null, selector: '#addBarcodesContainer']" />

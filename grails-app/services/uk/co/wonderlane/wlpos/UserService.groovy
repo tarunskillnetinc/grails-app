@@ -7,12 +7,19 @@ class UserService {
 
     def springSecurityService
 
-    def getUsers(String searchTerm, int offset, int max) {
+    def getUsers(String userNameFilter, Integer homeStoreFilter, boolean showInactiveUsers,  int offset, int max) {
         return User.createCriteria().list([offset: offset, max: max]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             or {
-                like ("username", "%$searchTerm%")
-                like ("name", "%$searchTerm%")
+                like ("username", "%$userNameFilter%")
+                like ("name", "%$userNameFilter%")
+            }
+            if (homeStoreFilter > 0) {
+                eq("defaultStoreId", homeStoreFilter)
+            }
+
+            if (!showInactiveUsers) {
+                eq("active", true)
             }
         }
     }
@@ -27,7 +34,6 @@ class UserService {
 
     def saveUser(User user) {
         user.save()
-
     }
 
     def deleteUser(User user){

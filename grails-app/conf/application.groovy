@@ -29,7 +29,7 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
         [pattern: '/supplier/**', access: 'isAuthenticated()'],
         [pattern: '/monitoring/**', access: 'isAuthenticated()'],
         [pattern: '/group/**', access: 'isAuthenticated()'],
-        [pattern: '/receipt/**', access: 'isAuthenticated()'],
+        [pattern: '/transaction/**', access: 'isAuthenticated()'],
         [pattern: '/productGroup/**', access: 'isAuthenticated()'],
         [pattern: '/shelfEdgeLabel/**', access: 'isAuthenticated()'],
         [pattern: '/order/**', access: 'isAuthenticated()'],

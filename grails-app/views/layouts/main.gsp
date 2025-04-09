@@ -210,7 +210,7 @@
 
                             <g:link elementId="till-control-events-dropdown" controller="reporting" action="tillControlEvents" class="dropdown-item">Till Control Events</g:link>
                             <a id="journal" class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Journal</a>
-                            <g:link elementId="receipt-viewer-dropdown" controller="receipt" action="index" class="dropdown-item">Receipt Viewer</g:link>
+                            <g:link elementId="transaction-search-dropdown" controller="transaction" action="index" class="dropdown-item">Transaction Search</g:link>
                         </div>
                     </li>
 
@@ -255,7 +255,7 @@
                                         <div class="dropdown-menu" aria-labelledby="cashManagementDropdown">
                                             <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
                                                 <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true,onlyRetailerLevel:false]" class="dropdown-item">Cash Management Configuration</g:link>
+                                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" params="[isStoreLevelLogin:true,onlyRetailerLevel:false]" class="dropdown-item">Cash Management Configuration</g:link>
                                                 </g:if>
                                             </sec:ifAnyGranted>
                                             <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>

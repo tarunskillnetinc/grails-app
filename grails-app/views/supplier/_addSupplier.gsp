@@ -74,7 +74,7 @@
 
                     <div class="input-group col-6">
                         <g:textField name="addressBuildingNumberOrName" value="${supplier?.addressBuildingNumberOrName}"
-                                     maxlength="40"
+                                     maxlength="45"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -89,7 +89,7 @@
 
                     <div class="input-group col-6">
                         <g:textField id="supplierreference" name="reference" value="${supplier?.reference}"
-                                     maxlength="20"
+                                     maxlength="40"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -101,7 +101,7 @@
                            class="col-5 m-0 offset-1 col-form-label text-right">Address Line 1</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="addressLine1" value="${supplier?.addressLine1}" maxlength="20"
+                        <g:textField name="addressLine1" value="${supplier?.addressLine1}" maxlength="45"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -114,7 +114,7 @@
                     <label for="contactName" class="col-5 m-0 offset-1 col-form-label text-right">Contact Name</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="contactName" value="${supplier?.contactName}" maxlength="40"
+                        <g:textField name="contactName" value="${supplier?.contactName}" maxlength="50"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -126,7 +126,7 @@
                            class="col-5 m-0 offset-1 col-form-label text-right">Address Line 2</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="addressLine2" value="${supplier?.addressLine2}" maxlength="20"
+                        <g:textField name="addressLine2" value="${supplier?.addressLine2}" maxlength="45"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -140,7 +140,7 @@
                            class="col-5 m-0 offset-1 col-form-label text-right">Contact Telephone</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="phoneNumber" id="phoneNumber" value="${supplier?.phoneNumber}" maxlength="12"
+                        <g:textField name="phoneNumber" id="phoneNumber" value="${supplier?.phoneNumber}" maxlength="30"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -151,7 +151,7 @@
                     <label for="addressTown" class="col-5 m-0 offset-1 col-form-label text-right">Town</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="addressTown" value="${supplier?.addressTown}" maxlength="20"
+                        <g:textField name="addressTown" value="${supplier?.addressTown}" maxlength="45"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -175,7 +175,7 @@
                     <label for="addressCounty" class="col-5 m-0 offset-1 col-form-label text-right">County</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="addressCounty" value="${supplier?.addressCounty}" maxlength="20"
+                        <g:textField name="addressCounty" value="${supplier?.addressCounty}" maxlength="45"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -201,7 +201,7 @@
                     <label for="addressCountry" class="col-5 m-0 offset-1 col-form-label text-right">Country</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="addressCountry" value="${supplier?.addressCountry}" maxlength="20"
+                        <g:textField name="addressCountry" value="${supplier?.addressCountry}" maxlength="45"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
@@ -219,7 +219,7 @@
                     <label for="addressPostCode" class="col-5 m-0 offset-1 col-form-label text-right">Postcode</label>
 
                     <div class="input-group col-6">
-                        <g:textField name="addressPostCode" value="${supplier?.addressPostCode}" maxlength="8"
+                        <g:textField name="addressPostCode" value="${supplier?.addressPostCode}" maxlength="10"
                                      class="form-control bottom-border"/>
                     </div>
                 </div>
