@@ -13,7 +13,7 @@
     <div id="collapseStoreOpeningHours" class="collapse" aria-labelledby="storeOpeningHours" data-parent="#accordion">
         <div class="card-body py-5">
             <div class="col-12">
-                <g:render template="storeOpeningHours" model="[storeOpeningHoursCommand:storeOpeningHoursCommand]" />
+                <g:render template="storeOpeningHours" model="[commandPrefix: 'storeOpeningHoursCommand', storeOpeningHoursCommand: storeOpeningHoursCommand]" />
             </div>
         </div>
     </div>

@@ -1,7 +1,10 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<g:set var="commandObject" value="${pageScope[commandPrefix]}" />
 <div class="store-opening-hours">
     <div class="row">
         <div class="col-md-4">
             <h5 class="mb-4">Regular Store Opening Hours</h5>
+
             <div class="table-responsive">
                 <table class="table table-bordered custom-table">
                     <thead>
@@ -13,18 +16,27 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <g:each in="${storeOpeningHoursCommand?.regularHours}" var="hour" status="i">
+                    <g:each in="${commandObject?.regularHours}" var="hour" status="i">
                         <tr>
-                            <td class="align-middle text-center">${hour.day} <input type="hidden" name="storeOpeningHoursCommand.regularHours[${i}].day" value="${hour.day}"></td>
+                            <td class="align-middle text-center">${hour.day} <input type="hidden"
+                                                                                    name="${commandPrefix}.regularHours[${i}].day"
+                                                                                    value="${hour.day}"></td>
                             <td>
-                                <g:textField name="storeOpeningHoursCommand.regularHours[${i}].startTime" id="storeOpeningHoursCommand.regularHours[${i}].startTime" value="${hour.startTime}" class="form-control form-control-sm time-input" placeholder="HH:mm" />
+                                <g:textField name="${commandPrefix}.regularHours[${i}].startTime"
+                                             id="${commandPrefix}.regularHours[${i}].startTime"
+                                             value="${hour.startTime}" class="form-control form-control-sm time-input"
+                                             placeholder="HH:mm"/>
                             </td>
                             <td>
-                                <g:textField name="storeOpeningHoursCommand.regularHours[${i}].endTime" id="storeOpeningHoursCommand.regularHours[${i}].endTime" value="${hour.endTime}" class="form-control form-control-sm time-input" placeholder="HH:mm" />
+                                <g:textField name="${commandPrefix}.regularHours[${i}].endTime"
+                                             id="${commandPrefix}.regularHours[${i}].endTime" value="${hour.endTime}"
+                                             class="form-control form-control-sm time-input" placeholder="HH:mm"/>
                             </td>
                             <td class="align-middle text-center">
                                 <div class="checkbox-wrapper">
-                                    <g:checkBox name="storeOpeningHoursCommand.regularHours[${i}].closed" id="storeOpeningHoursCommand.regularHours[${i}].closed" class="form-check-input wl-checkbox" checked="${hour.closed}" />
+                                    <g:checkBox name="${commandPrefix}.regularHours[${i}].closed"
+                                                id="${commandPrefix}.regularHours[${i}].closed"
+                                                class="form-check-input wl-checkbox" checked="${hour.closed}"/>
                                 </div>
                             </td>
                         </tr>
@@ -33,8 +45,10 @@
                 </table>
             </div>
         </div>
+
         <div class="col-md-8">
             <h5 class="mb-4">Special Store Opening/Close Date & Time</h5>
+
             <div class="table-responsive">
                 <table class="table table-bordered table-sm custom-table right-table">
                     <thead>
@@ -48,45 +62,61 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <g:each in="${storeOpeningHoursCommand?.specialOpeningHours}" var="special" status="i">
-                        <tr  id="special-hour-row-${i}">
+                    <g:each in="${commandObject?.specialOpeningHours}" var="special" status="i">
+                        <tr id="special-hour-row-${i}">
                             <td class="align-middle text-center">
                                 ${special?.description}
-                                <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].description" id="storeOpeningHoursCommand.specialOpeningHours[${i}].description" value="${special?.description}" />
+                                <input type="hidden" name="${commandPrefix}.specialOpeningHours[${i}].description"
+                                       id="${commandPrefix}.specialOpeningHours[${i}].description"
+                                       value="${special?.description}"/>
                             </td>
                             <td class="align-middle text-center">
                                 ${special?.date}
-                                <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].date" id="storeOpeningHoursCommand.specialOpeningHours[${i}].date" value="${special?.date}" />
+                                <input type="hidden" name="${commandPrefix}.specialOpeningHours[${i}].date"
+                                       id="${commandPrefix}.specialOpeningHours[${i}].date" value="${special?.date}"/>
                             </td>
                             <td class="align-middle text-center">
                                 ${special?.startTime}
-                                <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].startTime" id="storeOpeningHoursCommand.specialOpeningHours[${i}].startTime" value="${special?.startTime}" />
+                                <input type="hidden" name="${commandPrefix}.specialOpeningHours[${i}].startTime"
+                                       id="${commandPrefix}.specialOpeningHours[${i}].startTime"
+                                       value="${special?.startTime}"/>
                             </td>
                             <td class="align-middle text-center">
                                 ${special?.endTime}
-                                <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].endTime" id="storeOpeningHoursCommand.specialOpeningHours[${i}].endTime" value="${special?.endTime}" />
+                                <input type="hidden" name="${commandPrefix}.specialOpeningHours[${i}].endTime"
+                                       id="${commandPrefix}.specialOpeningHours[${i}].endTime"
+                                       value="${special?.endTime}"/>
                             </td>
                             <td class="align-middle text-center">
                                 <div class="checkbox-wrapper">
-                                    <input type="checkbox" class="form-check-input wl-checkbox" ${special?.closed ? 'checked' : ''} disabled />
-                                    <input type="hidden" name="storeOpeningHoursCommand.specialOpeningHours[${i}].closed" id="storeOpeningHoursCommand.specialOpeningHours[${i}].closed" value="${special?.closed}" />
+                                    <input type="checkbox"
+                                           class="form-check-input wl-checkbox" ${special?.closed ? 'checked' : ''}
+                                           disabled/>
+                                    <input type="hidden" name="${commandPrefix}.specialOpeningHours[${i}].closed"
+                                           id="${commandPrefix}.specialOpeningHours[${i}].closed"
+                                           value="${special?.closed}"/>
                                 </div>
                             </td>
                             <td class="text-center align-middle">
-                                <a href="#" onclick="editSpecialHour(${i})" id="edit-specialOpeningHours[${i}]" class="btn btn-sm btn-wl mr-1 fixed-width-btn">Edit</a>
-                                <a href="#" onclick="deleteSpecialHour(${i})" id="delete-specialOpeningHours[${i}]" class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
+                                <a href="#" onclick="editSpecialHour(${i})" id="edit-specialOpeningHours[${i}]"
+                                   class="btn btn-sm btn-wl mr-1 fixed-width-btn">Edit</a>
+                                <a href="#" onclick="deleteSpecialHour(${i})" id="delete-specialOpeningHours[${i}]"
+                                   class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
                             </td>
                         </tr>
                     </g:each>
                     </tbody>
                 </table>
             </div>
+
             <div class="mt-3">
-                <a href="#" onclick="addSpecialHour()" id="add-special-opening-hours" class="btn btn-wl p-1">Add special opening hours</a>
+                <a href="#" onclick="addSpecialHour()" id="add-special-opening-hours"
+                   class="btn btn-wl p-1">Add special opening hours</a>
             </div>
         </div>
     </div>
 </div>
+
 <div id="addSpecialOpeningHoursModalContainer"></div>
 
 <style>
@@ -138,6 +168,7 @@
     .col-md-4, .col-md-8 {
         width: 100%;
     }
+
     .col-md-8 {
         margin-top: 2rem;
     }
@@ -157,32 +188,34 @@
     .col-md-4, .col-md-8 {
         width: 100%;
     }
+
     .col-md-8 {
         margin-top: 2rem;
     }
 }
 
 .fixed-width-btn {
-    width: 80px;  /* Adjust this value as needed */
+    width: 80px; /* Adjust this value as needed */
     display: inline-flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    margin-bottom: 5px;  /* Add some vertical spacing between buttons if they wrap */
-    height: 30px;  /* Set a fixed height for the buttons */
-    padding: 0;  /* Remove default padding */
-    line-height: 1;  /* Reset line height */
+    margin-bottom: 5px; /* Add some vertical spacing between buttons if they wrap */
+    height: 30px; /* Set a fixed height for the buttons */
+    padding: 0; /* Remove default padding */
+    line-height: 1; /* Reset line height */
     vertical-align: middle;
 }
 </style>
 
 <script>
-    let specialHoursCount = ${storeOpeningHoursCommand?.specialOpeningHours?.size() ?: 0};
+    const commandPrefix = "${commandPrefix}";
+    let specialHoursCount = ${commandObject?.specialOpeningHours?.size() ?: 0};
 
     let specialOpeningHours = [];
 
     // Populate the array from the server-side data
-    <g:each in="${storeOpeningHoursCommand?.specialOpeningHours}" var="hour" status="i">
+    <g:each in="${commandObject?.specialOpeningHours}" var="hour" status="i">
     specialOpeningHours.push({
         date: "${hour.date}",
         description: "${hour.description}",
@@ -307,11 +340,14 @@
         $.ajax({
             url: '/store/loadAddSpecialOpeningHoursTemplate',
             method: 'GET',
-            success: function(response) {
+            data: {
+                commandPrefix: commandPrefix
+            },
+            success: function (response) {
                 $('#addSpecialOpeningHoursModalContainer').html(response);
                 $('#addSpecialOpeningHoursModal').modal('show');
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error("Error loading modal content:", error);
             }
         });
@@ -328,13 +364,14 @@
             method: 'GET',
             data: {
                 specialOpeningHour: specialOpeningHourJson,
-                openingHourIndex: index
+                openingHourIndex: index,
+                commandPrefix: commandPrefix
             },
-            success: function(response) {
+            success: function (response) {
                 $('#addSpecialOpeningHoursModalContainer').html(response);
                 $('#addSpecialOpeningHoursModal').modal('show');
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error("Error loading modal content:", error);
             }
         });
@@ -357,8 +394,8 @@
         descCell.textContent = data.description;
         const descInput = document.createElement('input');
         descInput.type = 'hidden';
-        descInput.name = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].description';
-        descInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].description';
+        descInput.name = commandPrefix + '.specialOpeningHours[' + index + '].description';
+        descInput.id = commandPrefix + '.specialOpeningHours[' + index + '].description';
         descInput.value = data.description;
         descCell.appendChild(descInput);
         descCell.className = 'align-middle text-center';
@@ -369,8 +406,8 @@
         dateCell.textContent = data.date;
         const dateInput = document.createElement('input');
         dateInput.type = 'hidden';
-        dateInput.name = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].date';
-        dateInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].date';
+        dateInput.name = commandPrefix + '.specialOpeningHours[' + index + '].date';
+        dateInput.id = commandPrefix + '.specialOpeningHours[' + index + '].date';
         dateInput.value = data.date;
         dateCell.className = 'align-middle text-center';
         dateCell.appendChild(dateInput);
@@ -381,8 +418,8 @@
         startCell.textContent = data.startTime;
         const startInput = document.createElement('input');
         startInput.type = 'hidden';
-        startInput.name = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].startTime';
-        startInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].startTime';
+        startInput.name = commandPrefix + '.specialOpeningHours[' + index + '].startTime';
+        startInput.id = commandPrefix + '.specialOpeningHours[' + index + '].startTime';
         startInput.value = data.startTime;
         startCell.appendChild(startInput);
         startCell.className = 'align-middle text-center';
@@ -393,8 +430,8 @@
         endCell.textContent = data.endTime;
         const endInput = document.createElement('input');
         endInput.type = 'hidden';
-        endInput.name = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].endTime';
-        endInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].endTime';
+        endInput.name = commandPrefix + '.specialOpeningHours[' + index + '].endTime';
+        endInput.id = commandPrefix + '.specialOpeningHours[' + index + '].endTime';
         endInput.value = data.endTime;
         endCell.appendChild(endInput);
         endCell.className = 'align-middle text-center';
@@ -412,8 +449,8 @@
         closedCheckbox.disabled = true;
         const closedInput = document.createElement('input');
         closedInput.type = 'hidden';
-        closedInput.name = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].closed';
-        closedInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].closed';
+        closedInput.name = commandPrefix + '.specialOpeningHours[' + index + '].closed';
+        closedInput.id = commandPrefix + '.specialOpeningHours[' + index + '].closed';
         closedInput.value = data.closed;
         closedWrapper.appendChild(closedCheckbox);
         closedWrapper.appendChild(closedInput);
@@ -425,7 +462,7 @@
         actionsCell.className = 'text-center align-middle';
         const editBtn = document.createElement('a');
         editBtn.href = '#';
-        editBtn.id="edit-specialOpeningHours[" + index + "]";
+        editBtn.id = "edit-specialOpeningHours[" + index + "]";
         editBtn.className = 'btn btn-sm btn-wl mr-1 fixed-width-btn';
         editBtn.textContent = 'Edit';
         editBtn.onclick = function () {
@@ -433,7 +470,7 @@
         };
         const deleteBtn = document.createElement('a');
         deleteBtn.href = '#';
-        deleteBtn.id="delete-specialOpeningHours[" + index + "]";
+        deleteBtn.id = "delete-specialOpeningHours[" + index + "]";
         deleteBtn.className = 'btn btn-sm btn-danger fixed-width-btn';
         deleteBtn.textContent = 'Delete';
         deleteBtn.onclick = function () {
@@ -476,7 +513,6 @@
         }
     });
 
-
     function resetSpecialHourForm() {
         $('#specialDescription').val('');
         $('#specialClosedCheckbox').prop('checked', false);
@@ -507,28 +543,39 @@
             row.id = 'special-hour-row-' + index;
 
             // Update input names
-            const inputs = row.querySelectorAll('input[name^="storeOpeningHoursCommand.specialOpeningHours["]');
+            const inputs = row.querySelectorAll('input[name^="' + commandPrefix + '.specialOpeningHours["]');
             inputs.forEach(input => {
                 const name = input.getAttribute('name');
                 const newName = name.replace(/\[\d+\]/, '[' + index + ']');
                 input.setAttribute('name', newName);
+
+                // Also update IDs if they exist
+                if (input.id) {
+                    const id = input.id;
+                    const newId = id.replace(/\[\d+\]/, '[' + index + ']');
+                    input.id = newId;
+                }
             });
 
             // Update onclick handlers
             const editBtn = row.querySelector('a.btn-wl');
             const deleteBtn = row.querySelector('a.btn-danger');
 
-            if (editBtn) editBtn.setAttribute('onclick', 'editSpecialHour('+index+')');
-            if (deleteBtn) deleteBtn.setAttribute('onclick', 'deleteSpecialHour('+index+')');
+            if (editBtn) {
+                editBtn.setAttribute('onclick', 'editSpecialHour(' + index + ')');
+                editBtn.id = 'edit-specialOpeningHours[' + index + ']';
+            }
+            if (deleteBtn) {
+                deleteBtn.setAttribute('onclick', 'deleteSpecialHour(' + index + ')');
+                deleteBtn.id = 'delete-specialOpeningHours[' + index + ']';
+            }
         });
 
         // Update the count
         specialHoursCount = rows.length;
     }
 
-
-
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         setupAllTimeInputs();
 
         const rows = document.querySelectorAll('.right-table tbody tr');
@@ -537,13 +584,10 @@
         });
     });
 
-    $(document).ready(function() {
-        $(document).on('click', '.btn-wl[onclick="addSpecialHour()"]', function(event) {
+    $(document).ready(function () {
+        $(document).on('click', '.btn-wl[onclick="addSpecialHour()"]', function (event) {
             event.preventDefault();
             addSpecialHour();
         });
-
     });
-
-
 </script>
