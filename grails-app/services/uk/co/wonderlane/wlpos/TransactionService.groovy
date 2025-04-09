@@ -66,7 +66,7 @@ class TransactionService {
         List<BasketTransactionParameterContainer> parameterItems = []
 
         for (def item : combinedResults) {
-            parameterItems.add(new BasketTransactionParameterContainer(item.store.id, item.receipt.tillId, item.receipt.transactionId))
+            parameterItems.add(new BasketTransactionParameterContainer(item.store.id, item.receipt.tillId, item.receipt.transactionId, item.receipt.id))
         }
 
         def transactionTotals = basketTransactionService.getBasketTransactionTotals(parameterItems)

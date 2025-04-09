@@ -45,11 +45,11 @@ class BasketTransactionService extends MySqlPoolDal {
             cstmt.setString(2, gsonProvider.gson.toJson(parameterList))
 
             ResultSet rs = cstmt.executeQuery()
-            if (rs.next()) {
+            while (rs.next()) {
                 def receiptId = rs.getInt("receiptId")
                 def grandtotal = rs.getBigDecimal("grandtotal")
 
-                totals.put(receiptId, new BasketTransactionTotal(receiptId, grandtotal))
+                totals[receiptId] = new BasketTransactionTotal(receiptId, grandtotal)
             }
         } finally {
             cstmt.close()
