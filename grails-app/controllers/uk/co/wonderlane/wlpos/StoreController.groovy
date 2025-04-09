@@ -122,7 +122,13 @@ class StoreController {
                 specialOpeningHours: []
         )
 
-        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand     : storeOpeningHoursCommand]
+        def alcoholLicensingCommand = new AlcoholLicensingCommand(
+                regularHours: initialRegularHours,
+                specialOpeningHours: [],
+                licensedToSellAlcohol: false
+        );
+
+        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand: storeOpeningHoursCommand, alcoholLicensingCommand: alcoholLicensingCommand]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -261,13 +267,15 @@ class StoreController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def loadAddSpecialOpeningHoursTemplate() {
-        render (template: 'addEditSpecialOpeningHours', model:[openingHourIndexItem:-1])
+        def commandPrefix = params.commandPrefix
+        render (template: 'addEditSpecialOpeningHours', model:[openingHourIndexItem:-1, commandPrefix: commandPrefix])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def loadEditSpecialOpeningHoursTemplate() {
         def specialOpeningHourJson = params.specialOpeningHour
         def openingHourIndex = params.openingHourIndex ? Integer.parseInt(params.openingHourIndex) : null
+        def commandPrefix = params.commandPrefix
 
         if (specialOpeningHourJson) {
             try {
@@ -284,13 +292,13 @@ class StoreController {
                         closed: hourObject.closed as boolean
                 )
 
-                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: specialOpeningHour, openingHourIndexItem: openingHourIndex])
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: specialOpeningHour, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix])
             } catch (Exception e) {
                 log.error("Error parsing specialOpeningHour JSON: ${e.message}", e)
                 render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndex: openingHourIndexItem, error: "Invalid data format"])
             }
         } else {
-            render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex])
+            render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix])
         }
     }
 
@@ -677,6 +685,10 @@ class AddStoreAdditionalDetailCommand implements Validateable {
 class StoreOpeningHoursCommand {
     List<OpeningTimeCommand> regularHours;
     List<OpeningTimeOverrideCommand> specialOpeningHours;
+}
+
+class AlcoholLicensingCommand extends StoreOpeningHoursCommand {
+   boolean licensedToSellAlcohol
 }
 
 class OpeningTimeCommand {
