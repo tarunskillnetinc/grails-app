@@ -354,6 +354,7 @@ class TransactionController {
             render(status: HttpStatus.BAD_REQUEST.code, inputErrors)
         } else {
             def (combinedResults, totalCount) = transactionService.getReceipts(startDate, endDate, tillId, transactionId, sort, order, offset, max)
+
             render(template: "receiptViewerResults", model: [
                     combinedResults: combinedResults,
                     totalCount     : totalCount,

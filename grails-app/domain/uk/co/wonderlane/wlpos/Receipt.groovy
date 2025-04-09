@@ -15,9 +15,13 @@ class Receipt {
     boolean printed
     DateTime dateGenerated
     TransactionPaymentMethodType paymentMethod
-    BigDecimal transactionAmount
+    BigDecimal transactionAmount /* total amount BEFORE discounts, promotions, refunds */
+
+    BigDecimal grandtotal /* used within transaction/index for accumulating the actual total of the receipt */
 
     static hasMany = [ receiptLines: ReceiptLine ]
+
+    static transients = ['grandtotal']
 
     static mapping = {
         datasources (["transactions"])
