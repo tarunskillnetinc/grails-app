@@ -36,7 +36,7 @@
                                 <div class="checkbox-wrapper">
                                     <g:checkBox name="${commandPrefix}.regularHours[${i}].closed"
                                                 id="${commandPrefix}.regularHours[${i}].closed"
-                                                class="form-check-input wl-checkbox" checked="${hour.closed}"/>
+                                                class="form-check-input wl-checkbox" checked="${hour.closed}" />
                                 </div>
                             </td>
                         </tr>
@@ -98,9 +98,9 @@
                                 </div>
                             </td>
                             <td class="text-center align-middle">
-                                <a href="#" onclick="editSpecialHour(${i},'${commandPrefix}')" id="${commandPrefix}-edit-specialOpeningHours[${i}]"
+                                <a href="#" onclick="${commandPrefix}editSpecialHour(${i},'${commandPrefix}')" id="${commandPrefix}-edit-specialOpeningHours[${i}]"
                                    class="btn btn-sm btn-wl mr-1 fixed-width-btn">Edit</a>
-                                <a href="#" onclick="deleteSpecialHour(${i},'${commandPrefix}')" id="${commandPrefix}-delete-specialOpeningHours[${i}]"
+                                <a href="#" onclick="${commandPrefix}deleteSpecialHour(${i},'${commandPrefix}')" id="${commandPrefix}-delete-specialOpeningHours[${i}]"
                                    class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
                             </td>
                         </tr>
@@ -110,7 +110,7 @@
             </div>
 
             <div class="mt-3">
-                <a href="#" onclick="addSpecialHour('${commandPrefix}')" id="${commandPrefix}-add-special-opening-hours"
+                <a href="#" onclick="${commandPrefix}addSpecialHour('${commandPrefix}')" id="${commandPrefix}-add-special-opening-hours"
                    class="btn btn-wl pt-1 pb-1 pl-3 pr-4">${addSpecialHoursButtonText}</a>
             </div>
         </div>
@@ -211,7 +211,7 @@
 <script>
     {
         const commandPrefix = "${commandPrefix}";
-        let specialHoursCount = ${commandObject?.specialOpeningHours?.size() ?: 0};
+        let ${commandPrefix}specialHoursCount = ${commandObject?.specialOpeningHours?.size() ?: 0};
 
         let ${commandPrefix}SpecialOpeningHours = [];
 
@@ -226,12 +226,12 @@
         });
         </g:each>
 
-        function setupAllTimeInputs() {
+        function ${commandPrefix}setupAllTimeInputs() {
             const timeInputs = document.querySelectorAll('.time-input');
-            timeInputs.forEach(input => setupTimeInput(input));
+            timeInputs.forEach(input => ${commandPrefix}setupTimeInput(input));
         }
 
-        function setupTimeInput(input) {
+        function ${commandPrefix}setupTimeInput(input) {
             // Keep the input event for formatting only
             input.addEventListener('input', function (e) {
                 let value = e.target.value.replace(/[^0-9]/g, '');
@@ -335,7 +335,7 @@
             });
         }
 
-        function addSpecialHour(targetCommandPrefix) {
+        function ${commandPrefix}addSpecialHour(targetCommandPrefix) {
             $.ajax({
                 url: '/store/loadAddSpecialOpeningHoursTemplate',
                 method: 'GET',
@@ -352,12 +352,10 @@
             });
         }
 
-        function editSpecialHour(index, targetCommandPrefix) {
+        function ${commandPrefix}editSpecialHour(index, targetCommandPrefix) {
             let specialOpeningHour = ${commandPrefix}SpecialOpeningHours[index];
-
             // Convert the JavaScript object to a JSON string and encode it for URL
             let specialOpeningHourJson = encodeURIComponent(JSON.stringify(specialOpeningHour));
-
             $.ajax({
                 url: '/store/loadEditSpecialOpeningHoursTemplate',
                 method: 'GET',
@@ -376,7 +374,7 @@
             });
         }
 
-        function createOrUpdateRow(data, index) {
+        function ${commandPrefix}createOrUpdateRow(data, index) {
             const rowIndex = commandPrefix + '-special-hour-row-' + index;
 
             const existingRow = document.getElementById(rowIndex);
@@ -465,7 +463,7 @@
             editBtn.className = 'btn btn-sm btn-wl mr-1 fixed-width-btn';
             editBtn.textContent = 'Edit';
             editBtn.onclick = function () {
-                editSpecialHour(index, commandPrefix);
+                ${commandPrefix}editSpecialHour(index, commandPrefix);
             };
             const deleteBtn = document.createElement('a');
             deleteBtn.href = '#';
@@ -473,7 +471,7 @@
             deleteBtn.className = 'btn btn-sm btn-danger fixed-width-btn';
             deleteBtn.textContent = 'Delete';
             deleteBtn.onclick = function () {
-                deleteSpecialHour(index, commandPrefix);
+                ${commandPrefix}deleteSpecialHour(index, commandPrefix);
             };
             actionsCell.appendChild(editBtn);
             actionsCell.appendChild(deleteBtn);
@@ -485,7 +483,7 @@
         document.addEventListener(commandPrefix + 'SaveSpecialHours', function (e) {
             const data = e.detail;
             if (data.specialOpeningHoursIndex !== undefined && data.specialOpeningHoursIndex !== -1) {
-                createOrUpdateRow(data, data.specialOpeningHoursIndex);
+                ${commandPrefix}createOrUpdateRow(data, data.specialOpeningHoursIndex);
 
                 ${commandPrefix}SpecialOpeningHours[data.specialOpeningHoursIndex] = {
                     date: data.date,
@@ -495,7 +493,7 @@
                     closed: data.closed
                 };
             } else {
-                const newRow = createOrUpdateRow(data, specialHoursCount);
+                const newRow = ${commandPrefix}createOrUpdateRow(data, ${commandPrefix}specialHoursCount);
                 if (newRow) {
                     document.querySelector('#' + commandPrefix + '-special-hours-tbl tbody').appendChild(newRow);
                 }
@@ -508,11 +506,11 @@
                     closed: data.closed
                 });
 
-                specialHoursCount++;
+                ${commandPrefix}specialHoursCount++;
             }
         });
 
-        function resetSpecialHourForm() {
+        function ${commandPrefix}resetSpecialHourForm() {
             $('#specialDescription').val('');
             $('#specialClosedCheckbox').prop('checked', false);
             $('#specialDate').val('');
@@ -520,22 +518,21 @@
             $('#specialEndTime').val('');
         }
 
-        function deleteSpecialHour(index, targetCommandPrefix) {
+        function ${commandPrefix}deleteSpecialHour(index, targetCommandPrefix) {
             if (confirm("Are you sure you want to delete this special opening hour?")) {
                 // Remove from the specialOpeningHours array
                 ${commandPrefix}SpecialOpeningHours.splice(index, 1);
-
                 // Remove the row from the table
                 const row = document.getElementById(targetCommandPrefix + '-special-hour-row-' + index);
                 if (row) {
                     row.remove();
                     // Reindex the remaining rows
-                    reindexSpecialHours();
+                    ${commandPrefix}reindexSpecialHours(targetCommandPrefix);
                 }
             }
         }
 
-        function reindexSpecialHours(targetCommandPrefix) {
+        function ${commandPrefix}reindexSpecialHours(targetCommandPrefix) {
             const rows = document.querySelectorAll('#' + targetCommandPrefix + '-special-hours-tbl tbody tr');
             rows.forEach((row, index) => {
                 // Update row ID
@@ -561,21 +558,20 @@
                 const deleteBtn = row.querySelector('a.btn-danger');
 
                 if (editBtn) {
-                    editBtn.setAttribute('onclick', 'editSpecialHour(' + index + ','+targetCommandPrefix+')');
-                    editBtn.id = commandPrefix + '-edit-specialOpeningHours[' + index + ']';
+                    editBtn.setAttribute('onclick', '${commandPrefix}editSpecialHour(' + index + ',"'+targetCommandPrefix+'")');
+                    editBtn.id = targetCommandPrefix + '-edit-specialOpeningHours[' + index + ']';
                 }
                 if (deleteBtn) {
-                    deleteBtn.setAttribute('onclick', 'deleteSpecialHour(' + index + ','+targetCommandPrefix+')');
-                    deleteBtn.id = commandPrefix + '-delete-specialOpeningHours[' + index + ']';
+                    deleteBtn.setAttribute('onclick', '${commandPrefix}deleteSpecialHour(' + index + ',"'+targetCommandPrefix+'")');
+                    deleteBtn.id = targetCommandPrefix + '-delete-specialOpeningHours[' + index + ']';
                 }
             });
-
             // Update the count
-            specialHoursCount = rows.length;
+            ${commandPrefix}specialHoursCount = rows.length;
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            setupAllTimeInputs();
+            ${commandPrefix}setupAllTimeInputs();
 
             const rows = document.querySelectorAll('#' + commandPrefix + '-special-hours-tbl tbody tr');
             rows.forEach((row, index) => {

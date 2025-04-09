@@ -40,9 +40,10 @@
                     <label for="alcoholLicensingCommand.licensedToSellAlcohol" class="mb-0 mr-2" style="position: relative; z-index: 2;">
                         Beers, Wines and Spirits (BWS) License
                     </label>
-                    <input type="checkbox" name="alcoholLicensingCommand.licensedToSellAlcohol"
+                    <g:checkBox name="alcoholLicensingCommand.licensedToSellAlcohol"
                            id="alcoholLicensingCommand.licensedToSellAlcohol"
-                           class="form-check-input wl-checkbox" style="position: relative; z-index: 1;">
+                           checked="${alcoholLicensingCommand?.licensedToSellAlcohol}"
+                           class="form-check-input wl-checkbox" style="position: relative; z-index: 1;"/>
                 </div>
                 <g:render template="openingHours" model="[commandPrefix: 'alcoholLicensingCommand', alcoholLicensingCommand: alcoholLicensingCommand,
                                                           titleRegularOpeningHours: 'Alcohol Licensing Hours', titleSpecialOpeningHours:'Special Alcohol licensing Date & Time',

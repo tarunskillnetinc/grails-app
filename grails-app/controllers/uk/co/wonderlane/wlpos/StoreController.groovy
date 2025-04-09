@@ -171,7 +171,8 @@ class StoreController {
          sort                        : params.sort,
          order                       : params.order,
          storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList()),
-         storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours())]
+         storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours()),
+         alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing())]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -187,7 +188,9 @@ class StoreController {
                                         storeTypes: storeTypes,
                                         priceBands: priceBands,
                                         ranges: ranges,
-                                        storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails)
+                                        storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails),
+                                        storeOpeningHoursCommand: newStoreCommand.storeOpeningHoursCommand,
+                                        alcoholLicensingCommand: newStoreCommand.alcoholLicensingCommand
             ])
         } else {
             // Validated.
@@ -236,6 +239,7 @@ class StoreController {
             store.additionalDetails = storeAdditionalDetailJson
 
             store.setOpeningHours(storeService.getOpeningHoursAsObject(newStoreCommand.storeOpeningHoursCommand))
+            store.setLicencing(storeService.getAlcoholLicensingCommandAsObject(newStoreCommand.alcoholLicensingCommand))
 
             storeService.saveStore(store)
 
@@ -295,7 +299,7 @@ class StoreController {
                 render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: specialOpeningHour, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix])
             } catch (Exception e) {
                 log.error("Error parsing specialOpeningHour JSON: ${e.message}", e)
-                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndex: openingHourIndexItem, error: "Invalid data format"])
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex, error: "Invalid data format"])
             }
         } else {
             render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix])
@@ -332,8 +336,9 @@ class StoreController {
             String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(storeCommand?.storeAdditionalDetails)
 
             String storeOpeningHours = gsonProvider.gson.toJson(storeService.getOpeningHoursAsObject(storeCommand.storeOpeningHoursCommand))
+            String storeLicensing = gsonProvider.gson.toJson(storeService.getAlcoholLicensingCommandAsObject(storeCommand.alcoholLicensingCommand))
 
-            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours)
+            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours, storeLicensing)
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
@@ -367,7 +372,11 @@ class StoreController {
                                            availableParentStores       : availableParentStores,
                                            availablePrintReceiptOptions: PrintReceiptOption.values(),
                                            viewOptions                 : viewOptions,
-                                           storeAdditionalDetails      : storeService.sortAdditionalDetails(storeCommand?.storeAdditionalDetails)])
+                                           storeAdditionalDetails      : storeService.sortAdditionalDetails(storeCommand?.storeAdditionalDetails),
+                                           storeOpeningHoursCommand: storeCommand.storeOpeningHoursCommand,
+                                           alcoholLicensingCommand: storeCommand.alcoholLicensingCommand
+            ])
+
         }
     }
 
@@ -445,8 +454,8 @@ class NewStoreCommand implements Validateable {
     Range range
     PriceBand priceBand
     StoreOpeningHoursCommand storeOpeningHoursCommand
-
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
+    AlcoholLicensingCommand alcoholLicensingCommand
 
     static constraints = {
         storeNumber nullable: false,blank: false, min:1, max: 999999, validator: { val, obj ->
@@ -505,6 +514,7 @@ class NewStoreCommand implements Validateable {
         range nullable: true
         priceBand nullable: true
         storeOpeningHoursCommand nullable: true
+        alcoholLicensingCommand nullable: true
         storeAdditionalDetails nullable: true, validator: { val, obj ->
             if (val) {
                 def hasErrors = false
@@ -534,6 +544,7 @@ class StoreCommand implements Validateable {
     StoreConfigCommand config
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
     StoreOpeningHoursCommand storeOpeningHoursCommand
+    AlcoholLicensingCommand alcoholLicensingCommand
 
     static constraints = {
         id nullable: true
@@ -557,6 +568,7 @@ class StoreCommand implements Validateable {
             return true
         }
         storeOpeningHoursCommand nullable: true
+        alcoholLicensingCommand nullable: true
     }
 }
 

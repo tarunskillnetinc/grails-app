@@ -1,11 +1,11 @@
 <g:form id="${commandPrefix}-specialOpeningHoursForm" onsubmit="return saveSpecialOpeningHours(event);">
-    <div class="modal fade" id="${commandPrefix}-addSpecialOpeningHoursModal" tabindex="100" role="dialog" aria-labelledby="specialHoursModalLabel" aria-hidden="true">
+    <div class="modal fade" id="${commandPrefix}-addSpecialOpeningHoursModal" tabindex="100" role="dialog" aria-labelledby="specialHoursModalLabel">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="${commandPrefix}-specialHoursModalLabel">${specialOpeningHour ? 'Edit' : 'Add'} Special Store Opening/Closing</h5>
                     <button type="button" class="close" id="${commandPrefix}-close-cross" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                        <span>&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -39,7 +39,7 @@
                             <div class="col-md-6 d-flex align-items-end">
                                 <div class="form-check">
                                     <label class="form-check-label" for="${commandPrefix}-specialClosedCheckbox">Closed</label>
-                                    <input type="checkbox" id="${commandPrefix}-specialClosedCheckbox" name="${commandPrefix}-specialClosed" class="form-check-input wl-checkbox ml-6" onclick="toggleSpecialTimeFields()" ${specialOpeningHour?.closed ? 'checked' : ''} />
+                                    <input type="checkbox" id="${commandPrefix}-specialClosedCheckbox" name="${commandPrefix}-specialClosed" class="form-check-input wl-checkbox ml-6" onclick="${commandPrefix}toggleSpecialTimeFields()" ${specialOpeningHour?.closed ? 'checked' : ''} />
                                 </div>
                             </div>
                         </div>
@@ -72,8 +72,8 @@
             const startTimeInput = document.getElementById(commandPrefix + '-special-startTime');
             const endTimeInput = document.getElementById(commandPrefix + '-special-endTime');
 
-            if (startTimeInput) setupTimeInput(startTimeInput);
-            if (endTimeInput) setupTimeInput(endTimeInput);
+            if (startTimeInput) ${commandPrefix}setupTimeInput(startTimeInput);
+            if (endTimeInput) ${commandPrefix}setupTimeInput(endTimeInput);
         });
 
         $('#'+commandPrefix+'-saveSpecialHoursBtn').on('click', function () {
@@ -99,7 +99,7 @@
             $('body').removeClass('modal-open');
         });
 
-        function toggleSpecialTimeFields() {
+        function ${commandPrefix}toggleSpecialTimeFields() {
             const isClosed = document.getElementById(commandPrefix + '-specialClosedCheckbox').checked;
             const timeFieldsStart = document.getElementById(commandPrefix + '-specialTimeFieldsStart');
             const timeFieldsEnd = document.getElementById(commandPrefix + '-specialTimeFieldsEnd');
@@ -107,7 +107,7 @@
             timeFieldsEnd.style.display = isClosed ? 'none' : 'block';
         }
 
-        function dateInputSetup() {
+        function ${commandPrefix}dateInputSetup() {
             let specialDateInput = document.getElementById(commandPrefix +'-specialDate');
             let today = new Date().toISOString().split('T')[0];
             specialDateInput.min = today;
@@ -119,7 +119,7 @@
             });
         }
 
-        dateInputSetup();
+        ${commandPrefix}dateInputSetup();
     }
 </script>
 <style>
