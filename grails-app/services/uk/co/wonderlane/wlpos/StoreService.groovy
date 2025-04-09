@@ -219,7 +219,9 @@ class StoreService extends MySqlDal {
                 for (OpeningTimeOverride override : openingHours.getSpecialOpeningHours()) {
                     OpeningTimeOverrideCommand overrideCommand = new OpeningTimeOverrideCommand()
                     overrideCommand.description = override.description
-                    overrideCommand.setDate(override.getDate().toString("yyyy-MM-dd"))
+                    if (override.getDate() != null) {
+                        overrideCommand.setDate(override.getDate().toString("yyyy-MM-dd"))
+                    }
                     overrideCommand.setStartTime(override.getStartTime() != null ? override.getStartTime().toString("HH:mm") : null)
                     overrideCommand.setEndTime(override.getEndTime() != null ? override.getEndTime().toString("HH:mm") : null)
                     overrideCommand.setClosed(override.isClosed())
@@ -238,7 +240,6 @@ class StoreService extends MySqlDal {
                     new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
             ])
         }
-
 
         return command
     }
