@@ -413,7 +413,7 @@ overridewrap {
 
                 <g:if test="${!eventLines.isEmpty()}">
                     <div id="till-event-card" class="card mt-3 mb-3 p-2">
-                        <h4 class="mx-auto">Till Events/Actions</h4>
+                        <h4 class="mx-auto">Till Events / Actions</h4>
 
                         <div id="till-events-table">
                             <div class="row mt-2 pb-2 ml-0 mr-0 table-wl bottom-border">

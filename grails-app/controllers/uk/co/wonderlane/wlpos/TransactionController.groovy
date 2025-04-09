@@ -87,13 +87,15 @@ class TransactionController {
                     transactionBasketItem.barcode = basketItem.barcodeScanned
                 } else if (basketItem instanceof PaidInBasketItem || basketItem instanceof PaidOutBasketItem) {
                     transactionBasketItem.barcode = "-"
-                } else {
+                } else if (basketItem instanceof ProductBasketItem) {
                     transactionBasketItem.barcode = basketItem.product.variants[0].barcodes[0]
+                } else {
+                    transactionBasketItem.barcode = "-"
                 }
 
                 transactionBasketItem.qty = basketItem.qty ?: "-"
 
-                if (basketItem.qty) {
+                if (basketItem.qty && basketItem instanceof ProductBasketItem) {
                     transactionBasketItem.unitPrice = basketItem.product.variants[0].retailPrice
                 } else {
                     transactionBasketItem.unitPrice = null
@@ -114,13 +116,13 @@ class TransactionController {
                 }
 
                 if (basketItem instanceof PaidInBasketItem || basketItem instanceof PaidOutBasketItem) {
-                    basketItem.ageRestricted = "-"
+                    transactionBasketItem.ageVerification = "-"
                 } else if (basketItem.ageRestricted) {
-                    basketItem.ageRestricted = "&#10003;"
-                } else {
+                    transactionBasketItem.ageVerification = "&#10003;"
+                } else if (basketItem instanceof ProductBasketItem) {
                     def ageValue = (basketItem.product?.category?.restrictions?.buyerAgeRestriction ?: 0 > (basketItem.product?.restrictions?.buyerAgeRestriction ?: 0)
                             ? basketItem.product?.category?.restrictions?.buyerAgeRestriction : basketItem.product?.restrictions?.buyerAgeRestriction)
-                    basketItem.ageRestricted = ageValue ?: "-"
+                    transactionBasketItem.ageVerification = ageValue ?: "-"
                 }
 
                 if (basketItem instanceof RefundBasketItem) {
@@ -216,14 +218,20 @@ class TransactionController {
             def eventLines = []
             basketTransaction?.getBasket()?.getTillControlEvents()?.forEach { event ->
                 def barcode = "-";
+                def basketItem
 
-                def basketItem = basketTransaction?.getBasket()?.getBasketItems()?.get(event.basketItemId);
+                try {
+                    basketItem = basketTransaction?.getBasket()?.getBasketItems()?.get(event.basketItemId);
+                } catch (IndexOutOfBoundsException ignored) {
+
+                }
+
                 if (basketItem) {
                     if (basketItem.barcodeScanned) { // if this top level is set, use that
                         barcode = basketItem.barcodeScanned
                     } else if (basketItem instanceof PaidInBasketItem || basketItem instanceof PaidOutBasketItem) {
                         barcode = "-"
-                    } else {
+                    } else if (basketItem instanceof ProductBasketItem) {
                         barcode = basketItem.product.variants[0].barcodes[0]
                     }
                 }
