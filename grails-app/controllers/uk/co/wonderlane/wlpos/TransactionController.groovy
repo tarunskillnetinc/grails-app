@@ -215,7 +215,24 @@ class TransactionController {
 
             def eventLines = []
             basketTransaction?.getBasket()?.getTillControlEvents()?.forEach { event ->
-                eventLines.add([eventType: event.type, overrideUsersName: event.overrideUser?.name ?: user?.name])
+                def barcode = "-";
+
+                def basketItem = basketTransaction?.getBasket()?.getBasketItems()?.get(event.basketItemId);
+                if (basketItem) {
+                    if (basketItem.barcodeScanned) { // if this top level is set, use that
+                        barcode = basketItem.barcodeScanned
+                    } else if (basketItem instanceof PaidInBasketItem || basketItem instanceof PaidOutBasketItem) {
+                        barcode = "-"
+                    } else {
+                        barcode = basketItem.product.variants[0].barcodes[0]
+                    }
+                }
+
+                eventLines.add([eventType        : event.type,
+                                barcode          : barcode ?: "-", // pull from product/variant, somehow.
+                                amount           : event.amount,
+                                reason           : event.reason ?: "-",
+                                overrideUsersName: event.overrideUser?.name ?: user?.name])
             }
 
             def discountCard = fetchDiscountCard(basketTransaction)

@@ -76,6 +76,13 @@ overridewrap {
     padding-left: 15px;
     overflow: hidden;
 }
+
+#till-event-card {
+    -ms-flex: 0 0 74%;
+    flex: 0 0 74%;
+    max-width: 74%;
+}
+
     </style>
 </head>
 
@@ -368,7 +375,7 @@ overridewrap {
             </div>
 
             <div class="row">
-                <div class="card mt-3 mb-3 p-2 col-md-4">
+                <div class="card mt-3 mb-3 p-2 col-md-3 mr-auto">
                     <h4 class="mx-auto">Transaction Totals</h4>
 
                     <div class="col-md-12">
@@ -405,17 +412,48 @@ overridewrap {
                 </div>
 
                 <g:if test="${!eventLines.isEmpty()}">
-                    <div class="card mt-3 mb-3 p-2 ml-3 col-md-4">
+                    <div id="till-event-card" class="card mt-3 mb-3 p-2">
                         <h4 class="mx-auto">Till Events/Actions</h4>
 
-                        <div class="col-md-12">
+                        <div id="till-events-table">
+                            <div class="row mt-2 pb-2 ml-0 mr-0 table-wl bottom-border">
+                                <div class="col-2 font-weight-bold">Type</div>
+
+                                <div class="col-3 font-weight-bold">Barcode</div>
+
+                                <div class="col-2 font-weight-bold">Amount</div>
+
+                                <div class="col-3 font-weight-bold">Reason</div>
+
+                                <div class="col-2 font-weight-bold">User</div>
+                            </div>
+
                             <g:each in="${eventLines}" var="event" status="i">
-                                <div class="row">
-                                    <div id="eventType-${i + 1}" class="col-6 text-right font-weight-bold">
+                                <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
+                                    <div id="eventType-${i + 1}" class="col-2">
                                         <g:message code="TillControlEventType.${event?.eventType}"/>
                                     </div>
 
-                                    <div id="eventUser-${i + 1}" class="col-6">${event?.overrideUsersName}</div>
+                                    <div id="eventBarcode-${i + 1}" class="col-3">
+                                        ${event?.barcode}
+                                    </div>
+
+                                    <div id="eventAmount-${i + 1}" class="col-2">
+                                        <g:if test="${event?.amount}">
+                                            <g:formatNumber number="${event?.amount}" type="currency"/>
+                                        </g:if>
+                                        <g:else>
+                                            -
+                                        </g:else>
+                                    </div>
+
+                                    <div id="eventReason-${i + 1}" class="col-3">
+                                        ${event?.reason}
+                                    </div>
+
+                                    <div id="eventUser-${i + 1}" class="col-2">
+                                        ${event?.overrideUsersName}
+                                    </div>
                                 </div>
                             </g:each>
                         </div>
