@@ -41,6 +41,7 @@ class ProductVariant implements Serializable {
     BigDecimal depthCm
     StockManagementType stockManagementType
     String extras
+    boolean excludeFromStockTake
 
     Collection<Pack> packs = new ArrayList<>()
 //    Collection<ProductGroup> tags = new ArrayList<>()
@@ -90,6 +91,7 @@ class ProductVariant implements Serializable {
         depthCm column: "depthCm"
         extras column: "extras", sqlType: "json"
         stockManagementType column: "stockManagementType", sqlType: "enum", enumType: 'string'
+        excludeFromStockTake column: "excludeFromStockTake"
     }
 
     static constraints = {
@@ -125,6 +127,7 @@ class ProductVariant implements Serializable {
         delete bindable: true
         barcodez bindable: true
         locationz bindable: true
+        excludeFromStockTake nullable: false
     }
 
     static int countMatchingSkusForRetailer(Long sku, Integer retailerId) {
