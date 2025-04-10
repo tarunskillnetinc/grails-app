@@ -120,7 +120,6 @@ overridewrap {
 <section id="errors-container" class="container-fluid">
     <g:if test="${flash.error}">
         <div id="error-message" class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
-        <pre>${exception}</pre>
     </g:if>
 </section>
 
@@ -298,7 +297,7 @@ overridewrap {
                                         <g:message code="${basketItem.type}"/>
                                     </div>
 
-                                    <div id="entrymethod-id-${line + 1}" class="col-1 my-auto">
+                                    <div id="entrymethod-id-${line + 1}" class="col-1 my-auto overridewrap">
                                         ${basketItem.entryMethod}
                                     </div>
 
@@ -306,7 +305,7 @@ overridewrap {
                                         ${basketItem.productCode}
                                     </div>
 
-                                    <div id="productdescription-id-${line + 1}" class="col-3 my-auto p-1">
+                                    <div id="productdescription-id-${line + 1}" class="col-3 my-auto p-1 overridewrap">
                                         ${basketItem.productDescription}
                                     </div>
 
@@ -346,7 +345,7 @@ overridewrap {
                                         ${basketItem.ageVerification ?: "-"}
                                     </div>
 
-                                    <div id="returnreason-id-${line + 1}" class="col-1 my-auto">
+                                    <div id="returnreason-id-${line + 1}" class="col-1 my-auto overridewrap">
                                         ${basketItem.returnReason}
                                     </div>
 
@@ -379,7 +378,7 @@ overridewrap {
 
                         <g:each in="${promotionItems}" var="promotionItem" status="i">
                             <div class="row">
-                                <div class="col-6 text-right">${promotionItem.description}</div>
+                                <div class="col-6 text-right overridewrap">${promotionItem.description}</div>
 
                                 <div class="col-6"><g:formatNumber number="${promotionItem.amount}"
                                                                    type="currency"/></div>
@@ -388,7 +387,7 @@ overridewrap {
 
                         <g:each in="${discountItems}" var="discountItem" status="i">
                             <div class="row">
-                                <div class="col-6 text-right">${discountItem.description}</div>
+                                <div class="col-6 text-right overridewrap">${discountItem.description}</div>
 
                                 <div class="col-6"><g:formatNumber number="${discountItem.amount}"
                                                                    type="currency"/></div>
@@ -479,7 +478,7 @@ overridewrap {
 
                                 <g:set var="lastSeqNum" value="${seqNum + 1}"/>
 
-                                <div id="tender-id-${line + 1}" class="col-2 my-auto">
+                                <div id="tender-id-${line + 1}" class="col-2 my-auto overridewrap">
                                     <g:if test="${basketItem.tenderType}"><!-- tendertype might not be a legal value -->
                                         <g:message code="TenderType.${basketItem.tenderType}"/>
                                     </g:if>
