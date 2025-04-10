@@ -37,11 +37,6 @@ class TransactionController {
         [startDate: startDate, endDate: endDate]
     }
 
-    class DiscountItem {
-        String description
-        BigDecimal amount;
-    }
-
     private def populateTransactionBasketItems(List<BasketItem> basketItems) {
         Map<Integer, TransactionBasketItem> transactionBasketItems = [:]
         BigDecimal pre_discount_total = 0
@@ -238,35 +233,34 @@ class TransactionController {
             def promotionItems = []
             basketTransaction?.getBasket()?.getBasketItems()?.forEach { item ->
                 if (item instanceof PromotionBasketItem) {
-                    def promotionItem = new DiscountItem()
-                    promotionItem.description = item.promotion.receiptDescription
+                    def description = item.promotion.receiptDescription
+                    def amount = -item.totalSavings
 
-                    promotionItem.amount = -item.totalSavings
                     postDiscountsTotal -= item.totalSavings
 
-                    promotionItems.add(promotionItem)
+                    promotionItems.add([description: description, amount: amount])
                 }
             }
 
             def discountItems = []
             basketTransaction?.getBasket()?.getBasketItems()?.forEach { item ->
                 if (item instanceof DiscountBasketItem || item instanceof SimpleDiscountBasketItem) {
-                    def discountItem = new DiscountItem()
-                    discountItem.description = item.receiptDescription
+                    def description = item.receiptDescription
+                    def amount;
 
                     if (item.total) {
-                        discountItem.amount = -item.total
+                        amount = -item.total
                         postDiscountsTotal -= item.total
                     } else if (item.discountPercentage) { // calculate the amount the discount card will yield.
                         BigDecimal percentage = new BigDecimal(item.discountPercentage).divide(new BigDecimal(100))
                         def discountAmount = discountableAmount * percentage
 
-                        discountItem.amount = -discountAmount
+                        amount = -discountAmount
                         postDiscountsTotal -= discountAmount
                         discountableAmount -= discountAmount
                     }
 
-                    discountItems.add(discountItem)
+                    discountItems.add([description: description, amount: amount])
                 }
             }
 
