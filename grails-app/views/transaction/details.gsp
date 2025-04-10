@@ -424,7 +424,7 @@ overridewrap {
                                     </div>
 
                                     <div id="eventSeqnum-${i + 1}" class="col-1">
-                                        ${event?.seqnum + 1}
+                                        ${event?.seqnum}
                                     </div>
 
                                     <div id="eventAmount-${i + 1}" class="col-2">

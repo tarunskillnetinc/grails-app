@@ -39,7 +39,7 @@ class TransactionController {
 
     private def populateTransactionBasketItems(List<BasketItem> basketItems) {
         Map<Integer, TransactionBasketItem> transactionBasketItems = [:]
-        BigDecimal pre_discount_total = 0
+        BigDecimal preDiscountTotal = 0
         BigDecimal discountableAmount = 0
         def priorAddedSeqNum = 0
 
@@ -81,8 +81,6 @@ class TransactionController {
 
                 if (basketItem.barcodeScanned) { // if this top level is set, use that
                     transactionBasketItem.barcode = basketItem.barcodeScanned
-                } else if (basketItem instanceof PaidInBasketItem || basketItem instanceof PaidOutBasketItem) {
-                    transactionBasketItem.barcode = "-"
                 } else if (basketItem instanceof ProductBasketItem) {
                     transactionBasketItem.barcode = basketItem.product.variants[0].barcodes[0]
                 } else {
@@ -99,9 +97,7 @@ class TransactionController {
 
                 transactionBasketItem.totalPrice = (basketItem.total ?: BigDecimal.ZERO)
 
-                if (basketItem instanceof PaidInBasketItem || basketItem instanceof PaidOutBasketItem) {
-                    transactionBasketItem.vat = null
-                } else if (basketItem.priceDetails && basketItem.priceDetails.size() > 0) {
+                if (basketItem instanceof ProductBasketItem && basketItem.priceDetails && basketItem.priceDetails.size() > 0) {
                     def vat_individual_total = new BigDecimal(0)
                     basketItem.priceDetails.each { detail ->
                         vat_individual_total += detail.vatAmount
@@ -111,14 +107,12 @@ class TransactionController {
                     transactionBasketItem.vat = null
                 }
 
-                if (basketItem instanceof PaidInBasketItem || basketItem instanceof PaidOutBasketItem) {
-                    transactionBasketItem.ageVerification = "-"
-                } else if (basketItem.ageRestricted) {
-                    transactionBasketItem.ageVerification = "&#10003;"
-                } else if (basketItem instanceof ProductBasketItem) {
+                if (basketItem instanceof ProductBasketItem) {
                     def ageValue = (basketItem.product?.category?.restrictions?.buyerAgeRestriction ?: 0 > (basketItem.product?.restrictions?.buyerAgeRestriction ?: 0)
                             ? basketItem.product?.category?.restrictions?.buyerAgeRestriction : basketItem.product?.restrictions?.buyerAgeRestriction)
                     transactionBasketItem.ageVerification = ageValue ?: "-"
+                } else {
+                    transactionBasketItem.ageVerification = "-"
                 }
 
                 if (basketItem instanceof RefundBasketItem) {
@@ -142,7 +136,7 @@ class TransactionController {
                 if (basketItem.product?.restrictions?.discountAllowed && basketItem.product?.restrictions?.discountAllowed == true) {
                     discountableAmount = discountableAmount + basketItem.total
                 }
-                pre_discount_total = pre_discount_total + basketItem.total
+                preDiscountTotal = preDiscountTotal + basketItem.total
             }
 
             if (basketItem instanceof PromotionBasketItem) {
@@ -174,11 +168,11 @@ class TransactionController {
                 priorAddedSeqNum = transactionBasketItem.seqNum
 
                 discountableAmount = discountableAmount + basketItem.total
-                pre_discount_total = pre_discount_total + basketItem.total
+                preDiscountTotal = preDiscountTotal + basketItem.total
             }
         }
 
-        return [transactionBasketItems: transactionBasketItems, preDiscountTotal: pre_discount_total, discountableAmount: discountableAmount]
+        return [transactionBasketItems: transactionBasketItems, preDiscountTotal: preDiscountTotal, discountableAmount: discountableAmount]
     }
 
     def details() {
@@ -205,11 +199,13 @@ class TransactionController {
 
             def eventLines = []
             basketTransaction?.getBasket()?.getTillControlEvents()?.forEach { event ->
-                def seqnum = "-";
+                def seqnum
                 def basketItem
 
-                if (event.basketItemId) {
-                    seqnum = event.basketItemId
+                if (event.basketItemId != null) {
+                    seqnum = event.basketItemId + 1
+                } else {
+                    seqnum = "-"
                 }
 
                 def amountchange = event.amount
