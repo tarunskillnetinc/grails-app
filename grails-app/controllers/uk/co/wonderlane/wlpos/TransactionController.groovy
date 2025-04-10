@@ -31,10 +31,21 @@ class TransactionController {
     int lastShownReceiptId
 
     def index() {
-        DateTime startDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/YYYY").withZone(DateTimeZone.UTC)
 
-        [startDate: startDate, endDate: endDate]
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        [
+                startDate    : startDate,
+                endDate      : endDate,
+                tillId       : params.tillId,
+                transactionId: params.transactionId,
+                sort         : params.sort,
+                order        : params.order,
+                offset       : params.offset,
+                max          : params.max
+        ]
     }
 
     private def populateTransactionBasketItems(List<BasketItem> basketItems) {
@@ -277,7 +288,15 @@ class TransactionController {
                     preDiscountTotal  : basketItemsEtc.preDiscountTotal,
                     discountableAmount: basketItemsEtc.discountableAmount,
                     postDiscountsTotal: postDiscountsTotal,
-                    grandTotal        : grandTotal
+                    grandTotal        : grandTotal,
+                    startDate         : params.startDate, // these params are used to construct the URL pointing back to the main search.
+                    endDate           : params.endDate,
+                    tillId            : params.tillId,
+                    transactionId     : params.transactionId,
+                    sort              : params.sort,
+                    order             : params.order,
+                    offset            : params.offset,
+                    max               : params.max
             ]
         }
         catch (Exception ex) {

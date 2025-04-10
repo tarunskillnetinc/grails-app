@@ -109,7 +109,10 @@ overridewrap {
         </div>
 
         <div class="col-3 text-right">
-            <button id="close-btn" class="btn btn-wl mt-1" onclick='history.back();'>Close</button>
+            <button id="close-btn" class="btn btn-wl mt-1"
+                    onclick='window.location = "${createLink(controller: 'transaction', action: 'index', params:[ startDate:startDate, endDate: endDate, tillId:tillId, transactionId:transactionId, sort:sort, order:order, offset:offset, max:max ] )}"'>
+                Close
+            </button>
         </div>
     </div>
 </section>
