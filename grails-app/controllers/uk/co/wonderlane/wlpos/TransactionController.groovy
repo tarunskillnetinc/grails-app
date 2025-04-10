@@ -19,6 +19,7 @@ import uk.co.wonderlane.wlpos.entities.basketv2.SimpleDiscountBasketItem
 import uk.co.wonderlane.wlpos.entities.transactionv2.BasketTransaction
 import uk.co.wonderlane.wlpos.entities.transactionv2.TillControlEvent
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
+import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.reporting.TransactionBasketItem
 
 class TransactionController {
@@ -131,14 +132,6 @@ class TransactionController {
                     transactionBasketItem.returnReason = "-"
                 }
 
-                if (basketItem instanceof PaidInBasketItem || basketItem instanceof PaidOutBasketItem) {
-                    transactionBasketItem.priceChange = null
-                } else if (basketItem.markdownAmount) {
-                    transactionBasketItem.priceChange = basketItem.markdownAmount
-                } else {
-                    transactionBasketItem.priceChange = null
-                }
-
                 if (basketItem instanceof ReduceToClearBasketItem) {
                     transactionBasketItem.rtc = "&#10003;"
                 } else {
@@ -217,28 +210,21 @@ class TransactionController {
 
             def eventLines = []
             basketTransaction?.getBasket()?.getTillControlEvents()?.forEach { event ->
-                def barcode = "-";
+                def seqnum = "-";
                 def basketItem
 
-                try {
-                    basketItem = basketTransaction?.getBasket()?.getBasketItems()?.get(event.basketItemId);
-                } catch (IndexOutOfBoundsException ignored) {
-
+                if (event.basketItemId) {
+                    seqnum = event.basketItemId
                 }
 
-                if (basketItem) {
-                    if (basketItem.barcodeScanned) { // if this top level is set, use that
-                        barcode = basketItem.barcodeScanned
-                    } else if (basketItem instanceof PaidInBasketItem || basketItem instanceof PaidOutBasketItem) {
-                        barcode = "-"
-                    } else if (basketItem instanceof ProductBasketItem) {
-                        barcode = basketItem.product.variants[0].barcodes[0]
-                    }
+                def amountchange = event.amount
+                if (event.type == TillControlEventType.MARKDOWN) {
+                    amountchange = -amountchange
                 }
 
                 eventLines.add([eventType        : event.type,
-                                barcode          : barcode ?: "-", // pull from product/variant, somehow.
-                                amount           : event.amount,
+                                seqnum: seqnum, // pull from product/variant, somehow.
+                                amount: amountchange,
                                 reason           : event.reason ?: "-",
                                 overrideUsersName: event.overrideUser?.name ?: user?.name])
             }

@@ -253,7 +253,7 @@ overridewrap {
 
                             <div class="col-3 font-weight-bold">Product<br/>Description</div>
 
-                            <div class="col-2 font-weight-bold overridewrap">Barcode</div>
+                            <div class="col-3 font-weight-bold overridewrap">Barcode</div>
 
                             <div class="col-05 font-weight-bold">Total<br/>Qty</div>
 
@@ -266,8 +266,6 @@ overridewrap {
                             <div class="col-05 font-weight-bold ">Age<br/>Check</div>
 
                             <div class="col-1 font-weight-bold">Reason<br/>Code</div>
-
-                            <div class="col-1 font-weight-bold">Price<br/>Change</div>
 
                             <div class="col-05 font-weight-bold">RTC</div>
 
@@ -309,7 +307,7 @@ overridewrap {
                                         ${basketItem.productDescription}
                                     </div>
 
-                                    <div id="barcode-id-${line + 1}" class="col-2 my-auto p-1 overridewrap">
+                                    <div id="barcode-id-${line + 1}" class="col-3 my-auto p-1 overridewrap">
                                         ${basketItem.barcode}
                                     </div>
 
@@ -347,15 +345,6 @@ overridewrap {
 
                                     <div id="returnreason-id-${line + 1}" class="col-1 my-auto">
                                         ${basketItem.returnReason}
-                                    </div>
-
-                                    <div id="pricechange-id-${line + 1}" class="col-1 my-auto">
-                                        <g:if test="${basketItem.priceChange}">
-                                            <g:formatNumber number="${-basketItem.priceChange}" type="currency"/>
-                                        </g:if>
-                                        <g:else>
-                                            -
-                                        </g:else>
                                     </div>
 
                                     <div id="rtc-id-${line + 1}" class="col-05 my-auto">
@@ -417,9 +406,9 @@ overridewrap {
 
                         <div id="till-events-table">
                             <div class="row mt-2 pb-2 ml-0 mr-0 table-wl bottom-border">
-                                <div class="col-2 font-weight-bold">Type</div>
+                                <div class="col-3 font-weight-bold">Type</div>
 
-                                <div class="col-3 font-weight-bold">Barcode</div>
+                                <div class="col-1 font-weight-bold">Seq</div>
 
                                 <div class="col-2 font-weight-bold">Amount</div>
 
@@ -430,12 +419,12 @@ overridewrap {
 
                             <g:each in="${eventLines}" var="event" status="i">
                                 <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${line % 2} hoverable">
-                                    <div id="eventType-${i + 1}" class="col-2">
+                                    <div id="eventType-${i + 1}" class="col-3">
                                         <g:message code="TillControlEventType.${event?.eventType}"/>
                                     </div>
 
-                                    <div id="eventBarcode-${i + 1}" class="col-3">
-                                        ${event?.barcode}
+                                    <div id="eventSeqnum-${i + 1}" class="col-1">
+                                        ${event?.seqnum + 1}
                                     </div>
 
                                     <div id="eventAmount-${i + 1}" class="col-2">
