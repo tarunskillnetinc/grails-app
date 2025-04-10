@@ -51,7 +51,9 @@
                     orientation: "bottom auto"
                 });
 
-                getReceipts('${sort?:"dateGenerated"}', '${order?:"desc"}', ${offset?:0}, ${max?:50});
+                <g:if test="${sort && order}">
+                getReceipts('${sort}', '${order}', ${offset?:0}, ${max?:50});
+                </g:if>
             });
 
             function getReceipts(sort, order, offset, max) {
