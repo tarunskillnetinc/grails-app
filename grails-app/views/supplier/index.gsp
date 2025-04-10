@@ -121,7 +121,7 @@
         }
 
         function validatePhoneNumber(number) {
-            const regex = /^(\d{4,12})$/;
+            const regex = /^(\d{1,30})$/;
 
             if (regex.test(number)) {
                 return true;
