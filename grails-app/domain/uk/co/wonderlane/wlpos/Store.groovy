@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken
 import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
 import uk.co.wonderlane.wlpos.entities.OpeningHours
 import uk.co.wonderlane.wlpos.entities.StoreConfig
+import uk.co.wonderlane.wlpos.entities.StoreLicencing
 
 import java.lang.reflect.Type
 
@@ -28,6 +29,7 @@ class Store {
     boolean deleted
     String additionalDetails
     String openingHours
+    String licencing
 
     // This constructor is required or dependency injection (springSecurityService) breaks.
     public Store() {}
@@ -51,6 +53,7 @@ class Store {
         deleted column: "deleted"
         additionalDetails column: "additionalDetails", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         openingHours column: "openingHours", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        licencing column: "licencing", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
     }
 
     static constraints = {
@@ -69,6 +72,7 @@ class Store {
         deleted nullable: false
         additionalDetails nullable: true
         openingHours nullable: true
+        licencing nullable: true
     }
 
     def colorCodeValidator(String colorCode) {
@@ -119,11 +123,30 @@ class Store {
     }
 
     void setOpeningHours(OpeningHours openingHours) {
-        this.openingHours = gsonProvider.gson.toJson(openingHours)
+        if (openingHours != null) {
+            this.openingHours = gsonProvider.gson.toJson(openingHours)
+        }
     }
 
     String getOpeningHoursString() {
         return openingHours
+    }
+
+    StoreLicencing getLicencing() {
+        if (this.licencing != null) {
+            return gsonProvider.gson.fromJson(this.licencing, StoreLicencing.class)
+        }
+        return null
+    }
+
+    void setLicencing(StoreLicencing licencing) {
+        if (licencing != null) {
+            this.licencing = gsonProvider.gson.toJson(licencing)
+        }
+    }
+
+    String getLicencingString() {
+        return this.licencing
     }
 
     List<StoreAdditionalDetail> getAdditionalDetailsList() {
