@@ -361,6 +361,7 @@
         descInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].description';
         descInput.value = data.description;
         descCell.appendChild(descInput);
+        descCell.className = 'align-middle text-center';
         row.appendChild(descCell);
 
         // Date cell
@@ -371,6 +372,7 @@
         dateInput.name = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].date';
         dateInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].date';
         dateInput.value = data.date;
+        dateCell.className = 'align-middle text-center';
         dateCell.appendChild(dateInput);
         row.appendChild(dateCell);
 
@@ -383,6 +385,7 @@
         startInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].startTime';
         startInput.value = data.startTime;
         startCell.appendChild(startInput);
+        startCell.className = 'align-middle text-center';
         row.appendChild(startCell);
 
         // End time cell
@@ -394,6 +397,7 @@
         endInput.id = 'storeOpeningHoursCommand.specialOpeningHours[' + index + '].endTime';
         endInput.value = data.endTime;
         endCell.appendChild(endInput);
+        endCell.className = 'align-middle text-center';
         row.appendChild(endCell);
 
         // Closed cell
