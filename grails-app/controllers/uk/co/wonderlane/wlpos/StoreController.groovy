@@ -122,7 +122,13 @@ class StoreController {
                 specialOpeningHours: []
         )
 
-        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand: storeOpeningHoursCommand]
+        def alcoholLicensingCommand = new AlcoholLicensingCommand(
+                regularHours: initialRegularHours,
+                specialOpeningHours: [],
+                licensedToSellAlcohol: false
+        );
+
+        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand: storeOpeningHoursCommand, alcoholLicensingCommand: alcoholLicensingCommand]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -166,9 +172,9 @@ class StoreController {
          order                       : params.order,
          storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList()),
          storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours()),
+         alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing())]
          amenities                   : storeService.getAmenitiesList(springSecurityService.principal.retailerId),
          storeAmenities              : storeService.getStoreAmenitiesList(store?.id)
-        ]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -184,7 +190,9 @@ class StoreController {
                                         storeTypes: storeTypes,
                                         priceBands: priceBands,
                                         ranges: ranges,
-                                        storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails)
+                                        storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails),
+                                        storeOpeningHoursCommand: newStoreCommand.storeOpeningHoursCommand,
+                                        alcoholLicensingCommand: newStoreCommand.alcoholLicensingCommand
             ])
         } else {
             // Validated.
@@ -233,6 +241,7 @@ class StoreController {
             store.additionalDetails = storeAdditionalDetailJson
 
             store.setOpeningHours(storeService.getOpeningHoursAsObject(newStoreCommand.storeOpeningHoursCommand))
+            store.setLicencing(storeService.getAlcoholLicensingCommandAsObject(newStoreCommand.alcoholLicensingCommand))
 
             storeService.saveStore(store)
 
@@ -264,13 +273,15 @@ class StoreController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def loadAddSpecialOpeningHoursTemplate() {
-        render (template: 'addEditSpecialOpeningHours', model:[openingHourIndexItem:-1])
+        def commandPrefix = params.commandPrefix
+        render (template: 'addEditSpecialOpeningHours', model:[openingHourIndexItem:-1, commandPrefix: commandPrefix])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def loadEditSpecialOpeningHoursTemplate() {
         def specialOpeningHourJson = params.specialOpeningHour
         def openingHourIndex = params.openingHourIndex ? Integer.parseInt(params.openingHourIndex) : null
+        def commandPrefix = params.commandPrefix
 
         if (specialOpeningHourJson) {
             try {
@@ -287,13 +298,13 @@ class StoreController {
                         closed: hourObject.closed as boolean
                 )
 
-                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: specialOpeningHour, openingHourIndexItem: openingHourIndex])
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: specialOpeningHour, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix])
             } catch (Exception e) {
                 log.error("Error parsing specialOpeningHour JSON: ${e.message}", e)
-                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndex: openingHourIndexItem, error: "Invalid data format"])
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex, error: "Invalid data format"])
             }
         } else {
-            render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex])
+            render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix])
         }
     }
 
@@ -327,8 +338,9 @@ class StoreController {
             String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(storeCommand?.storeAdditionalDetails)
 
             String storeOpeningHours = gsonProvider.gson.toJson(storeService.getOpeningHoursAsObject(storeCommand.storeOpeningHoursCommand))
+            String storeLicensing = gsonProvider.gson.toJson(storeService.getAlcoholLicensingCommandAsObject(storeCommand.alcoholLicensingCommand))
 
-            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours)
+            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours, storeLicensing)
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
@@ -362,7 +374,11 @@ class StoreController {
                                            availableParentStores       : availableParentStores,
                                            availablePrintReceiptOptions: PrintReceiptOption.values(),
                                            viewOptions                 : viewOptions,
-                                           storeAdditionalDetails      : storeService.sortAdditionalDetails(storeCommand?.storeAdditionalDetails)])
+                                           storeAdditionalDetails      : storeService.sortAdditionalDetails(storeCommand?.storeAdditionalDetails),
+                                           storeOpeningHoursCommand: storeCommand.storeOpeningHoursCommand,
+                                           alcoholLicensingCommand: storeCommand.alcoholLicensingCommand
+            ])
+
         }
     }
 
@@ -460,8 +476,8 @@ class NewStoreCommand implements Validateable {
     Range range
     PriceBand priceBand
     StoreOpeningHoursCommand storeOpeningHoursCommand
-
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
+    AlcoholLicensingCommand alcoholLicensingCommand
 
     static constraints = {
         storeNumber nullable: false,blank: false, min:1, max: 999999, validator: { val, obj ->
@@ -520,6 +536,7 @@ class NewStoreCommand implements Validateable {
         range nullable: true
         priceBand nullable: true
         storeOpeningHoursCommand nullable: true
+        alcoholLicensingCommand nullable: true
         storeAdditionalDetails nullable: true, validator: { val, obj ->
             if (val) {
                 def hasErrors = false
@@ -549,6 +566,7 @@ class StoreCommand implements Validateable {
     StoreConfigCommand config
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
     StoreOpeningHoursCommand storeOpeningHoursCommand
+    AlcoholLicensingCommand alcoholLicensingCommand
 
     static constraints = {
         id nullable: true
@@ -572,6 +590,7 @@ class StoreCommand implements Validateable {
             return true
         }
         storeOpeningHoursCommand nullable: true
+        alcoholLicensingCommand nullable: true
     }
 }
 
@@ -700,6 +719,10 @@ class AddStoreAdditionalDetailCommand implements Validateable {
 class StoreOpeningHoursCommand {
     List<OpeningTimeCommand> regularHours;
     List<OpeningTimeOverrideCommand> specialOpeningHours;
+}
+
+class AlcoholLicensingCommand extends StoreOpeningHoursCommand {
+   boolean licensedToSellAlcohol
 }
 
 class OpeningTimeCommand {

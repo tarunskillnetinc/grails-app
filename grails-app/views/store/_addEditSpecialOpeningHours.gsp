@@ -1,49 +1,56 @@
-<g:form id="specialOpeningHoursForm" onsubmit="return saveSpecialOpeningHours(event);">
-    <div class="modal fade" id="addSpecialOpeningHoursModal" tabindex="100" role="dialog" aria-labelledby="specialHoursModalLabel" aria-hidden="true">
+<g:form id="${commandPrefix}-specialOpeningHoursForm" onsubmit="return saveSpecialOpeningHours(event);">
+    <div class="modal fade" id="${commandPrefix}-addSpecialOpeningHoursModal" tabindex="100" role="dialog" aria-labelledby="specialHoursModalLabel">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="specialHoursModalLabel">${specialOpeningHour ? 'Edit' : 'Add'} Special Store Opening/Closing</h5>
-                    <button type="button" class="close" id="close-cross" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <h5 class="modal-title" id="${commandPrefix}-specialHoursModalLabel">${specialOpeningHour ? 'Edit' : 'Add'} Special Store Opening/Closing</h5>
+                    <button type="button" class="close" id="${commandPrefix}-close-cross" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="form-row mb-3">
                         <div class="col-md-6">
-                            <label for="specialDescription">Description</label>
-                            <input type="text" id="specialDescription" name="specialDescription" class="form-control" value="${specialOpeningHour?.description ?: ''}" />
+                            <label for="${commandPrefix}-specialDescription">Description</label>
+                            <input type="text" id="${commandPrefix}-specialDescription" name="${commandPrefix}-specialDescription" class="form-control" value="${specialOpeningHour?.description ?: ''}" />
                         </div>
                         <div class="col-md-6">
-                            <label for="specialDate">Date</label>
-                            <input type="date" id="specialDate" name="specialDate" class="form-control" value="${specialOpeningHour?.date ?: ''}" />
+                            <label for="${commandPrefix}-specialDate">Date</label>
+                            <input
+                                    type="date"
+                                    id="${commandPrefix}-specialDate"
+                                    name="${commandPrefix}-specialDate"
+                                    class="form-control"
+                                    value="${specialOpeningHour?.date ?: ''}"
+                                    required
+                            />
                         </div>
                     </div>
                     <div>
                         <div class="form-row mb-2">
-                            <div class="col-md-3" id="specialTimeFieldsStart" style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
-                                <label for="specialStartTime">Start time</label>
-                                <input type="text" id="specialStartTime" name="specialStartTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.startTime ?: ''}" />
+                            <div class="col-md-3" id="${commandPrefix}-specialTimeFieldsStart" style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
+                                <label for="${commandPrefix}-special-startTime">Start time</label>
+                                <input type="text" id="${commandPrefix}-special-startTime" name="${commandPrefix}-special-startTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.startTime ?: ''}" />
                             </div>
-                            <div class="col-md-3" id="specialTimeFieldsEnd" style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
-                                <label for="specialEndTime">End time</label>
-                                <input type="text" id="specialEndTime" name="specialEndTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.endTime ?: ''}" />
+                            <div class="col-md-3" id="${commandPrefix}-specialTimeFieldsEnd" style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
+                                <label for="${commandPrefix}-special-endTime">End time</label>
+                                <input type="text" id="${commandPrefix}-special-endTime" name="${commandPrefix}-special-endTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.endTime ?: ''}" />
                             </div>
                             <div class="col-md-6 d-flex align-items-end">
                                 <div class="form-check">
-                                    <label class="form-check-label" for="specialClosedCheckbox">Closed</label>
-                                    <input type="checkbox" id="specialClosedCheckbox" name="specialClosed" class="form-check-input wl-checkbox ml-6" onclick="toggleSpecialTimeFields()" ${specialOpeningHour?.closed ? 'checked' : ''} />
+                                    <label class="form-check-label" for="${commandPrefix}-specialClosedCheckbox">Closed</label>
+                                    <input type="checkbox" id="${commandPrefix}-specialClosedCheckbox" name="${commandPrefix}-specialClosed" class="form-check-input wl-checkbox ml-6" onclick="${commandPrefix}toggleSpecialTimeFields()" ${specialOpeningHour?.closed ? 'checked' : ''} />
                                 </div>
                             </div>
                         </div>
                     </div>
                     <g:if test="${specialOpeningHour}">
-                        <input type="hidden" id="editIndex" value="${openingHourIndexItem}" />
+                        <input type="hidden" id="${commandPrefix}-editIndex" value="${openingHourIndexItem}" />
                     </g:if>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="cancelSpecialHoursBtn" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success" id="saveSpecialHoursBtn">${specialOpeningHour ? 'Update' : 'Save'}</button>
+                    <button type="button" class="btn btn-secondary" id="${commandPrefix}-cancelSpecialHoursBtn" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="${commandPrefix}-saveSpecialHoursBtn">${specialOpeningHour ? 'Update' : 'Save'}</button>
                 </div>
             </div>
         </div>
@@ -51,78 +58,69 @@
 </g:form>
 
 <script>
-    var modal = document.getElementById('addSpecialOpeningHoursModal');
-    $(modal).on('hidden.bs.modal', function (event) {
-        $('.modal-backdrop').remove();
-        $('body').removeClass('modal-open');
-    });
+    {
+        const commandPrefix = "${commandPrefix}";
+        var modal = document.getElementById(commandPrefix + '-addSpecialOpeningHoursModal');
+        console.log(modal);
 
-    $(modal).on('shown.bs.modal', function (event) {
-        // Setup time inputs when modal is shown
-        setupTimeInput(document.getElementById('specialStartTime'));
-        setupTimeInput(document.getElementById('specialEndTime'));
-    });
-
-    $('#saveSpecialHoursBtn').on('click', function () {
-        const description = $('#specialDescription').val();
-        const closed = $('#specialClosedCheckbox').prop('checked');
-        const date = $('#specialDate').val();
-        const startTime = $('#specialStartTime').val();
-        const endTime = $('#specialEndTime').val();
-        const specialOpeningHoursIndex = $('#editIndex').val();
-
-        // Dispatch a custom event with the form data
-        const event = new CustomEvent('saveSpecialHours', {
-            detail: {description, closed, date, startTime, endTime, specialOpeningHoursIndex}
+        $(modal).on('hidden.bs.modal', function (event) {
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
         });
-        document.dispatchEvent(event);
 
-        // Close the modal
-        $('#addSpecialOpeningHoursModal').modal('hide');
-        $('.modal-backdrop').remove();
-        $('body').removeClass('modal-open');
-    });
+        $(document).on('shown.bs.modal', '#'+commandPrefix+'-addSpecialOpeningHoursModal', function () {
+            const startTimeInput = document.getElementById(commandPrefix + '-special-startTime');
+            const endTimeInput = document.getElementById(commandPrefix + '-special-endTime');
 
-function toggleSpecialTimeFields() {
-    const isClosed = document.getElementById('specialClosedCheckbox').checked;
-    const timeFieldsStart = document.getElementById('specialTimeFieldsStart');
-    const timeFieldsEnd = document.getElementById('specialTimeFieldsEnd');
-    timeFieldsStart.style.display = isClosed ? 'none' : 'block';
-    timeFieldsEnd.style.display = isClosed ? 'none' : 'block';
-}
+            if (startTimeInput) ${commandPrefix}setupTimeInput(startTimeInput);
+            if (endTimeInput) ${commandPrefix}setupTimeInput(endTimeInput);
+        });
 
-// Add this function to the modal script
-function setupTimeInput(input) {
-    input.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/[^0-9]/g, '');
+        $('#'+commandPrefix+'-saveSpecialHoursBtn').on('click', function () {
+            const description = $('#'+commandPrefix+'-specialDescription').val();
+            const closed = $('#'+commandPrefix+'-specialClosedCheckbox').prop('checked');
+            const date = $('#'+commandPrefix+'-specialDate').val();
+            const startTime = $('#'+commandPrefix+'-special-startTime').val();
+            const endTime = $('#'+commandPrefix+'-special-endTime').val();
+            const specialOpeningHoursIndex = $('#'+commandPrefix+'-editIndex').val();
 
-        if (value.length > 2) {
-            let hours = parseInt(value.slice(0, 2));
-            let minutes = parseInt(value.slice(2));
-
-            hours = Math.min(hours, 23);
-            if (minutes > 59) {
-                minutes = 59;
+            if (!date) {
+                alert('Please select a date. This field is mandatory.');
+                return;
             }
 
-            value = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+            const event = new CustomEvent(commandPrefix + 'SaveSpecialHours', {
+                detail: {description, closed, date, startTime, endTime, specialOpeningHoursIndex}
+            });
+            document.dispatchEvent(event);
+
+            $('#'+commandPrefix+'-addSpecialOpeningHoursModal').modal('hide');
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+        });
+
+        function ${commandPrefix}toggleSpecialTimeFields() {
+            const isClosed = document.getElementById(commandPrefix + '-specialClosedCheckbox').checked;
+            const timeFieldsStart = document.getElementById(commandPrefix + '-specialTimeFieldsStart');
+            const timeFieldsEnd = document.getElementById(commandPrefix + '-specialTimeFieldsEnd');
+            timeFieldsStart.style.display = isClosed ? 'none' : 'block';
+            timeFieldsEnd.style.display = isClosed ? 'none' : 'block';
         }
 
-        if (value.length > 5) {
-            value = value.slice(0, 5);
+        function ${commandPrefix}dateInputSetup() {
+            let specialDateInput = document.getElementById(commandPrefix +'-specialDate');
+            let today = new Date().toISOString().split('T')[0];
+            specialDateInput.min = today;
+            specialDateInput.addEventListener('keydown', function (e) {
+                e.preventDefault();
+            });
+            specialDateInput.addEventListener('click', function () {
+                this.showPicker();
+            });
         }
 
-        e.target.value = value;
-    });
-
-    input.addEventListener('blur', function(e) {
-        const value = e.target.value;
-        if (value && !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
-            alert('Please enter a valid time in HH:mm format');
-            e.target.value = '';
-        }
-    });
-}
+        ${commandPrefix}dateInputSetup();
+    }
 </script>
 <style>
 /* Add this to your existing styles */
@@ -160,5 +158,10 @@ function setupTimeInput(input) {
 .form-check-input {
     margin-top: 0;
     margin-right: 5px;
+}
+
+label[for="specialDate"]:after {
+    content: " *";
+    color: red;
 }
 </style>

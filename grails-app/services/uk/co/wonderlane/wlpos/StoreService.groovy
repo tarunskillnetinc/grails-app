@@ -10,6 +10,7 @@ import uk.co.wonderlane.wlpos.entities.OpeningHours
 import uk.co.wonderlane.wlpos.entities.OpeningTime
 import uk.co.wonderlane.wlpos.entities.OpeningTimeOverride
 import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
+import uk.co.wonderlane.wlpos.entities.StoreLicencing
 
 import java.lang.reflect.Type
 import java.sql.CallableStatement
@@ -97,19 +98,19 @@ class StoreService extends MySqlDal {
         return [stores, storeCount.first()]
     }
 
-    def saveStore(StoreCommand store, String configString, String storeAdditionalDetail, String openingHoursString) {
-        return doSaveStore(store, configString, storeAdditionalDetail, openingHoursString)
+    def saveStore(StoreCommand store, String configString, String storeAdditionalDetail, String openingHoursString, String storeLicensing) {
+        return doSaveStore(store, configString, storeAdditionalDetail, openingHoursString, storeLicensing)
     }
 
     // Needs to not be transactional otherwise Hibernate tries to save the store object rather than allowing the stored procedure to do it (well, it does both).
     @Transactional (readOnly = true)
     def saveStore(Store store) {
-        return doSaveStore(store, store.configString, store.additionalDetails, store.openingHoursString)
+        return doSaveStore(store, store.configString, store.additionalDetails, store.openingHoursString, store.licencingString)
     }
 
-    private void doSaveStore(def store, String configString, String storeAdditionalDetail, String openingHours) {
+    private void doSaveStore(def store, String configString, String storeAdditionalDetail, String openingHours, String storeLicensing) {
         Connection conn = getConnection()
-        CallableStatement cstmt = conn.prepareCall("{ call saveStore(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+        CallableStatement cstmt = conn.prepareCall("{ call saveStore(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
             if (store.id && store.id > 0) {
@@ -132,6 +133,7 @@ class StoreService extends MySqlDal {
             cstmt.setString(9, configString)
             cstmt.setString(10, storeAdditionalDetail)
             cstmt.setString(11, openingHours)
+            cstmt.setString(12, storeLicensing)
             cstmt.executeUpdate()
 
             def resultSet = cstmt.getResultSet()
@@ -191,10 +193,21 @@ class StoreService extends MySqlDal {
 
             openingHours.specialOpeningHours = new ArrayList<>()
             storeOpeningHoursCommand.getSpecialOpeningHours()?.forEach {specialHours ->{
-                openingHours.specialOpeningHours.add(openingHoursOverrideMap(specialHours))
+                if (specialHours != null) {
+                    openingHours.specialOpeningHours.add(openingHoursOverrideMap(specialHours))
+                }
             }}
         }
         return openingHours
+    }
+
+    def getAlcoholLicensingCommandAsObject(AlcoholLicensingCommand alcoholLicensingCommand) {
+        StoreLicencing storeLicencing = new StoreLicencing()
+        if (alcoholLicensingCommand != null) {
+            storeLicencing.setAlcoholLicensingHours(getOpeningHoursAsObject(alcoholLicensingCommand))
+            storeLicencing.setLicensedToSellAlcohol(alcoholLicensingCommand.licensedToSellAlcohol)
+        }
+        return storeLicencing
     }
 
 
@@ -219,7 +232,9 @@ class StoreService extends MySqlDal {
                 for (OpeningTimeOverride override : openingHours.getSpecialOpeningHours()) {
                     OpeningTimeOverrideCommand overrideCommand = new OpeningTimeOverrideCommand()
                     overrideCommand.description = override.description
-                    overrideCommand.setDate(override.getDate().toString("yyyy-MM-dd"))
+                    if (override.getDate() != null) {
+                        overrideCommand.setDate(override.getDate().toString("yyyy-MM-dd"))
+                    }
                     overrideCommand.setStartTime(override.getStartTime() != null ? override.getStartTime().toString("HH:mm") : null)
                     overrideCommand.setEndTime(override.getEndTime() != null ? override.getEndTime().toString("HH:mm") : null)
                     overrideCommand.setClosed(override.isClosed())
@@ -239,8 +254,16 @@ class StoreService extends MySqlDal {
             ])
         }
 
-
         return command
+    }
+
+    AlcoholLicensingCommand convertToAlcoholLicensingCommand(StoreLicencing storeLicencing) {
+        StoreOpeningHoursCommand storeOpeningHoursCommand = convertToStoreOpeningHoursCommand(storeLicencing?.alcoholLicensingHours);
+        return new AlcoholLicensingCommand(
+                licensedToSellAlcohol: storeLicencing?.licensedToSellAlcohol,
+                regularHours: storeOpeningHoursCommand?.regularHours,
+                specialOpeningHours: storeOpeningHoursCommand?.specialOpeningHours
+        )
     }
 
     List<Amenity> getAmenitiesList(int retailerId){
@@ -283,14 +306,17 @@ class StoreService extends MySqlDal {
     }
 
     private OpeningTimeOverride openingHoursOverrideMap(OpeningTimeOverrideCommand openingTimeOverrideCommand) {
+        if (openingTimeOverrideCommand == null) {
+            return null
+        }
         DateTimeFormatter formatterDate = DateTimeFormat.forPattern("yyyy-MM-dd");
         DateTimeFormatter formatterTime = DateTimeFormat.forPattern("HH:mm")
         OpeningTimeOverride openingTimeOverride = new OpeningTimeOverride()
-        openingTimeOverride.description = openingTimeOverrideCommand.description
-        openingTimeOverride.date = openingTimeOverrideCommand.date ? formatterDate.parseLocalDate(openingTimeOverrideCommand.date) : null
-        openingTimeOverride.startTime = openingTimeOverrideCommand.startTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.startTime) : null
-        openingTimeOverride.endTime = openingTimeOverrideCommand.endTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.endTime) : null
-        openingTimeOverride.closed = openingTimeOverrideCommand.closed
+        openingTimeOverride.description = openingTimeOverrideCommand?.description
+        openingTimeOverride.date = openingTimeOverrideCommand?.date ? formatterDate.parseLocalDate(openingTimeOverrideCommand.date) : null
+        openingTimeOverride.startTime = openingTimeOverrideCommand?.startTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.startTime) : null
+        openingTimeOverride.endTime = openingTimeOverrideCommand?.endTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.endTime) : null
+        openingTimeOverride.closed = openingTimeOverrideCommand?.closed
         return openingTimeOverride
     }
 

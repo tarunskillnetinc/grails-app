@@ -26,7 +26,7 @@ class FinancialWeek {
 
         id column: "id", sqlType: "tinyint"
         retailerId column: "retailerId", sqlType: "tinyint"
-        startDate column: "startDate", sqlType: "DateTime"
+        startDate column: "startDate", sqlType: "Date"
         financialYear column: "`financialYear`", sqlType: "char"
         weekNumber column: "weekNumber", sqlType: "int"
 

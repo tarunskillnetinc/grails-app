@@ -168,10 +168,10 @@
 <div class="modal-footer">
     <button type="button" id="cancelSafeSessionButton" class="btn btn-secondary" data-dismiss="modal" onclick="getSafeSessions()">${safeSession.reconciledDate == null ? 'Cancel' : 'Close'}</button>
     <g:if test="${!isSafeSessionFinalizeMode}">
-        <button type="button" id="saveSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, `${safeSession.versionId}`, ${safeSession.reconciledDate != null}, false, '${safeDescription}', ${isSafeFinalisingWarningRequired})" >Save</button>
+        <button type="button" id="saveSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, `${safeSession.versionId}`, ${safeSession.reconciledDate != null}, false, '${safeDescription.replace("'","\\\'")}', ${isSafeFinalisingWarningRequired})" >Save</button>
     </g:if>
     <g:else>
         %{-- Here can use same `submitSafeSession` action--}%
-        <button type="button" id="finalizeSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, `${safeSession.versionId}`, false, true, '${safeDescription}', ${isSafeFinalisingWarningRequired})">Finalise</button>
+        <button type="button" id="finalizeSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, `${safeSession.versionId}`, false, true, '${safeDescription.replace("'","\\\'")}', ${isSafeFinalisingWarningRequired})">Finalise</button>
     </g:else>
 </div>
