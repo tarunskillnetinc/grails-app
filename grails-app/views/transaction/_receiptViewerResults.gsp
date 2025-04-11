@@ -48,7 +48,7 @@
                 <g:if test="${item.receipt.grandtotal}">
                     <button id="details-${i + 1}" class="btn btn-info mx-2"
                             onclick='window.location = "${createLink(controller: 'transaction', action: 'details', params:[receiptId : item.receipt.id, startDate:startDate, endDate: endDate, tillId:tillId, transactionId:transactionId, sort:sort, order:order, offset:offset, max:max ] )}"'>Details</button>
-                </g:if>`
+                </g:if>
             </div>
         </div>
     </g:each>
