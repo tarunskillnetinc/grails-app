@@ -46,7 +46,7 @@
             </div>
         </div>
 
-        <div class="col-md-8">
+        <div class="col-md-7">
             <h5 class="mb-4">${titleSpecialOpeningHours}</h5>
 
             <div class="table-responsive">
@@ -64,7 +64,7 @@
                     <tbody>
                     <g:each in="${commandObject?.specialOpeningHours}" var="special" status="i">
                         <tr id="${commandPrefix}-special-hour-row-${i}">
-                            <td class="align-middle text-center">
+                            <td class="align-middle text-center text-break">
                                 ${special?.description}
                                 <input type="hidden" name="${commandPrefix}.specialOpeningHours[${i}].description"
                                        id="${commandPrefix}.specialOpeningHours[${i}].description"
@@ -395,7 +395,7 @@
             descInput.id = commandPrefix + '.specialOpeningHours[' + index + '].description';
             descInput.value = data.description;
             descCell.appendChild(descInput);
-            descCell.className = 'align-middle text-center';
+            descCell.className = 'align-middle text-center text-break';
             row.appendChild(descCell);
 
             // Date cell
