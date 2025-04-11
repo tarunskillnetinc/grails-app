@@ -4,9 +4,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="${commandPrefix}-specialHoursModalLabel">${specialOpeningHour ? 'Edit' : 'Add'} Special Store Opening/Closing</h5>
-                    <button type="button" class="close" id="${commandPrefix}-close-cross" data-dismiss="modal" aria-label="Close">
-                        <span>&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body">
                     <div class="form-row mb-3">
