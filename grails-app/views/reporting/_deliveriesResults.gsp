@@ -136,9 +136,12 @@
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "deliveryDate" }?.enabled}">
                 <div id="delivery-date-${i + 1}" class="col-1 my-auto">
-                    <g:if test="${delivery?.startDate}">
+                    <g:if test="${delivery?.dateStarted}">
                         <g:formatDate format="dd/MM/yyyy" date="${delivery?.dateStarted?.toDate() ?: new Date()}"/>
                     </g:if>
+                    <g:elseif test="${delivery?.startDate}">
+                        <g:formatDate format="dd/MM/yyyy" date="${delivery?.startDate?.toDate() ?: new Date()}"/>
+                    </g:elseif>
                 </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "supplierName" }?.enabled}">
