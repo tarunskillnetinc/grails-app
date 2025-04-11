@@ -120,44 +120,50 @@
     }
 </script>
 <style>
-/* Add this to your existing styles */
-.modal {
+#
+${commandPrefix} -addSpecialOpeningHoursModal .modal {
     z-index: 1050 !important;
 }
-.modal-backdrop {
+
+#
+${commandPrefix} -addSpecialOpeningHoursModal .modal-backdrop {
     z-index: 1040 !important;
 }
 
 /* Checkbox styling */
-.wl-checkbox {
-    width: 18px;
-    height: 18px;
-    margin-top: 0;
+#
+${commandPrefix} -addSpecialOpeningHoursModal .wl-checkbox {
+    margin-top: -0.1rem !important;
 }
 
-.form-check-label {
+#
+${commandPrefix} -addSpecialOpeningHoursModal .form-check-label {
     font-size: 14px;
     line-height: 18px;
     margin-left: 5px;
 }
 
-.form-group label {
+#
+${commandPrefix} -addSpecialOpeningHoursModal .form-group label {
     font-size: 14px;
     line-height: 18px;
 }
 
-.form-check {
+#
+${commandPrefix} -addSpecialOpeningHoursModal .form-check {
     display: flex;
     align-items: center;
     margin-bottom: 0;
 }
 
-.form-check-input {
+#
+${commandPrefix} -addSpecialOpeningHoursModal .form-check-input {
     margin-top: 0;
     margin-right: 5px;
 }
 
-label[for="specialDate"]:after {
+#
+${commandPrefix} -addSpecialOpeningHoursModal label[for="specialDate"]:after {
     content: " *";
     color: red;
 }
