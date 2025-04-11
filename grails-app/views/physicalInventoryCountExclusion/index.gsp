@@ -69,7 +69,7 @@
                 success: function(resp) {
                     $("#uploadResults").html(resp);
                     uploadButton.disabled = false
-                    uploadButton.innerHTML = "Upload Physical Exclusion List"
+                    uploadButton.innerHTML = "Upload Exclusion List"
                     bindUploadButtons()
                     resetFileUploadInput();
                     setPreventWindowNavigation(null);
@@ -87,7 +87,7 @@
         function handleUploadError(uploadButton, msg) {
             $("#uploadResults").html("");
             uploadButton.disabled = false
-            uploadButton.innerHTML = "Upload Physical Exclusion List"
+            uploadButton.innerHTML = "Upload Exclusion List"
             showErrorAlert(msg)
             resetFileUploadInput();
             setPreventWindowNavigation(null);
@@ -131,7 +131,7 @@
                     const content = tempDiv.textContent.trim();
                     const hasInvalidSkus = content.length > 0;
                     uploadButton.disabled = false;
-                    uploadButton.innerHTML = "Upload Physical Exclusion List";
+                    uploadButton.innerHTML = "Upload Exclusion List";
                     showSuccessAlert(hasInvalidSkus);
                     resetFileUploadInput();
                     setPreventWindowNavigation(null);
@@ -139,7 +139,7 @@
                 error: function (data) {
                     $("#uploadResults").html(""); // Clear the results section on error
                     uploadButton.disabled = false;
-                    uploadButton.innerHTML = "Upload Physical Exclusion List";
+                    uploadButton.innerHTML = "Upload Exclusion List";
                     showErrorAlert("There was an error completing the import. Please try again.");
                     resetFileUploadInput();
                     setPreventWindowNavigation(null);
@@ -165,7 +165,7 @@
                         console.log(resp);
                         $("#uploadResults").html(resp);// Stop spinner as it has finished
                         uploadButton.disabled = false
-                        uploadButton.innerHTML = "Upload Physical Exclusion List"
+                        uploadButton.innerHTML = "Upload Exclusion List"
                         showSuccessAlert()
                         resetFileUploadInput();
                         setPreventWindowNavigation(null);
@@ -175,7 +175,7 @@
                             $("#uploadResults").html(""); // Stop spinner as it has errored
                             const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
                             uploadButton.disabled = false
-                            uploadButton.innerHTML = "Upload Physical Exclusion List"
+                            uploadButton.innerHTML = "Upload Exclusion List"
                             showErrorAlert("File size too large. Please try again.")
                             resetFileUploadInput();
                             setPreventWindowNavigation(null);
@@ -183,14 +183,14 @@
                             $("#uploadResults").html(""); // Stop spinner as it has errored
                             const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
                             uploadButton.disabled = false
-                            uploadButton.innerHTML = "Upload Physical Exclusion List"
+                            uploadButton.innerHTML = "Upload Exclusion List"
                             showErrorAlert("There was an error completing the import. Please try again.")
                             resetFileUploadInput();
                             setPreventWindowNavigation(null);
                         } else {
                             $("#uploadResults").html(""); // Stop spinner as it has errored
                             uploadButton.disabled = false
-                            uploadButton.innerHTML = "Upload Physical Exclusion List"
+                            uploadButton.innerHTML = "Upload Exclusion List"
                             showErrorAlert("Server Timeout")
                             resetFileUploadInput();
                             setPreventWindowNavigation(null);
@@ -229,7 +229,7 @@
             </div>
             <div class="col-2 text-right d-inline-flex flex-row justify-content-end">
 
-                <button class="btn btn-wl p-2 ml-2" onclick="selectExclusionUploadFile()" id="uploadExclusionBtn">Upload Physical Exclusion List</button>
+                <button class="btn btn-wl p-2 ml-2" onclick="selectExclusionUploadFile()" id="uploadExclusionBtn">Upload Exclusion List</button>
                 <input type="file" name="file" accept=".csv,.CSV"
                        id="csvFileUploadInput" style="display:none" oninput="uploadExclusionImportFile()" oncancel="resetExclusionInput()">
             </div>

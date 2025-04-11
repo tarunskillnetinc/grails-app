@@ -18,6 +18,31 @@
             }
         }
 
+        $(document).ready(function() {
+            // Initialize with default if empty
+            if (!$('#phyCountCutOffTime').val()) {
+                $('#phyCountCutOffTime').val('06:00');
+            }
+
+            // Handle field changes
+            $('#phyCountCutOffTime').on('change blur input', function() {
+                if (!this.value) {
+                    $(this).val('06:00');
+                }
+            });
+
+            // Prevent complete clearing of the field
+            $('#phyCountCutOffTime').on('keydown', function(e) {
+                if ((e.key === 'Backspace' || e.key === 'Delete') && this.value.length <= 5) {
+                    setTimeout(function() {
+                        if (!$('#phyCountCutOffTime').val()) {
+                            $('#phyCountCutOffTime').val('06:00');
+                        }
+                    }, 10);
+                }
+            });
+        });
+
         $(document).ready(function () {
             $('input[name=brandLogo]').change(function() {
                 const error = validateImg(this);
@@ -403,7 +428,8 @@
                                                class="col-5 form-control bottom-border"
                                                name="phyCountCutOffTime"
                                                id="phyCountCutOffTime"
-                                               value="${retailer?.config?.phyCountCutOffTime}" />
+                                               value="${retailer?.config?.phyCountCutOffTime}"
+                                               required />
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger"
