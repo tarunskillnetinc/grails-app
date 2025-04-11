@@ -46,7 +46,7 @@
                            class="form-check-input wl-checkbox" style="position: relative; z-index: 1;"/>
                 </div>
                 <g:render template="openingHours" model="[commandPrefix: 'alcoholLicensingCommand', alcoholLicensingCommand: alcoholLicensingCommand,
-                                                          titleRegularOpeningHours: 'Alcohol Licensing Hours', titleSpecialOpeningHours:'Special Alcohol licensing Date & Time',
+                                                          titleRegularOpeningHours: 'Alcohol Licensing Hours', titleSpecialOpeningHours: 'Special Alcohol Licensing Date & Time',
                 addSpecialHoursButtonText: 'Add special licensing hours']" />
             </div>
         </div>

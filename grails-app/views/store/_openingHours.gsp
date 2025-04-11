@@ -46,19 +46,19 @@
             </div>
         </div>
 
-        <div class="col-md-7">
+        <div class="col-md-8">
             <h5 class="mb-4">${titleSpecialOpeningHours}</h5>
 
             <div class="table-responsive">
-                <table id="${commandPrefix}-special-hours-tbl" class="table table-bordered table-sm custom-table right-table">
+                <table id="${commandPrefix}-special-hours-tbl" class="table table-bordered custom-table right-table">
                     <thead>
                     <tr>
-                        <th class="align-middle text-center">Description</th>
-                        <th class="align-middle text-center">Date</th>
-                        <th class="align-middle text-center">Start</th>
-                        <th class="align-middle text-center">End</th>
-                        <th class="align-middle text-center">Closed</th>
-                        <th class="align-middle text-center">Actions</th>
+                        <th class="align-middle text-center col-6">Description</th>
+                        <th class="align-middle text-center col-2">Date</th>
+                        <th class="align-middle text-center col-1">Start</th>
+                        <th class="align-middle text-center col-1">End</th>
+                        <th class="align-middle text-center col-1">Closed</th>
+                        <th class="align-middle text-center col-1">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -147,10 +147,6 @@
 .custom-table {
     width: auto;
     max-width: 100%;
-}
-
-.table-sm td, .table-sm th {
-    padding: 0.3rem;
 }
 
 .table-responsive {
