@@ -12,6 +12,7 @@ import uk.co.wonderlane.wlpos.entities.OpeningTime
 import uk.co.wonderlane.wlpos.entities.OpeningTimeOverride
 import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
 import uk.co.wonderlane.wlpos.entities.StoreLicencing
+import uk.co.wonderlane.wlpos.entities.StoreOtherRestrictions
 import uk.co.wonderlane.wlpos.entities.StoreRestrictedHours
 
 import java.lang.reflect.Type
@@ -100,19 +101,19 @@ class StoreService extends MySqlDal {
         return [stores, storeCount.first()]
     }
 
-    def saveStore(StoreCommand store, String configString, String storeAdditionalDetail, String openingHoursString, String storeLicensing) {
-        return doSaveStore(store, configString, storeAdditionalDetail, openingHoursString, storeLicensing)
+    def saveStore(StoreCommand store, String configString, String storeAdditionalDetail, String openingHoursString, String storeLicensing, String storeRestrictions) {
+        return doSaveStore(store, configString, storeAdditionalDetail, openingHoursString, storeLicensing, storeRestrictions)
     }
 
     // Needs to not be transactional otherwise Hibernate tries to save the store object rather than allowing the stored procedure to do it (well, it does both).
     @Transactional (readOnly = true)
     def saveStore(Store store) {
-        return doSaveStore(store, store.configString, store.additionalDetails, store.openingHoursString, store.licencingString)
+        return doSaveStore(store, store.configString, store.additionalDetails, store.openingHoursString, store.licencingString, store.storeRestrictions)
     }
 
-    private void doSaveStore(def store, String configString, String storeAdditionalDetail, String openingHours, String storeLicensing) {
+    private void doSaveStore(def store, String configString, String storeAdditionalDetail, String openingHours, String storeLicensing, String storeRestrictions) {
         Connection conn = getConnection()
-        CallableStatement cstmt = conn.prepareCall("{ call saveStore(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+        CallableStatement cstmt = conn.prepareCall("{ call saveStore(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
             if (store.id && store.id > 0) {
@@ -136,6 +137,7 @@ class StoreService extends MySqlDal {
             cstmt.setString(10, storeAdditionalDetail)
             cstmt.setString(11, openingHours)
             cstmt.setString(12, storeLicensing)
+            cstmt.setString(13, storeRestrictions)
             cstmt.executeUpdate()
 
             def resultSet = cstmt.getResultSet()
@@ -212,6 +214,48 @@ class StoreService extends MySqlDal {
         return storeLicencing
     }
 
+    def getStoreRestrictionsCommandAsObject(StoreRestrictionsCommand storeRestrictionsCommand) {
+        StoreRestrictedHours storeRestrictedHours = new StoreRestrictedHours()
+        if (storeRestrictionsCommand != null) {
+            storeRestrictionsCommand.getRegularHours()?.forEach { enableHours ->
+                {
+                    switch (enableHours.day) {
+                        case "Monday":
+                            storeRestrictedHours.monday = getEnableHoursAsObject(enableHours)
+                            break
+                        case "Tuesday":
+                            storeRestrictedHours.tuesday = getEnableHoursAsObject(enableHours)
+                            break
+                        case "Wednesday":
+                            storeRestrictedHours.wednesday = getEnableHoursAsObject(enableHours)
+                            break
+                        case "Thursday":
+                            storeRestrictedHours.thursday = getEnableHoursAsObject(enableHours)
+                            break
+                        case "Friday":
+                            storeRestrictedHours.friday = getEnableHoursAsObject(enableHours)
+                            break
+                        case "Saturday":
+                            storeRestrictedHours.saturday = getEnableHoursAsObject(enableHours)
+                            break
+                        case "Sunday":
+                            storeRestrictedHours.sunday = getEnableHoursAsObject(enableHours)
+                            break
+                    }
+                }
+            }
+            storeRestrictedHours.storeOtherRestrictions = new ArrayList<>()
+            storeRestrictionsCommand.getOtherRestrictions()?.forEach { otherRestrictions ->
+                {
+                    if (otherRestrictions != null) {
+                        storeRestrictedHours.storeOtherRestrictions.add(getStoreOtherRestrictionAsObject(otherRestrictions))
+                    }
+                }
+            }
+            return storeRestrictedHours
+        }
+    }
+
 
     StoreOpeningHoursCommand convertToStoreOpeningHoursCommand(OpeningHours openingHours) {
         StoreOpeningHoursCommand command = new StoreOpeningHoursCommand()
@@ -280,6 +324,22 @@ class StoreService extends MySqlDal {
             addEnabledTimeToCmd(regularHours, "Saturday", storeRestrictedHours.getSaturday())
             addEnabledTimeToCmd(regularHours, "Sunday", storeRestrictedHours.getSunday())
             storeRestrictionsCommand.setRegularHours(regularHours)
+
+            List<StoreOtherRestrictionsCommand> otherRestrictions = new ArrayList<>();
+            if (storeRestrictedHours.getStoreOtherRestrictions() != null) {
+                for (StoreOtherRestrictions override : storeRestrictedHours.getStoreOtherRestrictions()) {
+                    StoreOtherRestrictionsCommand overrideCommand = new StoreOtherRestrictionsCommand()
+                    overrideCommand.description = override.description
+                    if (override.getStartDateTime() != null) {
+                        overrideCommand.setStartDateTime(override.getStartDateTime().toString("dd/MM/YYYY HH:mm"))
+                    }
+                    if (override.getEndDateTime() != null) {
+                        overrideCommand.setEndDateTime(override.getEndDateTime().toString("dd/MM/YYYY HH:mm"))
+                    }
+                    otherRestrictions.add(overrideCommand)
+                }
+            }
+            storeRestrictionsCommand.setOtherRestrictions(otherRestrictions)
         } else {
             storeRestrictionsCommand.setRegularHours([
                     new EnableHoursCommand(day: 'Monday', timeFrom: '', timeTo: '', restrictionEnabled: false),
@@ -292,6 +352,14 @@ class StoreService extends MySqlDal {
             ])
         }
         return storeRestrictionsCommand
+    }
+
+    private EnableHoursCommand getEnableHoursCommand(String day, EnableHours enableHours){
+        if (enableHours != null) {
+            return enableHours
+        } else {
+            new EnableHoursCommand(day: day, timeFrom: '', timeTo: '', restrictionEnabled: false)
+        }
     }
 
     private void addOpeningTimeToCmd(List<OpeningTimeCommand> regularHours, String day, OpeningTime openingTime) {
@@ -349,19 +417,42 @@ class StoreService extends MySqlDal {
     }
 
     private void addEnabledTimeToCmd(List<EnableHoursCommand> regularHours, String day, EnableHours enableHours) {
-        OpeningTimeCommand command = new OpeningTimeCommand()
+        EnableHoursCommand command = new EnableHoursCommand()
         command.setDay(day)
 
         if (enableHours != null) {
-            command.setStartTime(enableHours.getTimeFrom() != null ? enableHours.getTimeFrom().toString("HH:mm") : null)
-            command.setEndTime(enableHours.getTimeTo() != null ? enableHours.getTimeTo().toString("HH:mm") : null)
-            command.setClosed(enableHours.isRestrictionEnabled())
+            command.setTimeFrom(enableHours.getTimeFrom() != null ? enableHours.getTimeFrom().toString("HH:mm") : null)
+            command.setTimeTo(enableHours.getTimeTo() != null ? enableHours.getTimeTo().toString("HH:mm") : null)
+            command.setRestrictionEnabled(enableHours.isRestrictionEnabled())
         } else {
-            command.setStartTime(null)
-            command.setEndTime(null)
-            command.setClosed(false)
+            command.setTimeFrom(null)
+            command.setTimeTo(null)
+            command.setRestrictionEnabled(false)
         }
 
         regularHours.add(command)
+    }
+
+    private EnableHours getEnableHoursAsObject(EnableHoursCommand enableHoursCommand) {
+        EnableHours enableHours = new EnableHours()
+        if (enableHoursCommand != null) {
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm")
+            enableHours.timeFrom = enableHoursCommand.timeFrom ? formatter.parseLocalTime(enableHoursCommand.timeFrom) : null
+            enableHours.timeTo = enableHoursCommand.timeTo ? formatter.parseLocalTime(enableHoursCommand.timeTo) : null
+            enableHours.restrictionEnabled = enableHoursCommand.restrictionEnabled
+        }
+        return enableHours
+    }
+
+    private StoreOtherRestrictions getStoreOtherRestrictionAsObject(StoreOtherRestrictionsCommand storeOtherRestrictionsCommand) {
+        if (storeOtherRestrictionsCommand == null) {
+            return null
+        }
+        DateTimeFormatter formatterDate = DateTimeFormat.forPattern("dd/MM/YYYY HH:mm")
+        StoreOtherRestrictions storeOtherRestrictions = new StoreOtherRestrictions()
+        storeOtherRestrictions.description = storeOtherRestrictionsCommand?.description
+        storeOtherRestrictions.startDateTime = storeOtherRestrictionsCommand?.startDateTime ? formatterDate.parseDateTime(storeOtherRestrictionsCommand?.startDateTime) : null
+        storeOtherRestrictions.endDateTime = storeOtherRestrictionsCommand?.endDateTime ? formatterDate.parseDateTime(storeOtherRestrictionsCommand?.endDateTime) : null
+        return storeOtherRestrictions
     }
 }

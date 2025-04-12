@@ -15,14 +15,14 @@
         <section id="other-restrictions-errors-container" class="container-fluid"></section>
 
         <div class="row form-group mb-4 mt-4">
-            <g:hiddenField name="otherRestrictionError" />
+            <g:hiddenField name="otherRestrictionIndex" value="${index}" />
 
             <!-- Adjusted column widths to give more space to description -->
             <div class="col-5">
                 <div class="row">
                     <label for="otherRestrictionDescription" class="col-4 col-form-label-mandatory text-right">Description</label>
                     <div class="col-8">
-                        <g:field type="text" id="otherRestrictionDescription" name="otherRestrictionDescription" class="form-control select-border" maxlength="60" />
+                        <g:field type="text" id="otherRestrictionDescription" name="otherRestrictionDescription" class="form-control select-border" maxlength="60" value="${description}"/>
                     </div>
                 </div>
             </div>
@@ -31,7 +31,7 @@
                 <div class="row">
                     <label for="startDateTimePicker" class="col-5 col-form-label text-center small">Start date & time</label>
                     <div class="col-7 pl-0">
-                        <g:textField name="startDateTimePicker" class="form-control form-control-sm bottom-border"/>
+                        <g:textField name="startDateTimePicker" class="form-control form-control-sm bottom-border" value="${startDateTime}"/>
                     </div>
                 </div>
             </div>
@@ -40,7 +40,7 @@
                 <div class="row">
                     <label for="endDateTimePicker" class="col-5 col-form-label text-center small">End date & time</label>
                     <div class="col-7 pl-0">
-                        <g:textField name="endDateTimePicker" class="form-control form-control-sm bottom-border" />
+                        <g:textField name="endDateTimePicker" class="form-control form-control-sm bottom-border" value="${endDateTime}"/>
                     </div>
                 </div>
             </div>

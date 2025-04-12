@@ -336,11 +336,11 @@ class StoreController {
             bindData(storeConfig, storeCommand.config)
 
             String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(storeCommand?.storeAdditionalDetails)
-
             String storeOpeningHours = gsonProvider.gson.toJson(storeService.getOpeningHoursAsObject(storeCommand.storeOpeningHoursCommand))
             String storeLicensing = gsonProvider.gson.toJson(storeService.getAlcoholLicensingCommandAsObject(storeCommand.alcoholLicensingCommand))
+            String storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(storeCommand?.storeRestrictions))
 
-            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours, storeLicensing)
+            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours, storeLicensing, storeRestrictions)
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
@@ -391,7 +391,7 @@ class StoreController {
     }
 
     def ajaxAddStoreOtherRestrictions(){
-        render(template: "addStoreOtherRestrictions")
+        render(template: "addStoreOtherRestrictions", model: [index : params?.index, description: params?.description, startDateTime: params?.startDateTime, endDateTime: params?.endDateTime])
     }
 
     def ajaxSaveStoreOtherRestrictions(StoreRestrictionsCommand storeRestrictionsCommand) {
@@ -466,6 +466,7 @@ class NewStoreCommand implements Validateable {
     StoreOpeningHoursCommand storeOpeningHoursCommand
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
     AlcoholLicensingCommand alcoholLicensingCommand
+    StoreRestrictionsCommand storeRestrictions
 
     static constraints = {
         storeNumber nullable: false,blank: false, min:1, max: 999999, validator: { val, obj ->
@@ -539,6 +540,7 @@ class NewStoreCommand implements Validateable {
             }
             return true
         }
+        storeRestrictions nullable: true
 
     }
 }
@@ -555,6 +557,7 @@ class StoreCommand implements Validateable {
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
     StoreOpeningHoursCommand storeOpeningHoursCommand
     AlcoholLicensingCommand alcoholLicensingCommand
+    StoreRestrictionsCommand storeRestrictions
 
     static constraints = {
         id nullable: true
@@ -579,6 +582,7 @@ class StoreCommand implements Validateable {
         }
         storeOpeningHoursCommand nullable: true
         alcoholLicensingCommand nullable: true
+        storeRestrictions nullable: true
     }
 }
 

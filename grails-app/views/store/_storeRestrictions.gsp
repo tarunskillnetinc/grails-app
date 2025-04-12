@@ -18,18 +18,17 @@
                         <tr>
                             <td class="align-middle text-center">
                                 <div class="checkbox-wrapper">
-                                    <g:checkBox name="regularHours[${i}].closed" value="${enableTime.restrictionEnabled}" class="form-check-input wl-checkbox" checked="${enableTime.restrictionEnabled}" />
+                                    <g:checkBox name="storeRestrictions.regularHours[${i}].restrictionEnabled" value="${enableTime.restrictionEnabled}" class="form-check-input wl-checkbox" checked="${enableTime.restrictionEnabled}" />
                                 </div>
                             </td>
-                            <td>
-                                <span id="regularHours[${i}].day" class="form-control-plaintext" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${enableTime.day}</span>
+                            <td class="align-middle text-center">${enableTime.day} <input type="hidden" name="storeRestrictions.regularHours[${i}].day" value="${enableTime.day}">
                             </td>
                             <td class="d-flex align-items-center">
-                                <g:textField name="regularHours[${i}].startTime" value="${enableTime.timeFrom}" class="form-control form-control-sm time-input me-2" placeholder="HH:mm"/>
+                                <g:textField name="storeRestrictions.regularHours[${i}].timeFrom" value="${enableTime.timeFrom}" class="form-control form-control-sm time-input me-2" placeholder="HH:mm"/>
 
                                 <span class="mx-2">to</span>
 
-                                <g:textField name="regularHours[${i}].endTime" value="${enableTime.timeTo}" class="form-control form-control-sm time-input ms-2" placeholder="HH:mm"/>
+                                <g:textField name="storeRestrictions.regularHours[${i}].timeTo" value="${enableTime.timeTo}" class="form-control form-control-sm time-input ms-2" placeholder="HH:mm"/>
                             </td>
 
                         </tr>
@@ -57,19 +56,19 @@
                         <tr id="special-hour-row-${i}">
                             <td class="align-middle text-center">
                                 ${otherRestrictions?.description}
-                                <input type="hidden" name="otherRestrictions.specialOpeningHours[${i}].description"  value="${otherRestrictions?.description}"/>
+                                <input type="hidden" name="storeRestrictions.otherRestrictions[${i}].description" value="${otherRestrictions?.description}"/>
                             </td>
                             <td class="align-middle text-center">
                                 ${otherRestrictions?.startDateTime}
-                                <input type="hidden" name="otherRestrictions.specialOpeningHours[${i}].date" id="otherRestrictions.specialOpeningHours[${i}].date" value="${otherRestrictions?.startDateTime}"/>
+                                <input type="hidden" name="storeRestrictions.otherRestrictions[${i}].startDateTime" id="otherRestrictions[${i}].startDateTime" value="${otherRestrictions?.startDateTime}"/>
                             </td>
                             <td class="align-middle text-center">
                                 ${otherRestrictions?.endDateTime}
-                                <input type="hidden" name="otherRestrictions.specialOpeningHours[${i}].startTime" id="otherRestrictions.specialOpeningHours[${i}].startTime" value="${otherRestrictions?.endDateTime}"/>
+                                <input type="hidden" name="storeRestrictions.otherRestrictions[${i}].endDateTime" id="otherRestrictions[${i}].endDateTime" value="${otherRestrictions?.endDateTime}"/>
                             </td>
                             <td class="text-center align-middle">
-                                <a href="#" onclick="editSpecialHour(${i})" id="otherRestrictions-edit-specialOpeningHours[${i}]" class="btn btn-sm btn-wl mr-1 fixed-width-btn">Edit</a>
-                                <a href="#" onclick="deleteSpecialHour(${i})" id="otherRestrictions-delete-specialOpeningHours[${i}]" class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
+                                <a href="#" onclick="addOtherRestrictions('${i}','${otherRestrictions?.description}', '${otherRestrictions?.startDateTime}', '${otherRestrictions?.endDateTime}' )" id="otherRestrictions-edit-specialOpeningHours[${i}]" class="btn btn-sm btn-wl mr-1 fixed-width-btn">Edit</a>
+                                <a href="#" onclick="deleteOtherRestriction('${i}')" id="otherRestrictions-delete-specialOpeningHours[${i}]" class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
                             </td>
                         </tr>
                     </g:each>
@@ -78,8 +77,7 @@
             </div>
 
             <div class="mt-3">
-                <a href="#" onclick="addOtherRestrictions()" id="otherRestrictions-add-special-opening-hours"
-                   class="btn btn-wl pt-1 pb-1 pl-3 pr-4">Add other store restriction</a>
+                <a href="#" onclick="addOtherRestrictions(null, null, null, null)" id="otherRestrictions-add-special-opening-hours" class="btn btn-wl pt-1 pb-1 pl-3 pr-4">Add other store restriction</a>
             </div>
         </div>
     </div>

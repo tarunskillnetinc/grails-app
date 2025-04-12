@@ -101,10 +101,10 @@ function closeStoreAdditionalDetailAddModal() {
     }
 }
 
-function addOtherRestrictions(index, description, value) {
+function addOtherRestrictions(index, description, startDateTime, endDateTime) {
     $("#addStoreOtherRestrictionContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
     $('#addStoreOtherRestrictionModal').modal({show: true, backdrop: 'static', keyboard: false});
-    var params = {index: index, description: description, value: value}
+    var params = {index: index, description: description, startDateTime: startDateTime, endDateTime:endDateTime }
     $.ajax({
         url: addStoreOtherRestrictionsValues, // Replace with the actual URL endpoint
         method: "GET",
@@ -201,4 +201,56 @@ function saveOtherRestrictions() {
             ).show();
         }
     });
+}
+
+function deleteOtherRestriction(index) {
+    if (confirm("Are you sure you want to delete?")) {
+        var otherRestrictionContainer = $("#storeRestrictionsContainer > div");
+        if (otherRestrictionContainer.length) {
+            var params = {}
+            $("input[name^='regularHours']").each(function() {
+                const nameMatch = $(this).attr('name').match(/regularHours\[(\d+)\]\.(\w+)/);
+                if (nameMatch) {
+                    const index = parseInt(nameMatch[1]);
+                    const field = nameMatch[2];
+
+                    if (field === 'startTime') {
+                        params["regularHours[" + index + "].timeFrom"] = $(this).val();
+                    } else if (field === 'endTime') {
+                        params["regularHours[" + index + "].timeTo"] = $(this).val();
+                    } else if (field === 'closed') {
+                        params["regularHours[" + index + "].restrictionEnabled"] = $(this).is(':checked');
+                    }
+
+                    // Add day if not already added
+                    if (!params["regularHours[" + index + "].day"]) {
+                        params["regularHours[" + index + "].day"] = $(`#regularHours\\[${index}\\]\\.day`).text();
+                    }
+                }
+            });
+
+            // Add existing other restrictions to params
+            $("#other-restrictions-special-days-tbl tbody tr").each(function(loopIndex) {
+                const row = $(this);
+                const existingDescription = row.find("input[name$='.description']").val();
+                const existingStartDateTime = row.find("input[name$='.startDateTime']").val() || row.find("input[name$='.date']").val();
+                const existingEndDateTime = row.find("input[name$='.endDateTime']").val() || row.find("input[name$='.startTime']").val();
+                if (loopIndex !== index) {
+                    params["otherRestrictions[" + loopIndex + "].description"] = existingDescription;
+                    params["otherRestrictions[" + loopIndex + "].startDateTime"] = existingStartDateTime;
+                    params["otherRestrictions[" + loopIndex + "].endDateTime"] = existingEndDateTime;
+                }
+            });
+
+            $.ajax({
+                url: saveStoreOtherRestrictions,
+                method: "POST",
+                data: params,
+                success: function(resp) {
+                    otherRestrictionContainer.html(resp);
+                    $('#addStoreOtherRestrictionModal').modal("hide");
+                }
+            });
+        }
+    }
 }
