@@ -172,7 +172,9 @@ class StoreController {
          order                       : params.order,
          storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList()),
          storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours()),
-         alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing())]
+         alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing()),
+         storeRestrictions           : storeService.convertToStoreRestrictionCommand(store?.getStoreRestrictedHours())
+        ]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -386,6 +388,14 @@ class StoreController {
 
     def ajaxSaveStoreAdditionalDetail(AddStoreAdditionalDetailCommand additionalDetailCommand) {
         render(template: "storeAdditionalDetail", model: [storeAdditionalDetails: storeService.sortAdditionalDetails(additionalDetailCommand?.storeAdditionalDetails)])
+    }
+
+    def ajaxAddStoreOtherRestrictions(){
+        render(template: "addStoreOtherRestrictions")
+    }
+
+    def ajaxSaveStoreOtherRestrictions(StoreRestrictionsCommand storeRestrictionsCommand) {
+        render(template: "storeRestrictions", model: [storeRestrictions: storeRestrictionsCommand])
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
@@ -713,4 +723,22 @@ class OpeningTimeCommand {
 class OpeningTimeOverrideCommand extends OpeningTimeCommand{
     String date;
     String description;
+}
+
+class StoreRestrictionsCommand {
+    List<EnableHoursCommand> regularHours;
+    List<StoreOtherRestrictionsCommand> otherRestrictions;
+}
+
+class EnableHoursCommand {
+    String day;
+    String timeFrom;
+    String timeTo;
+    boolean restrictionEnabled;
+}
+
+class StoreOtherRestrictionsCommand {
+    String description
+    String startDateTime
+    String endDateTime
 }

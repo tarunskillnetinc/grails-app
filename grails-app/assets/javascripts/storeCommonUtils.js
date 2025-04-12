@@ -100,3 +100,105 @@ function closeStoreAdditionalDetailAddModal() {
         $('#addStoreAdditionalDetailsModal').modal('hide')
     }
 }
+
+function addOtherRestrictions(index, description, value) {
+    $("#addStoreOtherRestrictionContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#addStoreOtherRestrictionModal').modal({show: true, backdrop: 'static', keyboard: false});
+    var params = {index: index, description: description, value: value}
+    $.ajax({
+        url: addStoreOtherRestrictionsValues, // Replace with the actual URL endpoint
+        method: "GET",
+        data: params,
+        success: function (resp) {
+            try {
+                $("#addStoreOtherRestrictionContent").html(resp);
+            } catch (e) {
+                console.error('Error processing response:', e);
+                $("#addStoreOtherRestrictionContent").html("Error loading content. Please try again.");
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX error:', error);
+            $("#addStoreOtherRestrictionContent").html("Error loading content. Please try again.");
+        }
+    });
+}
+
+function closeOtherRestrictionsAddModal(){
+    if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+        $('#addStoreOtherRestrictionModal').modal('hide')
+    }
+}
+
+function saveOtherRestrictions() {
+    // Get values from the form
+    const description = $("#otherRestrictionDescription").val();
+    const startDateTime = $("#startDateTimePicker").val();
+    const endDateTime = $("#endDateTimePicker").val();
+
+    // Create params object for AJAX submission
+    let params = {};
+
+    // Add regular hours to params
+    $("input[name^='regularHours']").each(function() {
+        const nameMatch = $(this).attr('name').match(/regularHours\[(\d+)\]\.(\w+)/);
+        if (nameMatch) {
+            const index = parseInt(nameMatch[1]);
+            const field = nameMatch[2];
+
+            if (field === 'startTime') {
+                params["regularHours[" + index + "].timeFrom"] = $(this).val();
+            } else if (field === 'endTime') {
+                params["regularHours[" + index + "].timeTo"] = $(this).val();
+            } else if (field === 'closed') {
+                params["regularHours[" + index + "].restrictionEnabled"] = $(this).is(':checked');
+            }
+
+            // Add day if not already added
+            if (!params["regularHours[" + index + "].day"]) {
+                params["regularHours[" + index + "].day"] = $(`#regularHours\\[${index}\\]\\.day`).text();
+            }
+        }
+    });
+
+    // Add existing other restrictions to params
+    let otherRestrictionsCount = 0;
+    $("#other-restrictions-special-days-tbl tbody tr").each(function(index) {
+        const row = $(this);
+        const existingDescription = row.find("input[name$='.description']").val();
+        const existingStartDateTime = row.find("input[name$='.startDateTime']").val() || row.find("input[name$='.date']").val();
+        const existingEndDateTime = row.find("input[name$='.endDateTime']").val() || row.find("input[name$='.startTime']").val();
+
+        if (existingDescription && existingStartDateTime) {
+            params["otherRestrictions[" + otherRestrictionsCount + "].description"] = existingDescription;
+            params["otherRestrictions[" + otherRestrictionsCount + "].startDateTime"] = existingStartDateTime;
+            params["otherRestrictions[" + otherRestrictionsCount + "].endDateTime"] = existingEndDateTime;
+            otherRestrictionsCount++;
+        }
+    });
+
+    // Add the new restriction
+    params["otherRestrictions[" + otherRestrictionsCount + "].description"] = description;
+    params["otherRestrictions[" + otherRestrictionsCount + "].startDateTime"] = startDateTime;
+    params["otherRestrictions[" + otherRestrictionsCount + "].endDateTime"] = endDateTime;
+
+    // Log the params for debugging
+    console.log("Params:", params);
+
+    // Submit via AJAX
+    $.ajax({
+        url: saveStoreOtherRestrictions,
+        type: 'POST',
+        data: params,
+        success: function(resp) {
+            var storeRestrictionContainer = $("#storeRestrictionsContainer");
+            storeRestrictionContainer.html(resp);
+            $('#addStoreOtherRestrictionModal').modal("hide");
+        },
+        error: function(xhr, status, error) {
+            $("#other-restrictions-errors-container").append(
+                '<div class="alert alert-danger">Error saving data: ' + error + '</div>'
+            ).show();
+        }
+    });
+}

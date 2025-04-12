@@ -67,7 +67,8 @@
 
     <div id="collapseStoreRestrictions" class="collapse" aria-labelledby="storeRestrictions" data-parent="#accordion">
         <div class="card-body py-5">
-            <div class="col-12">
+            <div class="col-12" id="storeRestrictionsContainer">
+                <g:render template="storeRestrictions" model="[storeRestrictions: storeRestrictions]" />
             </div>
         </div>
     </div>

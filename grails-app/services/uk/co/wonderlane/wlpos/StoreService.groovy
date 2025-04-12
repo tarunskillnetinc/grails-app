@@ -6,11 +6,13 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.entities.EnableHours
 import uk.co.wonderlane.wlpos.entities.OpeningHours
 import uk.co.wonderlane.wlpos.entities.OpeningTime
 import uk.co.wonderlane.wlpos.entities.OpeningTimeOverride
 import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
 import uk.co.wonderlane.wlpos.entities.StoreLicencing
+import uk.co.wonderlane.wlpos.entities.StoreRestrictedHours
 
 import java.lang.reflect.Type
 import java.sql.CallableStatement
@@ -266,6 +268,32 @@ class StoreService extends MySqlDal {
         )
     }
 
+    StoreRestrictionsCommand convertToStoreRestrictionCommand(StoreRestrictedHours storeRestrictedHours){
+        StoreRestrictionsCommand storeRestrictionsCommand = new StoreRestrictionsCommand()
+        if (storeRestrictedHours != null) {
+            List<EnableHoursCommand> regularHours = new ArrayList<>();
+            addEnabledTimeToCmd(regularHours, "Monday", storeRestrictedHours.getMonday())
+            addEnabledTimeToCmd(regularHours, "Tuesday", storeRestrictedHours.getTuesday())
+            addEnabledTimeToCmd(regularHours, "Wednesday", storeRestrictedHours.getWednesday())
+            addEnabledTimeToCmd(regularHours, "Thursday", storeRestrictedHours.getThursday())
+            addEnabledTimeToCmd(regularHours, "Friday", storeRestrictedHours.getFriday())
+            addEnabledTimeToCmd(regularHours, "Saturday", storeRestrictedHours.getSaturday())
+            addEnabledTimeToCmd(regularHours, "Sunday", storeRestrictedHours.getSunday())
+            storeRestrictionsCommand.setRegularHours(regularHours)
+        } else {
+            storeRestrictionsCommand.setRegularHours([
+                    new EnableHoursCommand(day: 'Monday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                    new EnableHoursCommand(day: 'Tuesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                    new EnableHoursCommand(day: 'Wednesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                    new EnableHoursCommand(day: 'Thursday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                    new EnableHoursCommand(day: 'Friday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                    new EnableHoursCommand(day: 'Saturday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                    new EnableHoursCommand(day: 'Sunday', timeFrom: '', timeTo: '', restrictionEnabled: false)
+            ])
+        }
+        return storeRestrictionsCommand
+    }
+
     private void addOpeningTimeToCmd(List<OpeningTimeCommand> regularHours, String day, OpeningTime openingTime) {
         OpeningTimeCommand command = new OpeningTimeCommand()
         command.setDay(day)
@@ -318,5 +346,22 @@ class StoreService extends MySqlDal {
                     }
                 })
                 .collect(Collectors.toList());
+    }
+
+    private void addEnabledTimeToCmd(List<EnableHoursCommand> regularHours, String day, EnableHours enableHours) {
+        OpeningTimeCommand command = new OpeningTimeCommand()
+        command.setDay(day)
+
+        if (enableHours != null) {
+            command.setStartTime(enableHours.getTimeFrom() != null ? enableHours.getTimeFrom().toString("HH:mm") : null)
+            command.setEndTime(enableHours.getTimeTo() != null ? enableHours.getTimeTo().toString("HH:mm") : null)
+            command.setClosed(enableHours.isRestrictionEnabled())
+        } else {
+            command.setStartTime(null)
+            command.setEndTime(null)
+            command.setClosed(false)
+        }
+
+        regularHours.add(command)
     }
 }
