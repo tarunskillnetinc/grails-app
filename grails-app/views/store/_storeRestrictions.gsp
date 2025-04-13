@@ -7,11 +7,11 @@
             <div class="table-responsive">
                 <table id="restriction-days-tbl" class="table table-bordered custom-table">
                     <thead>
-                    <tr>
-                        <th class="align-middle text-left">Restriction</th>
-                        <th class="align-middle text-left">Days</th>
-                        <th class="align-middle text-left">Restriction Time</th>
-                    </tr>
+                        <tr>
+                            <th class="align-middle text-left">Restriction</th>
+                            <th class="align-middle text-left">Days</th>
+                            <th class="align-middle text-left">Restriction Time</th>
+                        </tr>
                     </thead>
                     <tbody>
                     <g:each in="${storeRestrictions?.regularHours}" var="enableTime" status="i">
