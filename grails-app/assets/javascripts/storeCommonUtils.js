@@ -208,29 +208,23 @@ function deleteOtherRestriction(index) {
         var otherRestrictionContainer = $("#storeRestrictionsContainer > div");
         if (otherRestrictionContainer.length) {
             var params = {}
-            $("input[name^='regularHours']").each(function() {
-                const nameMatch = $(this).attr('name').match(/regularHours\[(\d+)\]\.(\w+)/);
-                if (nameMatch) {
-                    const index = parseInt(nameMatch[1]);
-                    const field = nameMatch[2];
+            $("#restriction-days-tbl tbody tr").each(function(loopIndex) {
+                const row = $(this);
+                const isEnabled = row.find("input[name^='storeRestrictions.regularHours'][name$='.restrictionEnabled']").is(':checked');
+                const day = row.find("td:nth-child(2)").text().trim();
+                const timeFrom = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeFrom']").val();
+                const timeTo = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeTo']").val();
 
-                    if (field === 'startTime') {
-                        params["regularHours[" + index + "].timeFrom"] = $(this).val();
-                    } else if (field === 'endTime') {
-                        params["regularHours[" + index + "].timeTo"] = $(this).val();
-                    } else if (field === 'closed') {
-                        params["regularHours[" + index + "].restrictionEnabled"] = $(this).is(':checked');
-                    }
-
-                    // Add day if not already added
-                    if (!params["regularHours[" + index + "].day"]) {
-                        params["regularHours[" + index + "].day"] = $(`#regularHours\\[${index}\\]\\.day`).text();
-                    }
-                }
+                params[`regularHours[${loopIndex}].restrictionEnabled`] = isEnabled;
+                params[`regularHours[${loopIndex}].day`] = day;
+                params[`regularHours[${loopIndex}].timeFrom`] = timeFrom;
+                params[`regularHours[${loopIndex}].timeTo`] = timeTo;
             });
+
 
             // Add existing other restrictions to params
             $("#other-restrictions-special-days-tbl tbody tr").each(function(loopIndex) {
+                console.log(index)
                 const row = $(this);
                 const existingDescription = row.find("input[name$='.description']").val();
                 const existingStartDateTime = row.find("input[name$='.startDateTime']").val() || row.find("input[name$='.date']").val();
@@ -241,6 +235,8 @@ function deleteOtherRestriction(index) {
                     params["otherRestrictions[" + loopIndex + "].endDateTime"] = existingEndDateTime;
                 }
             });
+
+            console.log(params)
 
             $.ajax({
                 url: saveStoreOtherRestrictions,

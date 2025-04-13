@@ -395,7 +395,7 @@ class StoreController {
     }
 
     def ajaxSaveStoreOtherRestrictions(StoreRestrictionsCommand storeRestrictionsCommand) {
-        render(template: "storeRestrictions", model: [storeRestrictions: storeRestrictionsCommand])
+        render(template: "storeRestrictions", model: [storeRestrictions: storeService.sortStoreRestrictions(storeRestrictionsCommand)])
     }
 
     private List loadDropdownData(retailerId, storeNumber) {

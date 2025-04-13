@@ -5,25 +5,25 @@
             <h5 class="mb-4">Delivery Restrictions</h5>
 
             <div class="table-responsive">
-                <table class="table table-bordered custom-table">
+                <table id="restriction-days-tbl" class="table table-bordered custom-table">
                     <thead>
                     <tr>
-                        <th class="align-middle text-center">Restriction</th>
-                        <th class="align-middle text-center">Days</th>
-                        <th class="align-middle text-center">Restriction Time</th>
+                        <th class="align-middle text-left">Restriction</th>
+                        <th class="align-middle text-left">Days</th>
+                        <th class="align-middle text-left">Restriction Time</th>
                     </tr>
                     </thead>
                     <tbody>
                     <g:each in="${storeRestrictions?.regularHours}" var="enableTime" status="i">
                         <tr>
-                            <td class="align-middle text-center">
+                            <td class="align-middle text-left">
                                 <div class="checkbox-wrapper">
                                     <g:checkBox name="storeRestrictions.regularHours[${i}].restrictionEnabled" value="${enableTime.restrictionEnabled}" class="form-check-input wl-checkbox" checked="${enableTime.restrictionEnabled}" />
                                 </div>
                             </td>
-                            <td class="align-middle text-center">${enableTime.day} <input type="hidden" name="storeRestrictions.regularHours[${i}].day" value="${enableTime.day}">
+                            <td class="align-middle text-left">${enableTime.day} <input type="hidden" name="storeRestrictions.regularHours[${i}].day" value="${enableTime.day}">
                             </td>
-                            <td class="d-flex align-items-center">
+                            <td class="d-flex align-items-left">
                                 <g:textField name="storeRestrictions.regularHours[${i}].timeFrom" value="${enableTime.timeFrom}" class="form-control form-control-sm time-input me-2" placeholder="HH:mm"/>
 
                                 <span class="mx-2">to</span>
@@ -45,30 +45,30 @@
                 <table id="other-restrictions-special-days-tbl" class="table table-bordered table-sm custom-table right-table">
                     <thead>
                     <tr>
-                        <th class="align-middle text-center">Description</th>
-                        <th class="align-middle text-center">Start Date & Time</th>
-                        <th class="align-middle text-center">End Date & Time</th>
-                        <th class="align-middle text-center">Actions</th>
+                        <th class="align-middle text-left">Description</th>
+                        <th class="align-middle text-left">Start Date & Time</th>
+                        <th class="align-middle text-left">End Date & Time</th>
+                        <th class="align-middle text-left">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     <g:each in="${storeRestrictions?.otherRestrictions}" var="otherRestrictions" status="i">
                         <tr id="special-hour-row-${i}">
-                            <td class="align-middle text-center">
+                            <td class="align-middle text-left">
                                 ${otherRestrictions?.description}
                                 <input type="hidden" name="storeRestrictions.otherRestrictions[${i}].description" value="${otherRestrictions?.description}"/>
                             </td>
-                            <td class="align-middle text-center">
+                            <td class="align-middle text-left">
                                 ${otherRestrictions?.startDateTime}
                                 <input type="hidden" name="storeRestrictions.otherRestrictions[${i}].startDateTime" id="otherRestrictions[${i}].startDateTime" value="${otherRestrictions?.startDateTime}"/>
                             </td>
-                            <td class="align-middle text-center">
+                            <td class="align-middle text-left">
                                 ${otherRestrictions?.endDateTime}
                                 <input type="hidden" name="storeRestrictions.otherRestrictions[${i}].endDateTime" id="otherRestrictions[${i}].endDateTime" value="${otherRestrictions?.endDateTime}"/>
                             </td>
-                            <td class="text-center align-middle">
+                            <td class="text-left align-middle">
                                 <a href="#" onclick="addOtherRestrictions('${i}','${otherRestrictions?.description}', '${otherRestrictions?.startDateTime}', '${otherRestrictions?.endDateTime}' )" id="otherRestrictions-edit-specialOpeningHours[${i}]" class="btn btn-sm btn-wl mr-1 fixed-width-btn">Edit</a>
-                                <a href="#" onclick="deleteOtherRestriction('${i}')" id="otherRestrictions-delete-specialOpeningHours[${i}]" class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
+                                <a href="#" onclick="deleteOtherRestriction(${i})" id="otherRestrictions-delete-specialOpeningHours[${i}]" class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
                             </td>
                         </tr>
                     </g:each>

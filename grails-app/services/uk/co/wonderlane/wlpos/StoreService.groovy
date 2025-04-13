@@ -379,6 +379,27 @@ class StoreService extends MySqlDal {
         regularHours.add(command)
     }
 
+    def sortStoreRestrictions(StoreRestrictionsCommand restrictions) {
+        if (restrictions == null) {
+            return null
+        }
+
+        // Filter out empty items from otherRestrictions
+        if (restrictions.otherRestrictions) {
+            restrictions.otherRestrictions = restrictions.otherRestrictions.findAll { restriction ->
+                restriction != null
+            }
+
+            // Sort the filtered list by description (case-insensitive)
+            restrictions.otherRestrictions.sort { a, b ->
+                (a?.description ?: "").compareToIgnoreCase(b?.description ?: "")
+            }
+        }
+
+        // Return the complete StoreRestrictionsCommand object
+        return restrictions
+    }
+
     private OpeningTime regularHoursMap(OpeningTimeCommand openingTimeCommand) {
         OpeningTime openingTime = new OpeningTime()
         DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm")
