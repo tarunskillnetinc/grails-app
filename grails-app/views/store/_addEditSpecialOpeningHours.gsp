@@ -13,11 +13,12 @@
                         </div>
                     </section>
                     <div class="form-row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-9">
                             <label for="${commandPrefix}-specialDescription">Description</label>
                             <input type="text" id="${commandPrefix}-specialDescription" name="${commandPrefix}-specialDescription" class="form-control" value="${specialOpeningHour?.description ?: ''}" />
                         </div>
-                        <div class="col-md-6">
+
+                        <div class="col-md-3">
                             <label for="${commandPrefix}-specialDate">Date</label>
                             <input
                                     type="text"
