@@ -25,6 +25,14 @@
             colorPickerElement.value = "#" + color; // Prepend "#" to the color value
         }
 
+        function updateAlcoholLicensingVisibility() {
+            if($('#alcoholLicensingCommand\\.licensedToSellAlcohol').is(':checked')) {
+                $('#alcoholHoursContainer').show();
+            } else {
+                $('#alcoholHoursContainer').hide();
+            }
+        }
+
         $(document).ready(function() {
             // Select the first tab by default if none are active
             if (!$('.nav-link.active').length) {
@@ -43,9 +51,13 @@
                 $('#cash-container').html(data);
             });
 
+            $('#alcoholLicensingCommand\\.licensedToSellAlcohol').change(function() {
+                updateAlcoholLicensingVisibility();
+            });
+
+            updateAlcoholLicensingVisibility();
+
         });
-
-
 
     </script>
 

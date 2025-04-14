@@ -49,10 +49,24 @@
             }
         }
 
+        function updateAlcoholLicensingVisibility() {
+            if($('#alcoholLicensingCommand\\.licensedToSellAlcohol').is(':checked')) {
+                $('#alcoholHoursContainer').show();
+            } else {
+                $('#alcoholHoursContainer').hide();
+            }
+        }
+
         $(document).ready(function() {
             $(document).on('click', '#addSpecialOpeningHoursModal', function(event) {
                 event.stopPropagation();
             });
+
+            $('#alcoholLicensingCommand\\.licensedToSellAlcohol').change(function() {
+                updateAlcoholLicensingVisibility();
+            });
+
+            updateAlcoholLicensingVisibility();
         });
     </script>
 </head>
