@@ -13,12 +13,12 @@
                         </div>
                     </section>
                     <div class="form-row mb-3">
-                        <div class="col-md-9">
+                        <div class="col-md-8">
                             <label for="${commandPrefix}-specialDescription">Description</label>
                             <input type="text" id="${commandPrefix}-specialDescription" name="${commandPrefix}-specialDescription" class="form-control" value="${specialOpeningHour?.description ?: ''}" />
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label for="${commandPrefix}-specialDate">Date</label>
                             <input
                                     type="text"
@@ -33,20 +33,24 @@
                     </div>
                     <div>
                         <div class="form-row mb-2">
-                            <div class="col-md-3" id="${commandPrefix}-specialTimeFieldsStart" style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
+                            <div class="col-md-4" id="${commandPrefix}-specialTimeFieldsStart"
+                                 style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
                                 <label for="${commandPrefix}-special-startTime">Start time</label>
                                 <input type="text" id="${commandPrefix}-special-startTime" name="${commandPrefix}-special-startTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.startTime ?: ''}" />
                             </div>
-                            <div class="col-md-3" id="${commandPrefix}-specialTimeFieldsEnd" style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
+
+                            <div class="col-md-4" id="${commandPrefix}-specialTimeFieldsEnd"
+                                 style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
                                 <label for="${commandPrefix}-special-endTime">End time</label>
                                 <input type="text" id="${commandPrefix}-special-endTime" name="${commandPrefix}-special-endTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.endTime ?: ''}" />
                             </div>
-                            <div class="col-md-6 d-flex align-items-end">
-                                <div class="form-check">
+
+                            <div class="col-md-4">
+                                <div class="form-check pl-0">
                                     <label class="form-check-label" for="${commandPrefix}-specialClosedCheckbox">Closed</label>
                                     <input type="checkbox" id="${commandPrefix}-specialClosedCheckbox"
                                            name="${commandPrefix}-specialClosed"
-                                           class="form-check-input wl-checkbox ml-6 mt-1"
+                                           class="form-check-input wl-checkbox mt-1 form-check ml-0 mt-2"
                                            onclick="${commandPrefix}toggleSpecialTimeFields()" ${specialOpeningHour?.closed ? 'checked' : ''}/>
                                 </div>
                             </div>
@@ -177,51 +181,7 @@
     }
 </script>
 <style>
-#
-${commandPrefix} -addSpecialOpeningHoursModal .modal {
-    z-index: 1050 !important;
-}
-
-#
-${commandPrefix} -addSpecialOpeningHoursModal .modal-backdrop {
-    z-index: 1040 !important;
-}
-
-/* Checkbox styling */
-#
-${commandPrefix} -addSpecialOpeningHoursModal .wl-checkbox {
-    margin-top: -0.1rem !important;
-}
-
-#
-${commandPrefix} -addSpecialOpeningHoursModal .form-check-label {
-    font-size: 14px;
-    line-height: 18px;
-    margin-left: 5px;
-}
-
-#
-${commandPrefix} -addSpecialOpeningHoursModal .form-group label {
-    font-size: 14px;
-    line-height: 18px;
-}
-
-#
-${commandPrefix} -addSpecialOpeningHoursModal .form-check {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0;
-}
-
-#
-${commandPrefix} -addSpecialOpeningHoursModal .form-check-input {
-    margin-top: 0;
-    margin-right: 5px;
-}
-
-#
-${commandPrefix} -addSpecialOpeningHoursModal label[for="specialDate"]:after {
-    content: " *";
-    color: red;
+#${commandPrefix}-addSpecialOpeningHoursModal .form-check checkbox {
+    left: -0.5rem;
 }
 </style>
