@@ -43,7 +43,10 @@
                             <div class="col-md-6 d-flex align-items-end">
                                 <div class="form-check">
                                     <label class="form-check-label" for="${commandPrefix}-specialClosedCheckbox">Closed</label>
-                                    <input type="checkbox" id="${commandPrefix}-specialClosedCheckbox" name="${commandPrefix}-specialClosed" class="form-check-input wl-checkbox ml-6" onclick="${commandPrefix}toggleSpecialTimeFields()" ${specialOpeningHour?.closed ? 'checked' : ''} />
+                                    <input type="checkbox" id="${commandPrefix}-specialClosedCheckbox"
+                                           name="${commandPrefix}-specialClosed"
+                                           class="form-check-input wl-checkbox ml-6 mt-1"
+                                           onclick="${commandPrefix}toggleSpecialTimeFields()" ${specialOpeningHour?.closed ? 'checked' : ''}/>
                                 </div>
                             </div>
                         </div>
@@ -82,7 +85,7 @@
 
         $('#${commandPrefix}-saveSpecialHoursBtn').on('click', function () {
             const description = $('#'+commandPrefix+'-specialDescription').val();
-            const closed = $('#'+commandPrefix+'-specialClosedCheckbox').prop('checked');
+            const closed = $('#' + commandPrefix + '-specialClosedCheckbox').is(':checked');
             const date = $('#'+commandPrefix+'-specialDate').val();
             const startTime = $('#'+commandPrefix+'-special-startTime').val();
             const endTime = $('#'+commandPrefix+'-special-endTime').val();
@@ -91,11 +94,21 @@
             let errors = []
 
             if (!description) {
-                errors += 'Please enter a description. This field is mandatory.'
+                errors.push('Please enter a description. This field is mandatory.');
             }
 
             if (!date) {
-                errors += 'Please select a date. This field is mandatory.'
+                errors.push('Please select a date. This field is mandatory.')
+            }
+
+            if (!closed) { // its open, check the start/end times.
+                if (!startTime) {
+                    errors.push('If the store is open, start time must be set.')
+                }
+
+                if (!endTime) {
+                    errors.push('If the store is open, end time must be set.')
+                }
             }
 
             if (errors.length > 0) {
