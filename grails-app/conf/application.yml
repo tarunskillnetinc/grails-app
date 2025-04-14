@@ -668,10 +668,10 @@ environments:
                 password: CdtfudWdnGVS87IKs7dV
                 database: zagreus-transactions
             loyalty:
-                host: localhost
+                host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
                 port: 3306
-                username: root
-                password: Pa**W0rd01
+                username: cloudoffice
+                password: CdtfudWdnGVS87IKs7dV
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 database: zagreus-loyalty
