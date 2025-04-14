@@ -2,7 +2,7 @@
 <g:set var="commandObject" value="${pageScope[commandPrefix]}" />
 <div class="store-opening-hours">
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-5">
             <h5 class="mb-4">${titleRegularOpeningHours}</h5>
 
             <div class="table-responsive">
@@ -46,7 +46,7 @@
             </div>
         </div>
 
-        <div class="col-md-8">
+        <div class="col-md-7">
             <h5 class="mb-4">${titleSpecialOpeningHours}</h5>
 
             <div class="table-responsive">

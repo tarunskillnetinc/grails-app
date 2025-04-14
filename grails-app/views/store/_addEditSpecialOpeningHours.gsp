@@ -14,12 +14,13 @@
                         <div class="col-md-6">
                             <label for="${commandPrefix}-specialDate">Date</label>
                             <input
-                                    type="date"
+                                    type="text"
                                     id="${commandPrefix}-specialDate"
                                     name="${commandPrefix}-specialDate"
                                     class="form-control"
                                     value="${specialOpeningHour?.date ?: ''}"
                                     required
+                                    onkeydown="return false"
                             />
                         </div>
                     </div>
@@ -91,28 +92,36 @@
             });
             document.dispatchEvent(event);
 
-            $('#'+commandPrefix+'-addSpecialOpeningHoursModal').modal('hide');
+            $('#${commandPrefix}-addSpecialOpeningHoursModal').modal('hide');
             $('.modal-backdrop').remove();
             $('body').removeClass('modal-open');
         });
 
         function ${commandPrefix}toggleSpecialTimeFields() {
-            const isClosed = document.getElementById(commandPrefix + '-specialClosedCheckbox').checked;
-            const timeFieldsStart = document.getElementById(commandPrefix + '-specialTimeFieldsStart');
-            const timeFieldsEnd = document.getElementById(commandPrefix + '-specialTimeFieldsEnd');
-            timeFieldsStart.style.display = isClosed ? 'none' : 'block';
-            timeFieldsEnd.style.display = isClosed ? 'none' : 'block';
+            const isClosed = $('#${commandPrefix}-specialClosedCheckbox').is(':checked');
+            const timeFieldsStart = $('#${commandPrefix}-specialTimeFieldsStart');
+            const timeFieldsEnd = $('#${commandPrefix}-specialTimeFieldsEnd');
+
+            if (isClosed) {
+                timeFieldsStart.hide();
+                timeFieldsEnd.hide();
+            } else {
+                timeFieldsStart.show();
+                timeFieldsEnd.show();
+            }
         }
 
         function ${commandPrefix}dateInputSetup() {
-            let specialDateInput = document.getElementById(commandPrefix +'-specialDate');
-            let today = new Date().toISOString().split('T')[0];
-            specialDateInput.min = today;
-            specialDateInput.addEventListener('keydown', function (e) {
-                e.preventDefault();
-            });
-            specialDateInput.addEventListener('click', function () {
-                this.showPicker();
+            var specialDate = $('#${commandPrefix}-specialDate');
+
+            specialDate.datepicker({
+                format: "dd/mm/yyyy",
+                weekStart: 1,
+                startDate: "${new Date().format("dd/MM/yyyy")}",
+                todayHighlight: true,
+                autoclose: true,
+                todayBtn: "linked",
+                orientation: "bottom auto"
             });
         }
 
