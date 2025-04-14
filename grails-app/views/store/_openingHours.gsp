@@ -6,13 +6,13 @@
             <h5 class="mb-4">${titleRegularOpeningHours}</h5>
 
             <div class="table-responsive">
-                <table class="table table-bordered custom-table">
+                <table class="table table-bordered custom-table col-12">
                     <thead>
                     <tr>
-                        <th class="align-middle text-center">Day</th>
-                        <th class="align-middle text-center">Start</th>
-                        <th class="align-middle text-center">End</th>
-                        <th class="align-middle text-center">Closed</th>
+                        <th class="align-middle text-center col-4">Day</th>
+                        <th class="align-middle text-center col-3">Start</th>
+                        <th class="align-middle text-center col-3">End</th>
+                        <th class="align-middle text-center col-2">Closed</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -23,21 +23,21 @@
                                                                                     value="${hour.day}"></td>
                             <td>
                                 <g:textField name="${commandPrefix}.regularHours[${i}].startTime"
-                                             id="${commandPrefix}.regularHours[${i}].startTime"
+                                             id="${commandPrefix}regularHours${i}startTime"
                                              value="${hour.startTime}" class="form-control form-control-sm time-input"
                                              placeholder="HH:mm"/>
                             </td>
                             <td>
                                 <g:textField name="${commandPrefix}.regularHours[${i}].endTime"
-                                             id="${commandPrefix}.regularHours[${i}].endTime" value="${hour.endTime}"
+                                             id="${commandPrefix}regularHours${i}endTime" value="${hour.endTime}"
                                              class="form-control form-control-sm time-input" placeholder="HH:mm"/>
                             </td>
                             <td class="align-middle text-center">
                                 <div class="checkbox-wrapper">
                                     <g:checkBox name="${commandPrefix}.regularHours[${i}].closed"
-                                                id="${commandPrefix}.regularHours[${i}].closed"
+                                                id="${commandPrefix}regularHours${i}closed"
                                                 class="form-check-input wl-checkbox" checked="${hour.closed}"
-                                                onclick="${commandPrefix}_click()"/>
+                                                onclick="${commandPrefix}_closedclick('${commandPrefix}regularHours${i}closed', '${commandPrefix}regularHours${i}startTime','${commandPrefix}regularHours${i}endTime')"/>
                                 </div>
                             </td>
                         </tr>
@@ -369,6 +369,23 @@
                     console.error("Error loading modal content:", error);
                 }
             });
+        }
+
+        function ${commandPrefix}_closedclick(closedfield, openingField, closingField) {
+            const isClosed = $('#' + closedfield).is(':checked');
+            const opening = $('#' + openingField);
+            const closing = $('#' + closingField);
+
+            if (isClosed) {
+                opening.val('')
+                opening.hide();
+
+                closing.val('')
+                closing.hide();
+            } else {
+                opening.show();
+                closing.show();
+            }
         }
 
         function ${commandPrefix}createOrUpdateRow(data, index) {
