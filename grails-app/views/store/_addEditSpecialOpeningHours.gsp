@@ -3,9 +3,15 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="${commandPrefix}-specialHoursModalLabel">${specialOpeningHour ? 'Edit' : 'Add'} Special Store Opening/Closing</h5>
+                    <h5 class="modal-title"
+                        id="${commandPrefix}-specialHoursModalLabel">${specialOpeningHour ? 'Edit' : 'Add'} Special Store Opening / Closing</h5>
                 </div>
                 <div class="modal-body">
+                    <section id="${commandPrefix}-specialOpeningHours-errors-container" class="container-fluid">
+                        <div class="alert alert-danger alert-wl mx-0" role="alert">
+                            <div id="${commandPrefix}-specialOpeningHours-errors"></div>
+                        </div>
+                    </section>
                     <div class="form-row mb-3">
                         <div class="col-md-6">
                             <label for="${commandPrefix}-specialDescription">Description</label>
@@ -74,7 +80,7 @@
             if (endTimeInput) ${commandPrefix}setupTimeInput(endTimeInput);
         });
 
-        $('#'+commandPrefix+'-saveSpecialHoursBtn').on('click', function () {
+        $('#${commandPrefix}-saveSpecialHoursBtn').on('click', function () {
             const description = $('#'+commandPrefix+'-specialDescription').val();
             const closed = $('#'+commandPrefix+'-specialClosedCheckbox').prop('checked');
             const date = $('#'+commandPrefix+'-specialDate').val();
@@ -82,8 +88,18 @@
             const endTime = $('#'+commandPrefix+'-special-endTime').val();
             const specialOpeningHoursIndex = $('#'+commandPrefix+'-editIndex').val();
 
+            let errors = []
+
+            if (!description) {
+                errors += 'Please enter a description. This field is mandatory.'
+            }
+
             if (!date) {
-                alert('Please select a date. This field is mandatory.');
+                errors += 'Please select a date. This field is mandatory.'
+            }
+
+            if (errors.length > 0) {
+                ${commandPrefix}displayErrors(errors);
                 return;
             }
 
@@ -96,6 +112,23 @@
             $('.modal-backdrop').remove();
             $('body').removeClass('modal-open');
         });
+
+        function ${commandPrefix}clearErrors() {
+            $('#${commandPrefix}-specialOpeningHours-errors-container>div').html('');
+            $('#${commandPrefix}-specialOpeningHours-errors-container').hide();
+        }
+
+        function ${commandPrefix}displayErrors(errors) {
+            let text = "<ul>";
+            for (let i = 0; i < errors.length; i++) {
+                text += "<li>" + errors[i] + "</li>";
+            }
+            text += "</ul>";
+
+            $('#${commandPrefix}-specialOpeningHours-errors-container>div').html(text);
+            $('#${commandPrefix}-specialOpeningHours-errors-container').show();
+        }
+
 
         function ${commandPrefix}toggleSpecialTimeFields() {
             const isClosed = $('#${commandPrefix}-specialClosedCheckbox').is(':checked');
@@ -126,6 +159,7 @@
         }
 
         ${commandPrefix}dateInputSetup();
+        ${commandPrefix}clearErrors();
     }
 </script>
 <style>
