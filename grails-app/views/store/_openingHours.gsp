@@ -36,7 +36,8 @@
                                 <div class="checkbox-wrapper">
                                     <g:checkBox name="${commandPrefix}.regularHours[${i}].closed"
                                                 id="${commandPrefix}.regularHours[${i}].closed"
-                                                class="form-check-input wl-checkbox" checked="${hour.closed}" />
+                                                class="form-check-input wl-checkbox" checked="${hour.closed}"
+                                                onclick="${commandPrefix}_click()"/>
                                 </div>
                             </td>
                         </tr>
