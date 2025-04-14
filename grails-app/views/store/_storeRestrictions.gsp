@@ -23,14 +23,13 @@
                             </td>
                             <td class="align-middle text-left">${enableTime.day} <input type="hidden" name="storeRestrictions.regularHours[${i}].day" value="${enableTime.day}">
                             </td>
-                            <td class="d-flex align-items-left">
-                                <g:textField name="storeRestrictions.regularHours[${i}].timeFrom" value="${enableTime.timeFrom}" class="form-control form-control-sm time-input me-2" placeholder="HH:mm"/>
-
-                                <span class="mx-2">to</span>
-
-                                <g:textField name="storeRestrictions.regularHours[${i}].timeTo" value="${enableTime.timeTo}" class="form-control form-control-sm time-input ms-2" placeholder="HH:mm"/>
+                            <td class="align-middle text-left">
+                                <div class="restriction-time-inputs" style="${enableTime.restrictionEnabled ? 'display: flex;' : 'display: none;'}">
+                                    <g:textField name="storeRestrictions.regularHours[${i}].timeFrom" value="${enableTime.timeFrom}" class="form-control form-control-sm time-input me-2" placeholder="HH:mm"/>
+                                    <span class="mx-2">to</span>
+                                    <g:textField name="storeRestrictions.regularHours[${i}].timeTo" value="${enableTime.timeTo}" class="form-control form-control-sm time-input ms-2" placeholder="HH:mm"/>
+                                </div>
                             </td>
-
                         </tr>
                     </g:each>
                     </tbody>
@@ -84,90 +83,106 @@
 </div>
 
 <style>
-.store-opening-hours h5 {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-}
+    .store-opening-hours h5 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
 
-.checkbox-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
+    .checkbox-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
 
-.checkbox-wrapper .form-check-input {
-    margin: 0;
-}
+    .checkbox-wrapper .form-check-input {
+        margin: 0;
+    }
 
-.time-input {
-    width: 100px;
-}
+    .time-input {
+        width: 100px;
+    }
 
-.date-input {
-    width: 100px;
-}
+    .date-input {
+        width: 100px;
+    }
 
-.custom-table {
-    width: auto;
-    max-width: 100%;
-}
+    .custom-table {
+        width: auto;
+        max-width: 100%;
+    }
 
-.table-sm td, .table-sm th {
-    padding: 0.3rem;
-}
+    .table-sm td, .table-sm th {
+        padding: 0.3rem;
+    }
 
-.table-responsive {
-    display: inline-block;
-    max-width: 100%;
-    overflow-x: auto;
-}
+    .table-responsive {
+        display: inline-block;
+        max-width: 100%;
+        overflow-x: auto;
+    }
 
-.custom-table th {
-    font-size: 0.85rem;
-    font-weight: 600;
-}
+    .custom-table th {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
 
-@media (max-width: 767px) {
-    .col-md-4, .col-md-8 {
+    @media (max-width: 767px) {
+        .col-md-4, .col-md-8 {
+            width: 100%;
+        }
+
+        .col-md-8 {
+            margin-top: 2rem;
+        }
+    }
+
+    .right-table {
         width: 100%;
     }
 
-    .col-md-8 {
-        margin-top: 2rem;
-    }
-}
-
-.right-table {
-    width: 100%;
-}
-
-.col-md-8 .table-responsive {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-}
-
-@media (max-width: 767px) {
-    .col-md-4, .col-md-8 {
+    .col-md-8 .table-responsive {
+        display: block;
         width: 100%;
+        overflow-x: auto;
     }
 
-    .col-md-8 {
-        margin-top: 2rem;
-    }
-}
+    @media (max-width: 767px) {
+        .col-md-4, .col-md-8 {
+            width: 100%;
+        }
 
-.fixed-width-btn {
-    width: 80px; /* Adjust this value as needed */
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    margin-bottom: 5px; /* Add some vertical spacing between buttons if they wrap */
-    height: 30px; /* Set a fixed height for the buttons */
-    padding: 0; /* Remove default padding */
-    line-height: 1; /* Reset line height */
-    vertical-align: middle;
-}
+        .col-md-8 {
+            margin-top: 2rem;
+        }
+    }
+
+    .fixed-width-btn {
+        width: 80px; /* Adjust this value as needed */
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 5px; /* Add some vertical spacing between buttons if they wrap */
+        height: 30px; /* Set a fixed height for the buttons */
+        padding: 0; /* Remove default padding */
+        line-height: 1; /* Reset line height */
+        vertical-align: middle;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set initial state for all checkboxes
+        const checkboxes = document.querySelectorAll('input[name^="storeRestrictions.regularHours"][name$=".restrictionEnabled"]');
+
+        checkboxes.forEach(function(checkbox) {
+            // Add event listener for checkbox changes
+            checkbox.addEventListener('change', function() {
+                // Find the time input fields in the same row
+                const timeInputsContainer = this.closest('tr').querySelector('.restriction-time-inputs');
+                timeInputsContainer.style.display = this.checked ? 'flex' : 'none';
+            });
+        });
+    });
+</script>
