@@ -5,7 +5,6 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.PricingClassification
 import uk.co.wonderlane.wlpos.enums.CategoryHistoryType
-import uk.co.wonderlane.wlpos.enums.StockClassification
 
 class CategoryHistoryBuilder {
 
@@ -37,10 +36,7 @@ class CategoryHistoryBuilder {
             categoryHistory.type = categoryHistoryType
             categoryHistory.field = property
 
-            if (left instanceof StockClassification) {
-                categoryHistory.fromValue = getStockClassification(left)
-                categoryHistory.toValue = getStockClassification(right)
-            } else if (left instanceof PricingClassification) {
+            if (left instanceof PricingClassification) {
                 categoryHistory.fromValue = left.classification
                 categoryHistory.toValue = right.classification
             } else {
@@ -69,17 +65,5 @@ class CategoryHistoryBuilder {
 
         categoryHistories.add(categoryHistory)
     }
-    
-    String getStockClassification(StockClassification stockClassification) {
-        switch(stockClassification) {
-            case StockClassification.STANDARD:
-                return "Standard"
-            case StockClassification.NOSTOCK_NOSALE:
-                return "No stock, no sale"
-            case StockClassification.NOSTOCK_ALLOWSALE:
-                return "No stock, allow sale"
-            default:
-                return ""
-        }
-    }
+
 }
