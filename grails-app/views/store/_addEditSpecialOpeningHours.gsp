@@ -7,7 +7,8 @@
                         id="${commandPrefix}-specialHoursModalLabel">${specialOpeningHour ? 'Edit' : 'Add'} Special Store Opening / Closing</h5>
                 </div>
                 <div class="modal-body">
-                    <section id="${commandPrefix}-specialOpeningHours-errors-container" class="container-fluid">
+                    <section id="${commandPrefix}-specialOpeningHours-errors-container" class="container-fluid"
+                             style="display:none">
                         <div class="alert alert-danger alert-wl mx-0" role="alert">
                             <div id="${commandPrefix}-specialOpeningHours-errors"></div>
                         </div>
@@ -162,7 +163,8 @@
         }
 
         function ${commandPrefix}dateInputSetup() {
-            var specialDate = $('#${commandPrefix}-specialDate');
+            var prefix = '${commandPrefix}';
+            var specialDate = $('#' + prefix + '-specialDate');
 
             specialDate.datepicker({
                 format: "dd/mm/yyyy",

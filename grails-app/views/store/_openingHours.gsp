@@ -430,11 +430,13 @@ ${commandPrefix} table input[type="time"]:invalid {
         });
 
         function ${commandPrefix}resetSpecialHourForm() {
-            $('#specialDescription').val('');
-            $('#specialClosedCheckbox').prop('checked', false);
-            $('#specialDate').val('');
-            $('#specialStartTime').val('');
-            $('#specialEndTime').val('');
+            let prefix = "#${commandPrefix}-";
+
+            $(prefix + 'specialDescription').val('');
+            $(prefix + 'specialClosedCheckbox').prop('checked', false);
+            $(prefix + 'specialDate').val('');
+            $(prefix + 'specialStartTime').val('');
+            $(prefix + 'specialEndTime').val('');
         }
 
         function ${commandPrefix}deleteSpecialHour(index, targetCommandPrefix) {
