@@ -34,6 +34,7 @@ class Product {
     Long preferredSku
     boolean ownLabel
     String extras
+    boolean hospitality
 
     Collection<ProductVariant> variants = new ArrayList<>()
     Collection<ProductAttributeValues> productAttributeValues = new ArrayList<>()
@@ -83,6 +84,7 @@ class Product {
         preferredSku column: "preferredSku"
         ownLabel column: "ownLabel"
         extras column: "extras", sqlType: "json"
+        hospitality column: "hospitality"
     }
 
     static constraints = {
@@ -128,6 +130,7 @@ class Product {
         preferredSku nullable: true
         ownLabel nullable: false
         extras nullable: true
+        hospitality nullable: false
     }
 
     List<RangeProduct> getRanges() {
