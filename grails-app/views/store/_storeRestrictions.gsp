@@ -2,7 +2,7 @@
 <div class="store-opening-hours">
     <!-- First row with first table -->
     <div class="row mb-5">
-        <div class="col-12">
+        <div class="col-8">
             <h5 class="mb-4">Delivery Restrictions</h5>
 
             <div class="table-responsive">
@@ -87,133 +87,145 @@
 </div>
 
 <style>
-    .store-opening-hours h5 {
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
+.store-opening-hours h5 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.checkbox-wrapper {
+    display: flex;
+    justify-content: flex-start; /* Align checkbox to the left */
+    align-items: center;
+    height: 100%;
+    padding-left: 10px;
+}
+
+.checkbox-wrapper .form-check-input {
+    margin: 0;
+}
+
+.restriction-time-inputs {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 38px;
+    width: 100%;
+}
+
+.time-input {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+}
+
+/* Add a container for the "to" text to prevent it from expanding */
+.mx-2 {
+    flex: 0 0 auto;
+    padding: 0 10px;
+}
+
+.date-input {
+    width: 100px;
+}
+
+.custom-table {
+    width: 100%; /* Make tables full width */
+    table-layout: fixed;
+}
+
+/* Set fixed column widths for the restriction days table */
+#restriction-days-tbl th:nth-child(1) {
+    width: 15%;
+}
+
+#restriction-days-tbl th:nth-child(2) {
+    width: 15%;
+}
+
+#restriction-days-tbl th:nth-child(3) {
+    width: 70%;
+}
+
+/* Set fixed column widths for the other restrictions table */
+#other-restrictions-special-days-tbl th:nth-child(1) {
+    width: 25%;
+}
+
+#other-restrictions-special-days-tbl th:nth-child(2) {
+    width: 25%;
+}
+
+#other-restrictions-special-days-tbl th:nth-child(3) {
+    width: 25%;
+}
+
+#other-restrictions-special-days-tbl th:nth-child(4) {
+    width: 25%;
+}
+
+/* Make table headers consistent height across both tables */
+#restriction-days-tbl thead tr,
+#other-restrictions-special-days-tbl thead tr {
+    height: 32px;
+}
+
+#restriction-days-tbl th,
+#other-restrictions-special-days-tbl th {
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    vertical-align: middle;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.table-sm td, .table-sm th {
+    padding: 0.3rem;
+}
+
+/* Ensure rows have consistent height */
+#restriction-days-tbl tr {
+    height: 54px;
+}
+
+/* When inputs are hidden, maintain the space */
+.restriction-time-inputs[style*="display: none"] {
+    display: block !important;
+    visibility: hidden;
+    height: 38px;
+}
+
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Specific fix for small screens */
+@media (max-width: 767px) {
+    /* Force minimum width for tables on small screens */
+    #restriction-days-tbl, #other-restrictions-special-days-tbl {
+        min-width: 500px; /* Set a minimum width to prevent column collapse */
     }
 
-    .checkbox-wrapper {
-        display: flex;
-        justify-content: flex-start; /* Align checkbox to the left */
-        align-items: center;
-        height: 100%;
-        padding-left: 10px;
-    }
-
-    .checkbox-wrapper .form-check-input {
-        margin: 0;
-    }
-
-    .time-input {
-        width: 100px;
-    }
-
-    .date-input {
-        width: 100px;
-    }
-
-    .custom-table {
-        width: 100%; /* Make tables full width */
-        table-layout: fixed;
-    }
-
-    /* Set fixed column widths for the restriction days table */
-    #restriction-days-tbl th:nth-child(1) {
-        width: 15%;
-    }
-
-    #restriction-days-tbl th:nth-child(2) {
-        width: 15%;
-    }
-
-    #restriction-days-tbl th:nth-child(3) {
-        width: 70%;
-    }
-
-    /* Set fixed column widths for the other restrictions table */
-    #other-restrictions-special-days-tbl th:nth-child(1) {
-        width: 25%;
-    }
-
-    #other-restrictions-special-days-tbl th:nth-child(2) {
-        width: 25%;
-    }
-
-    #other-restrictions-special-days-tbl th:nth-child(3) {
-        width: 25%;
-    }
-
-    #other-restrictions-special-days-tbl th:nth-child(4) {
-        width: 25%;
-    }
-
-    /* Make table headers consistent height across both tables */
-    #restriction-days-tbl thead tr,
-    #other-restrictions-special-days-tbl thead tr {
-        height: 32px;
-    }
-
-    #restriction-days-tbl th,
-    #other-restrictions-special-days-tbl th {
-        padding-top: 0.2rem;
-        padding-bottom: 0.2rem;
-        vertical-align: middle;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .table-sm td, .table-sm th {
-        padding: 0.3rem;
-    }
-
-    /* Ensure rows have consistent height */
-    #restriction-days-tbl tr {
-        height: 54px;
-    }
-
-    /* Ensure time inputs container maintains height when hidden */
-    .restriction-time-inputs {
-        min-height: 38px;
-    }
-
-    /* When inputs are hidden, maintain the space */
-    .restriction-time-inputs[style*="display: none"] {
-        display: block !important;
-        visibility: hidden;
-        height: 38px;
-    }
-
+    /* Enable horizontal scrolling only when needed */
     .table-responsive {
-        display: block;
-        width: 100%;
-        overflow: hidden;
+        overflow-x: auto;
     }
+}
 
-    /* Specific fix for small screens */
-    @media (max-width: 767px) {
-        /* Force minimum width for tables on small screens */
-        #restriction-days-tbl, #other-restrictions-special-days-tbl {
-            min-width: 500px; /* Set a minimum width to prevent column collapse */
-        }
-
-        /* Enable horizontal scrolling only when needed */
-        .table-responsive {
-            overflow-x: auto;
-        }
-    }
-
-    .fixed-width-btn {
-        width: 80px;
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        margin-bottom: 5px;
-        height: 30px;
-        padding: 0;
-        line-height: 1;
-        vertical-align: middle;
-    }
+.fixed-width-btn {
+    width: 80px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 5px;
+    height: 30px;
+    padding: 0;
+    line-height: 1;
+    vertical-align: middle;
+}
 </style>
 
 <script>

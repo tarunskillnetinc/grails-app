@@ -174,9 +174,9 @@ function saveOtherRestrictions() {
     }
 
     // Add the new restriction
-    params["otherRestrictions[" + otherRestrictionsCount + "].description"] = description;
-    params["otherRestrictions[" + otherRestrictionsCount + "].startDateTime"] = startDateTime;
-    params["otherRestrictions[" + otherRestrictionsCount + "].endDateTime"] = endDateTime;
+    params["otherRestrictions[" + index + "].description"] = description;
+    params["otherRestrictions[" + index + "].startDateTime"] = startDateTime;
+    params["otherRestrictions[" + index + "].endDateTime"] = endDateTime;
     params["index"] = index;
 
     // Submit via AJAX

@@ -156,6 +156,12 @@ class Store {
         return null
     }
 
+    void setStoreRestrictions(StoreRestrictedHours storeRestrictedHours) {
+        if (storeRestrictedHours != null) {
+            this.storeRestrictions = gsonProvider.gson.toJson(storeRestrictedHours)
+        }
+    }
+
     String getLicencingString() {
         return this.licencing
     }

@@ -117,6 +117,16 @@ class StoreController {
                 new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
         ]
 
+        def initialEnableHours = [
+                new EnableHoursCommand(day: 'Monday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Tuesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Wednesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Thursday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Friday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Saturday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Sunday', timeFrom: '', timeTo: '', restrictionEnabled: false)
+        ]
+
         def storeOpeningHoursCommand = new StoreOpeningHoursCommand(
                 regularHours: initialRegularHours,
                 specialOpeningHours: []
@@ -128,7 +138,13 @@ class StoreController {
                 licensedToSellAlcohol: false
         );
 
-        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand: storeOpeningHoursCommand, alcoholLicensingCommand: alcoholLicensingCommand]
+        def storeRestrictions = new StoreRestrictionsCommand(
+                regularHours: initialEnableHours,
+                otherRestrictions: []
+        )
+
+        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand: storeOpeningHoursCommand,
+         alcoholLicensingCommand: alcoholLicensingCommand, storeRestrictions: storeRestrictions]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -192,7 +208,8 @@ class StoreController {
                                         ranges: ranges,
                                         storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails),
                                         storeOpeningHoursCommand: newStoreCommand.storeOpeningHoursCommand,
-                                        alcoholLicensingCommand: newStoreCommand.alcoholLicensingCommand
+                                        alcoholLicensingCommand: newStoreCommand.alcoholLicensingCommand,
+                                        storeRestrictions: newStoreCommand.storeRestrictions
             ])
         } else {
             // Validated.
@@ -242,6 +259,7 @@ class StoreController {
 
             store.setOpeningHours(storeService.getOpeningHoursAsObject(newStoreCommand.storeOpeningHoursCommand))
             store.setLicencing(storeService.getAlcoholLicensingCommandAsObject(newStoreCommand.alcoholLicensingCommand))
+            store.setStoreRestrictions(storeService.getStoreRestrictionsCommandAsObject(newStoreCommand?.storeRestrictions))
 
             storeService.saveStore(store)
 
