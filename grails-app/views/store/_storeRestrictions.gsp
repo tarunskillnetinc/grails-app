@@ -218,16 +218,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Set initial state for all checkboxes
-        const checkboxes = document.querySelectorAll('input[name^="storeRestrictions.regularHours"][name$=".restrictionEnabled"]');
-
-        checkboxes.forEach(function(checkbox) {
-            // Add event listener for checkbox changes
-            checkbox.addEventListener('change', function() {
-                // Find the time input fields in the same row
-                const timeInputsContainer = this.closest('tr').querySelector('.restriction-time-inputs');
-                timeInputsContainer.style.display = this.checked ? 'flex' : 'none';
-            });
-        });
+        attachCheckboxListeners();
     });
 </script>
