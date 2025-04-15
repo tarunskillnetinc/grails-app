@@ -33,7 +33,7 @@
     overflow-x: auto;
 }
 
-overridewrap {
+.overridewrap {
     word-wrap: break-word;
 }
 
