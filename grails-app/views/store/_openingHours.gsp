@@ -6,7 +6,7 @@
             <h5 class="mb-4">${titleRegularOpeningHours}</h5>
 
             <div class="table-responsive">
-                <table class="table table-bordered custom-table col-12">
+                <table id='${commandPrefix}table' class="table table-bordered custom-table col-12">
                     <thead>
                     <tr>
                         <th class="align-middle text-center col-4">Day</th>
@@ -26,11 +26,15 @@
                                              id="${commandPrefix}regularHours${i}startTime"
                                              value="${hour.startTime}" class="form-control form-control-sm time-input"
                                          placeholder="HH:mm"/>
+                                <span class="validity"></span>
                             </td>
                             <td>
                                 <g:field type="time" name="${commandPrefix}.regularHours[${i}].endTime"
-                                             id="${commandPrefix}regularHours${i}endTime" value="${hour.endTime}"
-                                             class="form-control form-control-sm time-input" placeholder="HH:mm"/>
+                                         id="${commandPrefix}regularHours${i}endTime"
+                                         value="${hour.endTime}"
+                                         class="form-control form-control-sm time-input"
+                                         placeholder="HH:mm"/>
+                                <span class="validity"></span>
                             </td>
                             <td class="align-middle text-center">
                                 <div class="checkbox-wrapper">
@@ -204,6 +208,14 @@
     vertical-align: middle;
 }
 
+td {
+    position: relative;
+}
+
+#
+${commandPrefix} table input[type="time"]:invalid {
+    border: red 1px solid;
+}
 
 </style>
 
