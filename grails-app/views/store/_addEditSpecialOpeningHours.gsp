@@ -33,6 +33,17 @@
                     </div>
                     <div>
                         <div class="form-row mb-2">
+                            <div class="col-md-4">
+                                <div class="form-check pl-0 mb-3">
+                                    <label class="form-check-label"
+                                           for="${commandPrefix}-specialClosedCheckbox">Closed</label>
+                                    <input type="checkbox" id="${commandPrefix}-specialClosedCheckbox"
+                                           name="${commandPrefix}-specialClosed"
+                                           class="form-check-input wl-checkbox mt-1 form-check ml-0 mt-2"
+                                           onclick="${commandPrefix}toggleSpecialTimeFields()" ${specialOpeningHour?.closed ? 'checked' : ''}/>
+                                </div>
+                            </div>
+
                             <div class="col-md-4" id="${commandPrefix}-specialTimeFieldsStart"
                                  style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
                                 <label for="${commandPrefix}-special-startTime">Start time</label>
@@ -43,16 +54,6 @@
                                  style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
                                 <label for="${commandPrefix}-special-endTime">End time</label>
                                 <input type="text" id="${commandPrefix}-special-endTime" name="${commandPrefix}-special-endTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.endTime ?: ''}" />
-                            </div>
-
-                            <div class="col-md-4">
-                                <div class="form-check pl-0">
-                                    <label class="form-check-label" for="${commandPrefix}-specialClosedCheckbox">Closed</label>
-                                    <input type="checkbox" id="${commandPrefix}-specialClosedCheckbox"
-                                           name="${commandPrefix}-specialClosed"
-                                           class="form-check-input wl-checkbox mt-1 form-check ml-0 mt-2"
-                                           onclick="${commandPrefix}toggleSpecialTimeFields()" ${specialOpeningHour?.closed ? 'checked' : ''}/>
-                                </div>
                             </div>
                         </div>
                     </div>
