@@ -13,6 +13,9 @@
     <asset:javascript src="numberHelper.js" />
     <asset:javascript src="storeCommonUtils.js" />
 
+    <link rel="stylesheet" href="/assets/bootstrap-datepicker3.min.css?compile=false"/>
+    <script type="text/javascript" src="/assets/bootstrap-datepicker.min.js?compile=false"></script>
+
     <script type="text/javascript">
 
         var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
