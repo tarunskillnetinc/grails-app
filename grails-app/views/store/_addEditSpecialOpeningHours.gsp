@@ -87,14 +87,6 @@
             $('body').removeClass('modal-open');
         });
 
-        $(document).on('shown.bs.modal', '#'+commandPrefix+'-addSpecialOpeningHoursModal', function () {
-            const startTimeInput = document.getElementById(commandPrefix + '-special-startTime');
-            const endTimeInput = document.getElementById(commandPrefix + '-special-endTime');
-
-            if (startTimeInput) ${commandPrefix}setupTimeInput(startTimeInput);
-            if (endTimeInput) ${commandPrefix}setupTimeInput(endTimeInput);
-        });
-
         $('#${commandPrefix}-saveSpecialHoursBtn').on('click', function () {
             const description = $('#'+commandPrefix+'-specialDescription').val();
             const closed = $('#' + commandPrefix + '-specialClosedCheckbox').is(':checked');

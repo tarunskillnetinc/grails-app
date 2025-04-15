@@ -204,9 +204,7 @@
     vertical-align: middle;
 }
 
-input[type="time"]::-webkit-calendar-picker-indicator {
-    background: none;
-}
+
 </style>
 
 <script>
@@ -480,8 +478,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            ${commandPrefix}setupAllTimeInputs();
-
             const rows = document.querySelectorAll('#' + commandPrefix + '-special-hours-tbl tbody tr');
             rows.forEach((row, index) => {
                 row.setAttribute('data-index', index);
