@@ -107,11 +107,11 @@
 
             if (!closed) { // its open, check the start/end times.
                 if (!startTime) {
-                    errors.push('If the store is open, start time must be set.')
+                    errors.push('If the store is open, start time must be set and be in 24 hour format (00:00 to 23:59).')
                 }
 
                 if (!endTime) {
-                    errors.push('If the store is open, end time must be set.')
+                    errors.push('If the store is open, end time must be set and be in 24 hour format (00:00 to 23:59)')
                 }
             }
 
