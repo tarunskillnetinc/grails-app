@@ -375,8 +375,9 @@ class StoreController {
                                            availablePrintReceiptOptions: PrintReceiptOption.values(),
                                            viewOptions                 : viewOptions,
                                            storeAdditionalDetails      : storeService.sortAdditionalDetails(storeCommand?.storeAdditionalDetails),
-                                           storeOpeningHoursCommand: storeCommand.storeOpeningHoursCommand,
-                                           alcoholLicensingCommand: storeCommand.alcoholLicensingCommand
+                                           storeOpeningHoursCommand    : storeCommand.storeOpeningHoursCommand,
+                                           alcoholLicensingCommand     : storeCommand.alcoholLicensingCommand,
+                                           storeRestrictions           : storeCommand.storeRestrictions
             ])
 
         }
@@ -540,7 +541,21 @@ class NewStoreCommand implements Validateable {
             }
             return true
         }
-        storeRestrictions nullable: true
+        storeRestrictions nullable: true, validator: { val, obj ->
+            if (val && val.regularHours) {
+                def hasErrors = false
+                val.regularHours.each { enableHours ->
+                    if (enableHours.restrictionEnabled &&
+                            (!enableHours.timeFrom || !enableHours.timeTo)) {
+                        hasErrors = true
+                    }
+                }
+                if (hasErrors) {
+                    return ['storeCommand.storeRestrictions.regularHours.timeRequired.error']
+                }
+            }
+            return true
+        }
 
     }
 }
@@ -582,7 +597,21 @@ class StoreCommand implements Validateable {
         }
         storeOpeningHoursCommand nullable: true
         alcoholLicensingCommand nullable: true
-        storeRestrictions nullable: true
+        storeRestrictions nullable: true, validator: { val, obj ->
+            if (val && val.regularHours) {
+                def hasErrors = false
+                val.regularHours.each { enableHours ->
+                    if (enableHours.restrictionEnabled &&
+                            (!enableHours.timeFrom || !enableHours.timeTo)) {
+                        hasErrors = true
+                    }
+                }
+                if (hasErrors) {
+                    return ['storeCommand.storeRestrictions.regularHours.timeRequired.error']
+                }
+            }
+            return true
+        }
     }
 }
 

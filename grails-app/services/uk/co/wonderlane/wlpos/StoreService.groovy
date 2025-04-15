@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import com.google.gson.reflect.TypeToken
 import grails.gorm.transactions.Transactional
+import org.joda.time.LocalTime
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
@@ -442,8 +443,20 @@ class StoreService extends MySqlDal {
         command.setDay(day)
 
         if (enableHours != null) {
-            command.setTimeFrom(enableHours.getTimeFrom() != null ? enableHours.getTimeFrom().toString("HH:mm") : null)
-            command.setTimeTo(enableHours.getTimeTo() != null ? enableHours.getTimeTo().toString("HH:mm") : null)
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm")
+            LocalTime timeFrom = enableHours.getTimeFrom()
+            if (timeFrom != null) {
+                command.setTimeFrom(formatter.print(timeFrom))
+            } else {
+                command.setTimeFrom(null)
+            }
+
+            LocalTime timeTo = enableHours.getTimeTo()
+            if (timeTo != null) {
+                command.setTimeTo(formatter.print(timeTo))
+            } else {
+                command.setTimeTo(null)
+            }
             command.setRestrictionEnabled(enableHours.isRestrictionEnabled())
         } else {
             command.setTimeFrom(null)
