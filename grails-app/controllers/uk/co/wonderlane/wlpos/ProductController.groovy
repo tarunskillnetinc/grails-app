@@ -630,6 +630,7 @@ class ProductController extends BaseController {
             product.selDescription = editedProduct.selDescription ?: editedProduct.receiptDescription?.take(16)
             product.productImgUrl = editedProduct.productImgUrl
             product.ownLabel = editedProduct.ownLabel
+            product.hospitality = editedProduct.hospitality
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
@@ -1445,6 +1446,7 @@ class ProductController extends BaseController {
         builder.compare("selType", product.selType?.name, editedProduct.selType?.name)
         builder.compare("productImgUrl", product.productImgUrl, editedProduct.productImgUrl)
         builder.compare("ownLabel", product.ownLabel, editedProduct.ownLabel)
+        builder.compare("hospitality", product.hospitality, editedProduct.hospitality)
 
         builder.compare("category", product.category?.description, editedProduct.category?.description)
 
@@ -1979,6 +1981,7 @@ class ProductController extends BaseController {
         to.status = from.status
         to.ownLabel = from.ownLabel
         to.retailerProductId = from.retailerProductId
+        to.hospitality = from.hospitality
     }
 
     private void copyProductVariants(ProductCommand from, Product to) {
@@ -2319,6 +2322,7 @@ class ProductCommand {
     SelType selType
     String productImgUrl
     boolean ownLabel
+    boolean hospitality
 
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
