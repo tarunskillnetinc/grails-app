@@ -1,17 +1,18 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <div class="store-opening-hours">
-    <div class="row">
-        <div class="col-md-5">
+    <!-- First row with first table -->
+    <div class="row mb-5">
+        <div class="col-12">
             <h5 class="mb-4">Delivery Restrictions</h5>
 
             <div class="table-responsive">
                 <table id="restriction-days-tbl" class="table table-bordered custom-table">
                     <thead>
-                        <tr>
-                            <th class="align-middle text-left">Restriction</th>
-                            <th class="align-middle text-left">Days</th>
-                            <th class="align-middle text-left">Restriction Time</th>
-                        </tr>
+                    <tr>
+                        <th class="align-middle text-left">Restriction</th>
+                        <th class="align-middle text-left">Days</th>
+                        <th class="align-middle text-left">Restriction Time</th>
+                    </tr>
                     </thead>
                     <tbody>
                     <g:each in="${storeRestrictions?.regularHours}" var="enableTime" status="i">
@@ -36,8 +37,11 @@
                 </table>
             </div>
         </div>
+    </div>
 
-        <div class="col-md-7">
+    <!-- Second row with second table -->
+    <div class="row">
+        <div class="col-12">
             <h5 class="mb-4">Other Restrictions</h5>
 
             <div class="table-responsive">
@@ -90,9 +94,10 @@
 
     .checkbox-wrapper {
         display: flex;
-        justify-content: center;
+        justify-content: flex-start; /* Align checkbox to the left */
         align-items: center;
         height: 100%;
+        padding-left: 10px;
     }
 
     .checkbox-wrapper .form-check-input {
@@ -108,65 +113,105 @@
     }
 
     .custom-table {
-        width: auto;
-        max-width: 100%;
+        width: 100%; /* Make tables full width */
+        table-layout: fixed;
+    }
+
+    /* Set fixed column widths for the restriction days table */
+    #restriction-days-tbl th:nth-child(1) {
+        width: 15%;
+    }
+
+    #restriction-days-tbl th:nth-child(2) {
+        width: 15%;
+    }
+
+    #restriction-days-tbl th:nth-child(3) {
+        width: 70%;
+    }
+
+    /* Set fixed column widths for the other restrictions table */
+    #other-restrictions-special-days-tbl th:nth-child(1) {
+        width: 25%;
+    }
+
+    #other-restrictions-special-days-tbl th:nth-child(2) {
+        width: 25%;
+    }
+
+    #other-restrictions-special-days-tbl th:nth-child(3) {
+        width: 25%;
+    }
+
+    #other-restrictions-special-days-tbl th:nth-child(4) {
+        width: 25%;
+    }
+
+    /* Make table headers consistent height across both tables */
+    #restriction-days-tbl thead tr,
+    #other-restrictions-special-days-tbl thead tr {
+        height: 32px;
+    }
+
+    #restriction-days-tbl th,
+    #other-restrictions-special-days-tbl th {
+        padding-top: 0.2rem;
+        padding-bottom: 0.2rem;
+        vertical-align: middle;
+        font-size: 0.85rem;
+        font-weight: 600;
     }
 
     .table-sm td, .table-sm th {
         padding: 0.3rem;
     }
 
+    /* Ensure rows have consistent height */
+    #restriction-days-tbl tr {
+        height: 54px;
+    }
+
+    /* Ensure time inputs container maintains height when hidden */
+    .restriction-time-inputs {
+        min-height: 38px;
+    }
+
+    /* When inputs are hidden, maintain the space */
+    .restriction-time-inputs[style*="display: none"] {
+        display: block !important;
+        visibility: hidden;
+        height: 38px;
+    }
+
     .table-responsive {
-        display: inline-block;
-        max-width: 100%;
-        overflow-x: auto;
-    }
-
-    .custom-table th {
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    @media (max-width: 767px) {
-        .col-md-4, .col-md-8 {
-            width: 100%;
-        }
-
-        .col-md-8 {
-            margin-top: 2rem;
-        }
-    }
-
-    .right-table {
-        width: 100%;
-    }
-
-    .col-md-8 .table-responsive {
         display: block;
         width: 100%;
-        overflow-x: auto;
+        overflow: hidden;
     }
 
+    /* Specific fix for small screens */
     @media (max-width: 767px) {
-        .col-md-4, .col-md-8 {
-            width: 100%;
+        /* Force minimum width for tables on small screens */
+        #restriction-days-tbl, #other-restrictions-special-days-tbl {
+            min-width: 500px; /* Set a minimum width to prevent column collapse */
         }
 
-        .col-md-8 {
-            margin-top: 2rem;
+        /* Enable horizontal scrolling only when needed */
+        .table-responsive {
+            overflow-x: auto;
         }
     }
 
     .fixed-width-btn {
-        width: 80px; /* Adjust this value as needed */
+        width: 80px;
         display: inline-flex;
         justify-content: center;
         align-items: center;
         text-align: center;
-        margin-bottom: 5px; /* Add some vertical spacing between buttons if they wrap */
-        height: 30px; /* Set a fixed height for the buttons */
-        padding: 0; /* Remove default padding */
-        line-height: 1; /* Reset line height */
+        margin-bottom: 5px;
+        height: 30px;
+        padding: 0;
+        line-height: 1;
         vertical-align: middle;
     }
 </style>
