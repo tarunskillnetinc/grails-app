@@ -22,13 +22,13 @@
                                                                                     name="${commandPrefix}.regularHours[${i}].day"
                                                                                     value="${hour.day}"></td>
                             <td>
-                                <g:textField name="${commandPrefix}.regularHours[${i}].startTime"
+                                <g:field type="time" name="${commandPrefix}.regularHours[${i}].startTime"
                                              id="${commandPrefix}regularHours${i}startTime"
                                              value="${hour.startTime}" class="form-control form-control-sm time-input"
-                                             placeholder="HH:mm"/>
+                                         placeholder="HH:mm"/>
                             </td>
                             <td>
-                                <g:textField name="${commandPrefix}.regularHours[${i}].endTime"
+                                <g:field type="time" name="${commandPrefix}.regularHours[${i}].endTime"
                                              id="${commandPrefix}regularHours${i}endTime" value="${hour.endTime}"
                                              class="form-control form-control-sm time-input" placeholder="HH:mm"/>
                             </td>
@@ -203,6 +203,10 @@
     line-height: 1; /* Reset line height */
     vertical-align: middle;
 }
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+    background: none;
+}
 </style>
 
 <script>
@@ -222,72 +226,6 @@
             closed: ${hour.closed}
         });
         </g:each>
-
-        function ${commandPrefix}setupAllTimeInputs() {
-            const timeInputs = document.querySelectorAll('.time-input');
-            timeInputs.forEach(input => ${commandPrefix}setupTimeInput(input));
-        }
-
-        function ${commandPrefix}setupTimeInput(input) {
-            // Keep the input event for formatting only
-            input.addEventListener('input', function (e) {
-                let value = e.target.value.replace(/[^0-9]/g, '');
-
-                if (value.length > 2) {
-                    let hours = parseInt(value.slice(0, 2));
-                    let minutes = parseInt(value.slice(2));
-
-                    hours = Math.min(hours, 23);
-                    if (minutes > 59) {
-                        minutes = 59;
-                    }
-
-                    value = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
-                }
-
-                if (value.length > 5) {
-                    value = value.slice(0, 5);
-                }
-
-                e.target.value = value;
-            });
-
-            // Move the automatic time update logic to the blur event
-            input.addEventListener('blur', function (e) {
-                const value = e.target.value;
-
-                console.log("blur " + value)
-
-                if (value && !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
-                    // if its not in the right format.
-                    alert('Please enter a valid time in HH:mm format');
-                    e.target.value = '';
-
-                    const lowerCaseId = input.id.toLowerCase();
-                    if (lowerCaseId.includes('starttime')) {
-                        const endTimeId = input.id.replace(/starttime/i, function (match) {
-                            return match.replace(/start/i, 'end');
-                        });
-                        const endTimeInput = document.getElementById(endTimeId);
-
-                        if (endTimeInput && endTimeInput.getAttribute('data-auto-filled') === 'true') {
-                            endTimeInput.value = '';
-                            endTimeInput.removeAttribute('data-auto-filled');
-                        }
-                    } else if (lowerCaseId.includes('endtime')) {
-                        const startTimeId = input.id.replace(/endtime/i, function (match) {
-                            return match.replace(/end/i, 'start');
-                        });
-                        const startTimeInput = document.getElementById(startTimeId);
-
-                        if (startTimeInput && startTimeInput.getAttribute('data-auto-filled') === 'true') {
-                            startTimeInput.value = '';
-                            startTimeInput.removeAttribute('data-auto-filled');
-                        }
-                    }
-                }
-            });
-        }
 
         function ${commandPrefix}addSpecialHour(targetCommandPrefix) {
             $.ajax({

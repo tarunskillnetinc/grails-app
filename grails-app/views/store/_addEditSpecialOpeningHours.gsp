@@ -47,13 +47,19 @@
                             <div class="col-md-4" id="${commandPrefix}-specialTimeFieldsStart"
                                  style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
                                 <label for="${commandPrefix}-special-startTime">Start time</label>
-                                <input type="text" id="${commandPrefix}-special-startTime" name="${commandPrefix}-special-startTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.startTime ?: ''}" />
+                                <input type="time" id="${commandPrefix}-special-startTime"
+                                       name="${commandPrefix}-special-startTime"
+                                       class="form-control form-control-sm time-input" placeholder="HH:mm"
+                                       value="${specialOpeningHour?.startTime ?: ''}"/>
                             </div>
 
                             <div class="col-md-4" id="${commandPrefix}-specialTimeFieldsEnd"
                                  style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
                                 <label for="${commandPrefix}-special-endTime">End time</label>
-                                <input type="text" id="${commandPrefix}-special-endTime" name="${commandPrefix}-special-endTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.endTime ?: ''}" />
+                                <input type="time" id="${commandPrefix}-special-endTime"
+                                       name="${commandPrefix}-special-endTime"
+                                       class="form-control form-control-sm time-input" placeholder="HH:mm"
+                                       value="${specialOpeningHour?.endTime ?: ''}"/>
                             </div>
                         </div>
                     </div>
