@@ -108,7 +108,7 @@ class TransactionController {
 
                 transactionBasketItem.totalPrice = (basketItem.total ?: BigDecimal.ZERO)
 
-                if (basketItem instanceof ProductBasketItem && basketItem.priceDetails && basketItem.priceDetails.size() > 0) {
+                if (basketItem instanceof ProductBasketItem && basketItem.priceDetails && basketItem.priceDetails.size() > 0 && !basketItem.voided) {
                     def vat_individual_total = new BigDecimal(0)
                     basketItem.priceDetails.each { detail ->
                         vat_individual_total += detail.vatAmount
@@ -144,10 +144,13 @@ class TransactionController {
 
                 priorAddedSeqNum = transactionBasketItem.seqNum
 
-                if (basketItem.product?.restrictions?.discountAllowed && basketItem.product?.restrictions?.discountAllowed == true) {
+                if (basketItem.product?.restrictions?.discountAllowed && basketItem.product?.restrictions?.discountAllowed == true && !basketItem.voided) {
                     discountableAmount = discountableAmount + basketItem.total
                 }
-                preDiscountTotal = preDiscountTotal + basketItem.total
+
+                if (!basketItem.voided) {
+                    preDiscountTotal = preDiscountTotal + basketItem.total
+                }
             }
 
             if (basketItem instanceof PromotionBasketItem) {
@@ -244,6 +247,7 @@ class TransactionController {
                     def amount = -item.totalSavings
 
                     postDiscountsTotal -= item.totalSavings
+                    discountableAmount -= item.totalSavings
 
                     promotionItems.add([description: description, amount: amount])
                 }
@@ -258,6 +262,7 @@ class TransactionController {
                     if (item.total) {
                         amount = -item.total
                         postDiscountsTotal -= item.total
+                        discountableAmount -= item.total
                     } else if (item.discountPercentage) { // calculate the amount the discount card will yield.
                         BigDecimal percentage = new BigDecimal(item.discountPercentage).divide(new BigDecimal(100))
                         def discountAmount = discountableAmount * percentage
