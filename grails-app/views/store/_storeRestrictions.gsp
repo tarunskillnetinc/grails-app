@@ -2,7 +2,7 @@
 <div class="store-opening-hours">
     <!-- First row with first table -->
     <div class="row mb-5">
-        <div class="col-8">
+        <div class="col-5">
             <h5 class="mb-4">Delivery Restrictions</h5>
 
             <div class="table-responsive">
@@ -26,9 +26,19 @@
                             </td>
                             <td class="align-middle text-left">
                                 <div class="restriction-time-inputs" style="${enableTime.restrictionEnabled ? 'display: flex;' : 'display: none;'}">
-                                    <g:textField name="storeRestrictions.regularHours[${i}].timeFrom" value="${enableTime.timeFrom}" class="form-control form-control-sm time-input me-2" placeholder="HH:mm"/>
+                                    <g:field type="time" name="storeRestrictions.regularHours[${i}].timeFrom"
+                                             id="storeRestrictions.regularHours[${i}].timeFrom"
+                                             value="${enableTime.timeFrom}"
+                                             class="form-control form-control-sm time-input"
+                                             placeholder="HH:mm"/>
+                                    <span class="validity"></span>
                                     <span class="mx-2">to</span>
-                                    <g:textField name="storeRestrictions.regularHours[${i}].timeTo" value="${enableTime.timeTo}" class="form-control form-control-sm time-input ms-2" placeholder="HH:mm"/>
+                                    <g:field type="time" name="storeRestrictions.regularHours[${i}].timeTo"
+                                             id="storeRestrictions.regularHours[${i}].timeTo"
+                                             value="${enableTime.timeTo}"
+                                             class="form-control form-control-sm time-input"
+                                             placeholder="HH:mm"/>
+                                    <span class="validity"></span>
                                 </div>
                             </td>
                         </tr>
@@ -136,15 +146,15 @@
 
     /* Set fixed column widths for the restriction days table */
     #restriction-days-tbl th:nth-child(1) {
-        width: 15%;
+        width: 20%;
     }
 
     #restriction-days-tbl th:nth-child(2) {
-        width: 15%;
+        width: 25%;
     }
 
     #restriction-days-tbl th:nth-child(3) {
-        width: 70%;
+        width: 55%;
     }
 
     /* Set fixed column widths for the other restrictions table */

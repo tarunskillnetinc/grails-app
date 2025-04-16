@@ -1,6 +1,6 @@
 <section id="modal-header">
     <div class="modal-header">
-        <h2 id="page-title" class="mx-auto my-auto">Add Other Restrictions</h2>
+        <h2 id="page-title" class="mx-auto my-auto">${index && index > 0 ? 'Edit' : 'Add'} Other Restrictions</h2>
     </div>
 </section>
 <section id="modal-error">
