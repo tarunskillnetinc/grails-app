@@ -18,6 +18,7 @@ import uk.co.wonderlane.wlpos.entities.basketv2.RefundBasketItem
 import uk.co.wonderlane.wlpos.entities.basketv2.SimpleDiscountBasketItem
 import uk.co.wonderlane.wlpos.entities.transactionv2.BasketTransaction
 import uk.co.wonderlane.wlpos.entities.transactionv2.TillControlEvent
+import uk.co.wonderlane.wlpos.enums.IdentificationType
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.reporting.TransactionBasketItem
@@ -227,10 +228,22 @@ class TransactionController {
                     amountchange = -amountchange
                 }
 
+                def reasonDescription
+                try {
+                    def reasonEnum = IdentificationType.valueOf(event.reason)
+
+                    reasonDescription = message(code: "IdentificationType." + reasonEnum)
+                } catch (Exception ignored) {
+                }
+
+                if (!reasonDescription) { // fall back to using text
+                    reasonDescription = event.reason
+                }
+
                 eventLines.add([eventType        : event.type,
                                 seqnum: seqnum, // pull from product/variant, somehow.
                                 amount: amountchange,
-                                reason           : event.reason ?: "-",
+                                reason: reasonDescription ?: "-",
                                 overrideUsersName: event.overrideUser?.name ?: user?.name])
             }
 
