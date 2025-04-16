@@ -15,6 +15,8 @@ import uk.co.wonderlane.wlpos.requests.clientexport.StockTransaction
 import uk.co.wonderlane.wlpos.utils.PropertyBasedInterfaceMarshal
 
 import java.lang.reflect.Type
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 class GsonProvider {
 
@@ -43,6 +45,14 @@ class GsonProvider {
                 .registerTypeAdapter(Transaction.class, new PropertyBasedInterfaceMarshal())
                 .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
                 .registerTypeAdapter(LocalTime.class, new LocalTimeTypeAdapter())
+                .registerTypeAdapter(LocalTime.class, new LocalTimeTypeAdapter())
+                .registerTypeAdapter(LocalTime.class, new LocalTimeTypeAdapter())
+                .registerTypeAdapter(java.time.LocalDateTime.class, (JsonSerializer<java.time.LocalDateTime>) (src, typeOfSrc, context) -> new JsonPrimitive(DateTimeFormatter.ISO_INSTANT.format(src.atZone(ZoneOffset.UTC).toInstant())))
+                .registerTypeAdapter(java.time.LocalDateTime.class, (JsonDeserializer<java.time.LocalDateTime>) (json, typeOfT, context) -> java.time.LocalDateTime.ofInstant(java.time.Instant.parse(json.getAsString()), ZoneOffset.UTC))
+                .registerTypeAdapter(java.time.LocalDate.class, (JsonSerializer<java.time.LocalDate>) (src, typeOfSrc, context) -> new JsonPrimitive(src.format(DateTimeFormatter.ISO_DATE)))
+                .registerTypeAdapter(java.time.LocalDate.class, (JsonDeserializer<java.time.LocalDate>) (json, typeOfT, context) -> java.time.LocalDate.parse(json.getAsString(), DateTimeFormatter.ISO_DATE))
+                .registerTypeAdapter(java.time.LocalTime.class, (JsonSerializer<java.time.LocalTime>) (src, typeOfSrc, context) -> new JsonPrimitive(src.format(DateTimeFormatter.ISO_TIME)))
+                .registerTypeAdapter(java.time.LocalTime.class, (JsonDeserializer<java.time.LocalTime>) (json, typeOfT, context) -> java.time.LocalTime.parse(json.getAsString(), DateTimeFormatter.ISO_TIME))
                 .create()
     }
 

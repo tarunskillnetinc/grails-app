@@ -2,7 +2,6 @@ package uk.co.wonderlane.wlpos
 
 import com.google.gson.reflect.TypeToken
 import grails.gorm.transactions.Transactional
-import org.joda.time.LocalTime
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
@@ -20,6 +19,8 @@ import java.lang.reflect.Type
 import java.sql.CallableStatement
 import java.sql.Connection
 import java.sql.Types
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.stream.Collectors
 
 @Transactional
@@ -327,15 +328,16 @@ class StoreService extends MySqlDal {
             storeRestrictionsCommand.setRegularHours(regularHours)
 
             List<StoreOtherRestrictionsCommand> otherRestrictions = new ArrayList<>();
+            java.time.format.DateTimeFormatter formatterDate = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
             if (storeRestrictedHours.getStoreOtherRestrictions() != null) {
                 for (StoreOtherRestrictions override : storeRestrictedHours.getStoreOtherRestrictions()) {
                     StoreOtherRestrictionsCommand overrideCommand = new StoreOtherRestrictionsCommand()
                     overrideCommand.description = override.description
                     if (override.getStartDateTime() != null) {
-                        overrideCommand.setStartDateTime(override.getStartDateTime().toString("dd/MM/YYYY HH:mm"))
+                        overrideCommand.setStartDateTime(override.getStartDateTime()?.format(formatterDate))
                     }
                     if (override.getEndDateTime() != null) {
-                        overrideCommand.setEndDateTime(override.getEndDateTime().toString("dd/MM/YYYY HH:mm"))
+                        overrideCommand.setEndDateTime(override.getEndDateTime()?.format(formatterDate))
                     }
                     otherRestrictions.add(overrideCommand)
                 }
@@ -435,17 +437,17 @@ class StoreService extends MySqlDal {
         command.setDay(day)
 
         if (enableHours != null) {
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm")
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm")
             LocalTime timeFrom = enableHours.getTimeFrom()
             if (timeFrom != null) {
-                command.setTimeFrom(formatter.print(timeFrom))
+                command.setTimeFrom(timeFrom.format(formatter))
             } else {
                 command.setTimeFrom(null)
             }
 
             LocalTime timeTo = enableHours.getTimeTo()
             if (timeTo != null) {
-                command.setTimeTo(formatter.print(timeTo))
+                command.setTimeTo(timeTo.format(formatter))
             } else {
                 command.setTimeTo(null)
             }
@@ -462,10 +464,10 @@ class StoreService extends MySqlDal {
     private EnableHours getEnableHoursAsObject(EnableHoursCommand enableHoursCommand) {
         EnableHours enableHours = new EnableHours()
         if (enableHoursCommand != null) {
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm")
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
             if (enableHoursCommand.restrictionEnabled) {
-                enableHours.timeFrom = enableHoursCommand.timeFrom ? formatter.parseLocalTime(enableHoursCommand.timeFrom) : null
-                enableHours.timeTo = enableHoursCommand.timeTo ? formatter.parseLocalTime(enableHoursCommand.timeTo) : null
+                enableHours.timeFrom = enableHoursCommand.timeFrom ? LocalTime.parse(enableHoursCommand.timeFrom, formatter) : null
+                enableHours.timeTo = enableHoursCommand.timeTo ? LocalTime.parse(enableHoursCommand.timeTo, formatter) : null
             } else {
                 enableHours.timeFrom = null
                 enableHours.timeTo = null
@@ -479,11 +481,11 @@ class StoreService extends MySqlDal {
         if (storeOtherRestrictionsCommand == null) {
             return null
         }
-        DateTimeFormatter formatterDate = DateTimeFormat.forPattern("dd/MM/YYYY HH:mm")
+        java.time.format.DateTimeFormatter formatterDate = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
         StoreOtherRestrictions storeOtherRestrictions = new StoreOtherRestrictions()
         storeOtherRestrictions.description = storeOtherRestrictionsCommand?.description
-        storeOtherRestrictions.startDateTime = storeOtherRestrictionsCommand?.startDateTime ? formatterDate.parseDateTime(storeOtherRestrictionsCommand?.startDateTime) : null
-        storeOtherRestrictions.endDateTime = storeOtherRestrictionsCommand?.endDateTime ? formatterDate.parseDateTime(storeOtherRestrictionsCommand?.endDateTime) : null
+        storeOtherRestrictions.startDateTime = storeOtherRestrictionsCommand?.startDateTime ? LocalDateTime.parse(storeOtherRestrictionsCommand?.startDateTime, formatterDate) : null
+        storeOtherRestrictions.endDateTime = storeOtherRestrictionsCommand?.endDateTime ? LocalDateTime.parse(storeOtherRestrictionsCommand?.endDateTime, formatterDate) : null
         return storeOtherRestrictions
     }
 }
