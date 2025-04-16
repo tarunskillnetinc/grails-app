@@ -91,6 +91,7 @@
     <div id="collapseStoreAmenities" class="collapse" aria-labelledby="storeAmenities" data-parent="#accordion">
         <div class="card-body py-5">
             <div class="col-12">
+                <g:render template="storeAmenity" model="[amenities: amenities, storeAmenities: storeAmenities]" />
             </div>
         </div>
     </div>

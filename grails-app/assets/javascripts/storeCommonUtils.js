@@ -338,3 +338,101 @@ function safelyCloseModal(modalId) {
         $(this).attr('aria-expanded', !isExpanded);
     });
 }
+
+// function addAmenities(index, description, value) {
+//     var selectedAmenityId = $("#amenitiesSelector").val();
+//     // Only proceed if an amenity is selected
+//     if (!selectedAmenityId || selectedAmenityId === '') {
+//         alert("Please select an amenity first");
+//         return;
+//     }
+//     $("#addAmenitiesContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+//     $('#addAmenitiesModal').modal({show: true, backdrop: 'static', keyboard: false});
+//     var params = {
+//         amenityId: selectedAmenityId  // Add the selected amenity ID to the params
+//     }
+//     $.ajax({
+//         url: addAmenity,
+//         method: "GET",
+//         data: params,
+//         success: function (resp) {
+//             $("#addAmenitiesContent").html(resp);
+//         }
+//     });
+// }
+
+function addAmenities(index, description, value) {
+    const selectedCheckboxes = $('input[name="amenities"]:checked');
+    var params = {}
+
+    // Extract just the IDs into an array
+    const selectedIds = selectedCheckboxes.map(function() {
+        return $(this).val();
+    }).get();
+
+    // If you need to add each ID individually with an index
+    selectedIds.forEach((id, index) => {
+        params["amenities[" + index + "].amenityId"] = id;
+    });
+
+    $.ajax({
+        url: addAmenity,
+        method: "GET",
+        data: params,
+        success: function (resp) {
+            $("#addAmenitiesContent").html(resp);
+        }
+    });
+}
+
+function closeStoreAmenityAddModal(){
+    if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+        $('#addAmenitiesModal').modal('hide')
+    }
+}
+
+function addStoreAmenity() {
+    var params = {}
+    // Get the description and quantity values
+    const description = document.getElementById('addStoreAdditionalDetailDescription').value;
+    const quantity = document.getElementById('addStoreAdditionalDetailValue').value;
+
+    // Collect all the opening hours data
+    const openingHours = [];
+
+    // Get all day elements
+    const dayElements = document.querySelectorAll('[id^="openingTime"][id$=".day"]');
+
+    dayElements.forEach((dayElement, index) => {
+        // Extract the day name from the span
+        const day = dayElement.textContent.trim();
+
+        // Get the corresponding checkbox, start time and end time
+        const closedCheckbox = document.querySelector(`[name="openingTime[${index}].closed"]`);
+        const startTimeInput = document.querySelector(`[name="openingTime[${index}].startTime"]`);
+        const endTimeInput = document.querySelector(`[name="openingTime[${index}].endTime"]`);
+
+        params["amenityOpenTime[" + index + "].day"] = day;
+        params["amenityOpenTime[" + index + "].closed"] = closedCheckbox ? closedCheckbox.checked : false;
+        params["amenityOpenTime[" + index + "].startTime"] = startTimeInput ? startTimeInput.value : '';
+        params["amenityOpenTime[" + index + "].endTime"] = endTimeInput ? endTimeInput.value : '';
+    });
+
+    params["description"] = description
+    params["quantity"] = quantity
+
+    $.ajax({
+        url: addStoreAmenities,
+        method: "POST",
+        data: params,
+        success: function(response) {
+            // Handle success
+            console.log('Amenity added successfully');
+            closeStoreAmenityAddModal();
+        },
+        error: function(error) {
+            // Handle error
+            console.error('Error adding amenity:', error);
+        }
+    });
+}

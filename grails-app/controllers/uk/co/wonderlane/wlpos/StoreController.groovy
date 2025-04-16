@@ -191,6 +191,8 @@ class StoreController {
          alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing()),
          storeRestrictions           : storeService.convertToStoreRestrictionCommand(store?.getStoreRestrictedHours())
         ]
+         amenities                   : storeService.getAmenitiesList(springSecurityService.principal.retailerId),
+         storeAmenities              : storeService.getStoreAmenitiesList(store?.id)
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -415,6 +417,26 @@ class StoreController {
 
     def ajaxSaveStoreOtherRestrictions(StoreRestrictionsCommand storeRestrictionsCommand) {
         render(template: "storeRestrictions", model: [storeRestrictions: storeService.sortStoreRestrictions(storeRestrictionsCommand)])
+    }
+
+    def ajaxAddAmenities(){
+        def initialRegularHours = [
+                new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
+                new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
+        ]
+        Integer amenityId = params.amenityId != null ? Integer.parseInt(params.amenityId) : -1
+        Amenity selectedAmenity = Amenity.findById(amenityId)
+        render(template: "addStoreAmenity", model: [initialRegularHours: initialRegularHours,
+                                                    selectedAmenity: selectedAmenity])
+    }
+
+    def ajaxAddStoreAmenity(StoreAmenitiesCommand storeAmenitiesCommand){
+
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
@@ -792,4 +814,21 @@ class StoreOtherRestrictionsCommand {
     String description
     String startDateTime
     String endDateTime
+}
+
+class AmenityCommand {
+    int id
+    String retailerId
+    String name
+}
+
+class StoreAmenitiesCommand {
+    String additionalDetails
+    String count
+    OpeningTimeCommand availability
+    AmenityCommand amenity
+}
+
+class selectAmenities {
+    List<StoreAmenitiesCommand> amenities
 }
