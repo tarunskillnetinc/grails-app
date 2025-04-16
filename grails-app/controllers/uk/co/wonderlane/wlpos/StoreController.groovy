@@ -269,10 +269,23 @@ class StoreController {
         }
     }
 
+    private getSpecialHoursTitle(prefix) {
+        def title
+
+        if (prefix == 'alcoholLicensingCommand') {
+            title = "Special Licensing Hours"
+        } else {
+            title = "Special Store Opening / Closing"
+        }
+
+        return title
+    }
+
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def loadAddSpecialOpeningHoursTemplate() {
         def commandPrefix = params.commandPrefix
-        render (template: 'addEditSpecialOpeningHours', model:[openingHourIndexItem:-1, commandPrefix: commandPrefix])
+
+        render(template: 'addEditSpecialOpeningHours', model: [openingHourIndexItem: -1, commandPrefix: commandPrefix, title: getSpecialHoursTitle(commandPrefix)])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -296,13 +309,13 @@ class StoreController {
                         closed: hourObject.closed as boolean
                 )
 
-                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: specialOpeningHour, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix])
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: specialOpeningHour, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix, title: "Special Store Opening / Closing7"])
             } catch (Exception e) {
                 log.error("Error parsing specialOpeningHour JSON: ${e.message}", e)
-                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex, error: "Invalid data format"])
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex, error: "Invalid data format", title: "Special Store Opening / Closin8"])
             }
         } else {
-            render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix])
+            render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix, title: "Special Store Opening / Closing9"])
         }
     }
 
