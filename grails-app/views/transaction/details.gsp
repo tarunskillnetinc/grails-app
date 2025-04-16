@@ -318,7 +318,7 @@
                                     </div>
 
                                     <div id="unitprice-id-${line + 1}" class="col-1 my-auto">
-                                        <g:if test="${basketItem.unitPrice}">
+                                        <g:if test="${basketItem.unitPrice != null}">
                                             <g:formatNumber
                                                     number="${basketItem.unitPrice}"
                                                     type="currency"/>
@@ -333,7 +333,7 @@
                                     </div>
 
                                     <div id="vat-id-${line + 1}" class="col-1 my-auto">
-                                        <g:if test="${basketItem.vat}">
+                                        <g:if test="${basketItem.vat != null}">
                                             <g:formatNumber number="${basketItem.vat}" type="currency"/>
                                         </g:if>
                                         <g:else>
