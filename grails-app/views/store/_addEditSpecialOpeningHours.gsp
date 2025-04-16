@@ -3,44 +3,64 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="${commandPrefix}-specialHoursModalLabel">${specialOpeningHour ? 'Edit' : 'Add'} Special Store Opening/Closing</h5>
-                    <button type="button" class="close" id="${commandPrefix}-close-cross" data-dismiss="modal" aria-label="Close">
-                        <span>&times;</span>
-                    </button>
+                    <h5 class="modal-title"
+                        id="${commandPrefix}-specialHoursModalLabel">${specialOpeningHour ? 'Edit' : 'Add'} Special Store Opening / Closing</h5>
                 </div>
                 <div class="modal-body">
+                    <section id="${commandPrefix}-specialOpeningHours-errors-container" class="container-fluid"
+                             style="display:none">
+                        <div class="alert alert-danger alert-wl mx-0" role="alert">
+                            <div id="${commandPrefix}-specialOpeningHours-errors"></div>
+                        </div>
+                    </section>
                     <div class="form-row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-8">
                             <label for="${commandPrefix}-specialDescription">Description</label>
                             <input type="text" id="${commandPrefix}-specialDescription" name="${commandPrefix}-specialDescription" class="form-control" value="${specialOpeningHour?.description ?: ''}" />
                         </div>
-                        <div class="col-md-6">
+
+                        <div class="col-md-4">
                             <label for="${commandPrefix}-specialDate">Date</label>
                             <input
-                                    type="date"
+                                    type="text"
                                     id="${commandPrefix}-specialDate"
                                     name="${commandPrefix}-specialDate"
                                     class="form-control"
                                     value="${specialOpeningHour?.date ?: ''}"
                                     required
+                                    onkeydown="return false"
                             />
                         </div>
                     </div>
                     <div>
                         <div class="form-row mb-2">
-                            <div class="col-md-3" id="${commandPrefix}-specialTimeFieldsStart" style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
-                                <label for="${commandPrefix}-special-startTime">Start time</label>
-                                <input type="text" id="${commandPrefix}-special-startTime" name="${commandPrefix}-special-startTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.startTime ?: ''}" />
-                            </div>
-                            <div class="col-md-3" id="${commandPrefix}-specialTimeFieldsEnd" style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
-                                <label for="${commandPrefix}-special-endTime">End time</label>
-                                <input type="text" id="${commandPrefix}-special-endTime" name="${commandPrefix}-special-endTime" class="form-control form-control-sm time-input" placeholder="HH:mm" value="${specialOpeningHour?.endTime ?: ''}" />
-                            </div>
-                            <div class="col-md-6 d-flex align-items-end">
-                                <div class="form-check">
-                                    <label class="form-check-label" for="${commandPrefix}-specialClosedCheckbox">Closed</label>
-                                    <input type="checkbox" id="${commandPrefix}-specialClosedCheckbox" name="${commandPrefix}-specialClosed" class="form-check-input wl-checkbox ml-6" onclick="${commandPrefix}toggleSpecialTimeFields()" ${specialOpeningHour?.closed ? 'checked' : ''} />
+                            <div class="col-md-4">
+                                <div class="form-check pl-0 mb-3">
+                                    <label class="form-check-label"
+                                           for="${commandPrefix}-specialClosedCheckbox">Closed</label>
+                                    <input type="checkbox" id="${commandPrefix}-specialClosedCheckbox"
+                                           name="${commandPrefix}-specialClosed"
+                                           class="form-check-input wl-checkbox mt-1 form-check ml-0 mt-2"
+                                           onclick="${commandPrefix}toggleSpecialTimeFields()" ${specialOpeningHour?.closed ? 'checked' : ''}/>
                                 </div>
+                            </div>
+
+                            <div class="col-md-4" id="${commandPrefix}-specialTimeFieldsStart"
+                                 style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
+                                <label for="${commandPrefix}-special-startTime">Start time</label>
+                                <input type="time" id="${commandPrefix}-special-startTime"
+                                       name="${commandPrefix}-special-startTime"
+                                       class="form-control form-control-sm time-input" placeholder="HH:mm"
+                                       value="${specialOpeningHour?.startTime ?: ''}"/>
+                            </div>
+
+                            <div class="col-md-4" id="${commandPrefix}-specialTimeFieldsEnd"
+                                 style="${specialOpeningHour?.closed ? 'display:none;' : ''}">
+                                <label for="${commandPrefix}-special-endTime">End time</label>
+                                <input type="time" id="${commandPrefix}-special-endTime"
+                                       name="${commandPrefix}-special-endTime"
+                                       class="form-control form-control-sm time-input" placeholder="HH:mm"
+                                       value="${specialOpeningHour?.endTime ?: ''}"/>
                             </div>
                         </div>
                     </div>
@@ -68,24 +88,36 @@
             $('body').removeClass('modal-open');
         });
 
-        $(document).on('shown.bs.modal', '#'+commandPrefix+'-addSpecialOpeningHoursModal', function () {
-            const startTimeInput = document.getElementById(commandPrefix + '-special-startTime');
-            const endTimeInput = document.getElementById(commandPrefix + '-special-endTime');
-
-            if (startTimeInput) ${commandPrefix}setupTimeInput(startTimeInput);
-            if (endTimeInput) ${commandPrefix}setupTimeInput(endTimeInput);
-        });
-
-        $('#'+commandPrefix+'-saveSpecialHoursBtn').on('click', function () {
+        $('#${commandPrefix}-saveSpecialHoursBtn').on('click', function () {
             const description = $('#'+commandPrefix+'-specialDescription').val();
-            const closed = $('#'+commandPrefix+'-specialClosedCheckbox').prop('checked');
+            const closed = $('#' + commandPrefix + '-specialClosedCheckbox').is(':checked');
             const date = $('#'+commandPrefix+'-specialDate').val();
             const startTime = $('#'+commandPrefix+'-special-startTime').val();
             const endTime = $('#'+commandPrefix+'-special-endTime').val();
             const specialOpeningHoursIndex = $('#'+commandPrefix+'-editIndex').val();
 
+            let errors = []
+
+            if (!description) {
+                errors.push('Please enter a description. This field is mandatory.');
+            }
+
             if (!date) {
-                alert('Please select a date. This field is mandatory.');
+                errors.push('Please select a date. This field is mandatory.')
+            }
+
+            if (!closed) { // its open, check the start/end times.
+                if (!startTime) {
+                    errors.push('If the store is open, start time must be set and be in 24 hour format (00:00 to 23:59).')
+                }
+
+                if (!endTime) {
+                    errors.push('If the store is open, end time must be set and be in 24 hour format (00:00 to 23:59)')
+                }
+            }
+
+            if (errors.length > 0) {
+                ${commandPrefix}displayErrors(errors);
                 return;
             }
 
@@ -94,74 +126,63 @@
             });
             document.dispatchEvent(event);
 
-            $('#'+commandPrefix+'-addSpecialOpeningHoursModal').modal('hide');
+            $('#${commandPrefix}-addSpecialOpeningHoursModal').modal('hide');
             $('.modal-backdrop').remove();
             $('body').removeClass('modal-open');
         });
 
+        function ${commandPrefix}clearErrors() {
+            $('#${commandPrefix}-specialOpeningHours-errors-container>div').html('');
+            $('#${commandPrefix}-specialOpeningHours-errors-container').hide();
+        }
+
+        function ${commandPrefix}displayErrors(errors) {
+            let text = "<ul>";
+            for (let i = 0; i < errors.length; i++) {
+                text += "<li>" + errors[i] + "</li>";
+            }
+            text += "</ul>";
+
+            $('#${commandPrefix}-specialOpeningHours-errors-container>div').html(text);
+            $('#${commandPrefix}-specialOpeningHours-errors-container').show();
+        }
+
+
         function ${commandPrefix}toggleSpecialTimeFields() {
-            const isClosed = document.getElementById(commandPrefix + '-specialClosedCheckbox').checked;
-            const timeFieldsStart = document.getElementById(commandPrefix + '-specialTimeFieldsStart');
-            const timeFieldsEnd = document.getElementById(commandPrefix + '-specialTimeFieldsEnd');
-            timeFieldsStart.style.display = isClosed ? 'none' : 'block';
-            timeFieldsEnd.style.display = isClosed ? 'none' : 'block';
+            const isClosed = $('#${commandPrefix}-specialClosedCheckbox').is(':checked');
+            const timeFieldsStart = $('#${commandPrefix}-specialTimeFieldsStart');
+            const timeFieldsEnd = $('#${commandPrefix}-specialTimeFieldsEnd');
+
+            if (isClosed) {
+                timeFieldsStart.hide();
+                timeFieldsEnd.hide();
+            } else {
+                timeFieldsStart.show();
+                timeFieldsEnd.show();
+            }
         }
 
         function ${commandPrefix}dateInputSetup() {
-            let specialDateInput = document.getElementById(commandPrefix +'-specialDate');
-            let today = new Date().toISOString().split('T')[0];
-            specialDateInput.min = today;
-            specialDateInput.addEventListener('keydown', function (e) {
-                e.preventDefault();
-            });
-            specialDateInput.addEventListener('click', function () {
-                this.showPicker();
+            var prefix = '${commandPrefix}';
+            var specialDate = $('#' + prefix + '-specialDate');
+
+            specialDate.datepicker({
+                format: "dd/mm/yyyy",
+                weekStart: 1,
+                startDate: "${new Date().format("dd/MM/yyyy")}",
+                todayHighlight: true,
+                autoclose: true,
+                todayBtn: "linked",
+                orientation: "bottom auto"
             });
         }
 
         ${commandPrefix}dateInputSetup();
+        ${commandPrefix}clearErrors();
     }
 </script>
 <style>
-/* Add this to your existing styles */
-.modal {
-    z-index: 1050 !important;
-}
-.modal-backdrop {
-    z-index: 1040 !important;
-}
-
-/* Checkbox styling */
-.wl-checkbox {
-    width: 18px;
-    height: 18px;
-    margin-top: 0;
-}
-
-.form-check-label {
-    font-size: 14px;
-    line-height: 18px;
-    margin-left: 5px;
-}
-
-.form-group label {
-    font-size: 14px;
-    line-height: 18px;
-}
-
-.form-check {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0;
-}
-
-.form-check-input {
-    margin-top: 0;
-    margin-right: 5px;
-}
-
-label[for="specialDate"]:after {
-    content: " *";
-    color: red;
+#${commandPrefix}-addSpecialOpeningHoursModal .form-check checkbox {
+    left: -0.5rem;
 }
 </style>

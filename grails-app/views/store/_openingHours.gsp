@@ -2,17 +2,17 @@
 <g:set var="commandObject" value="${pageScope[commandPrefix]}" />
 <div class="store-opening-hours">
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-5">
             <h5 class="mb-4">${titleRegularOpeningHours}</h5>
 
             <div class="table-responsive">
-                <table class="table table-bordered custom-table">
+                <table id='${commandPrefix}table' class="table table-bordered custom-table col-12">
                     <thead>
                     <tr>
-                        <th class="align-middle text-center">Day</th>
-                        <th class="align-middle text-center">Start</th>
-                        <th class="align-middle text-center">End</th>
-                        <th class="align-middle text-center">Closed</th>
+                        <th class="align-middle text-center col-4">Day</th>
+                        <th class="align-middle text-center col-3">Start</th>
+                        <th class="align-middle text-center col-3">End</th>
+                        <th class="align-middle text-center col-2">Closed</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -22,21 +22,26 @@
                                                                                     name="${commandPrefix}.regularHours[${i}].day"
                                                                                     value="${hour.day}"></td>
                             <td>
-                                <g:textField name="${commandPrefix}.regularHours[${i}].startTime"
-                                             id="${commandPrefix}.regularHours[${i}].startTime"
+                                <g:field type="time" name="${commandPrefix}.regularHours[${i}].startTime"
+                                             id="${commandPrefix}regularHours${i}startTime"
                                              value="${hour.startTime}" class="form-control form-control-sm time-input"
-                                             placeholder="HH:mm"/>
+                                         placeholder="HH:mm"/>
+                                <span class="validity"></span>
                             </td>
                             <td>
-                                <g:textField name="${commandPrefix}.regularHours[${i}].endTime"
-                                             id="${commandPrefix}.regularHours[${i}].endTime" value="${hour.endTime}"
-                                             class="form-control form-control-sm time-input" placeholder="HH:mm"/>
+                                <g:field type="time" name="${commandPrefix}.regularHours[${i}].endTime"
+                                         id="${commandPrefix}regularHours${i}endTime"
+                                         value="${hour.endTime}"
+                                         class="form-control form-control-sm time-input"
+                                         placeholder="HH:mm"/>
+                                <span class="validity"></span>
                             </td>
                             <td class="align-middle text-center">
                                 <div class="checkbox-wrapper">
                                     <g:checkBox name="${commandPrefix}.regularHours[${i}].closed"
-                                                id="${commandPrefix}.regularHours[${i}].closed"
-                                                class="form-check-input wl-checkbox" checked="${hour.closed}" />
+                                                id="${commandPrefix}regularHours${i}closed"
+                                                class="form-check-input wl-checkbox" checked="${hour.closed}"
+                                                onclick="${commandPrefix}_closedclick('${commandPrefix}regularHours${i}closed', '${commandPrefix}regularHours${i}startTime','${commandPrefix}regularHours${i}endTime')"/>
                                 </div>
                             </td>
                         </tr>
@@ -46,25 +51,25 @@
             </div>
         </div>
 
-        <div class="col-md-8">
+        <div class="col-md-7">
             <h5 class="mb-4">${titleSpecialOpeningHours}</h5>
 
             <div class="table-responsive">
-                <table id="${commandPrefix}-special-hours-tbl" class="table table-bordered table-sm custom-table right-table">
+                <table id="${commandPrefix}-special-hours-tbl" class="table table-bordered custom-table right-table">
                     <thead>
                     <tr>
-                        <th class="align-middle text-center">Description</th>
-                        <th class="align-middle text-center">Date</th>
-                        <th class="align-middle text-center">Start</th>
-                        <th class="align-middle text-center">End</th>
-                        <th class="align-middle text-center">Closed</th>
-                        <th class="align-middle text-center">Actions</th>
+                        <th class="align-middle text-center col-6">Description</th>
+                        <th class="align-middle text-center col-2">Date</th>
+                        <th class="align-middle text-center col-1">Start</th>
+                        <th class="align-middle text-center col-1">End</th>
+                        <th class="align-middle text-center col-1">Closed</th>
+                        <th class="align-middle text-center col-1">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     <g:each in="${commandObject?.specialOpeningHours}" var="special" status="i">
                         <tr id="${commandPrefix}-special-hour-row-${i}">
-                            <td class="align-middle text-center">
+                            <td class="align-middle text-center text-break">
                                 ${special?.description}
                                 <input type="hidden" name="${commandPrefix}.specialOpeningHours[${i}].description"
                                        id="${commandPrefix}.specialOpeningHours[${i}].description"
@@ -149,10 +154,6 @@
     max-width: 100%;
 }
 
-.table-sm td, .table-sm th {
-    padding: 0.3rem;
-}
-
 .table-responsive {
     display: inline-block;
     max-width: 100%;
@@ -206,6 +207,16 @@
     line-height: 1; /* Reset line height */
     vertical-align: middle;
 }
+
+td {
+    position: relative;
+}
+
+#
+${commandPrefix} table input[type="time"]:invalid {
+    border: red 1px solid;
+}
+
 </style>
 
 <script>
@@ -225,115 +236,6 @@
             closed: ${hour.closed}
         });
         </g:each>
-
-        function ${commandPrefix}setupAllTimeInputs() {
-            const timeInputs = document.querySelectorAll('.time-input');
-            timeInputs.forEach(input => ${commandPrefix}setupTimeInput(input));
-        }
-
-        function ${commandPrefix}setupTimeInput(input) {
-            // Keep the input event for formatting only
-            input.addEventListener('input', function (e) {
-                let value = e.target.value.replace(/[^0-9]/g, '');
-
-                if (value.length > 2) {
-                    let hours = parseInt(value.slice(0, 2));
-                    let minutes = parseInt(value.slice(2));
-
-                    hours = Math.min(hours, 23);
-                    if (minutes > 59) {
-                        minutes = 59;
-                    }
-
-                    value = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
-                }
-
-                if (value.length > 5) {
-                    value = value.slice(0, 5);
-                }
-
-                e.target.value = value;
-            });
-
-            // Move the automatic time update logic to the blur event
-            input.addEventListener('blur', function (e) {
-                const value = e.target.value;
-
-                if (value && !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
-                    alert('Please enter a valid time in HH:mm format');
-                    e.target.value = '';
-
-                    const lowerCaseId = input.id.toLowerCase();
-                    if (lowerCaseId.includes('starttime')) {
-                        const endTimeId = input.id.replace(/starttime/i, function (match) {
-                            return match.replace(/start/i, 'end');
-                        });
-                        const endTimeInput = document.getElementById(endTimeId);
-
-                        if (endTimeInput && endTimeInput.getAttribute('data-auto-filled') === 'true') {
-                            endTimeInput.value = '';
-                            endTimeInput.removeAttribute('data-auto-filled');
-                        }
-                    } else if (lowerCaseId.includes('endtime')) {
-                        const startTimeId = input.id.replace(/endtime/i, function (match) {
-                            return match.replace(/end/i, 'start');
-                        });
-                        const startTimeInput = document.getElementById(startTimeId);
-
-                        if (startTimeInput && startTimeInput.getAttribute('data-auto-filled') === 'true') {
-                            startTimeInput.value = '';
-                            startTimeInput.removeAttribute('data-auto-filled');
-                        }
-                    }
-                } else if (value) {
-                    const lowerCaseId = input.id.toLowerCase();
-
-                    if (lowerCaseId.includes('starttime')) {
-                        const endTimeId = input.id.replace(/starttime/i, function (match) {
-                            return match.replace(/start/i, 'end');
-                        });
-                        const endTimeInput = document.getElementById(endTimeId);
-
-                        if (endTimeInput && !endTimeInput.value) {
-                            let [hours, minutes] = value.split(':').map(Number);
-                            minutes += 1;
-                            if (minutes >= 60) {
-                                minutes = 0;
-                                hours += 1;
-                            }
-                            if (hours >= 24) {
-                                hours = 0;
-                            }
-
-                            const newEndTime = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
-                            endTimeInput.value = newEndTime;
-                            endTimeInput.setAttribute('data-auto-filled', 'true');
-                        }
-                    } else if (lowerCaseId.includes('endtime')) {
-                        const startTimeId = input.id.replace(/endtime/i, function (match) {
-                            return match.replace(/end/i, 'start');
-                        });
-                        const startTimeInput = document.getElementById(startTimeId);
-
-                        if (startTimeInput && !startTimeInput.value) {
-                            let [hours, minutes] = value.split(':').map(Number);
-                            minutes -= 1;
-                            if (minutes < 0) {
-                                minutes = 59;
-                                hours -= 1;
-                            }
-                            if (hours < 0) {
-                                hours = 23;
-                            }
-
-                            const newStartTime = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
-                            startTimeInput.value = newStartTime;
-                            startTimeInput.setAttribute('data-auto-filled', 'true');
-                        }
-                    }
-                }
-            });
-        }
 
         function ${commandPrefix}addSpecialHour(targetCommandPrefix) {
             $.ajax({
@@ -374,6 +276,23 @@
             });
         }
 
+        function ${commandPrefix}_closedclick(closedfield, openingField, closingField) {
+            const isClosed = $('#' + closedfield).is(':checked');
+            const opening = $('#' + openingField);
+            const closing = $('#' + closingField);
+
+            if (isClosed) {
+                opening.val('')
+                opening.hide();
+
+                closing.val('')
+                closing.hide();
+            } else {
+                opening.show();
+                closing.show();
+            }
+        }
+
         function ${commandPrefix}createOrUpdateRow(data, index) {
             const rowIndex = commandPrefix + '-special-hour-row-' + index;
 
@@ -395,7 +314,7 @@
             descInput.id = commandPrefix + '.specialOpeningHours[' + index + '].description';
             descInput.value = data.description;
             descCell.appendChild(descInput);
-            descCell.className = 'align-middle text-center';
+            descCell.className = 'align-middle text-center text-break';
             row.appendChild(descCell);
 
             // Date cell
@@ -511,11 +430,13 @@
         });
 
         function ${commandPrefix}resetSpecialHourForm() {
-            $('#specialDescription').val('');
-            $('#specialClosedCheckbox').prop('checked', false);
-            $('#specialDate').val('');
-            $('#specialStartTime').val('');
-            $('#specialEndTime').val('');
+            let prefix = "#${commandPrefix}-";
+
+            $(prefix + 'specialDescription').val('');
+            $(prefix + 'specialClosedCheckbox').prop('checked', false);
+            $(prefix + 'specialDate').val('');
+            $(prefix + 'specialStartTime').val('');
+            $(prefix + 'specialEndTime').val('');
         }
 
         function ${commandPrefix}deleteSpecialHour(index, targetCommandPrefix) {
@@ -571,8 +492,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            ${commandPrefix}setupAllTimeInputs();
-
             const rows = document.querySelectorAll('#' + commandPrefix + '-special-hours-tbl tbody tr');
             rows.forEach((row, index) => {
                 row.setAttribute('data-index', index);
