@@ -244,6 +244,7 @@ class TransactionController {
                     def amount = -item.totalSavings
 
                     postDiscountsTotal -= item.totalSavings
+                    discountableAmount -= item.totalSavings
 
                     promotionItems.add([description: description, amount: amount])
                 }
@@ -258,6 +259,7 @@ class TransactionController {
                     if (item.total) {
                         amount = -item.total
                         postDiscountsTotal -= item.total
+                        discountableAmount -= item.total
                     } else if (item.discountPercentage) { // calculate the amount the discount card will yield.
                         BigDecimal percentage = new BigDecimal(item.discountPercentage).divide(new BigDecimal(100))
                         def discountAmount = discountableAmount * percentage
