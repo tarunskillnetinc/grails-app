@@ -259,7 +259,7 @@ class StoreController {
 
             store.setOpeningHours(storeService.getOpeningHoursAsObject(newStoreCommand.storeOpeningHoursCommand))
             store.setLicencing(storeService.getAlcoholLicensingCommandAsObject(newStoreCommand.alcoholLicensingCommand))
-            store.setStoreRestrictions(storeService.getStoreRestrictionsCommandAsObject(newStoreCommand?.storeRestrictions))
+            store.storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(newStoreCommand?.storeRestrictions))
 
             storeService.saveStore(store)
 

@@ -355,14 +355,6 @@ class StoreService extends MySqlDal {
         return storeRestrictionsCommand
     }
 
-    private EnableHoursCommand getEnableHoursCommand(String day, EnableHours enableHours){
-        if (enableHours != null) {
-            return enableHours
-        } else {
-            new EnableHoursCommand(day: day, timeFrom: '', timeTo: '', restrictionEnabled: false)
-        }
-    }
-
     private void addOpeningTimeToCmd(List<OpeningTimeCommand> regularHours, String day, OpeningTime openingTime) {
         OpeningTimeCommand command = new OpeningTimeCommand()
         command.setDay(day)
