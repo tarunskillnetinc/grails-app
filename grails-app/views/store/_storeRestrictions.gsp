@@ -2,7 +2,7 @@
 <div class="store-opening-hours">
     <!-- First row with first table -->
     <div class="row mb-5">
-        <div class="col-5">
+        <div class="col-6">
             <h5 class="mb-4">Delivery Restrictions</h5>
 
             <div class="table-responsive">
@@ -235,6 +235,30 @@
         padding: 0;
         line-height: 1;
         vertical-align: middle;
+    }
+
+    .store-opening-hours .row.mb-5 .col-5 {
+        width: 66.66667%; /* col-8 equivalent */
+        max-width: 66.66667%;
+        flex: 0 0 66.66667%;
+    }
+
+    /* Restore original col-5 size on larger screens */
+    @media (min-width: 992px) {
+        .store-opening-hours .row.mb-5 .col-5 {
+            width: 41.66667%; /* col-5 equivalent */
+            max-width: 41.66667%;
+            flex: 0 0 41.66667%;
+        }
+    }
+
+    /* Additional responsive improvements */
+    @media (max-width: 767px) {
+        .store-opening-hours .row.mb-5 .col-5 {
+            width: 100%; /* Full width on very small screens */
+            max-width: 100%;
+            flex: 0 0 100%;
+        }
     }
 </style>
 
