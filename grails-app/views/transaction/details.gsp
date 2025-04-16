@@ -52,8 +52,8 @@
 
 #transaction-details-table .col-3 { /* Make it 15 columns wide */
     font-size: 14px;
-    max-width: 13.33332%;
-    flex: 0 0 13.33332%;
+    max-width: 18.43332%;
+    flex: 0 0 18.43332%;
 }
 
 #transaction-details-table .col-05 { /* Half a column */
@@ -267,8 +267,6 @@
 
                             <div class="col-05 font-weight-bold ">Age<br/>Check</div>
 
-                            <div class="col-1 font-weight-bold">Reason<br/>Code</div>
-
                             <div class="col-05 font-weight-bold">RTC</div>
 
                             <div class="col-1 font-weight-bold">Promo<br/>Type</div>
@@ -343,10 +341,6 @@
 
                                     <div id="ageverification-id-${line + 1}" class="col-05 my-auto">
                                         ${basketItem.ageVerification ?: "-"}
-                                    </div>
-
-                                    <div id="returnreason-id-${line + 1}" class="col-1 my-auto overridewrap">
-                                        ${basketItem.returnReason}
                                     </div>
 
                                     <div id="rtc-id-${line + 1}" class="col-05 my-auto">
