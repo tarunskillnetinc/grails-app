@@ -109,15 +109,6 @@
                 }
             });
 
-            // Link the two datetime pickers
-            $("#startDateTimePickerDiv").on("change.datetimepicker", function (e) {
-                $('#endDateTimePickerDiv').datetimepicker('minDate', e.date);
-            });
-
-            $("#endDateTimePickerDiv").on("change.datetimepicker", function (e) {
-                $('#startDateTimePickerDiv').datetimepicker('maxDate', e.date);
-            });
-
             // Prevent datetime picker from closing the collapse
             $('.datetimepicker-input, .bootstrap-datetimepicker-widget').on('click mousedown', function(e) {
                 e.stopPropagation();
