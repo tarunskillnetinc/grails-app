@@ -90,7 +90,7 @@
                 </g:if>
             </div>
             <div class="amenity-actions">
-                <a href="#" class="btn btn-sm btn-wl mr-2" style="min-width: 80px; font-size: 0.9rem;" onclick="addStoreAdditionalDetail('${counter}', '${storeAmenity?.amenity?.name}', '${storeAmenity?.additionalDetail}')">Edit</a>
+                <a href="#" class="btn btn-sm btn-wl mr-2" style="min-width: 80px; font-size: 0.9rem;" onclick="editAmenities(${storeAmenity?.amenity?.id}, ${storeAmenity?.store?.id})">Edit</a>
                 <a href="#" class="btn btn-sm btn-danger" style="min-width: 80px; font-size: 0.9rem;" onclick="deleteAdditionalDetail(${counter})">Delete</a>
             </div>
         </div>

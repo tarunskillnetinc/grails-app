@@ -1,76 +1,3 @@
-<script>
-    function setupAllTimeInputs() {
-        const timeInputs = document.querySelectorAll('.time-input');
-        timeInputs.forEach((input, index) => {setupTimeInput(input);});
-    }
-
-    function setupTimeInput(input) {
-        // Remove any existing event listeners first to prevent duplicates
-        input.removeEventListener('input', handleTimeInput);
-        input.removeEventListener('blur', validateTimeFormat);
-
-        // Add the event listeners
-        input.addEventListener('input', handleTimeInput);
-        input.addEventListener('blur', validateTimeFormat);
-
-        input.readOnly = false;
-        input.disabled = false;
-    }
-
-    function handleTimeInput(e) {
-        let value = e.target.value.replace(/[^0-9]/g, '');
-
-        if (value.length > 2) {
-            let hours = parseInt(value.slice(0, 2));
-            let minutes = parseInt(value.slice(2));
-
-            hours = Math.min(hours, 23);
-            if (minutes > 59) {
-                minutes = 59;
-            }
-
-            value = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
-        }
-
-        if (value.length > 5) {
-            value = value.slice(0, 5);
-        }
-
-        e.target.value = value;
-    }
-
-    function validateTimeFormat(e) {
-        const value = e.target.value;
-        if (value && !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
-            alert('Please enter a valid time in HH:mm format');
-            e.target.value = '';
-        }
-    }
-
-    // Initial setup when DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        setupAllTimeInputs();
-    });
-
-    // For dynamically loaded content
-    function initializeTimeInputs() {
-        setTimeout(function() {
-            setupAllTimeInputs();
-        }, 300); // Increased delay to ensure DOM is updated
-    }
-
-    // Call this function after loading the modal content
-    $(document).ready(function () {
-        // Setup any initial time inputs
-        setupAllTimeInputs();
-
-        // Monitor for modal shown events
-        $(document).on('shown.bs.modal', function() {
-            initializeTimeInputs();
-        });
-    });
-</script>
-
 <section id="modal-header">
     <div class="modal-header">
         <h2 id="page-title" class="mx-auto my-auto">Add Amenities</h2>
@@ -81,6 +8,9 @@
 
 <section id="modal-form">
     <g:form name="addListItemForm">
+        <g:hiddenField id="amenityId" name="amenityId" value="${selectedAmenity?.amenity?.id}"/>
+        <g:hiddenField id="storeId" name="storeId" value="${selectedAmenity?.store?.id}"/>
+
         <section id="additional-details-errors-container" class="container-fluid"></section>
 
         <!-- First row: Description and Quantity -->
@@ -90,7 +20,7 @@
                 <div class="form-group row">
                     <label for="addStoreAdditionalDetailDescription" class="col-4 col-form-label text-right" style="text-align: right; padding-right: 15px;">Description</label>
                     <div class="col-8">
-                        <g:field type="text" id="addStoreAdditionalDetailDescription" name="addStoreAdditionalDetailDescription" class="form-control select-border" max="9999" maxlength="4" value="${description}"/>
+                        <g:field type="text" id="addStoreAdditionalDetailDescription" name="addStoreAdditionalDetailDescription" class="form-control select-border" max="9999" maxlength="4" value="${selectedAmenity?.additionalDetail}"/>
                     </div>
                 </div>
             </div>
@@ -100,7 +30,7 @@
                 <div class="form-group row">
                     <label id="value" for="addStoreAdditionalDetailValue" class="col-3 col-form-label text-right pr-4">Quantity</label>
                     <div class="col-8">
-                        <g:field id="addStoreAdditionalDetailValue" name="addStoreAdditionalDetailValue" class="form-control select-border" maxlength="240" value="${value}" />
+                        <g:field id="addStoreAdditionalDetailValue" name="addStoreAdditionalDetailValue" class="form-control select-border" maxlength="240" value="${selectedAmenity?.count}" />
                     </div>
                 </div>
             </div>
@@ -127,17 +57,19 @@
 
                                 <!-- Start Time -->
                                 <div style="grid-column: 3;">
-                                    <g:textField name="openingTime[${i}].startTime" value="${openingTime.startTime}" class="form-control form-control-sm time-input" placeholder="HH:mm"/>
+                                    <g:field type="time" name="openingTime[${i}].startTime" id="openingTime[${i}].startTime" value="${openingTime.startTime}"
+                                             class="form-control form-control-sm time-input" placeholder="HH:mm"/>
                                 </div>
 
                                 <!-- "to" label -->
-                                <div style="grid-column: 4; display: flex; align-items: center; justify-content: center;">
+                                <div>
                                     <span>to</span>
                                 </div>
 
                                 <!-- End Time -->
                                 <div style="grid-column: 5;">
-                                    <g:textField name="openingTime[${i}].endTime" value="${openingTime.endTime}" class="form-control form-control-sm time-input" placeholder="HH:mm"/>
+                                    <g:field type="time" name="openingTime[${i}].endTime" id="openingTime[${i}].endTime" value="${openingTime.endTime}"
+                                             class="form-control form-control-sm time-input" placeholder="HH:mm"/>
                                 </div>
                             </g:each>
                         </div>

@@ -144,13 +144,21 @@ function saveOtherRestrictions() {
         const row = $(this);
         const isEnabled = row.find("input[name^='storeRestrictions.regularHours'][name$='.restrictionEnabled']").is(':checked');
         const day = row.find("td:nth-child(2)").text().trim();
-        const timeFrom = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeFrom']").val();
-        const timeTo = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeTo']").val();
-
         params[`regularHours[${loopIndex}].restrictionEnabled`] = isEnabled;
         params[`regularHours[${loopIndex}].day`] = day;
-        params[`regularHours[${loopIndex}].timeFrom`] = timeFrom;
-        params[`regularHours[${loopIndex}].timeTo`] = timeTo;
+
+        if (isEnabled) {
+            // Only get and set time values if enabled
+            const timeFrom = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeFrom']").val();
+            const timeTo = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeTo']").val();
+            params[`regularHours[${loopIndex}].timeFrom`] = timeFrom;
+            params[`regularHours[${loopIndex}].timeTo`] = timeTo;
+        } else {
+            // Explicitly set to empty string or null depending on what your backend expects
+            params[`regularHours[${loopIndex}].timeFrom`] = ""; // or null
+            params[`regularHours[${loopIndex}].timeTo`] = ""; // or null
+        }
+
     });
 
     // Add existing other restrictions to params
@@ -207,19 +215,24 @@ function deleteOtherRestriction(index) {
                 const row = $(this);
                 const isEnabled = row.find("input[name^='storeRestrictions.regularHours'][name$='.restrictionEnabled']").is(':checked');
                 const day = row.find("td:nth-child(2)").text().trim();
-                const timeFrom = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeFrom']").val();
-                const timeTo = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeTo']").val();
-
                 params[`regularHours[${loopIndex}].restrictionEnabled`] = isEnabled;
                 params[`regularHours[${loopIndex}].day`] = day;
-                params[`regularHours[${loopIndex}].timeFrom`] = timeFrom;
-                params[`regularHours[${loopIndex}].timeTo`] = timeTo;
+                if (isEnabled) {
+                    // Only get and set time values if enabled
+                    const timeFrom = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeFrom']").val();
+                    const timeTo = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeTo']").val();
+                    params[`regularHours[${loopIndex}].timeFrom`] = timeFrom;
+                    params[`regularHours[${loopIndex}].timeTo`] = timeTo;
+                } else {
+                    // Explicitly set to empty string or null depending on what your backend expects
+                    params[`regularHours[${loopIndex}].timeFrom`] = ""; // or null
+                    params[`regularHours[${loopIndex}].timeTo`] = ""; // or null
+                }
             });
 
 
             // Add existing other restrictions to params
             $("#other-restrictions-special-days-tbl tbody tr").each(function(loopIndex) {
-                console.log(index)
                 const row = $(this);
                 const existingDescription = row.find("input[name$='.description']").val();
                 const existingStartDateTime = row.find("input[name$='.startDateTime']").val() || row.find("input[name$='.date']").val();
@@ -339,27 +352,22 @@ function safelyCloseModal(modalId) {
     });
 }
 
-// function addAmenities(index, description, value) {
-//     var selectedAmenityId = $("#amenitiesSelector").val();
-//     // Only proceed if an amenity is selected
-//     if (!selectedAmenityId || selectedAmenityId === '') {
-//         alert("Please select an amenity first");
-//         return;
-//     }
-//     $("#addAmenitiesContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-//     $('#addAmenitiesModal').modal({show: true, backdrop: 'static', keyboard: false});
-//     var params = {
-//         amenityId: selectedAmenityId  // Add the selected amenity ID to the params
-//     }
-//     $.ajax({
-//         url: addAmenity,
-//         method: "GET",
-//         data: params,
-//         success: function (resp) {
-//             $("#addAmenitiesContent").html(resp);
-//         }
-//     });
-// }
+function editAmenities(amenityId, storeId) {
+    $("#addAmenitiesContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#addAmenitiesModal').modal({show: true, backdrop: 'static', keyboard: false});
+    var params = {
+        amenityId: amenityId,
+        storeId: storeId
+    }
+    $.ajax({
+        url: addAmenity,
+        method: "GET",
+        data: params,
+        success: function (resp) {
+            $("#addAmenitiesContent").html(resp);
+        }
+    });
+}
 
 function addAmenities(index, description, value) {
     const selectedCheckboxes = $('input[name="amenities"]:checked');

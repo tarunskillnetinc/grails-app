@@ -156,22 +156,6 @@
         <g:render template="storeConfig" model='${pageScope}'/>
     </g:else>
 
-    <section id="addStoreAdditionalDetails-modal" class="container-fluid">
-        <div class="modal fade" id="addStoreAdditionalDetailsModal" tabindex="-1" role="dialog" aria-labelledby="addStoreAdditionalDetailsModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-                <div id="addStoreAdditionalDetailsContent" class="modal-content"></div>
-            </div>
-        </div>
-    </section>
-
-    <section id="addStoreOtherRestriction-modal" class="container-fluid">
-        <div class="modal fade" id="addStoreOtherRestrictionModal" tabindex="-1" role="dialog" aria-labelledby="addStoreOtherRestrictionLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-                <div id="addStoreOtherRestrictionContent" class="modal-content"></div>
-            </div>
-        </div>
-    </section>
-
     <section id="addAmenities-modal" class="container-fluid">
         <div class="modal fade" id="addAmenitiesModal" tabindex="-1" role="dialog" aria-labelledby="addAmenitiesModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl" role="document">

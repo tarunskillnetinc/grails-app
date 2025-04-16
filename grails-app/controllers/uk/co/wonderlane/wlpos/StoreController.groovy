@@ -189,10 +189,11 @@ class StoreController {
          storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList()),
          storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours()),
          alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing()),
-         storeRestrictions           : storeService.convertToStoreRestrictionCommand(store?.getStoreRestrictedHours())
-        ]
+         storeRestrictions           : storeService.convertToStoreRestrictionCommand(store?.getStoreRestrictedHours()),
          amenities                   : storeService.getAmenitiesList(springSecurityService.principal.retailerId),
          storeAmenities              : storeService.getStoreAmenitiesList(store?.id)
+        ]
+
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -430,9 +431,9 @@ class StoreController {
                 new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
         ]
         Integer amenityId = params.amenityId != null ? Integer.parseInt(params.amenityId) : -1
-        Amenity selectedAmenity = Amenity.findById(amenityId)
-        render(template: "addStoreAmenity", model: [initialRegularHours: initialRegularHours,
-                                                    selectedAmenity: selectedAmenity])
+        Integer storeId = params.storeId != null ? Integer.parseInt(params.storeId) : -1
+        StoreAmenity selectedStoreAmenity = storeService.findByAmenityAndStore(amenityId, storeId)
+        render(template: "addStoreAmenity", model: [initialRegularHours: initialRegularHours, selectedAmenity: selectedStoreAmenity])
     }
 
     def ajaxAddStoreAmenity(StoreAmenitiesCommand storeAmenitiesCommand){
@@ -824,8 +825,8 @@ class AmenityCommand {
 
 class StoreAmenitiesCommand {
     String additionalDetails
-    String count
-    OpeningTimeCommand availability
+    int count
+    EnableHoursCommand availability
     AmenityCommand amenity
 }
 

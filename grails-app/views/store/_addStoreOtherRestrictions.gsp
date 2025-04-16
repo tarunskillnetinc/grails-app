@@ -13,23 +13,27 @@
 
         <section id="other-restrictions-errors-container" class="container-fluid"></section>
 
-        <div class="row form-group mb-3 mt-4">
+        <!-- Description field (centralized) -->
+        <div class="row form-group mb-5 mt-4">
             <g:hiddenField name="otherRestrictionIndex" value="${index}" />
 
-            <div class="col-6">
-                <div class="row">
-                    <label for="otherRestrictionDescription" class="col-5 col-form-label text-right">Description</label>
-                    <div class="col-7">
+            <div class="col-8 mx-auto">
+                <div class="row mr-3">
+                    <label for="otherRestrictionDescription" class="col-4 col-form-label text-right">Description</label>
+                    <div class="col-8">
                         <g:field type="text" id="otherRestrictionDescription" name="otherRestrictionDescription" class="form-control select-border" maxlength="60" value="${description}"/>
                     </div>
                 </div>
             </div>
+        </div>
 
+        <!-- Start date & time and End date & time fields (on same line) -->
+        <div class="row form-group mb-4 mt-4">
             <!-- Start date & time field -->
             <div class="col-6">
-                <div class="row mr-4">
-                    <label for="startDateTimePicker" class="col-5 col-form-label text-right">Start Date & Time</label>
-                    <div class="col-7">
+                <div class="row">
+                    <label for="startDateTimePicker" class="col-4 col-form-label text-right">Start Date & Time</label>
+                    <div class="col-8">
                         <div class="input-group date" id="startDateTimePickerDiv" data-target-input="nearest">
                             <input type="text" id="startDateTimePicker" name="startDateTimePicker"
                                    class="form-control datetimepicker-input bottom-border"
@@ -38,15 +42,12 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Second row for End date & time -->
-        <div class="row form-group mb-4">
             <!-- End date & time field -->
-            <div class="col-6  mt-3">
-                <div class="row">
-                    <label for="endDateTimePicker" class="col-5 col-form-label text-right">End Date & Time</label>
-                    <div class="col-7">
+            <div class="col-6">
+                <div class="row mr-3">
+                    <label for="endDateTimePicker" class="col-4 col-form-label text-right">End Date & Time</label>
+                    <div class="col-8">
                         <div class="input-group date" id="endDateTimePickerDiv" data-target-input="nearest">
                             <input type="text" id="endDateTimePicker" name="endDateTimePicker"
                                    class="form-control datetimepicker-input bottom-border"

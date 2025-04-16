@@ -96,6 +96,14 @@
     </div>
 </div>
 
+<section id="addStoreOtherRestriction-modal" class="container-fluid">
+    <div class="modal fade" id="addStoreOtherRestrictionModal" tabindex="-1" role="dialog" aria-labelledby="addStoreOtherRestrictionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div id="addStoreOtherRestrictionContent" class="modal-content"></div>
+        </div>
+    </div>
+</section>
+
 <style>
     .store-opening-hours h5 {
         font-size: 1.1rem;
