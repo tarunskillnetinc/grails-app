@@ -463,8 +463,13 @@ class StoreService extends MySqlDal {
         EnableHours enableHours = new EnableHours()
         if (enableHoursCommand != null) {
             DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm")
-            enableHours.timeFrom = enableHoursCommand.timeFrom ? formatter.parseLocalTime(enableHoursCommand.timeFrom) : null
-            enableHours.timeTo = enableHoursCommand.timeTo ? formatter.parseLocalTime(enableHoursCommand.timeTo) : null
+            if (enableHoursCommand.restrictionEnabled) {
+                enableHours.timeFrom = enableHoursCommand.timeFrom ? formatter.parseLocalTime(enableHoursCommand.timeFrom) : null
+                enableHours.timeTo = enableHoursCommand.timeTo ? formatter.parseLocalTime(enableHoursCommand.timeTo) : null
+            } else {
+                enableHours.timeFrom = null
+                enableHours.timeTo = null
+            }
             enableHours.restrictionEnabled = enableHoursCommand.restrictionEnabled
         }
         return enableHours

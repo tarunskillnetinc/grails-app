@@ -144,13 +144,21 @@ function saveOtherRestrictions() {
         const row = $(this);
         const isEnabled = row.find("input[name^='storeRestrictions.regularHours'][name$='.restrictionEnabled']").is(':checked');
         const day = row.find("td:nth-child(2)").text().trim();
-        const timeFrom = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeFrom']").val();
-        const timeTo = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeTo']").val();
-
         params[`regularHours[${loopIndex}].restrictionEnabled`] = isEnabled;
         params[`regularHours[${loopIndex}].day`] = day;
-        params[`regularHours[${loopIndex}].timeFrom`] = timeFrom;
-        params[`regularHours[${loopIndex}].timeTo`] = timeTo;
+
+        if (isEnabled) {
+            // Only get and set time values if enabled
+            const timeFrom = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeFrom']").val();
+            const timeTo = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeTo']").val();
+            params[`regularHours[${loopIndex}].timeFrom`] = timeFrom;
+            params[`regularHours[${loopIndex}].timeTo`] = timeTo;
+        } else {
+            // Explicitly set to empty string or null depending on what your backend expects
+            params[`regularHours[${loopIndex}].timeFrom`] = ""; // or null
+            params[`regularHours[${loopIndex}].timeTo`] = ""; // or null
+        }
+
     });
 
     // Add existing other restrictions to params
@@ -207,19 +215,24 @@ function deleteOtherRestriction(index) {
                 const row = $(this);
                 const isEnabled = row.find("input[name^='storeRestrictions.regularHours'][name$='.restrictionEnabled']").is(':checked');
                 const day = row.find("td:nth-child(2)").text().trim();
-                const timeFrom = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeFrom']").val();
-                const timeTo = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeTo']").val();
-
                 params[`regularHours[${loopIndex}].restrictionEnabled`] = isEnabled;
                 params[`regularHours[${loopIndex}].day`] = day;
-                params[`regularHours[${loopIndex}].timeFrom`] = timeFrom;
-                params[`regularHours[${loopIndex}].timeTo`] = timeTo;
+                if (isEnabled) {
+                    // Only get and set time values if enabled
+                    const timeFrom = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeFrom']").val();
+                    const timeTo = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeTo']").val();
+                    params[`regularHours[${loopIndex}].timeFrom`] = timeFrom;
+                    params[`regularHours[${loopIndex}].timeTo`] = timeTo;
+                } else {
+                    // Explicitly set to empty string or null depending on what your backend expects
+                    params[`regularHours[${loopIndex}].timeFrom`] = ""; // or null
+                    params[`regularHours[${loopIndex}].timeTo`] = ""; // or null
+                }
             });
 
 
             // Add existing other restrictions to params
             $("#other-restrictions-special-days-tbl tbody tr").each(function(loopIndex) {
-                console.log(index)
                 const row = $(this);
                 const existingDescription = row.find("input[name$='.description']").val();
                 const existingStartDateTime = row.find("input[name$='.startDateTime']").val() || row.find("input[name$='.date']").val();
