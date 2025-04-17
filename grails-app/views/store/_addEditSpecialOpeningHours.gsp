@@ -4,7 +4,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"
-                        id="${commandPrefix}-specialHoursModalLabel">${specialOpeningHour ? 'Edit' : 'Add'} Special Store Opening / Closing</h5>
+                        id="${commandPrefix}-specialHoursModalLabel">${specialOpeningHour ? 'Edit' : 'Add'} ${title}</h5>
                 </div>
                 <div class="modal-body">
                     <section id="${commandPrefix}-specialOpeningHours-errors-container" class="container-fluid"
