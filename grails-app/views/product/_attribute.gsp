@@ -5,3 +5,4 @@
 <g:hiddenField name="variants[${variantIndex}].attributez[${attributeIndex}].productAttributeId" value="${attribute?.productAttributeId}" />
 <g:hiddenField name="variants[${variantIndex}].attributez[${attributeIndex}].attributeName" value="${attribute?.attributeName}" />
 <g:hiddenField name="variants[${variantIndex}].attributez[${attributeIndex}].attributeType" value="${attribute?.attributeType}" />
+<g:hiddenField name="variants[${variantIndex}].attributez[${attributeIndex}].listValues" value="${attribute?.listValues}" />

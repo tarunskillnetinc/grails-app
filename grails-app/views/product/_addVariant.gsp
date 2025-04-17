@@ -202,8 +202,9 @@
             </div>
         </div>
 
+        <g:hiddenField name="productInformationAttributeCount" value="${variant?.attributez?.size() ?: 0}" />
         <g:if test="${variant?.attributez?.size() > 0}">
-            <div id="ProductInformationContainer">
+            <div id="addProductInformationContainer">
                 <g:render template="productInformation" model="[attributeValues: variant?.attributez]" />
             </div>
         </g:if>

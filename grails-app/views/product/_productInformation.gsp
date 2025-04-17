@@ -106,6 +106,7 @@
             <g:hiddenField id="productAttributeValues[${index}].productAttributeId" name="productAttributeValues[${index}].productAttributeId" value="${attributeValue?.productAttributeId }" />
             <g:hiddenField id="productAttributeValues[${index}].attributeName" name="productAttributeValues[${index}].attributeName" value="${attributeValue?.attributeName }" />
             <g:hiddenField id="productAttributeValues[${index}].attributeType" name="productAttributeValues[${index}].attributeType" value="${attributeValue?.attributeType }" />
+            <g:hiddenField id="productAttributeValues[${index}].listValues" name="productAttributeValues[${index}].listValues" value="${attributeValue?.listValues }" />
 
             <g:if test="${attributeValue?.attributeType != uk.co.wonderlane.wlpos.enums.ProductAttributeType.BOOLEAN}">
                 <div class="col-12 pb-2 pl-0 my-auto font-weight-bold" id="attribute_label_${attributeValue?.productAttributeId}">
@@ -116,7 +117,7 @@
             <g:if test="${attributeValue?.attributeType == uk.co.wonderlane.wlpos.enums.ProductAttributeType.LIST}">
                 <g:select id="productAttributeValues[${index}].value"
                           name="productAttributeValues[${index}].value"
-                          from="${attributeValue?.listValues?.sort { it.toLowerCase() }}"
+                          from="${attributeValue?.listValues?.split(",").sort { it.toLowerCase() }}"
                           noSelection="['': '']"
                           value="${attributeValue?.value ?: ''}"
                           class="col-12 form-control select-border"

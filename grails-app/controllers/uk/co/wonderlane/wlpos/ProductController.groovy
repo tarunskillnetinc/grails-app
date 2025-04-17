@@ -701,7 +701,6 @@ class ProductController extends BaseController {
                 return product
             }
 
-            // todo timmy here?
             productService.saveUpdatedProductAttributeValues(product, editedProduct, builder, effectiveDate)
             if (product.hasErrors()) {
                 return product
@@ -840,8 +839,9 @@ class ProductController extends BaseController {
             def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
             def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
-            List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product ?: null)
-// todo timmy here
+
+            // todo timmy here... losing attibutes here
+
             render(view: "add", model: [product            : product,
                                         skuList            : skuList(product),
                                         storeId            : springSecurityService.principal.storeId,
@@ -1763,7 +1763,11 @@ class ProductController extends BaseController {
             wacValue = WeightedAverageCostPriceUtil.calculateRetailerWacForSku(productService.getAllProductVariantsForSku(cmd.sku))
         }
 
-// todo timmy here
+        if (isNewVariant) {
+            List<ProductAttributeValuesCommand> attributeValues = productService.getDefaultAttributeValues(null, 0)
+            cmd.attributez = attributeValues
+        }
+
         render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, wacValue: wacValue?:BigDecimal.ZERO, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant, unitsOfMeasure: unitsOfMeasure])
     }
 
@@ -1771,9 +1775,9 @@ class ProductController extends BaseController {
         render(template: "addBarcode", model: [index: index, selector: selector])
     }
 
-    // todo timmy here?
     def ajaxSaveVariant(AddVariantCommand cmd) {
         def storeId = springSecurityService.principal.storeId
+
 
         render(template: "variant", model: [index: cmd.index, variant: cmd, barcodes: cmd.barcodez, attributes: cmd.attributez, storeId: storeId])
     }

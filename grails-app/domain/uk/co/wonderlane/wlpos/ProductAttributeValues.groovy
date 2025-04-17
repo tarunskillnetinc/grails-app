@@ -15,8 +15,9 @@ class ProductAttributeValues implements Serializable {
     ProductAttributes productAttributes
     String attributeName
     ProductAttributeType attributeType
+    String listValues
 
-    static transients = ['productAttributes', 'attributeName', 'attributeType']
+    static transients = ['productAttributes', 'attributeName', 'attributeType', 'listValues']
 
     static mapping = {
         autowire true
@@ -83,5 +84,6 @@ class ProductAttributeValues implements Serializable {
         productAttributes bindable: true
         attributeName bindable: true
         attributeType bindable: true
+        listValues bindable: true
     }
 }

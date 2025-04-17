@@ -979,7 +979,8 @@ class ProductService extends MySqlDal {
                     value: it?.defaultValue, // Use defaultValue if available
                     productAttributes: it,
                     attributeName: it?.name,
-                    attributeType: it?.type
+                    attributeType: it?.type,
+                    listValues: it?.listValues
             )
             values << defaultEntry
         }
@@ -1008,6 +1009,7 @@ class ProductService extends MySqlDal {
                         value.productAttributes = attribute
                         value.attributeName = attribute.name
                         value.attributeType = attribute.type
+                        value.listValues = attribute.listValues
                         skuAttributeMap.put(value.productAttributeId, value)
                     }
                 }
@@ -1027,7 +1029,8 @@ class ProductService extends MySqlDal {
                             value: attributeEntry.value?.defaultValue, // Use defaultValue if available
                             productAttributes: attributeEntry.value,
                             attributeName: attributeEntry.value?.name,
-                            attributeType: attributeEntry.value?.type
+                            attributeType: attributeEntry.value?.type,
+                            listValues: attributeEntry.value?.listValues
                     )
                     skuEntry.getValue().put(attributeEntry.key, defaultValue)
                 }
@@ -1047,6 +1050,10 @@ class ProductService extends MySqlDal {
         int retailerId = springSecurityService.principal.retailerId
         Integer storeId = springSecurityService.principal.storeId
 
+        if (builder == null){
+            builder = new ProductHistoryBuilder(product.id, springSecurityService, effectiveDate)
+        }
+
         // todo timmy here - validations would be better done when updating the SKU if possible
         editedProduct.getVariants().each { variant ->
             variant.attributez?.each { attribute ->
@@ -1056,18 +1063,21 @@ class ProductService extends MySqlDal {
                 }
                 if (existingAttribute) {
                     if (existingAttribute.value != attribute.value) {
-                        // todo timmy here, do history!
                         existingAttribute.value = attribute.value
                         existingAttribute.save()
+                        builder.compare(variant.id, attribute.attributeName,
+                                existingAttribute.value, attribute.value,
+                                ProductHistoryType.PRODUCT_ATTRIBUTE)
                     }
                 } else {
                     new ProductAttributeValues(
                             retailerId: retailerId,
                             storeId: storeId,
-                            sku: attribute.sku,
+                            product: product,
+                            sku: variant.sku,
                             productAttributeId: attribute.productAttributeId,
                             value: attribute.value,
-                            product: product
+                            listValues: attribute.listValues
                     ).save()
                 }
             }

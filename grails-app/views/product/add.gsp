@@ -273,7 +273,6 @@
 
                     params["stockManagementType"] = $(selector + "stockManagementType").val();
 
-                    // todo timmy here here - do what barcodes is doing
                     var attributesContainers = $($(selector + "attributesContainer > div"));
                     attributesContainers.each(function(loopIndex) {
                         var attributeIndex = parseInt($(this).attr("id").substring(19));
@@ -284,6 +283,7 @@
                         params["attributez[" + loopIndex + "].productAttributeId"] = $(selector + "attributez\\[" + attributeIndex + "\\]\\.productAttributeId").val();
                         params["attributez[" + loopIndex + "].attributeName"] = $(selector + "attributez\\[" + attributeIndex + "\\]\\.attributeName").val();
                         params["attributez[" + loopIndex + "].attributeType"] = $(selector + "attributez\\[" + attributeIndex + "\\]\\.attributeType").val();
+                        params["attributez[" + loopIndex + "].listValues"] = $(selector + "attributez\\[" + attributeIndex + "\\]\\.listValues").val();
                     });
 
                     var barcodeContainers = $($(selector + "barcodesContainer > div"));
@@ -445,20 +445,18 @@
                     params["locationz[" +loopIndex +"].locationHierarchy"] = $(locationSelector +"\\.locationHierarchy").val();
                 });
 
-                var attributesContainers = $("#variants\\[" +index +"\\]\\.attributesContainer > div");
-                attributesContainers.each(function(loopIndex) {
-                    var attributeIndex = $(this).attr("id").substring(19);
-                    var attributeValue = $("#productAttributeValues\\[" + loopIndex +"\\]\\.value").val()
-                    var attributeSelector = "#variants\\[" +index +"\\]\\.attributez\\[" +attributeIndex +"\\]";
-
+                var totalAttributes = $("#productInformationAttributeCount").val()
+                for (let loopIndex = 0; loopIndex <= totalAttributes; loopIndex = loopIndex + 1) {
+                    var attributeSelector = "#productAttributeValues\\[" + loopIndex + "\\]";
                     params["attributez[" + loopIndex + "].id"] = $(attributeSelector +"\\.id").val();
                     params["attributez[" + loopIndex + "].sku"] = $(attributeSelector +"\\.sku").val();
                     params["attributez[" + loopIndex + "].storeId"] = $(attributeSelector +"\\.storeId").val();
-                    params["attributez[" + loopIndex + "].value"] = attributeValue;
+                    params["attributez[" + loopIndex + "].value"] = $(attributeSelector +"\\.value").val();
                     params["attributez[" + loopIndex + "].productAttributeId"] = $(attributeSelector +"\\.productAttributeId").val();
                     params["attributez[" + loopIndex + "].attributeName"] = $(attributeSelector +"\\.attributeName").val();
                     params["attributez[" + loopIndex + "].attributeType"] = $(attributeSelector +"\\.attributeType").val();
-                });
+                    params["attributez[" + loopIndex + "].listValues"] = $(attributeSelector +"\\.listValues").val();
+                }
 
                 /* Add sku to the preferred dropdown */
                 updateSkuDropdown(sku);
