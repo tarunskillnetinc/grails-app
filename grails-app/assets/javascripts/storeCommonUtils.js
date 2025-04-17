@@ -400,7 +400,7 @@ function closeStoreAmenityAddModal(){
     }
 }
 
-function saveAmenities(selectedIndex) {
+function saveAmenities(selectedIndex, storeId) {
     var params = {};
 
     // Select all amenity items in the container
@@ -414,10 +414,11 @@ function saveAmenities(selectedIndex) {
         params["storeAmenities[" + index + "].storeId"] = $("#storeAmenities\\[" + index + "\\]\\.storeId").val();
 
         // Additional details if present
-        var additionalDetail = $("#storeAmenities\\[" + index + "\\]\\.additionalDetails");
+        var additionalDetail = $("#storeAmenities\\[" + index + "\\]\\.additionalDetail");
         if (additionalDetail.length) {
-            params["storeAmenities[" + index + "].additionalDetails"] = additionalDetail.val();
+            params["storeAmenities[" + index + "].additionalDetail"] = additionalDetail.val();
         }
+
 
         // Count if present
         var count = $("#storeAmenities\\[" + index + "\\]\\.count");
@@ -427,13 +428,17 @@ function saveAmenities(selectedIndex) {
 
         // Availability hours
         var j = 0;
-        var day = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.day");
-        while (day.length) {
-            params["storeAmenities["  + index + "].availability[" + j + "].day"] = $("#storeAmenities\\[" + i + "\\]\\.availability\\[" + j + "\\]\\.day").val();
-            params["storeAmenities["  + index + "].availability[" + j + "].timeFrom"] = $("#storeAmenities\\[" + i + "\\]\\.availability\\[" + j + "\\]\\.timeFrom").val();
-            params["storeAmenities["  + index + "].availability[" + j + "].timeTo"] = $("#storeAmenities\\[" + i + "\\]\\.availability\\[" + j + "\\]\\.timeTo").val();
-            params["storeAmenities["  + index + "].availability[" + j + "].restrictionEnabled"] = $("#storeAmenities\\[" + i + "\\]\\.availability\\[" + j + "\\]\\.restrictionEnabled").val();
+        var daySelector = "#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.day";
+        var dayElement = $(daySelector);
+
+        while (dayElement.length > 0) {
+            params["storeAmenities[" + index + "].availability[" + j + "].day"] = dayElement.val();
+            params["storeAmenities[" + index + "].availability[" + j + "].timeFrom"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.timeFrom").val();
+            params["storeAmenities[" + index + "].availability[" + j + "].timeTo"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.timeTo").val();
+            params["storeAmenities[" + index + "].availability[" + j + "].restrictionEnabled"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.restrictionEnabled").val();
             j++;
+            daySelector = "#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.day";
+            dayElement = $(daySelector);
         }
     });
 
@@ -459,6 +464,14 @@ function saveAmenities(selectedIndex) {
             params["storeAmenities[" + selectedIndex + "].availability[" + i + "].restrictionEnabled"] = restrictionEnabled;
         });
     }
+
+    const selectedCheckboxes = $('input[name="amenities"]:checked');
+    selectedCheckboxes.each(function(idIndex) {
+        const id = $(this).val();
+        params["selectedAmenityIds[" + idIndex + "]"] = id;
+    });
+
+    params["storeId"] = storeId
 
     $.ajax({
         url: addStoreAmenities,
@@ -503,13 +516,17 @@ function deleteStoreAmenity(index) {
 
                     // Availability hours
                     var j = 0;
-                    var day = $("#storeAmenities\\[" + loopIndex + "\\]\\.availability\\[" + j + "\\]\\.day");
-                    while (day.length) {
-                        params["storeAmenities["  + loopIndex + "].availability[" + j + "].day"] = $("#storeAmenities\\[" + i + "\\]\\.availability\\[" + j + "\\]\\.day").val();
-                        params["storeAmenities["  + loopIndex + "].availability[" + j + "].timeFrom"] = $("#storeAmenities\\[" + i + "\\]\\.availability\\[" + j + "\\]\\.timeFrom").val();
-                        params["storeAmenities["  + loopIndex + "].availability[" + j + "].timeTo"] = $("#storeAmenities\\[" + i + "\\]\\.availability\\[" + j + "\\]\\.timeTo").val();
-                        params["storeAmenities["  + loopIndex + "].availability[" + j + "].restrictionEnabled"] = $("#storeAmenities\\[" + i + "\\]\\.availability\\[" + j + "\\]\\.restrictionEnabled").val();
+                    var daySelector = "#storeAmenities\\[" + loopIndex + "\\]\\.availability\\[" + j + "\\]\\.day";
+                    var dayElement = $(daySelector);
+
+                    while (dayElement.length > 0) {
+                        params["storeAmenities[" + loopIndex + "].availability[" + j + "].day"] = dayElement.val();
+                        params["storeAmenities[" + loopIndex + "].availability[" + j + "].timeFrom"] = $("#storeAmenities\\[" + loopIndex + "\\]\\.availability\\[" + j + "\\]\\.timeFrom").val();
+                        params["storeAmenities[" + loopIndex + "].availability[" + j + "].timeTo"] = $("#storeAmenities\\[" + loopIndex + "\\]\\.availability\\[" + j + "\\]\\.timeTo").val();
+                        params["storeAmenities[" + loopIndex + "].availability[" + j + "].restrictionEnabled"] = $("#storeAmenities\\[" + loopIndex + "\\]\\.availability\\[" + j + "\\]\\.restrictionEnabled").val();
                         j++;
+                        daySelector = "#storeAmenities\\[" + loopIndex + "\\]\\.availability\\[" + j + "\\]\\.day";
+                        dayElement = $(daySelector);
                     }
                 }
             });

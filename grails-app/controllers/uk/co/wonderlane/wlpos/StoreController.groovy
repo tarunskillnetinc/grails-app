@@ -422,22 +422,16 @@ class StoreController {
     }
 
     def ajaxAddAmenities(){
-        def initialEnableHours = [
-                new EnableHoursCommand(day: 'Monday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                new EnableHoursCommand(day: 'Tuesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                new EnableHoursCommand(day: 'Wednesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                new EnableHoursCommand(day: 'Thursday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                new EnableHoursCommand(day: 'Friday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                new EnableHoursCommand(day: 'Saturday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                new EnableHoursCommand(day: 'Sunday', timeFrom: '', timeTo: '', restrictionEnabled: false)
-        ]
         Integer amenityId = params.amenityId != null ? Integer.parseInt(params.amenityId) : -1
         Integer storeId = params.storeId != null ? Integer.parseInt(params.storeId) : -1
         StoreAmenity selectedStoreAmenity = storeService.findByAmenityAndStore(amenityId, storeId)
-        render(template: "addStoreAmenity", model: [index : params?.index, storeId: storeId ,initialEnableHours: initialEnableHours, selectedAmenity: selectedStoreAmenity])
+        StoreAmenitiesCommand selectedStoreAmenityCommand = storeService.convertToStoreAmenityCommand(selectedStoreAmenity, storeId)
+        render(template: "addStoreAmenity", model: [index : params?.index, storeId: storeId ,selectedAmenity: selectedStoreAmenityCommand])
     }
 
     def ajaxAddStoreAmenity(SelectedAmenitiesCommand selectedAmenitiesCommand){
+        Integer storeId = params.storeId != null ? Integer.parseInt(params.storeId) : -1
+        storeService.updateStoreAmenityCommandForSelectedIds(selectedAmenitiesCommand, storeId)
         render(template: "storeAmenityDetails", model: [storeAmenities: selectedAmenitiesCommand?.storeAmenities])
     }
 
@@ -835,5 +829,7 @@ class StoreAmenitiesCommand {
 }
 
 class SelectedAmenitiesCommand {
-    List<StoreAmenitiesCommand> storeAmenities
+    int storeId
+    List<StoreAmenitiesCommand> storeAmenities = new ArrayList<>()
+    List<Integer> selectedAmenityIds = new ArrayList<>()
 }

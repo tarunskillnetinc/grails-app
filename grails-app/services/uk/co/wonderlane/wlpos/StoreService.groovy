@@ -408,10 +408,6 @@ class StoreService extends MySqlDal {
         return storeAmenitiesCommand
     }
 
-
-
-
-
     List<Amenity> getAmenitiesList(int retailerId){
         return Amenity.createCriteria().list {
             eq('retailerId', retailerId)
@@ -458,30 +454,56 @@ class StoreService extends MySqlDal {
         }
     }
 
+    void updateStoreAmenityCommandForSelectedIds(SelectedAmenitiesCommand selectedAmenitiesCommand, Integer storeId){
+        selectedAmenitiesCommand.selectedAmenityIds.forEach {
+            amenityId -> {
+                Amenity amenity = Amenity.get(amenityId)
+                StoreAmenitiesCommand storeAmenitiesCommand = new StoreAmenitiesCommand()
+                storeAmenitiesCommand.setAvailability(
+                        storeAmenitiesCommand.setAvailability(
+                                [
+                                        new EnableHoursCommand(day: 'Monday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                                        new EnableHoursCommand(day: 'Tuesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                                        new EnableHoursCommand(day: 'Wednesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                                        new EnableHoursCommand(day: 'Thursday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                                        new EnableHoursCommand(day: 'Friday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                                        new EnableHoursCommand(day: 'Saturday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                                        new EnableHoursCommand(day: 'Sunday', timeFrom: '', timeTo: '', restrictionEnabled: false)
+                                ]
+                        )
+                )
+                storeAmenitiesCommand.setAmenity(
+                        new AmenityCommand(
+                                id: amenity?.id,
+                                retailerId: amenity?.retailerId,
+                                name: amenity?.name
+                        )
+                )
+                storeAmenitiesCommand.storeId = storeId
+                selectedAmenitiesCommand.storeAmenities.add(storeAmenitiesCommand)
+            }
+        }
+    }
+
     private Map<String, StoreAmenitiesCommand> createStoreAmenityCommandMap(List<StoreAmenitiesCommand> storeAmenities) {
         Map<String, StoreAmenitiesCommand> result = [:]
-
         storeAmenities.each { StoreAmenitiesCommand amenity ->
             // Create a composite key using storeId and amenity.id
             String compositeKey = "${amenity?.storeId}_${amenity?.amenity?.id}"
             // Add to map with the composite key
             result[compositeKey] = amenity
         }
-
         return result
     }
 
     private Map<String, StoreAmenity> createStoreAmenityMap(List<StoreAmenity> storeAmenities) {
         Map<String, StoreAmenity> result = [:]
-
         storeAmenities.each { StoreAmenity storeAmenity ->
             // Create a composite key using store.id and amenity.id
             String compositeKey = "${storeAmenity?.store?.id}_${storeAmenity?.amenity?.id}"
-
             // Add to map with the composite key
             result[compositeKey] = storeAmenity
         }
-
         return result
     }
 

@@ -21,7 +21,7 @@
     </div>
 
     <div class="col-3 pl-0">
-        <a href="#" onclick="addSelectedAmenities()" id="add-special-opening-hours" class="btn btn-wl">Add Amenities</a>
+        <a href="#" onclick="saveAmenities(null, ${storeSettings?.id})" id="add-special-opening-hours" class="btn btn-wl">Add Amenities</a>
     </div>
 </div>
 

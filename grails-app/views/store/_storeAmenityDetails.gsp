@@ -99,7 +99,7 @@
                     <g:if test="${storeAmenity?.availability}">
                         <div class="amenity-detail"><strong>Opening Hours:</strong></div>
                         <g:each in="${storeAmenity?.availability}" var="day" status="j">
-                            <div class="hour-item">
+                            <div class="enableDays[j]">
                                 <g:if test="${day.restrictionEnabled}">
                                     ${day.day}
                                     <g:if test="${day.timeFrom}">
