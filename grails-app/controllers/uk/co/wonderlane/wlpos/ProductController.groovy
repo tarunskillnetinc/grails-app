@@ -162,11 +162,11 @@ class ProductController extends BaseController {
                                     productAttributeValuesList: productAttributeValuesList])
     }
 
-    def search() {
+    def search(boolean filterHospitalityAndNoStockSalesAllowed) {
         session.PRODUCT_SEARCH_TERM = params.searchTerm
         session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
 
-        def products = productService.searchProductsHql(params.searchTerm, params.searchBy, 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
+        def products = productService.searchProductsHql(params.searchTerm, params.searchBy, 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc", false, filterHospitalityAndNoStockSalesAllowed)
 
         render(template: "addProductSearchResults", model: [products: products.products, totalResults: products.totalCount, storeId: springSecurityService.principal.storeId])
     }
