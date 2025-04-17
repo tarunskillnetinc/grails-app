@@ -191,7 +191,7 @@ class StoreController {
          alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing()),
          storeRestrictions           : storeService.convertToStoreRestrictionCommand(store?.getStoreRestrictedHours()),
          amenities                   : storeService.getAmenitiesList(springSecurityService.principal.retailerId),
-         storeAmenities              : storeService.getStoreAmenitiesList(store?.id)
+         storeAmenities              : storeService.convertToStoreRestrictionCommands(store?.storeAmenities, store?.id)
         ]
 
     }
@@ -362,6 +362,7 @@ class StoreController {
             String storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(storeCommand?.storeRestrictions))
 
             storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours, storeLicensing, storeRestrictions)
+            storeService.saveStoreAmenities(storeCommand?.storeAmenities, store)
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
@@ -421,23 +422,23 @@ class StoreController {
     }
 
     def ajaxAddAmenities(){
-        def initialRegularHours = [
-                new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: false),
-                new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: false),
-                new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: false),
-                new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: false),
-                new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: false),
-                new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
-                new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
+        def initialEnableHours = [
+                new EnableHoursCommand(day: 'Monday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Tuesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Wednesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Thursday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Friday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Saturday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Sunday', timeFrom: '', timeTo: '', restrictionEnabled: false)
         ]
         Integer amenityId = params.amenityId != null ? Integer.parseInt(params.amenityId) : -1
         Integer storeId = params.storeId != null ? Integer.parseInt(params.storeId) : -1
         StoreAmenity selectedStoreAmenity = storeService.findByAmenityAndStore(amenityId, storeId)
-        render(template: "addStoreAmenity", model: [initialRegularHours: initialRegularHours, selectedAmenity: selectedStoreAmenity])
+        render(template: "addStoreAmenity", model: [index : params?.index, storeId: storeId ,initialEnableHours: initialEnableHours, selectedAmenity: selectedStoreAmenity])
     }
 
-    def ajaxAddStoreAmenity(StoreAmenitiesCommand storeAmenitiesCommand){
-
+    def ajaxAddStoreAmenity(SelectedAmenitiesCommand selectedAmenitiesCommand){
+        render(template: "storeAmenityDetails", model: [storeAmenities: selectedAmenitiesCommand?.storeAmenities])
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
@@ -614,6 +615,7 @@ class StoreCommand implements Validateable {
     StoreOpeningHoursCommand storeOpeningHoursCommand
     AlcoholLicensingCommand alcoholLicensingCommand
     StoreRestrictionsCommand storeRestrictions
+    List<StoreAmenitiesCommand> storeAmenities
 
     static constraints = {
         id nullable: true
@@ -653,6 +655,7 @@ class StoreCommand implements Validateable {
             }
             return true
         }
+        storeAmenities nullable: true
     }
 }
 
@@ -824,12 +827,13 @@ class AmenityCommand {
 }
 
 class StoreAmenitiesCommand {
-    String additionalDetails
+    String additionalDetail
     int count
-    EnableHoursCommand availability
+    List<EnableHoursCommand> availability;
     AmenityCommand amenity
+    int storeId
 }
 
-class selectAmenities {
-    List<StoreAmenitiesCommand> amenities
+class SelectedAmenitiesCommand {
+    List<StoreAmenitiesCommand> storeAmenities
 }

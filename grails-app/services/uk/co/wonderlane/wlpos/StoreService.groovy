@@ -6,6 +6,7 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.entities.AmenityAvailableHours
 import uk.co.wonderlane.wlpos.entities.EnableHours
 import uk.co.wonderlane.wlpos.entities.OpeningHours
 import uk.co.wonderlane.wlpos.entities.OpeningTime
@@ -357,14 +358,59 @@ class StoreService extends MySqlDal {
         return storeRestrictionsCommand
     }
 
-    StoreAmenitiesCommand convertToStoreRestrictionCommand(StoreAmenity storeAmenity){
+    List<StoreAmenitiesCommand> convertToStoreRestrictionCommands(List<StoreAmenity> storeAmenities, int storeId) {
+        List<StoreAmenitiesCommand> storeAmenitiesCommands = new ArrayList<>()
+        if (storeAmenities != null && !storeAmenities.isEmpty()) {
+            storeAmenities.each { StoreAmenity storeAmenity ->
+                StoreAmenitiesCommand command = convertToStoreAmenityCommand(storeAmenity, storeId)
+                storeAmenitiesCommands.add(command)
+            }
+        }
+        return storeAmenitiesCommands
+    }
+
+    StoreAmenitiesCommand convertToStoreAmenityCommand(StoreAmenity storeAmenity, int storeId){
         StoreAmenitiesCommand storeAmenitiesCommand = new StoreAmenitiesCommand()
         if (storeAmenity != null) {
-            storeAmenitiesCommand.setAdditionalDetails(storeAmenity.getAdditionalDetail())
-            storeAmenitiesCommand.setCount(storeAmenity.getCount())
+            storeAmenitiesCommand.setAdditionalDetail(storeAmenity.getAdditionalDetail())
+            storeAmenitiesCommand.setCount(storeAmenity.getCount() != null ? storeAmenity.getCount() : 0)
+            storeAmenitiesCommand.setAmenity( new AmenityCommand(
+                    id: storeAmenity.amenity.id,
+                    retailerId: storeAmenity.amenity.retailerId.toString(),
+                    name: storeAmenity.amenity.name
+            ))
+            if (storeAmenity.getAvailability() != null) {
+                AmenityAvailableHours amenityAvailableHours = gsonProvider.gson.fromJson(storeAmenity.getAvailability(), new TypeToken<AmenityAvailableHours>(){}.type)
+                List<EnableHoursCommand> regularHours = new ArrayList<>();
+                addEnabledTimeToCmd(regularHours, "Monday", amenityAvailableHours.getMonday())
+                addEnabledTimeToCmd(regularHours, "Tuesday", amenityAvailableHours.getTuesday())
+                addEnabledTimeToCmd(regularHours, "Wednesday", amenityAvailableHours.getWednesday())
+                addEnabledTimeToCmd(regularHours, "Thursday", amenityAvailableHours.getThursday())
+                addEnabledTimeToCmd(regularHours, "Friday", amenityAvailableHours.getFriday())
+                addEnabledTimeToCmd(regularHours, "Saturday", amenityAvailableHours.getSaturday())
+                addEnabledTimeToCmd(regularHours, "Sunday", amenityAvailableHours.getSunday())
+                storeAmenitiesCommand.setAvailability(regularHours)
+            }
+            storeAmenitiesCommand.storeId = storeId
+        } else {
+            storeAmenitiesCommand.setAvailability(
+                    [
+                            new EnableHoursCommand(day: 'Monday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                            new EnableHoursCommand(day: 'Tuesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                            new EnableHoursCommand(day: 'Wednesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                            new EnableHoursCommand(day: 'Thursday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                            new EnableHoursCommand(day: 'Friday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                            new EnableHoursCommand(day: 'Saturday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                            new EnableHoursCommand(day: 'Sunday', timeFrom: '', timeTo: '', restrictionEnabled: false)
+                    ]
+            )
         }
         return storeAmenitiesCommand
     }
+
+
+
+
 
     List<Amenity> getAmenitiesList(int retailerId){
         return Amenity.createCriteria().list {
@@ -373,22 +419,78 @@ class StoreService extends MySqlDal {
         } as List<Amenity>
     }
 
-    List<StoreAmenity> getStoreAmenitiesList(Integer storeId){
-        return StoreAmenity.createCriteria().list {
-            eq('store.id', storeId)
-        } as List<StoreAmenity>
-    }
-
     StoreAmenity findByAmenityAndStore(Long amenityId, Long storeId) {
         Amenity amenity = Amenity.get(amenityId)
         Store store = Store.get(storeId)
-
         if (!amenity || !store) {
             return null
         }
-
         return StoreAmenity.findByAmenityAndStore(amenity, store)
     }
+
+    def saveStoreAmenities(List<StoreAmenitiesCommand> storeAmenitiesCommand, Store store){
+        // Create maps for efficient lookup
+        Map<String, StoreAmenitiesCommand> storeAmenitiesCommandMap = createStoreAmenityCommandMap(storeAmenitiesCommand)
+        Map<String, StoreAmenity> storeAmenitiesMap = createStoreAmenityMap(store?.storeAmenities)
+
+        // First, delete any StoreAmenity entries that are no longer in the command list
+        storeAmenitiesMap.each { String key, StoreAmenity storeAmenity ->
+            if (!storeAmenitiesCommandMap.containsKey(key)) {  // This StoreAmenity is not in the updated list, so delete it
+                storeAmenity.delete(flush: true)
+            }
+        }
+
+        // Then, save or update all entries from the command list
+        for (StoreAmenitiesCommand storeAmenities : storeAmenitiesCommand) {
+            StoreAmenity storeAmenitySaveObject = getStoreAmenity(storeAmenities, store)
+            if (storeAmenitySaveObject != null) {
+                storeAmenitySaveObject.save(flush: true)
+            }
+        }
+    }
+
+    private Map<String, StoreAmenitiesCommand> createStoreAmenityCommandMap(List<StoreAmenitiesCommand> storeAmenities) {
+        Map<String, StoreAmenitiesCommand> result = [:]
+
+        storeAmenities.each { StoreAmenitiesCommand amenity ->
+            // Create a composite key using storeId and amenity.id
+            String compositeKey = "${amenity?.storeId}_${amenity?.amenity?.id}"
+
+            // Add to map with the composite key
+            result[compositeKey] = amenity
+        }
+
+        return result
+    }
+
+    private Map<String, StoreAmenity> createStoreAmenityMap(List<StoreAmenity> storeAmenities) {
+        Map<String, StoreAmenity> result = [:]
+
+        storeAmenities.each { StoreAmenity storeAmenity ->
+            // Create a composite key using store.id and amenity.id
+            String compositeKey = "${storeAmenity?.store?.id}_${storeAmenity?.amenity?.id}"
+
+            // Add to map with the composite key
+            result[compositeKey] = storeAmenity
+        }
+
+        return result
+    }
+
+    private StoreAmenity getStoreAmenity(StoreAmenitiesCommand storeAmenitiesCommand, Store store){
+        if (storeAmenitiesCommand != null) {
+            Amenity amenity = Amenity.get(storeAmenitiesCommand?.amenity?.id)
+            StoreAmenity storeAmenity = new StoreAmenity()
+            storeAmenity.setAdditionalDetail(storeAmenitiesCommand.additionalDetail)
+            storeAmenity.setCount(storeAmenitiesCommand.count)
+            storeAmenity.setStore(store)
+            storeAmenity.setAmenity(amenity)
+            storeAmenity.setAvailability(gsonProvider.gson.toJson(storeAmenitiesCommand.getAvailability()))
+            return storeAmenity
+        }
+        return null
+    }
+
 
     private void addOpeningTimeToCmd(List<OpeningTimeCommand> regularHours, String day, OpeningTime openingTime) {
         OpeningTimeCommand command = new OpeningTimeCommand()

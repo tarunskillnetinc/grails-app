@@ -32,6 +32,10 @@ class Store {
     String openingHours
     String licencing
     String storeRestrictions
+    Collection<StoreAmenity> storeAmenities = new ArrayList<>()
+
+    static hasMany = [storeAmenities: StoreAmenity]
+
 
     // This constructor is required or dependency injection (springSecurityService) breaks.
     public Store() {}
@@ -57,6 +61,7 @@ class Store {
         openingHours column: "openingHours", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         licencing column: "licencing", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         storeRestrictions column: "storeRestrictions", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        storeAmenities cascade: "save-update,delete"
     }
 
     static constraints = {
