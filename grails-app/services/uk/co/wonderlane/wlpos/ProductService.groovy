@@ -442,7 +442,7 @@ class ProductService extends MySqlDal {
         return results
     }
 
-    def searchProductsHql(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder, Boolean filterWithPendingChanges = false) {
+    def searchProductsHql(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder, Boolean filterWithPendingChanges = false, Boolean filterOutHospitalityAndNoStockAllowSales = false) {
         def now = DateTime.now(DateTimeZone.UTC)
 
         def barcodeSkus = []
@@ -501,6 +501,10 @@ class ProductService extends MySqlDal {
         searchQuery += """LEFT JOIN SelType st ON p.selType = st.id """
 
         searchQuery += """WHERE p.retailerId = :retailerId """
+
+        if (filterOutHospitalityAndNoStockAllowSales) {
+            searchQuery += """AND p.hospitality = 0 AND pv.stockManagementType != 'NO_STOCK_ALLOW_SALE' """
+        }
 
         if (springSecurityService.principal.storeId) {
             // Store level.

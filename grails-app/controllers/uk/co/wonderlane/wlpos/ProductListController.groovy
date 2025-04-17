@@ -55,7 +55,7 @@ class ProductListController {
         def retailerId = springSecurityService.principal.retailerId
         availableStores = storeService.getActiveStores(retailerId)
 
-        [availableStores: availableStores]
+        [availableStores: availableStores, filterHospitalityAndNoStockSalesAllowed: true]
     }
 
     def saveCentralCount(SaveCentralCountCommand cmd) {
