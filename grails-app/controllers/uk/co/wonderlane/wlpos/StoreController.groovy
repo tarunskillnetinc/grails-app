@@ -329,13 +329,13 @@ class StoreController {
                         closed: hourObject.closed as boolean
                 )
 
-                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: specialOpeningHour, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix, title: "Special Store Opening / Closing7"])
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: specialOpeningHour, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix, title: "Special Store Opening / Closing"])
             } catch (Exception e) {
                 log.error("Error parsing specialOpeningHour JSON: ${e.message}", e)
-                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex, error: "Invalid data format", title: "Special Store Opening / Closin8"])
+                render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex, error: "Invalid data format", title: "Special Store Opening / Closing"])
             }
         } else {
-            render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix, title: "Special Store Opening / Closing9"])
+            render(template: 'addEditSpecialOpeningHours', model: [specialOpeningHour: null, openingHourIndexItem: openingHourIndex, commandPrefix: commandPrefix, title: "Special Store Opening / Closing"])
         }
     }
 
