@@ -441,10 +441,19 @@ class StoreService extends MySqlDal {
         }
 
         // Then, save or update all entries from the command list
-        for (StoreAmenitiesCommand storeAmenities : storeAmenitiesCommand) {
-            StoreAmenity storeAmenitySaveObject = getStoreAmenity(storeAmenities, store)
-            if (storeAmenitySaveObject != null) {
-                storeAmenitySaveObject.save(flush: true)
+        for (StoreAmenitiesCommand storeAmenity : storeAmenitiesCommand) {
+            Amenity amenity = Amenity.get(storeAmenitiesCommand?.amenity?.id)
+            StoreAmenity existingAmenity = StoreAmenity.findByAmenityAndStore(amenity, store)
+            if (existingAmenity) {
+                existingAmenity.additionalDetail = storeAmenity.additionalDetail
+                existingAmenity.count = storeAmenity.count
+                AmenityAvailableHours amenityAvailableHours = getAmenitiesAvailability(storeAmenity?.availability)
+                existingAmenity.availability = gsonProvider.gson.toJson(amenityAvailableHours)
+                existingAmenity.save(flush: true)
+            } else {
+                // Create new entity
+                StoreAmenity newAmenity = getStoreAmenity(storeAmenity, store, amenity)
+                newAmenity.save(flush: true)
             }
         }
     }
@@ -455,7 +464,6 @@ class StoreService extends MySqlDal {
         storeAmenities.each { StoreAmenitiesCommand amenity ->
             // Create a composite key using storeId and amenity.id
             String compositeKey = "${amenity?.storeId}_${amenity?.amenity?.id}"
-
             // Add to map with the composite key
             result[compositeKey] = amenity
         }
@@ -477,18 +485,50 @@ class StoreService extends MySqlDal {
         return result
     }
 
-    private StoreAmenity getStoreAmenity(StoreAmenitiesCommand storeAmenitiesCommand, Store store){
+    private StoreAmenity getStoreAmenity(StoreAmenitiesCommand storeAmenitiesCommand, Store store, Amenity amenity){
         if (storeAmenitiesCommand != null) {
-            Amenity amenity = Amenity.get(storeAmenitiesCommand?.amenity?.id)
             StoreAmenity storeAmenity = new StoreAmenity()
             storeAmenity.setAdditionalDetail(storeAmenitiesCommand.additionalDetail)
             storeAmenity.setCount(storeAmenitiesCommand.count)
             storeAmenity.setStore(store)
             storeAmenity.setAmenity(amenity)
-            storeAmenity.setAvailability(gsonProvider.gson.toJson(storeAmenitiesCommand.getAvailability()))
+            AmenityAvailableHours amenityAvailableHours = getAmenitiesAvailability(storeAmenitiesCommand?.availability)
+            storeAmenity.setAvailability(gsonProvider.gson.toJson(amenityAvailableHours))
             return storeAmenity
         }
         return null
+    }
+
+    private AmenityAvailableHours getAmenitiesAvailability(List<EnableHoursCommand> availability){
+        AmenityAvailableHours amenityAvailableHours = new AmenityAvailableHours();
+        availability?.forEach { enableHours ->
+            {
+                switch (enableHours.day) {
+                    case "Monday":
+                        amenityAvailableHours.monday = getEnableHoursAsObject(enableHours)
+                        break
+                    case "Tuesday":
+                        amenityAvailableHours.tuesday = getEnableHoursAsObject(enableHours)
+                        break
+                    case "Wednesday":
+                        amenityAvailableHours.wednesday = getEnableHoursAsObject(enableHours)
+                        break
+                    case "Thursday":
+                        amenityAvailableHours.thursday = getEnableHoursAsObject(enableHours)
+                        break
+                    case "Friday":
+                        amenityAvailableHours.friday = getEnableHoursAsObject(enableHours)
+                        break
+                    case "Saturday":
+                        amenityAvailableHours.saturday = getEnableHoursAsObject(enableHours)
+                        break
+                    case "Sunday":
+                        amenityAvailableHours.sunday = getEnableHoursAsObject(enableHours)
+                        break
+                }
+            }
+        }
+        return amenityAvailableHours
     }
 
 
