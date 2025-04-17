@@ -92,7 +92,6 @@ class ProductController extends BaseController {
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
-// todo timmy here?
         Map<String, List<ProductAttributeValues>> skuAttributesMap = productService.getProductAttributeValues(product)
         product.getVariants().each {
             it.setAttributez(skuAttributesMap.getOrDefault(it.sku, productService.getDefaultAttributeValues(product, it.sku)))
@@ -920,6 +919,7 @@ class ProductController extends BaseController {
                     checkProductVariantForLocationChanges(product, existingVariant, editedVariant)
                     checkProductVariantForBarcodeChanges(product, existingVariant, editedVariant, effectiveDate)
                 }
+                reapplyAttributez(product, existingVariant, editedVariant)
             } else {
                 changeAffectsSel = true
                 ProductVariant newVariant = new ProductVariant()
@@ -977,13 +977,32 @@ class ProductController extends BaseController {
                         }
                 })
 
-                // todo timmy here
+                reapplyAttributez(product, newVariant, editedVariant)
 
                 productVariantList.add(newVariant)
             }
         }
 
         return productVariantList
+    }
+
+    private void reapplyAttributez(def product, def variant, def editedVariant) {
+        editedVariant.attributez.forEach({
+            edited ->
+                ProductAttributeValues newValue = new ProductAttributeValues(
+                        id: edited.id,
+                        retailerId: springSecurityService.principal.retailerId,
+                        storeId: springSecurityService.principal.storeId,
+                        product: product,
+                        sku: editedVariant.sku,
+                        productAttributeId: edited.productAttributeId,
+                        value: edited.value,
+                        attributeName: edited.attributeName,
+                        attributeType: edited.attributeType,
+                        listValues: edited.listValues
+                )
+                variant.attributez.add(newValue)
+        })
     }
 
     private DateTime getEffectiveDate(def effectiveDate) {
@@ -2064,8 +2083,6 @@ class ProductController extends BaseController {
 
             productVariant.barcodez.clear()
             productVariant.barcodez.addAll(barcodes)
-
-            // todo timmy here
 
             variants.add(productVariant)
         })

@@ -1063,11 +1063,12 @@ class ProductService extends MySqlDal {
                 }
                 if (existingAttribute) {
                     if (existingAttribute.value != attribute.value) {
-                        existingAttribute.value = attribute.value
-                        existingAttribute.save()
                         builder.compare(variant.id, attribute.attributeName,
                                 existingAttribute.value, attribute.value,
                                 ProductHistoryType.PRODUCT_ATTRIBUTE)
+
+                        existingAttribute.value = attribute.value
+                        existingAttribute.save()
                     }
                 } else {
                     new ProductAttributeValues(
@@ -1084,79 +1085,6 @@ class ProductService extends MySqlDal {
         }
     }
 
-//
-//    // todo timmy kept in case I need to steal some of this
-//    ArrayList<ProductAttributeValues> getUpdatedProductAttributeValues(Product product, ProductCommand editedProduct, ProductHistoryBuilder builder, effectiveDate) {
-//        ArrayList<ProductAttributeValues> updatedOrNewAttributes = []
-//
-//        if (builder == null){
-//            builder = new ProductHistoryBuilder(product.id, springSecurityService, effectiveDate)
-//        }
-//
-//        // Create a map with composite keys for existing product overriden attributes
-//        def existingAttributesMap = product?.productAttributeValues?.collectEntries {
-//            ["${it.productAttributeId}_${it.productId}_${it.retailerId}": it]} ?: [:]
-//
-//        // Create a map for all product attributes
-//        def productAttributesMap = ProductAttributes.findAllByRetailerId(
-//                springSecurityService.principal.retailerId)?.collectEntries { [(it.id): it] } ?: [:]
-//
-//        // Loop through the edited product attributes
-//        editedProduct?.productAttributeValues?.each { editedAttr ->
-//            def key = "${editedAttr.productAttributeId}_${product.id}_${editedAttr.retailerId}"
-//            def existingAttr = existingAttributesMap.get(key)
-//            def productAttributes = productAttributesMap.get(editedAttr.productAttributeId)
-//
-//            if (productAttributes) { //Check master product attribute exists
-//
-//                if (productAttributes?.type == ProductAttributeType.BOOLEAN && !editedAttr?.value) {
-//                    // Set default value for BOOLEAN type attributes
-//                    // From UI when user deselect checkbox value will be null so assign edited value as false for those cases
-//                    editedAttr.value = 'false'
-//                }
-//
-//                //server level validations
-//                //This include validation if type is text then it's length
-//                //If type is numeric then it's values
-//                boolean isValidationPassed = isProductAttributeUpdateValidationsPassed(productAttributes, editedAttr, product)
-//
-//                if (isValidationPassed) {
-//                    if (existingAttr) {
-//                        //If updated attribute already on `productattributevalues` table
-//                        //If so then check updated value is change to current value
-//                        //If it does then update current value to new value
-//                        def existingAttrProcessedDefaultValue = processedValueForNullEmpty(existingAttr?.value, productAttributes?.type)
-//                        def editedAttrProcessedValue = processedValueForNullEmpty(editedAttr?.value, productAttributes?.type)
-//
-//                        if (existingAttrProcessedDefaultValue != editedAttrProcessedValue) {
-//                            builder.compare(editedAttr?.attributeName, existingAttr?.value, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
-//                            existingAttr?.value = editedAttr?.value
-//                        }
-//                    } else {
-//                        def productAttrProcessedDefaultValue = processedValueForNullEmpty(productAttributes?.defaultValue, productAttributes?.type)
-//                        def editedAttrProcessedValue = processedValueForNullEmpty(editedAttr?.value, productAttributes?.type)
-//
-//                        if (productAttrProcessedDefaultValue != editedAttrProcessedValue) {
-//                            // ignore matching attributes and close attributes values like ""/null.
-//                            def newAttr = new ProductAttributeValues(
-//                                    retailerId: editedAttr?.retailerId,
-//                                    productAttributeId: editedAttr?.productAttributeId,
-//                                    value: editedAttr?.value,
-//                                    id: editedAttr?.productAttributeId,
-//                                    attributeName: editedAttr?.attributeName,
-//                                    attributeType: editedAttr?.attributeType
-//                            )
-//
-//                            // During the initial product creation, don't record the changes to product attributes.
-//                            builder.compare(editedAttr?.attributeName, productAttributes?.defaultValue, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
-//                            updatedOrNewAttributes << newAttr
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return updatedOrNewAttributes
-//    }
 //
 //    // todo timmy move to sku validation
 //    boolean isProductAttributeUpdateValidationsPassed(productAttributes, editedAttr, product){

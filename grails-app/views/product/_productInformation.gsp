@@ -101,6 +101,7 @@
             <div class="row mx-4 pt-4" style="word-break: break-all; word-wrap: break-word;">
         </g:if>
         <div class="col-4">
+            <g:hiddenField id="productAttributeValues[${index}].id" name="productAttributeValues[${index}].id" value="${attributeValue?.id }" />
             <g:hiddenField id="productAttributeValues[${index}].retailerId" name="productAttributeValues[${index}].retailerId" value="${attributeValue?.retailerId }" />
             <g:hiddenField id="productAttributeValues[${index}].storeId" name="productAttributeValues[${index}].storeId" value="${attributeValue?.storeId }" />
             <g:hiddenField id="productAttributeValues[${index}].productAttributeId" name="productAttributeValues[${index}].productAttributeId" value="${attributeValue?.productAttributeId }" />
