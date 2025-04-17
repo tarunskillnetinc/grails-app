@@ -117,6 +117,16 @@ class StoreController {
                 new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
         ]
 
+        def initialEnableHours = [
+                new EnableHoursCommand(day: 'Monday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Tuesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Wednesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Thursday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Friday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Saturday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                new EnableHoursCommand(day: 'Sunday', timeFrom: '', timeTo: '', restrictionEnabled: false)
+        ]
+
         def storeOpeningHoursCommand = new StoreOpeningHoursCommand(
                 regularHours: initialRegularHours,
                 specialOpeningHours: []
@@ -128,7 +138,13 @@ class StoreController {
                 licensedToSellAlcohol: false
         );
 
-        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand: storeOpeningHoursCommand, alcoholLicensingCommand: alcoholLicensingCommand]
+        def storeRestrictions = new StoreRestrictionsCommand(
+                regularHours: initialEnableHours,
+                otherRestrictions: []
+        )
+
+        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand: storeOpeningHoursCommand,
+         alcoholLicensingCommand: alcoholLicensingCommand, storeRestrictions: storeRestrictions]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -172,7 +188,9 @@ class StoreController {
          order                       : params.order,
          storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList()),
          storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours()),
-         alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing())]
+         alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing()),
+         storeRestrictions           : storeService.convertToStoreRestrictionCommand(store?.getStoreRestrictedHours())
+        ]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -190,7 +208,8 @@ class StoreController {
                                         ranges: ranges,
                                         storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails),
                                         storeOpeningHoursCommand: newStoreCommand.storeOpeningHoursCommand,
-                                        alcoholLicensingCommand: newStoreCommand.alcoholLicensingCommand
+                                        alcoholLicensingCommand: newStoreCommand.alcoholLicensingCommand,
+                                        storeRestrictions: newStoreCommand.storeRestrictions
             ])
         } else {
             // Validated.
@@ -240,6 +259,7 @@ class StoreController {
 
             store.setOpeningHours(storeService.getOpeningHoursAsObject(newStoreCommand.storeOpeningHoursCommand))
             store.setLicencing(storeService.getAlcoholLicensingCommandAsObject(newStoreCommand.alcoholLicensingCommand))
+            store.storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(newStoreCommand?.storeRestrictions))
 
             storeService.saveStore(store)
 
@@ -334,11 +354,11 @@ class StoreController {
             bindData(storeConfig, storeCommand.config)
 
             String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(storeCommand?.storeAdditionalDetails)
-
             String storeOpeningHours = gsonProvider.gson.toJson(storeService.getOpeningHoursAsObject(storeCommand.storeOpeningHoursCommand))
             String storeLicensing = gsonProvider.gson.toJson(storeService.getAlcoholLicensingCommandAsObject(storeCommand.alcoholLicensingCommand))
+            String storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(storeCommand?.storeRestrictions))
 
-            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours, storeLicensing)
+            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours, storeLicensing, storeRestrictions)
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
@@ -373,8 +393,9 @@ class StoreController {
                                            availablePrintReceiptOptions: PrintReceiptOption.values(),
                                            viewOptions                 : viewOptions,
                                            storeAdditionalDetails      : storeService.sortAdditionalDetails(storeCommand?.storeAdditionalDetails),
-                                           storeOpeningHoursCommand: storeCommand.storeOpeningHoursCommand,
-                                           alcoholLicensingCommand: storeCommand.alcoholLicensingCommand
+                                           storeOpeningHoursCommand    : storeCommand.storeOpeningHoursCommand,
+                                           alcoholLicensingCommand     : storeCommand.alcoholLicensingCommand,
+                                           storeRestrictions           : storeCommand.storeRestrictions
             ])
 
         }
@@ -386,6 +407,14 @@ class StoreController {
 
     def ajaxSaveStoreAdditionalDetail(AddStoreAdditionalDetailCommand additionalDetailCommand) {
         render(template: "storeAdditionalDetail", model: [storeAdditionalDetails: storeService.sortAdditionalDetails(additionalDetailCommand?.storeAdditionalDetails)])
+    }
+
+    def ajaxAddStoreOtherRestrictions(){
+        render(template: "addStoreOtherRestrictions", model: [index : params?.index, description: params?.description, startDateTime: params?.startDateTime, endDateTime: params?.endDateTime])
+    }
+
+    def ajaxSaveStoreOtherRestrictions(StoreRestrictionsCommand storeRestrictionsCommand) {
+        render(template: "storeRestrictions", model: [storeRestrictions: storeService.sortStoreRestrictions(storeRestrictionsCommand)])
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
@@ -456,6 +485,7 @@ class NewStoreCommand implements Validateable {
     StoreOpeningHoursCommand storeOpeningHoursCommand
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
     AlcoholLicensingCommand alcoholLicensingCommand
+    StoreRestrictionsCommand storeRestrictions
 
     static constraints = {
         storeNumber nullable: false,blank: false, min:1, max: 999999, validator: { val, obj ->
@@ -529,6 +559,21 @@ class NewStoreCommand implements Validateable {
             }
             return true
         }
+        storeRestrictions nullable: true, validator: { val, obj ->
+            if (val && val.regularHours) {
+                def hasErrors = false
+                val.regularHours.each { enableHours ->
+                    if (enableHours.restrictionEnabled &&
+                            (!enableHours.timeFrom || !enableHours.timeTo)) {
+                        hasErrors = true
+                    }
+                }
+                if (hasErrors) {
+                    return ['storeCommand.storeRestrictions.regularHours.timeRequired.error']
+                }
+            }
+            return true
+        }
 
     }
 }
@@ -545,6 +590,7 @@ class StoreCommand implements Validateable {
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
     StoreOpeningHoursCommand storeOpeningHoursCommand
     AlcoholLicensingCommand alcoholLicensingCommand
+    StoreRestrictionsCommand storeRestrictions
 
     static constraints = {
         id nullable: true
@@ -569,6 +615,21 @@ class StoreCommand implements Validateable {
         }
         storeOpeningHoursCommand nullable: true
         alcoholLicensingCommand nullable: true
+        storeRestrictions nullable: true, validator: { val, obj ->
+            if (val && val.regularHours) {
+                def hasErrors = false
+                val.regularHours.each { enableHours ->
+                    if (enableHours.restrictionEnabled &&
+                            (!enableHours.timeFrom || !enableHours.timeTo)) {
+                        hasErrors = true
+                    }
+                }
+                if (hasErrors) {
+                    return ['storeCommand.storeRestrictions.regularHours.timeRequired.error']
+                }
+            }
+            return true
+        }
     }
 }
 
@@ -713,4 +774,22 @@ class OpeningTimeCommand {
 class OpeningTimeOverrideCommand extends OpeningTimeCommand{
     String date;
     String description;
+}
+
+class StoreRestrictionsCommand {
+    List<EnableHoursCommand> regularHours;
+    List<StoreOtherRestrictionsCommand> otherRestrictions;
+}
+
+class EnableHoursCommand {
+    String day;
+    String timeFrom;
+    String timeTo;
+    boolean restrictionEnabled;
+}
+
+class StoreOtherRestrictionsCommand {
+    String description
+    String startDateTime
+    String endDateTime
 }

@@ -5,6 +5,7 @@ import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
 import uk.co.wonderlane.wlpos.entities.OpeningHours
 import uk.co.wonderlane.wlpos.entities.StoreConfig
 import uk.co.wonderlane.wlpos.entities.StoreLicencing
+import uk.co.wonderlane.wlpos.entities.StoreRestrictedHours
 
 import java.lang.reflect.Type
 
@@ -30,6 +31,7 @@ class Store {
     String additionalDetails
     String openingHours
     String licencing
+    String storeRestrictions
 
     // This constructor is required or dependency injection (springSecurityService) breaks.
     public Store() {}
@@ -54,6 +56,7 @@ class Store {
         additionalDetails column: "additionalDetails", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         openingHours column: "openingHours", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         licencing column: "licencing", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        storeRestrictions column: "storeRestrictions", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
     }
 
     static constraints = {
@@ -73,6 +76,7 @@ class Store {
         additionalDetails nullable: true
         openingHours nullable: true
         licencing nullable: true
+        storeRestrictions nullable: true
     }
 
     def colorCodeValidator(String colorCode) {
@@ -143,6 +147,13 @@ class Store {
         if (licencing != null) {
             this.licencing = gsonProvider.gson.toJson(licencing)
         }
+    }
+
+    StoreRestrictedHours getStoreRestrictedHours() {
+        if (storeRestrictions != null) {
+            return gsonProvider.gson.fromJson(storeRestrictions, new TypeToken<StoreRestrictedHours>(){}.type)
+        }
+        return null
     }
 
     String getLicencingString() {

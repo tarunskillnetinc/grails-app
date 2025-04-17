@@ -19,3 +19,11 @@
         </g:if>
     </g:each>
 </g:if>
+
+<section id="addStoreAdditionalDetails-modal" class="container-fluid">
+    <div class="modal fade" id="addStoreAdditionalDetailsModal" tabindex="-1" role="dialog" aria-labelledby="addStoreAdditionalDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div id="addStoreAdditionalDetailsContent" class="modal-content"></div>
+        </div>
+    </div>
+</section>

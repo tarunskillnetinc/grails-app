@@ -62,7 +62,7 @@ function saveStoreAdditionalDetail(){
         success: function(resp) {
             var storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer");
             storeAdditionalDetailsContainer.html(resp);
-            $('#addStoreAdditionalDetailsModal').modal("hide");
+            safelyCloseModal('#addStoreAdditionalDetailsModal');
         }
     });
 }
@@ -88,7 +88,7 @@ function deleteAdditionalDetail(index) {
                 success: function(resp) {
                     var storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer");
                     storeAdditionalDetailsContainer.html(resp);
-                    $('#addStoreAdditionalDetailsModal').modal("hide");
+                    safelyCloseModal('#addStoreAdditionalDetailsModal');
                 }
             });
         }
@@ -97,6 +97,257 @@ function deleteAdditionalDetail(index) {
 
 function closeStoreAdditionalDetailAddModal() {
     if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
-        $('#addStoreAdditionalDetailsModal').modal('hide')
+        safelyCloseModal('#addStoreAdditionalDetailsModal');
     }
+}
+
+function addOtherRestrictions(index, description, startDateTime, endDateTime) {
+    $("#addStoreOtherRestrictionContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#addStoreOtherRestrictionModal').modal({show: true, backdrop: 'static', keyboard: false});
+    var params = {index: index, description: description, startDateTime: startDateTime, endDateTime:endDateTime }
+    $.ajax({
+        url: addStoreOtherRestrictionsValues, // Replace with the actual URL endpoint
+        method: "GET",
+        data: params,
+        success: function (resp) {
+            try {
+                $("#addStoreOtherRestrictionContent").html(resp);
+            } catch (e) {
+                console.error('Error processing response:', e);
+                $("#addStoreOtherRestrictionContent").html("Error loading content. Please try again.");
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX error:', error);
+            $("#addStoreOtherRestrictionContent").html("Error loading content. Please try again.");
+        }
+    });
+}
+
+function closeOtherRestrictionsAddModal(){
+    if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+        safelyCloseModal('#addStoreOtherRestrictionModal');
+    }
+}
+
+function saveOtherRestrictions() {
+    // Get values from the form
+    const description = $("#otherRestrictionDescription").val();
+    const startDateTime = $("#startDateTimePicker").val();
+    const endDateTime = $("#endDateTimePicker").val();
+
+    // Create params object for AJAX submission
+    let params = {};
+
+    // Add regular hours to params
+    $("#restriction-days-tbl tbody tr").each(function(loopIndex) {
+        const row = $(this);
+        const isEnabled = row.find("input[name^='storeRestrictions.regularHours'][name$='.restrictionEnabled']").is(':checked');
+        const day = row.find("td:nth-child(2)").text().trim();
+        params[`regularHours[${loopIndex}].restrictionEnabled`] = isEnabled;
+        params[`regularHours[${loopIndex}].day`] = day;
+
+        if (isEnabled) {
+            // Only get and set time values if enabled
+            const timeFrom = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeFrom']").val();
+            const timeTo = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeTo']").val();
+            params[`regularHours[${loopIndex}].timeFrom`] = timeFrom;
+            params[`regularHours[${loopIndex}].timeTo`] = timeTo;
+        } else {
+            // Explicitly set to empty string or null depending on what your backend expects
+            params[`regularHours[${loopIndex}].timeFrom`] = ""; // or null
+            params[`regularHours[${loopIndex}].timeTo`] = ""; // or null
+        }
+
+    });
+
+    // Add existing other restrictions to params
+    let otherRestrictionsCount = 0;
+    $("#other-restrictions-special-days-tbl tbody tr").each(function(index) {
+        const row = $(this);
+        const existingDescription = row.find("input[name$='.description']").val();
+        const existingStartDateTime = row.find("input[name$='.startDateTime']").val() || row.find("input[name$='.date']").val();
+        const existingEndDateTime = row.find("input[name$='.endDateTime']").val() || row.find("input[name$='.startTime']").val();
+        params["otherRestrictions[" + otherRestrictionsCount + "].description"] = existingDescription;
+        params["otherRestrictions[" + otherRestrictionsCount + "].startDateTime"] = existingStartDateTime;
+        params["otherRestrictions[" + otherRestrictionsCount + "].endDateTime"] = existingEndDateTime;
+        otherRestrictionsCount++;
+    });
+
+    var index = $("#otherRestrictionIndex").val();
+    if (index === null || index === undefined || index === "") {
+        index = getNextOtherRestrictionsIndex();
+    } else {
+        index = parseInt(index, 10);
+    }
+
+    // Add the new restriction
+    params["otherRestrictions[" + index + "].description"] = description;
+    params["otherRestrictions[" + index + "].startDateTime"] = startDateTime;
+    params["otherRestrictions[" + index + "].endDateTime"] = endDateTime;
+    params["index"] = index;
+
+    // Submit via AJAX
+    $.ajax({
+        url: saveStoreOtherRestrictions,
+        type: 'POST',
+        data: params,
+        success: function(resp) {
+            safelyCloseModal('#addStoreOtherRestrictionModal');
+            var storeRestrictionContainer = $("#storeRestrictionsContainer");
+            storeRestrictionContainer.html(resp);
+            attachCheckboxListeners()
+        },
+        error: function(xhr, status, error) {
+            $("#other-restrictions-errors-container").append(
+                '<div class="alert alert-danger">Error saving data: ' + error + '</div>'
+            ).show();
+        }
+    });
+}
+
+function deleteOtherRestriction(index) {
+    if (confirm("Are you sure you want to delete?")) {
+        var otherRestrictionContainer = $("#storeRestrictionsContainer > div");
+        if (otherRestrictionContainer.length) {
+            var params = {}
+            $("#restriction-days-tbl tbody tr").each(function(loopIndex) {
+                const row = $(this);
+                const isEnabled = row.find("input[name^='storeRestrictions.regularHours'][name$='.restrictionEnabled']").is(':checked');
+                const day = row.find("td:nth-child(2)").text().trim();
+                params[`regularHours[${loopIndex}].restrictionEnabled`] = isEnabled;
+                params[`regularHours[${loopIndex}].day`] = day;
+                if (isEnabled) {
+                    // Only get and set time values if enabled
+                    const timeFrom = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeFrom']").val();
+                    const timeTo = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeTo']").val();
+                    params[`regularHours[${loopIndex}].timeFrom`] = timeFrom;
+                    params[`regularHours[${loopIndex}].timeTo`] = timeTo;
+                } else {
+                    // Explicitly set to empty string or null depending on what your backend expects
+                    params[`regularHours[${loopIndex}].timeFrom`] = ""; // or null
+                    params[`regularHours[${loopIndex}].timeTo`] = ""; // or null
+                }
+            });
+
+
+            // Add existing other restrictions to params
+            $("#other-restrictions-special-days-tbl tbody tr").each(function(loopIndex) {
+                const row = $(this);
+                const existingDescription = row.find("input[name$='.description']").val();
+                const existingStartDateTime = row.find("input[name$='.startDateTime']").val() || row.find("input[name$='.date']").val();
+                const existingEndDateTime = row.find("input[name$='.endDateTime']").val() || row.find("input[name$='.startTime']").val();
+                if (loopIndex !== index) {
+                    params["otherRestrictions[" + loopIndex + "].description"] = existingDescription;
+                    params["otherRestrictions[" + loopIndex + "].startDateTime"] = existingStartDateTime;
+                    params["otherRestrictions[" + loopIndex + "].endDateTime"] = existingEndDateTime;
+                }
+            });
+
+
+            $.ajax({
+                url: saveStoreOtherRestrictions,
+                method: "POST",
+                data: params,
+                success: function(resp) {
+                    otherRestrictionContainer.html(resp);
+                    safelyCloseModal('#addStoreOtherRestrictionModal');
+                }
+            });
+        }
+    }
+}
+
+function getNextOtherRestrictionsIndex() {
+    // Get the current highest index from the table rows
+    var highestIndex = -1;
+
+    $("#other-restrictions-special-days-tbl tbody tr").each(function() {
+        var rowId = $(this).attr('id');
+        if (rowId && rowId.startsWith('special-hour-row-')) {
+            var rowIndex = parseInt(rowId.split('-').pop(), 10);
+            if (!isNaN(rowIndex) && rowIndex > highestIndex) {
+                highestIndex = rowIndex;
+            }
+        }
+    });
+
+    // Return the next available index
+    return highestIndex + 1;
+}
+
+function attachCheckboxListeners() {
+    const checkboxes = document.querySelectorAll('input[name^="storeRestrictions.regularHours"][name$=".restrictionEnabled"]');
+
+    checkboxes.forEach(function(checkbox) {
+        // Remove any existing event listeners to prevent duplicates
+        checkbox.removeEventListener('change', toggleTimeInputs);
+
+        // Add event listener for checkbox changes
+        checkbox.addEventListener('change', toggleTimeInputs);
+    });
+}
+
+// Function to handle checkbox changes
+function toggleTimeInputs() {
+    // Find the time input fields in the same row
+    const timeInputsContainer = this.closest('tr').querySelector('.restriction-time-inputs');
+    timeInputsContainer.style.display = this.checked ? 'flex' : 'none';
+}
+
+function safelyCloseModal(modalId) {
+    // First, get references to all elements
+    const modal = $(modalId);
+
+    // Store references to dropdowns before closing modal
+    const activeDropdowns = $('.dropdown-toggle[aria-expanded="true"]');
+
+    // Move the modal to the body element before closing it
+    if (!modal.parent().is('body')) {
+        modal.detach().appendTo('body');
+    }
+
+    // Hide the modal properly
+    modal.modal('hide');
+
+    // Force cleanup of backdrop
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open').css('padding-right', '').css('overflow', '');
+
+    // Fix dropdown aria attributes after modal is closed
+    setTimeout(function() {
+        // Reset all dropdowns first
+        $('.dropdown-toggle').attr('aria-expanded', 'false');
+        $('.dropdown-menu').removeClass('show');
+
+        // Then properly reinitialize them
+        $('.dropdown-toggle').each(function() {
+            try {
+                $(this).dropdown('dispose');
+            } catch(e) {}
+            $(this).dropdown();
+        });
+
+        // Force any open dropdowns to close
+        $('.dropdown-menu.show').removeClass('show');
+        $('.dropdown.show').removeClass('show');
+
+        // Force browser to recalculate layout
+        document.body.offsetHeight;
+
+        // Return focus to the accordion
+        $('.accordion-button:not(.collapsed)').focus();
+
+        // Force a browser repaint
+        $(window).trigger('resize');
+    }, 150);
+
+    // Add direct click handler to ensure dropdowns work
+    $(document).off('click.fixDropdowns', '.dropdown-toggle').on('click.fixDropdowns', '.dropdown-toggle', function(e) {
+        const menu = $(this).next('.dropdown-menu');
+        const isExpanded = $(this).attr('aria-expanded') === 'true';
+
+        // Toggle this dropdown's aria-expanded attribute correctly
+        $(this).attr('aria-expanded', !isExpanded);
+    });
 }
