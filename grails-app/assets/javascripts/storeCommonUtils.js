@@ -436,7 +436,7 @@ function saveAmenities(selectedIndex, storeId) {
     var params = {};
 
     // Select all amenity items in the container
-    var amenityItems = $(".amenities-container > div.amenity-item");
+    var amenityItems = $(".amenities-container > div > .amenity-item");
 
     amenityItems.each(function(index) {
         // Amenity basic properties
@@ -593,7 +593,7 @@ function addAmenityToDropdown(id, name, retailerId) {
                 <label class="mb-0">
                     <input id="${id}" type="checkbox" name="amenities" value="${id}"
                            data-name="${name}" data-retailer-id="${retailerId}">
-                    ${name}
+                    <g:message code="Amenity.${name}" default="${name}" />
                 </label>
             </div>
         `;
