@@ -22,19 +22,19 @@
                             <div class="amenity-detail"><strong>Opening Hours:</strong></div>
                             <g:each in="${storeAmenity?.availability}" var="day" status="j">
                                 <div class="enableDays[j]">
-                                    <g:if test="${day.restrictionEnabled}">
+                                    <g:if test="${day.closed}">
                                         ${day.day}
-                                        <g:if test="${day.timeFrom}">
-                                            from ${day.timeFrom}
+                                        <g:if test="${day.startTime}">
+                                            from ${day.startTime}
                                         </g:if>
-                                        <g:if test="${day.timeTo}">
-                                            to ${day.timeTo}
+                                        <g:if test="${day.endTime}">
+                                            to ${day.endTime}
                                         </g:if>
                                     </g:if>
                                     <g:hiddenField id="storeAmenities[${i}].availability[${j}].day" name="storeAmenities[${i}].availability[${j}].day" value="${day.day}"/>
-                                    <g:hiddenField id="storeAmenities[${i}].availability[${j}].timeFrom" name="storeAmenities[${i}].availability[${j}].timeFrom" value="${day.timeFrom}"/>
-                                    <g:hiddenField id="storeAmenities[${i}].availability[${j}].timeTo" name="storeAmenities[${i}].availability[${j}].timeTo" value="${day.timeTo}"/>
-                                    <g:hiddenField id="storeAmenities[${i}].availability[${j}].restrictionEnabled" name="storeAmenities[${i}].availability[${j}].restrictionEnabled" value="${day.restrictionEnabled}"/>
+                                    <g:hiddenField id="storeAmenities[${i}].availability[${j}].startTime" name="storeAmenities[${i}].availability[${j}].startTime" value="${day.startTime}"/>
+                                    <g:hiddenField id="storeAmenities[${i}].availability[${j}].endTime" name="storeAmenities[${i}].availability[${j}].endTime" value="${day.endTime}"/>
+                                    <g:hiddenField id="storeAmenities[${i}].availability[${j}].closed" name="storeAmenities[${i}].availability[${j}].closed" value="${day.closed}"/>
                                 </div>
                             </g:each>
                         </g:if>

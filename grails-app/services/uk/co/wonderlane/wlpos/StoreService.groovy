@@ -377,28 +377,41 @@ class StoreService extends MySqlDal {
                     name: storeAmenity.amenity.name
             ))
             if (storeAmenity.getAvailability() != null) {
-                AmenityAvailableHours amenityAvailableHours = gsonProvider.gson.fromJson(storeAmenity.getAvailability(), new TypeToken<AmenityAvailableHours>(){}.type)
-                List<EnableHoursCommand> regularHours = new ArrayList<>();
-                addEnabledTimeToCmd(regularHours, "Monday", amenityAvailableHours.getMonday())
-                addEnabledTimeToCmd(regularHours, "Tuesday", amenityAvailableHours.getTuesday())
-                addEnabledTimeToCmd(regularHours, "Wednesday", amenityAvailableHours.getWednesday())
-                addEnabledTimeToCmd(regularHours, "Thursday", amenityAvailableHours.getThursday())
-                addEnabledTimeToCmd(regularHours, "Friday", amenityAvailableHours.getFriday())
-                addEnabledTimeToCmd(regularHours, "Saturday", amenityAvailableHours.getSaturday())
-                addEnabledTimeToCmd(regularHours, "Sunday", amenityAvailableHours.getSunday())
+                OpeningHours openingHours = gsonProvider.gson.fromJson(storeAmenity.getAvailability(), new TypeToken<OpeningHours>(){}.type)
+                List<OpeningTimeCommand> regularHours = new ArrayList<>();
+                addOpeningTimeToCmd(regularHours, "Monday", openingHours.getMonday())
+                addOpeningTimeToCmd(regularHours, "Tuesday", openingHours.getTuesday())
+                addOpeningTimeToCmd(regularHours, "Wednesday", openingHours.getWednesday())
+                addOpeningTimeToCmd(regularHours, "Thursday", openingHours.getThursday())
+                addOpeningTimeToCmd(regularHours, "Friday", openingHours.getFriday())
+                addOpeningTimeToCmd(regularHours, "Saturday", openingHours.getSaturday())
+                addOpeningTimeToCmd(regularHours, "Sunday", openingHours.getSunday())
+
                 storeAmenitiesCommand.setAvailability(regularHours)
+            } else {
+                storeAmenitiesCommand.setAvailability(
+                        [
+                                new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: false),
+                                new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: false),
+                                new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: false),
+                                new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: false),
+                                new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: false),
+                                new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
+                                new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
+                        ]
+                )
             }
             storeAmenitiesCommand.storeId = storeId
         } else {
             storeAmenitiesCommand.setAvailability(
                     [
-                            new EnableHoursCommand(day: 'Monday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                            new EnableHoursCommand(day: 'Tuesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                            new EnableHoursCommand(day: 'Wednesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                            new EnableHoursCommand(day: 'Thursday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                            new EnableHoursCommand(day: 'Friday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                            new EnableHoursCommand(day: 'Saturday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                            new EnableHoursCommand(day: 'Sunday', timeFrom: '', timeTo: '', restrictionEnabled: false)
+                            new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: false),
+                            new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: false),
+                            new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: false),
+                            new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: false),
+                            new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: false),
+                            new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
+                            new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
                     ]
             )
         }
@@ -468,8 +481,8 @@ class StoreService extends MySqlDal {
             if (existingAmenity) {
                 existingAmenity.additionalDetail = storeAmenity.additionalDetail
                 existingAmenity.count = storeAmenity.count
-                AmenityAvailableHours amenityAvailableHours = getAmenitiesAvailability(storeAmenity?.availability)
-                existingAmenity.availability = gsonProvider.gson.toJson(amenityAvailableHours)
+                OpeningHours openingHours = getAmenitiesAvailability(storeAmenity?.availability)
+                existingAmenity.availability = gsonProvider.gson.toJson(openingHours)
             } else {
                 StoreAmenity newAmenity = getStoreAmenity(storeAmenity, store, amenity)
                 if (newAmenity) { // Create new entity
@@ -488,13 +501,13 @@ class StoreService extends MySqlDal {
                 storeAmenitiesCommand.setAvailability(
                         storeAmenitiesCommand.setAvailability(
                                 [
-                                        new EnableHoursCommand(day: 'Monday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                                        new EnableHoursCommand(day: 'Tuesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                                        new EnableHoursCommand(day: 'Wednesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                                        new EnableHoursCommand(day: 'Thursday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                                        new EnableHoursCommand(day: 'Friday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                                        new EnableHoursCommand(day: 'Saturday', timeFrom: '', timeTo: '', restrictionEnabled: false),
-                                        new EnableHoursCommand(day: 'Sunday', timeFrom: '', timeTo: '', restrictionEnabled: false)
+                                        new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: false),
+                                        new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: false),
+                                        new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: false),
+                                        new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: false),
+                                        new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: false),
+                                        new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
+                                        new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
                                 ]
                         )
                 )
@@ -540,43 +553,43 @@ class StoreService extends MySqlDal {
             storeAmenity.setCount(storeAmenitiesCommand.count)
             storeAmenity.setStore(store)
             storeAmenity.setAmenity(amenity)
-            AmenityAvailableHours amenityAvailableHours = getAmenitiesAvailability(storeAmenitiesCommand?.availability)
-            storeAmenity.setAvailability(gsonProvider.gson.toJson(amenityAvailableHours))
+            OpeningHours openingHours = getAmenitiesAvailability(storeAmenitiesCommand?.availability)
+            storeAmenity.setAvailability(gsonProvider.gson.toJson(openingHours))
             return storeAmenity
         }
         return null
     }
 
-    private AmenityAvailableHours getAmenitiesAvailability(List<EnableHoursCommand> availability){
-        AmenityAvailableHours amenityAvailableHours = new AmenityAvailableHours();
-        availability?.forEach { enableHours ->
-            {
-                switch (enableHours.day) {
+    def getAmenitiesAvailability(List<OpeningTimeCommand> availability) {
+        OpeningHours openingHours = new OpeningHours()
+        if (availability != null) {
+            availability?.forEach {regHours -> {
+                switch (regHours.day) {
                     case "Monday":
-                        amenityAvailableHours.monday = getEnableHoursAsObject(enableHours)
+                        openingHours.monday = regularHoursMap(regHours)
                         break
                     case "Tuesday":
-                        amenityAvailableHours.tuesday = getEnableHoursAsObject(enableHours)
+                        openingHours.tuesday = regularHoursMap(regHours)
                         break
                     case "Wednesday":
-                        amenityAvailableHours.wednesday = getEnableHoursAsObject(enableHours)
+                        openingHours.wednesday = regularHoursMap(regHours)
                         break
                     case "Thursday":
-                        amenityAvailableHours.thursday = getEnableHoursAsObject(enableHours)
+                        openingHours.thursday = regularHoursMap(regHours)
                         break
                     case "Friday":
-                        amenityAvailableHours.friday = getEnableHoursAsObject(enableHours)
+                        openingHours.friday = regularHoursMap(regHours)
                         break
                     case "Saturday":
-                        amenityAvailableHours.saturday = getEnableHoursAsObject(enableHours)
+                        openingHours.saturday = regularHoursMap(regHours)
                         break
                     case "Sunday":
-                        amenityAvailableHours.sunday = getEnableHoursAsObject(enableHours)
+                        openingHours.sunday = regularHoursMap(regHours)
                         break
                 }
-            }
+            }}
         }
-        return amenityAvailableHours
+        return openingHours
     }
 
 

@@ -824,7 +824,7 @@ class AmenityCommand {
 class StoreAmenitiesCommand {
     String additionalDetail
     int count
-    List<EnableHoursCommand> availability;
+    List<OpeningTimeCommand> availability;
     AmenityCommand amenity
     int storeId
 }

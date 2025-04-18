@@ -45,37 +45,37 @@
                     <label for="selected.amenity.availability" class="col-2 col-form-label text-right" style="text-align: right; padding-right: 15px;">Available Hours</label>
                     <div class="col-10" style="padding-left: 0;">
                         <!-- Grid layout for fixed positioning -->
-                        <g:each var="enableHours" in="${selectedAmenity?.availability}" status="i">
-                            <div id="storeAmenities.enableHours[${i}].days" style="display: grid; grid-template-columns: 40px 100px auto; grid-gap: 15px; width: 100%; margin-left: 7px;">
+                        <g:each var="regularHours" in="${selectedAmenity?.availability}" status="i">
+                            <div id="storeAmenities.regularHours[${i}].days" style="display: grid; grid-template-columns: 40px 100px auto; grid-gap: 15px; width: 100%; margin-left: 7px;">
                                 <!-- Checkbox -->
                                 <div style="grid-column: 1; display: flex; align-items: center; justify-content: center;">
-                                    <g:checkBox name="storeAmenities.enableHour[${i}].restrictionEnabled"
-                                                value="${enableHours.restrictionEnabled}"
-                                                checked="${enableHours.restrictionEnabled}"
+                                    <g:checkBox name="storeAmenities.regularHours[${i}].closed"
+                                                value="${regularHours.closed}"
+                                                checked="${regularHours.closed}"
                                                 class="form-check-input restriction-checkbox"
                                                 style="width: 20px; height: 20px; cursor: pointer; margin: 0;"/>
                                 </div>
 
                                 <!-- Day name -->
                                 <div style="grid-column: 2; display: flex; align-items: center; overflow: hidden;">
-                                    <span class="form-control-plaintext" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${enableHours.day}</span>
-                                    <g:hiddenField id="storeAmenities.enableHour[${i}].day" name="storeAmenities.enableHour[${i}].day" value="${enableHours.day}"/>
+                                    <span class="form-control-plaintext" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${regularHours.day}</span>
+                                    <g:hiddenField id="storeAmenities.regularHours[${i}].day" name="storeAmenities.regularHours[${i}].day" value="${regularHours.day}"/>
                                 </div>
 
                                 <!-- Time inputs container -->
-                                <div id="timeFields_${i}" class="restriction-time-inputs" style="grid-column: 3; display: ${enableHours.restrictionEnabled ? 'flex' : 'none'}; align-items: center; gap: 0px;">
+                                <div id="timeFields_${i}" class="restriction-time-inputs" style="grid-column: 3; display: ${regularHours.closed ? 'flex' : 'none'}; align-items: center; gap: 0px;">
                                     <div style="display: flex; align-items: center; white-space: nowrap;">
-                                        <g:field type="time" name="storeAmenities.enableHour[${i}].startTime"
-                                                 id="storeAmenities.enableHour[${i}].startTime"
-                                                 value="${enableHours.timeFrom}"
+                                        <g:field type="time" name="storeAmenities.regularHours[${i}].startTime"
+                                                 id="storeAmenities.regularHours[${i}].startTime"
+                                                 value="${regularHours.startTime}"
                                                  class="form-control form-control-sm time-input"
                                                  style="width: 7rem !important; flex: none !important;"
                                                  placeholder="HH:mm"/>
                                         <span class="validity"></span>
                                         <span style="margin: 0 8px;">to</span>
-                                        <g:field type="time" name="storeAmenities.enableHour[${i}].endTime"
-                                                 id="storeAmenities.enableHour[${i}].endTime"
-                                                 value="${enableHours.timeTo}"
+                                        <g:field type="time" name="storeAmenities.regularHours[${i}].endTime"
+                                                 id="storeAmenities.regularHours[${i}].endTime"
+                                                 value="${regularHours.endTime}"
                                                  class="form-control form-control-sm time-input"
                                                  style="width: 7rem !important; flex: none !important;"
                                                  placeholder="HH:mm"/>
@@ -130,7 +130,7 @@
     // Function to attach event listeners to all checkboxes
     function attachCheckboxListeners() {
         // Select all checkboxes with names matching the pattern
-        const checkboxes = document.querySelectorAll('input[type="checkbox"][name*="enableHour"][name*="restrictionEnabled"]');
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name*="regularHours"][name*="closed"]');
         checkboxes.forEach(function(checkbox) {
             // First remove any existing listeners to prevent duplicates
             checkbox.removeEventListener('click', toggleTimeInputs);
