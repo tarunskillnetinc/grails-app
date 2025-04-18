@@ -61,7 +61,7 @@ class Store {
         openingHours column: "openingHours", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         licencing column: "licencing", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         storeRestrictions column: "storeRestrictions", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
-        storeAmenities cascade: "save-update,delete"
+        storeAmenities key: 'storeId'
     }
 
     static constraints = {

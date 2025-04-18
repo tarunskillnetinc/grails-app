@@ -11,7 +11,7 @@
         <g:hiddenField id="selected.amenity.id" name="selected.amenity.id" value="${selectedAmenity?.amenity?.id}"/>
         <g:hiddenField id="selected.amenity.retailerId" name="selected.amenity.retailerId" value="${selectedAmenity?.amenity?.retailerId}"/>
         <g:hiddenField id="selected.amenity.name" name="selected.amenity.name" value="${selectedAmenity?.amenity?.name}"/>
-        <g:hiddenField id="selected.storeId" name="selected.storeId" value="${storeId}"/>
+        <g:hiddenField id="selected.storeId" name="selected.storeId" value="${selectedAmenity?.storeId}"/>
 
         <section id="additional-details-errors-container" class="container-fluid"></section>
 
@@ -46,29 +46,45 @@
                     <div class="col-10" style="padding-left: 0;">
                         <!-- Grid layout for fixed positioning -->
                         <g:each var="enableHours" in="${selectedAmenity?.availability}" status="i">
-                            <div id="enableHours[${i}].days" style="display: grid; grid-template-columns: 40px 100px 120px 50px 120px; grid-gap: 15px; width: 100%; margin-left: 7px;">
-                                        <div style="grid-column: 1; display: flex; align-items: center; justify-content: center;"> <!-- Checkbox -->
-                                            <g:checkBox name="enableHour[${i}].restrictionEnabled" value="${enableHours.restrictionEnabled}" checked="${enableHours.restrictionEnabled}" class="form-check-input" style="width: 20px; height: 20px; cursor: pointer; margin: 0;" />
-                                        </div>
+                            <div id="storeAmenities.enableHours[${i}].days" style="display: grid; grid-template-columns: 40px 100px auto; grid-gap: 15px; width: 100%; margin-left: 7px;">
+                                <!-- Checkbox -->
+                                <div style="grid-column: 1; display: flex; align-items: center; justify-content: center;">
+                                    <g:checkBox name="storeAmenities.enableHour[${i}].restrictionEnabled"
+                                                value="${enableHours.restrictionEnabled}"
+                                                checked="${enableHours.restrictionEnabled}"
+                                                class="form-check-input restriction-checkbox"
+                                                style="width: 20px; height: 20px; cursor: pointer; margin: 0;"/>
+                                </div>
 
-                                        <div style="grid-column: 2; display: flex; align-items: center; overflow: hidden;">  <!-- Day name - with text overflow handling -->
-                                            <span  class="form-control-plaintext" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${enableHours.day}</span>
-                                            <g:hiddenField id="enableHour[${i}].day" name="enableHour[${i}].day" value="${enableHours.day}"/>
-                                        </div>
+                                <!-- Day name -->
+                                <div style="grid-column: 2; display: flex; align-items: center; overflow: hidden;">
+                                    <span class="form-control-plaintext" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${enableHours.day}</span>
+                                    <g:hiddenField id="storeAmenities.enableHour[${i}].day" name="storeAmenities.enableHour[${i}].day" value="${enableHours.day}"/>
+                                </div>
 
-                                        <div style="grid-column: 3;"> <!-- Start Time -->
-                                            <g:field type="time" name="enableHour[${i}].startTime" id="enableHour[${i}].startTime" value="${enableHours.timeFrom}" class="form-control form-control-sm time-input" placeholder="HH:mm"/>
-                                        </div>
-
-                                        <div> <!-- "to" label -->
-                                            <span>to</span>
-                                        </div>
-
-                                        <div style="grid-column: 5;"> <!-- End Time -->
-                                            <g:field type="time" name="enableHour[${i}].endTime" id="enableHour[${i}].endTime" value="${enableHours.timeTo}" class="form-control form-control-sm time-input" placeholder="HH:mm"/>
-                                        </div>
+                                <!-- Time inputs container -->
+                                <div id="timeFields_${i}" class="restriction-time-inputs" style="grid-column: 3; display: ${enableHours.restrictionEnabled ? 'flex' : 'none'}; align-items: center; gap: 0px;">
+                                    <div style="display: flex; align-items: center; white-space: nowrap;">
+                                        <g:field type="time" name="storeAmenities.enableHour[${i}].startTime"
+                                                 id="storeAmenities.enableHour[${i}].startTime"
+                                                 value="${enableHours.timeFrom}"
+                                                 class="form-control form-control-sm time-input"
+                                                 style="width: 7rem !important; flex: none !important;"
+                                                 placeholder="HH:mm"/>
+                                        <span class="validity"></span>
+                                        <span style="margin: 0 8px;">to</span>
+                                        <g:field type="time" name="storeAmenities.enableHour[${i}].endTime"
+                                                 id="storeAmenities.enableHour[${i}].endTime"
+                                                 value="${enableHours.timeTo}"
+                                                 class="form-control form-control-sm time-input"
+                                                 style="width: 7rem !important; flex: none !important;"
+                                                 placeholder="HH:mm"/>
+                                        <span class="validity"></span>
+                                    </div>
+                                </div>
                             </div>
                         </g:each>
+
                     </div>
                 </div>
             </div>
@@ -80,3 +96,76 @@
         <button type="button" id="saveAddSupplierButton" class="btn btn-success" onclick="saveAmenities(${index}, ${storeId});">Save</button>
     </div>
 </section>
+
+<style>
+.amenity-time-input {
+    width: 70px !important;
+    max-width: 70px !important;
+}
+
+/* If the above doesn't work, try this more specific selector */
+.restriction-time-inputs .amenity-time-input {
+    width: 70px !important;
+    max-width: 70px !important;
+}
+</style>
+
+<script type="text/javascript">
+    // Function to toggle time input fields based on checkbox state
+    function toggleTimeInputs() {
+        // Find the closest grid container that contains this checkbox
+        const gridContainer = this.closest('div[style*="grid-template-columns"]');
+
+        if (gridContainer) {
+            // Find the time inputs container within the same grid container
+            const timeInputsContainer = gridContainer.querySelector('.restriction-time-inputs');
+
+            if (timeInputsContainer) {
+                // Set display based on checkbox state
+                timeInputsContainer.style.display = this.checked ? 'flex' : 'none';
+            }
+        }
+    }
+
+    // Function to attach event listeners to all checkboxes
+    function attachCheckboxListeners() {
+        // Select all checkboxes with names matching the pattern
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name*="enableHour"][name*="restrictionEnabled"]');
+        checkboxes.forEach(function(checkbox) {
+            // First remove any existing listeners to prevent duplicates
+            checkbox.removeEventListener('click', toggleTimeInputs);
+
+            // Then add the click event listener (more reliable than change)
+            checkbox.addEventListener('click', toggleTimeInputs);
+
+            // Also set initial state
+            const gridContainer = checkbox.closest('div[style*="grid-template-columns"]');
+            if (gridContainer) {
+                const timeInputsContainer = gridContainer.querySelector('.restriction-time-inputs');
+                if (timeInputsContainer) {
+                    timeInputsContainer.style.display = checkbox.checked ? 'flex' : 'none';
+                }
+            }
+        });
+    }
+
+    // Initialize when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        attachCheckboxListeners();
+    });
+
+    // For modals/popups that might load content dynamically
+    // This ensures the listeners are attached when the modal is shown
+    jQuery(document).ready(function($) {
+        // For Bootstrap modals
+        $(document).on('shown.bs.modal', function() {
+            setTimeout(attachCheckboxListeners, 100); // Small delay to ensure content is rendered
+        });
+
+        // For custom modal implementations
+        $('#saveAddSupplierButton, #closeListItemModal').on('click', function() {
+            setTimeout(attachCheckboxListeners, 100);
+        });
+    });
+
+</script>

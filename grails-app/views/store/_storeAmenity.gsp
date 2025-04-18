@@ -1,3 +1,11 @@
+<%
+    // Create a set of amenity IDs that are already in the store amenities list
+    def existingAmenityIds = storeAmenities.collect { it.amenity?.id }.findAll { it != null } as Set
+
+    // Filter the amenities list to only include those not in the existing set
+    def availableAmenities = amenities.findAll { amenity -> !existingAmenityIds.contains(amenity.id) }
+%>
+
 <div class="row mt-3">
     <label for="amenitiesSelector" class="col-3 col-form-label text-right mr-9">Amenities:</label>
     <div class="col-5">
@@ -7,7 +15,7 @@
                 <span class="caret"></span>
             </div>
             <div id="amenityIdSelect" class="dropdown-menu w-100">
-                <g:each in="${amenities}" var="amenity">
+                <g:each in="${availableAmenities}" var="amenity">
                     <div class="dropdown-item">
                         <label class="mb-0">
                             <input id="${amenity.id}" type="checkbox" name="amenities" value="${amenity.id}"

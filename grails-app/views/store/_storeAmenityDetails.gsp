@@ -96,7 +96,7 @@
                         <div class="amenity-detail"><strong>Available Quantity:</strong> ${storeAmenity?.count}</div>
                     </g:if>
 
-                    <g:if test="${storeAmenity?.availability}">
+                    <g:if test="${storeAmenity?.availability?.size() > 0}">
                         <div class="amenity-detail"><strong>Opening Hours:</strong></div>
                         <g:each in="${storeAmenity?.availability}" var="day" status="j">
                             <div class="enableDays[j]">
@@ -118,7 +118,7 @@
                     </g:if>
                 </div>
                 <div class="amenity-actions">
-                    <a href="#" class="btn btn-sm btn-wl mr-2" style="min-width: 80px; font-size: 0.9rem;" onclick="editAmenities(${i}, ${storeAmenity?.amenity?.id}, ${storeAmenity?.storeId})">Edit</a>
+                    <a href="#" class="btn btn-sm btn-wl mr-2" style="min-width: 80px; font-size: 0.9rem;" onclick="editAmenities(${i})">Edit</a>
                     <a href="#" class="btn btn-sm btn-danger" style="min-width: 80px; font-size: 0.9rem;" onclick="deleteStoreAmenity(${i})">Delete</a>
                 </div>
             </div>

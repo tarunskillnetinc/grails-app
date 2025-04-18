@@ -190,6 +190,7 @@ class StoreController {
          storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours()),
          alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing()),
          storeRestrictions           : storeService.convertToStoreRestrictionCommand(store?.getStoreRestrictedHours()),
+         //amenities                   : storeService.getAvailableAmenitiesForStore(store?.id, springSecurityService.principal.retailerId),
          amenities                   : storeService.getAmenitiesList(springSecurityService.principal.retailerId),
          storeAmenities              : storeService.convertToStoreRestrictionCommands(store?.storeAmenities, store?.id)
         ]
@@ -212,7 +213,9 @@ class StoreController {
                                         storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails),
                                         storeOpeningHoursCommand: newStoreCommand.storeOpeningHoursCommand,
                                         alcoholLicensingCommand: newStoreCommand.alcoholLicensingCommand,
-                                        storeRestrictions: newStoreCommand.storeRestrictions
+                                        storeRestrictions: newStoreCommand.storeRestrictions,
+                                        amenities: storeService.getAvailableAmenitiesForStore(store?.id, springSecurityService.principal.retailerId),
+                                        storeAmenities: newStoreCommand?.storeAmenities
             ])
         } else {
             // Validated.
@@ -421,12 +424,8 @@ class StoreController {
         render(template: "storeRestrictions", model: [storeRestrictions: storeService.sortStoreRestrictions(storeRestrictionsCommand)])
     }
 
-    def ajaxAddAmenities(){
-        Integer amenityId = params.amenityId != null ? Integer.parseInt(params.amenityId) : -1
-        Integer storeId = params.storeId != null ? Integer.parseInt(params.storeId) : -1
-        StoreAmenity selectedStoreAmenity = storeService.findByAmenityAndStore(amenityId, storeId)
-        StoreAmenitiesCommand selectedStoreAmenityCommand = storeService.convertToStoreAmenityCommand(selectedStoreAmenity, storeId)
-        render(template: "addStoreAmenity", model: [index : params?.index, storeId: storeId ,selectedAmenity: selectedStoreAmenityCommand])
+    def ajaxAddAmenities(StoreAmenitiesCommand storeAmenitiesCommand){
+        render(template: "addStoreAmenity", model: [index : params?.index, selectedAmenity: storeAmenitiesCommand])
     }
 
     def ajaxAddStoreAmenity(SelectedAmenitiesCommand selectedAmenitiesCommand){
@@ -504,6 +503,7 @@ class NewStoreCommand implements Validateable {
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
     AlcoholLicensingCommand alcoholLicensingCommand
     StoreRestrictionsCommand storeRestrictions
+    List<StoreAmenitiesCommand> storeAmenities
 
     static constraints = {
         storeNumber nullable: false,blank: false, min:1, max: 999999, validator: { val, obj ->
@@ -592,6 +592,7 @@ class NewStoreCommand implements Validateable {
             }
             return true
         }
+        storeAmenities nullable: true
 
     }
 }

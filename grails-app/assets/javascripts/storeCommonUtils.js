@@ -352,14 +352,46 @@ function safelyCloseModal(modalId) {
     });
 }
 
-function editAmenities(index, amenityId, storeId) {
+function editAmenities(index) {
     $("#addAmenitiesContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
     $('#addAmenitiesModal').modal({show: true, backdrop: 'static', keyboard: false});
-    var params = {
-        amenityId: amenityId,
-        storeId: storeId,
-        index: index
+    var params = {}
+
+    if (index !== undefined && index !== null) {
+        params["amenity.id"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.id").val();
+        params["amenity.retailerId"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.retailerId").val();
+        params["amenity.name"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.name").val();
+        params["storeId"] = $("#storeAmenities\\[" + index + "\\]\\.storeId").val();
+
+        // Additional details if present
+        var additionalDetail = $("#storeAmenities\\[" + index + "\\]\\.additionalDetail");
+        if (additionalDetail.length) {
+            params["additionalDetail"] = additionalDetail.val();
+        }
+
+        // Count if present
+        var count = $("#storeAmenities\\[" + index + "\\]\\.count");
+        if (count.length) {
+            params["count"] = count.val();
+        }
+
+        // Availability hours
+        var j = 0;
+        var daySelector = "#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.day";
+        var dayElement = $(daySelector);
+
+        while (dayElement.length > 0) {
+            params["availability[" + j + "].day"] = dayElement.val();
+            params["availability[" + j + "].timeFrom"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.timeFrom").val();
+            params["availability[" + j + "].timeTo"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.timeTo").val();
+            params["availability[" + j + "].restrictionEnabled"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.restrictionEnabled").val();
+            j++;
+            daySelector = "#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.day";
+            dayElement = $(daySelector);
+        }
     }
+    params["index"] = index
+
     $.ajax({
         url: addAmenity,
         method: "GET",
@@ -419,7 +451,6 @@ function saveAmenities(selectedIndex, storeId) {
             params["storeAmenities[" + index + "].additionalDetail"] = additionalDetail.val();
         }
 
-
         // Count if present
         var count = $("#storeAmenities\\[" + index + "\\]\\.count");
         if (count.length) {
@@ -452,11 +483,11 @@ function saveAmenities(selectedIndex, storeId) {
         params["storeAmenities[" + selectedIndex + "].count"] = $("#selected\\.amenity\\.quantity").val() || "0";
 
         // Find all day containers
-        $("div[id^='enableHours[']").each(function(i) {
-            var dayValue = $("input[name='enableHour[" + i + "].day']").val();
-            var timeFrom = $("input[name='enableHour[" + i + "].startTime']").val();
-            var timeTo = $("input[name='enableHour[" + i + "].endTime']").val();
-            var restrictionEnabled = $("input[name='enableHour[" + i + "].restrictionEnabled']").is(":checked");
+        $("div[id^='storeAmenities.enableHours[']").each(function(i) {
+            var dayValue = $("input[name='storeAmenities.enableHour[" + i + "].day']").val();
+            var timeFrom = $("input[name='storeAmenities.enableHour[" + i + "].startTime']").val();
+            var timeTo = $("input[name='storeAmenities.enableHour[" + i + "].endTime']").val();
+            var restrictionEnabled = $("input[name='storeAmenities.enableHour[" + i + "].restrictionEnabled']").is(":checked");
 
             params["storeAmenities[" + selectedIndex + "].availability[" + i + "].day"] = dayValue;
             params["storeAmenities[" + selectedIndex + "].availability[" + i + "].timeFrom"] = timeFrom;
@@ -469,6 +500,10 @@ function saveAmenities(selectedIndex, storeId) {
     selectedCheckboxes.each(function(idIndex) {
         const id = $(this).val();
         params["selectedAmenityIds[" + idIndex + "]"] = id;
+        // Remove the selected amenity from dropdown
+        $(`#amenityIdSelect input[value="${id}"]`).closest('.dropdown-item').remove();
+        $('input[name="amenities"]').prop('checked', false);
+        $('#selectedAmenities').text('Select Amenities');
     });
 
     params["storeId"] = storeId
@@ -490,6 +525,11 @@ function saveAmenities(selectedIndex, storeId) {
 
 function deleteStoreAmenity(index) {
     if (confirm("Are you sure you want to delete?")) {
+        const amenityId = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.id").val();
+        const amenityName = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.name").val();
+        const retailerId = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.retailerId").val();
+
+
         var storeAmenitiesContainer = $("#storeAmenitiesContainer > div");
         if (storeAmenitiesContainer.length) {
             var params = {}
@@ -536,10 +576,48 @@ function deleteStoreAmenity(index) {
                 data: params,
                 success: function(resp) {
                     safelyCloseModal('#addAmenitiesModal');
+                    addAmenityToDropdown(amenityId, amenityName, retailerId);
                     var storeAmenitiesContainer = $("#storeAmenitiesContainer");
                     storeAmenitiesContainer.html(resp);
                 }
             });
         }
     }
+}
+
+function addAmenityToDropdown(id, name, retailerId) {
+    // Check if the amenity already exists in the dropdown
+    if ($(`#amenityIdSelect input[value="${id}"]`).length === 0) {
+        const newItem = `
+            <div class="dropdown-item">
+                <label class="mb-0">
+                    <input id="${id}" type="checkbox" name="amenities" value="${id}"
+                           data-name="${name}" data-retailer-id="${retailerId}">
+                    ${name}
+                </label>
+            </div>
+        `;
+
+        // Add the item to the dropdown
+        $('#amenityIdSelect').append(newItem);
+
+        // Sort all dropdown items alphabetically
+        sortAmenitiesDropdown();
+    }
+}
+
+// Function to sort the amenities dropdown alphabetically
+function sortAmenitiesDropdown() {
+    const dropdownMenu = $('#amenityIdSelect');
+    const items = dropdownMenu.find('.dropdown-item').get();
+
+    items.sort(function(a, b) {
+        const textA = $(a).text().trim().toUpperCase();
+        const textB = $(b).text().trim().toUpperCase();
+        return textA.localeCompare(textB);
+    });
+
+    $.each(items, function(index, item) {
+        dropdownMenu.append(item);
+    });
 }

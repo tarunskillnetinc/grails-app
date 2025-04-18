@@ -20,5 +20,8 @@ class StoreAmenity implements Serializable {
         availability column: "availability", sqlType: "JSON"
     }
 
-    static constraints = {}
+    static constraints = {
+        additionalDetail nullable: true
+        availability nullable: true
+    }
 }

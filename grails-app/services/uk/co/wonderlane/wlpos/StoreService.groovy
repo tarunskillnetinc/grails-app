@@ -259,10 +259,8 @@ class StoreService extends MySqlDal {
         }
     }
 
-
     StoreOpeningHoursCommand convertToStoreOpeningHoursCommand(OpeningHours openingHours) {
         StoreOpeningHoursCommand command = new StoreOpeningHoursCommand()
-
         // Convert regular hours
         if (openingHours != null) {
             List<OpeningTimeCommand> regularHours = new ArrayList<>();
@@ -302,7 +300,6 @@ class StoreService extends MySqlDal {
                     new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
             ])
         }
-
         return command
     }
 
@@ -424,6 +421,27 @@ class StoreService extends MySqlDal {
         return StoreAmenity.findByAmenityAndStore(amenity, store)
     }
 
+    List<Amenity> getAvailableAmenitiesForStore(Integer storeId, Integer retailerId) {
+        def usedAmenityIds = StoreAmenity.where {
+            store.id == storeId
+        }.property('amenity.id').list()
+
+        def amenities = Amenity.createCriteria().list {
+            eq('retailerId', retailerId)
+            if (usedAmenityIds && !usedAmenityIds.isEmpty()) {
+                not {
+                    'in'('id', usedAmenityIds)
+                }
+            }
+            order('name', 'asc')
+        }
+
+        // Remove duplicates by creating a map with ID as key
+        def uniqueAmenities = amenities.collectEntries { [(it.id): it] }.values() as List
+
+        return uniqueAmenities.sort { it.name }
+    }
+
     def saveStoreAmenities(List<StoreAmenitiesCommand> storeAmenitiesCommand, Store store){
         // Create maps for efficient lookup
         Map<String, StoreAmenitiesCommand> storeAmenitiesCommandMap = createStoreAmenityCommandMap(storeAmenitiesCommand)
@@ -432,24 +450,32 @@ class StoreService extends MySqlDal {
         // First, delete any StoreAmenity entries that are no longer in the command list
         storeAmenitiesMap.each { String key, StoreAmenity storeAmenity ->
             if (!storeAmenitiesCommandMap.containsKey(key)) {  // This StoreAmenity is not in the updated list, so delete it
-                storeAmenity.delete(flush: true)
+                Amenity amenity = Amenity.get(storeAmenity?.amenity?.id)
+                StoreAmenity existingStoreAmenity = StoreAmenity.findByAmenityAndStore(amenity, store)
+                if (existingStoreAmenity) {
+                    store.removeFromStoreAmenities(existingStoreAmenity)
+                    existingStoreAmenity.delete(flush: true)
+//                StoreAmenity.executeUpdate("delete from StoreAmenity where amenityId = :amenityId and storeId = :storeId",
+//                        [amenityId: storeAmenity.amenity.id, storeId: store.id])
+                }
             }
         }
 
         // Then, save or update all entries from the command list
         for (StoreAmenitiesCommand storeAmenity : storeAmenitiesCommand) {
-            Amenity amenity = Amenity.get(storeAmenitiesCommand?.amenity?.id)
+            Amenity amenity = Amenity.get(storeAmenity?.amenity?.id)
             StoreAmenity existingAmenity = StoreAmenity.findByAmenityAndStore(amenity, store)
             if (existingAmenity) {
                 existingAmenity.additionalDetail = storeAmenity.additionalDetail
                 existingAmenity.count = storeAmenity.count
                 AmenityAvailableHours amenityAvailableHours = getAmenitiesAvailability(storeAmenity?.availability)
                 existingAmenity.availability = gsonProvider.gson.toJson(amenityAvailableHours)
-                existingAmenity.save(flush: true)
             } else {
-                // Create new entity
                 StoreAmenity newAmenity = getStoreAmenity(storeAmenity, store, amenity)
-                newAmenity.save(flush: true)
+                if (newAmenity) { // Create new entity
+                    newAmenity.save(flush: true)
+                }
+
             }
         }
     }
