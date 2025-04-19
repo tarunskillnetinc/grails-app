@@ -93,7 +93,7 @@
 
     <div class="modal-footer">
         <button type="button" id="closeListItemModal" class="btn btn-wl" onclick="closeStoreAmenityAddModal();">Cancel</button>
-        <button type="button" id="saveAddSupplierButton" class="btn btn-success" onclick="saveAmenities(${index}, ${storeId});">Save</button>
+        <button type="button" id="saveAddSupplierButton" class="btn btn-success" onclick="saveAmenities(${index}, ${selectedAmenity?.storeId});">Save</button>
     </div>
 </section>
 
