@@ -487,12 +487,12 @@ function saveAmenities(selectedIndex, storeId) {
             var dayValue = $("input[name='storeAmenities.regularHours[" + i + "].day']").val();
             var timeFrom = $("input[name='storeAmenities.regularHours[" + i + "].startTime']").val();
             var timeTo = $("input[name='storeAmenities.regularHours[" + i + "].endTime']").val();
-            var restrictionEnabled = $("input[name='storeAmenities.regularHours[" + i + "].closed']").is(":checked");
+            var closed = $("input[name='storeAmenities.regularHours[" + i + "].closed']").is(":checked");
 
             params["storeAmenities[" + selectedIndex + "].availability[" + i + "].day"] = dayValue;
             params["storeAmenities[" + selectedIndex + "].availability[" + i + "].startTime"] = timeFrom;
             params["storeAmenities[" + selectedIndex + "].availability[" + i + "].endTime"] = timeTo;
-            params["storeAmenities[" + selectedIndex + "].availability[" + i + "].closed"] = restrictionEnabled;
+            params["storeAmenities[" + selectedIndex + "].availability[" + i + "].closed"] = !closed;
         });
     }
 
@@ -593,7 +593,7 @@ function addAmenityToDropdown(id, name, retailerId) {
                 <label class="mb-0">
                     <input id="${id}" type="checkbox" name="amenities" value="${id}"
                            data-name="${name}" data-retailer-id="${retailerId}">
-                    <g:message code="Amenity.${name}" default="${name}" />
+                    ${name}
                 </label>
             </div>
         `;

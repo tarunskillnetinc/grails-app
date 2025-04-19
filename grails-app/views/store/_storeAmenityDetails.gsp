@@ -9,7 +9,7 @@
                         <g:hiddenField id="storeAmenities[${i}].storeId" name="storeAmenities[${i}].storeId" value="${storeAmenity?.storeId}"/>
                         <g:hiddenField id="storeAmenities[${i}].additionalDetail" name="storeAmenities[${i}].additionalDetail" value="${storeAmenity?.additionalDetail}"/>
                         <g:hiddenField id="storeAmenities[${i}].count" name="storeAmenities[${i}].count" value="${storeAmenity?.count}"/>
-                        <div class="amenity-name"><g:message code="Amenity.${storeAmenity?.amenity?.name}" default="${storeAmenity?.amenity?.name}" /></div>
+                        <div class="amenity-name mb-3"><strong><g:message code="Amenity.${storeAmenity?.amenity?.name}" default="${storeAmenity?.amenity?.name}" /></strong></div>
                         <g:if test="${storeAmenity?.additionalDetail}">
                             <div class="amenity-detail"><strong>Description:</strong> ${storeAmenity?.additionalDetail ?: 'Not specified'}</div>
                         </g:if>
@@ -19,10 +19,12 @@
                         </g:if>
 
                         <g:if test="${storeAmenity?.availability?.size() > 0}">
-                            <div class="amenity-detail"><strong>Opening Hours:</strong></div>
+                            <g:if test="${storeAmenity?.availability?.any { !it.closed }}">
+                                <div class="amenity-detail"><strong>Opening Hours:</strong></div>
+                            </g:if>
                             <g:each in="${storeAmenity?.availability}" var="day" status="j">
                                 <div class="enableDays[j]">
-                                    <g:if test="${day.closed}">
+                                    <g:if test="${!day.closed}">
                                         ${day.day}
                                         <g:if test="${day.startTime}">
                                             from ${day.startTime}

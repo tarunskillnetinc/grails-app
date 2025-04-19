@@ -143,8 +143,16 @@ class StoreController {
                 otherRestrictions: []
         )
 
-        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand: storeOpeningHoursCommand,
-         alcoholLicensingCommand: alcoholLicensingCommand, storeRestrictions: storeRestrictions]
+        [storeTypes: storeTypes,
+         parentStores: parentStores,
+         priceBands: priceBands,
+         ranges: ranges,
+         storeOpeningHoursCommand: storeOpeningHoursCommand,
+         alcoholLicensingCommand: alcoholLicensingCommand,
+         storeRestrictions: storeRestrictions,
+         amenities: storeService.getAmenitiesList(springSecurityService.principal.retailerId),
+         storeAmenities: storeService.convertToStoreRestrictionCommands(null, -1)
+        ]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -190,7 +198,6 @@ class StoreController {
          storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours()),
          alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing()),
          storeRestrictions           : storeService.convertToStoreRestrictionCommand(store?.getStoreRestrictedHours()),
-         //amenities                   : storeService.getAvailableAmenitiesForStore(store?.id, springSecurityService.principal.retailerId),
          amenities                   : storeService.getAmenitiesList(springSecurityService.principal.retailerId),
          storeAmenities              : storeService.convertToStoreRestrictionCommands(store?.storeAmenities, store?.id)
         ]
@@ -214,7 +221,7 @@ class StoreController {
                                         storeOpeningHoursCommand: newStoreCommand.storeOpeningHoursCommand,
                                         alcoholLicensingCommand: newStoreCommand.alcoholLicensingCommand,
                                         storeRestrictions: newStoreCommand.storeRestrictions,
-                                        amenities: storeService.getAvailableAmenitiesForStore(store?.id, springSecurityService.principal.retailerId),
+                                        amenities: storeService.getAmenitiesList(springSecurityService.principal.retailerId),
                                         storeAmenities: newStoreCommand?.storeAmenities
             ])
         } else {
@@ -268,6 +275,7 @@ class StoreController {
             store.storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(newStoreCommand?.storeRestrictions))
 
             storeService.saveStore(store)
+            storeService.saveStoreAmenities(newStoreCommand?.storeAmenities, store)
 
             flash.message = "Store created successfully."
             redirect (action: "config", id: store.id)

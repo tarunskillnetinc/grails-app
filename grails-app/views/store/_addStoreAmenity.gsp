@@ -50,8 +50,8 @@
                                 <!-- Checkbox -->
                                 <div style="grid-column: 1; display: flex; align-items: center; justify-content: center;">
                                     <g:checkBox name="storeAmenities.regularHours[${i}].closed"
-                                                value="${regularHours.closed}"
-                                                checked="${regularHours.closed}"
+                                                value="false"
+                                                checked="${!regularHours.closed}"
                                                 class="form-check-input restriction-checkbox"
                                                 style="width: 20px; height: 20px; cursor: pointer; margin: 0;"/>
                                 </div>

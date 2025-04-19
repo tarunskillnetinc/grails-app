@@ -19,8 +19,8 @@
                     <div class="dropdown-item">
                         <label class="mb-0">
                             <input id="${amenity.id}" type="checkbox" name="amenities" value="${amenity.id}"
-                                   data-name="<g:message code="Amenity.${amenity.name}" default="${amenity.name}" />">
-                            <g:message code="Amenity.${amenity.name}" default="${amenity.name}" />
+                                   data-name="${amenity.name}" default="${amenity.name}" />
+                            ${amenity.name}
                         </label>
                     </div>
                 </g:each>
@@ -33,7 +33,7 @@
     </div>
 </div>
 
-<div class="col-12 mt-5 amenities-container" style="padding: 0;" id="storeAmenitiesContainer">
+<div class="col-12 mt-5 amenities-container" style="padding: 0; overflow-y: auto; max-height: 500px;" id="storeAmenitiesContainer">
     <g:render template="storeAmenityDetails" model="[storeAmenities: storeAmenities]" />
 </div>
 
@@ -96,8 +96,6 @@
             return;
         }
 
-        console.log('Selected amenities:', selectedAmenities);
-
         // Call your existing function for each selected amenity
         selectedAmenities.forEach(amenity => {
             addAmenities(amenity.id, amenity.name, null);
@@ -108,43 +106,3 @@
         $('#selectedAmenities').text('Select Amenities');
     }
 </script>
-
-%{--<style>--}%
-%{--    .dropdown-item {--}%
-%{--        padding: 0.5rem 1rem;--}%
-%{--    }--}%
-
-%{--    .dropdown-item label {--}%
-%{--        display: block;--}%
-%{--        width: 100%;--}%
-%{--        cursor: pointer;--}%
-%{--    }--}%
-
-%{--    .dropdown-menu {--}%
-%{--        max-height: 300px;--}%
-%{--        overflow-y: auto;--}%
-%{--    }--}%
-
-%{--    #amenities {--}%
-%{--        cursor: pointer;--}%
-%{--    }--}%
-
-%{--    .caret {--}%
-%{--        float: right;--}%
-%{--        margin-top: 8px;--}%
-%{--    }--}%
-
-%{--    #storeAmenitiesContainer {--}%
-%{--        display: flex;--}%
-%{--        flex-direction: column;--}%
-%{--        align-items: center;--}%
-%{--        padding-left: 15%; /* This will push content to the right */--}%
-%{--    }--}%
-
-%{--    #storeAmenitiesContainer {--}%
-%{--        display: flex;--}%
-%{--        flex-direction: column;--}%
-%{--        align-items: flex-end; /* Aligns to the right */--}%
-%{--        padding-right: 15%; /* Adjusts how far from the right edge */--}%
-%{--    }--}%
-%{--</style>--}%

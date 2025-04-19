@@ -6,7 +6,6 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
-import uk.co.wonderlane.wlpos.entities.AmenityAvailableHours
 import uk.co.wonderlane.wlpos.entities.EnableHours
 import uk.co.wonderlane.wlpos.entities.OpeningHours
 import uk.co.wonderlane.wlpos.entities.OpeningTime
@@ -389,31 +388,11 @@ class StoreService extends MySqlDal {
 
                 storeAmenitiesCommand.setAvailability(regularHours)
             } else {
-                storeAmenitiesCommand.setAvailability(
-                        [
-                                new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: false),
-                                new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: false),
-                                new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: false),
-                                new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: false),
-                                new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: false),
-                                new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
-                                new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
-                        ]
-                )
+                storeAmenitiesCommand.availability =  getDefaultOpeningTimeCommandForAmenities()
             }
             storeAmenitiesCommand.storeId = storeId
         } else {
-            storeAmenitiesCommand.setAvailability(
-                    [
-                            new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: false),
-                            new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: false),
-                            new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: false),
-                            new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: false),
-                            new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: false),
-                            new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
-                            new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
-                    ]
-            )
+            storeAmenitiesCommand.availability = getDefaultOpeningTimeCommandForAmenities()
         }
         return storeAmenitiesCommand
     }
@@ -498,19 +477,7 @@ class StoreService extends MySqlDal {
             amenityId -> {
                 Amenity amenity = Amenity.get(amenityId)
                 StoreAmenitiesCommand storeAmenitiesCommand = new StoreAmenitiesCommand()
-                storeAmenitiesCommand.setAvailability(
-                        storeAmenitiesCommand.setAvailability(
-                                [
-                                        new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: false),
-                                        new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: false),
-                                        new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: false),
-                                        new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: false),
-                                        new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: false),
-                                        new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: false),
-                                        new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
-                                ]
-                        )
-                )
+                storeAmenitiesCommand.availability = getDefaultOpeningTimeCommandForAmenities()
                 storeAmenitiesCommand.setAmenity(
                         new AmenityCommand(
                                 id: amenity?.id,
@@ -723,5 +690,17 @@ class StoreService extends MySqlDal {
         storeOtherRestrictions.startDateTime = storeOtherRestrictionsCommand?.startDateTime ? LocalDateTime.parse(storeOtherRestrictionsCommand?.startDateTime, formatterDate) : null
         storeOtherRestrictions.endDateTime = storeOtherRestrictionsCommand?.endDateTime ? LocalDateTime.parse(storeOtherRestrictionsCommand?.endDateTime, formatterDate) : null
         return storeOtherRestrictions
+    }
+
+    private List<OpeningTimeCommand> getDefaultOpeningTimeCommandForAmenities(){
+        return [
+                new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: true)
+        ]
     }
 }
