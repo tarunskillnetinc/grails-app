@@ -1,6 +1,6 @@
 <section id="modal-header">
     <div class="modal-header">
-        <h2 id="page-title" class="mx-auto my-auto">Edit Amenities</h2>
+        <h2 id="page-title" class="mx-auto my-auto">Edit ${selectedAmenity?.amenity?.name}</h2>
     </div>
 </section>
 
@@ -32,7 +32,7 @@
                 <div class="form-group row">
                     <label id="value" for="selected.amenity.quantity" class="col-3 col-form-label text-right pr-4">Quantity</label>
                     <div class="col-8">
-                        <g:field type="number" id="selected.amenity.quantity" name="selected.amenity.quantity" class="form-control select-border" max="9999" value="${selectedAmenity?.count}" />
+                        <g:field type="number" id="selected.amenity.quantity" name="selected.amenity.quantity" class="form-control select-border" max="9999" value="${selectedAmenity?.count > 0 ? selectedAmenity?.count : ''}" />
                     </div>
                 </div>
             </div>

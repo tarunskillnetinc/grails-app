@@ -83,26 +83,4 @@
         });
     }
 
-    function addSelectedAmenities() {
-        const selectedAmenities = $('input[name="amenities"]:checked').map(function() {
-            return {
-                id: $(this).val(),
-                name: $(this).data('name')
-            };
-        }).get();
-
-        if (selectedAmenities.length === 0) {
-            alert('Please select at least one amenity');
-            return;
-        }
-
-        // Call your existing function for each selected amenity
-        selectedAmenities.forEach(amenity => {
-            addAmenities(amenity.id, amenity.name, null);
-        });
-
-        // Clear selections after adding
-        $('input[name="amenities"]').prop('checked', false);
-        $('#selectedAmenities').text('Select Amenities');
-    }
 </script>

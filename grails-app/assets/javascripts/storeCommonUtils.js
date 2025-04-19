@@ -402,30 +402,6 @@ function editAmenities(index) {
     });
 }
 
-function addAmenities() {
-    const selectedCheckboxes = $('input[name="amenities"]:checked');
-    var params = {}
-
-    // Extract just the IDs into an array
-    const selectedIds = selectedCheckboxes.map(function() {
-        return $(this).val();
-    }).get();
-
-    // If you need to add each ID individually with an index
-    selectedIds.forEach((id, index) => {
-        params["amenities[" + index + "].amenityId"] = id;
-    });
-
-    $.ajax({
-        url: addAmenity,
-        method: "GET",
-        data: params,
-        success: function (resp) {
-            $("#addAmenitiesContent").html(resp);
-        }
-    });
-}
-
 function closeStoreAmenityAddModal(){
     if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
         $('#addAmenitiesModal').modal('hide')
