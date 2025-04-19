@@ -509,7 +509,7 @@ function deleteStoreAmenity(index) {
         var storeAmenitiesContainer = $("#storeAmenitiesContainer > div");
         if (storeAmenitiesContainer.length) {
             var params = {}
-            var amenityItems = $(".amenities-container > div.amenity-item");
+            var amenityItems = $(".amenities-container > div > .amenity-item");
             amenityItems.each(function(loopIndex) {
                 if (index !== loopIndex) {
                     // Amenity basic properties
