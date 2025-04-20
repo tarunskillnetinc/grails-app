@@ -416,7 +416,8 @@ class StoreService extends MySqlDal {
                 Amenity amenity = Amenity.get(storeAmenity?.amenity?.id)
                 StoreAmenity existingStoreAmenity = StoreAmenity.findByAmenityAndStore(amenity, store)
                 if (existingStoreAmenity) {
-                    existingStoreAmenity.delete(flush: true)
+                    store.storeAmenities.remove(existingStoreAmenity)
+                    storeAmenity.delete(flush: true)
                 }
             }
         }
@@ -433,6 +434,7 @@ class StoreService extends MySqlDal {
             } else {
                 StoreAmenity newAmenity = getStoreAmenity(storeAmenity, store, amenity)
                 if (newAmenity) { // Create new entity
+                    store.storeAmenities.add(newAmenity)
                     newAmenity.save(flush: true)
                 }
             }
