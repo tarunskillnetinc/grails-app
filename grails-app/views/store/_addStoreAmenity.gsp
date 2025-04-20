@@ -63,7 +63,7 @@
                                 </div>
 
                                 <!-- Time inputs container -->
-                                <div id="timeFields_${i}" class="restriction-time-inputs" style="grid-column: 3; display: ${regularHours.closed ? 'flex' : 'none'}; align-items: center; gap: 0px;">
+                                <div id="timeFields_${i}" class="restriction-time-inputs" style="grid-column: 3; display: ${!regularHours.closed ? 'flex' : 'none'}; align-items: center; gap: 0px;">
                                     <div style="display: flex; align-items: center; white-space: nowrap;">
                                         <g:field type="time" name="storeAmenities.regularHours[${i}].startTime"
                                                  id="storeAmenities.regularHours[${i}].startTime"
