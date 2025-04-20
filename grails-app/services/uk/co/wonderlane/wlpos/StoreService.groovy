@@ -404,35 +404,6 @@ class StoreService extends MySqlDal {
         } as List<Amenity>
     }
 
-    StoreAmenity findByAmenityAndStore(Long amenityId, Long storeId) {
-        Amenity amenity = Amenity.get(amenityId)
-        Store store = Store.get(storeId)
-        if (!amenity || !store) {
-            return null
-        }
-        return StoreAmenity.findByAmenityAndStore(amenity, store)
-    }
-
-    List<Amenity> getAvailableAmenitiesForStore(Integer storeId, Integer retailerId) {
-        def usedAmenityIds = StoreAmenity.where {
-            store.id == storeId
-        }.property('amenity.id').list()
-
-        def amenities = Amenity.createCriteria().list {
-            eq('retailerId', retailerId)
-            if (usedAmenityIds && !usedAmenityIds.isEmpty()) {
-                not {
-                    'in'('id', usedAmenityIds)
-                }
-            }
-            order('name', 'asc')
-        }
-
-        // Remove duplicates by creating a map with ID as key
-        def uniqueAmenities = amenities.collectEntries { [(it.id): it] }.values() as List
-
-        return uniqueAmenities.sort { it.name }
-    }
 
     def saveStoreAmenities(List<StoreAmenitiesCommand> storeAmenitiesCommand, Store store){
         // Create maps for efficient lookup
@@ -445,10 +416,7 @@ class StoreService extends MySqlDal {
                 Amenity amenity = Amenity.get(storeAmenity?.amenity?.id)
                 StoreAmenity existingStoreAmenity = StoreAmenity.findByAmenityAndStore(amenity, store)
                 if (existingStoreAmenity) {
-                    store.removeFromStoreAmenities(existingStoreAmenity)
                     existingStoreAmenity.delete(flush: true)
-//                StoreAmenity.executeUpdate("delete from StoreAmenity where amenityId = :amenityId and storeId = :storeId",
-//                        [amenityId: storeAmenity.amenity.id, storeId: store.id])
                 }
             }
         }
@@ -467,7 +435,6 @@ class StoreService extends MySqlDal {
                 if (newAmenity) { // Create new entity
                     newAmenity.save(flush: true)
                 }
-
             }
         }
     }
