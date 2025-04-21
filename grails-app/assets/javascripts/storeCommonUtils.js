@@ -419,20 +419,13 @@ function getAllAmenities() {
     amenityItems.each(function(index) {
         filterParams["selectedAmenityIds[" + index + "]"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.id").val();
     });
-    $("#amenitiesSearchModal").modal('dispose');
 
     $.ajax({
         url: getStoreAmenities,
         data: filterParams,
         success: function (response) {
             $('#store-selection-list').html(response);
-            setTimeout(function() {
-                $("#amenitiesSearchModal").modal({
-                    show: true,
-                    backdrop: 'static',
-                    keyboard: false
-                });
-            }, 100);
+            $('#amenitiesSearchModal').modal({show: true, backdrop: 'static', keyboard: false});
         },
         error: function (xhr, status, error) {
             console.log('Error: ' + error);
