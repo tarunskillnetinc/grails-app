@@ -397,9 +397,13 @@ class StoreService extends MySqlDal {
         return storeAmenitiesCommand
     }
 
-    List<Amenity> getAmenitiesList(int retailerId){
+    List<Amenity> getAmenitiesList(int retailerId, String amenityNameFilter){
         return Amenity.createCriteria().list {
             eq('retailerId', retailerId)
+            if (amenityNameFilter) {
+                ilike('name', '%' + amenityNameFilter + '%')
+            }
+
             order('name', 'asc')  // Optional: sort by name
         } as List<Amenity>
     }

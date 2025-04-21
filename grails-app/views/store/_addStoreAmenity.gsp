@@ -156,16 +156,23 @@
 
     // For modals/popups that might load content dynamically
     // This ensures the listeners are attached when the modal is shown
-    jQuery(document).ready(function($) {
-        // For Bootstrap modals
-        $(document).on('shown.bs.modal', function() {
-            setTimeout(attachCheckboxListeners, 100); // Small delay to ensure content is rendered
-        });
+    if (typeof jQuery !== 'undefined') {
+        jQuery(document).ready(function($) {
+            // For Bootstrap modals
+            $(document).on('shown.bs.modal', function() {
+                setTimeout(attachCheckboxListeners, 200);
+            });
 
-        // For custom modal implementations
-        $('#saveAddSupplierButton, #closeListItemModal').on('click', function() {
-            setTimeout(attachCheckboxListeners, 100);
+            // Ensure listeners are attached after any AJAX operations
+            $(document).ajaxComplete(function() {
+                setTimeout(attachCheckboxListeners, 200);
+            });
         });
-    });
+    }
+
+    // Call immediately in case the DOM is already loaded
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        setTimeout(attachCheckboxListeners, 100);
+    }
 
 </script>

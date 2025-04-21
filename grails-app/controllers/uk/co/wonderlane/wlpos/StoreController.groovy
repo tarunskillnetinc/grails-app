@@ -198,7 +198,7 @@ class StoreController {
          storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours()),
          alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing()),
          storeRestrictions           : storeService.convertToStoreRestrictionCommand(store?.getStoreRestrictedHours()),
-         amenities                   : storeService.getAmenitiesList(springSecurityService.principal.retailerId),
+         amenities                   : storeService.getAmenitiesList(springSecurityService.principal.retailerId, null),
          storeAmenities              : storeService.convertToStoreRestrictionCommands(store?.storeAmenities, store?.id)
         ]
 
@@ -440,6 +440,36 @@ class StoreController {
         Integer storeId = params.storeId != null ? Integer.parseInt(params.storeId) : -1
         storeService.updateStoreAmenityCommandForSelectedIds(selectedAmenitiesCommand, storeId)
         render(template: "storeAmenityDetails", model: [storeAmenities: selectedAmenitiesCommand?.storeAmenities])
+    }
+
+    def ajaxGetAllAmenities(GetAmenitiesCommand getAmenitiesCommand){
+        String amenityNameFilter = null
+        def sortParams = [:]
+
+        if (!params.sort) {
+            sortParams = [max: 50, offset: 0, sort: "storeNumber", order: "ASC"]
+        } else {
+            sortParams.max = Integer.parseInt(params.max)
+            sortParams.offset = Integer.parseInt(params.offset)
+            sortParams.sort = params.sort
+            sortParams.order = params.order
+        }
+
+        if (params.amenityNameFilter && params.amenityNameFilter != "null") {
+            amenityNameFilter = params.amenityNameFilter
+        }
+
+        List<Integer> selectedAmenityIds = getAmenitiesCommand?.getSelectedAmenityIds()
+        def allAmenities =  storeService.getAmenitiesList(springSecurityService.principal.retailerId, amenityNameFilter)
+        def filteredAmenities = allAmenities.findAll { amenity ->
+            // Return true if the amenity ID is NOT in the selectedAmenityIds list
+            !(amenity.id in selectedAmenityIds)
+        }
+
+
+      //  def paginatedStores = stores.subList(0 + sortParams.offset, Math.min(sortParams.max + sortParams.offset, stores.size()))
+
+        render(template: 'amenitiesSelectionList', model: [Amenities: filteredAmenities, totalResults: filteredAmenities.size(), sortParams: sortParams, storeNameFilter: amenityNameFilter ?: ""])
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
@@ -840,5 +870,10 @@ class StoreAmenitiesCommand {
 class SelectedAmenitiesCommand {
     int storeId
     List<StoreAmenitiesCommand> storeAmenities = new ArrayList<>()
+    List<Integer> selectedAmenityIds = new ArrayList<>()
+}
+
+class GetAmenitiesCommand {
+    int storeId
     List<Integer> selectedAmenityIds = new ArrayList<>()
 }

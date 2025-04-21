@@ -24,6 +24,7 @@
         var saveStoreOtherRestrictions = "${createLink(controller: 'store', action: 'ajaxSaveStoreOtherRestrictions')}"
         var addAmenity = "${createLink(controller: 'store', action: 'ajaxAddAmenities')}"
         var addStoreAmenities = "${createLink(controller: 'store', action: 'ajaxAddStoreAmenity')}"
+        var getStoreAmenities = "${createLink(controller: "store", action: 'ajaxGetAllAmenities')}"
 
         function updateColorIndicator(color, indicatorId) {
             var colorPickerElement = document.getElementById(indicatorId);

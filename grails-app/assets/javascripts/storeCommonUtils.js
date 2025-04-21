@@ -1,3 +1,5 @@
+let tempSelectedAmenityIds = [];
+
 function addStoreAdditionalDetail(index, description, value) {
     $("#addStoreAdditionalDetailsContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
     $('#addStoreAdditionalDetailsModal').modal({show: true, backdrop: 'static', keyboard: false});
@@ -408,6 +410,68 @@ function closeStoreAmenityAddModal(){
     }
 }
 
+function getAllAmenities() {
+    var filterParams = {};
+
+    $("#filters input").each(function () {filterParams[$(this).attr("name")] = $(this).val();}).get();
+
+    var amenityItems = $(".amenities-container > div > .amenity-item");
+    amenityItems.each(function(index) {
+        filterParams["selectedAmenityIds[" + index + "]"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.id").val();
+    });
+    $("#amenitiesSearchModal").modal('dispose');
+
+    $.ajax({
+        url: getStoreAmenities,
+        data: filterParams,
+        success: function (response) {
+            $('#store-selection-list').html(response);
+            setTimeout(function() {
+                $("#amenitiesSearchModal").modal({
+                    show: true,
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            }, 100);
+        },
+        error: function (xhr, status, error) {
+            console.log('Error: ' + error);
+        }
+    });
+}
+
+function clearAmenityFilters(){
+    $("#amenityNameFilter").val("");
+    getAllAmenities()
+}
+
+function toggleSelectStore(amenityId, index) {
+    console.log(`Toggling store with ID: ` + amenityId + ` at index: ` + index);
+    const button = $('#modal-amenity-select-' + index);
+    if (!button.length) {
+        console.error(`Button with ID modal-store-select-` + index + ` not found`);
+        return;
+    }
+
+    const checkbox = $('#amenity-' + amenityId);
+    if (!checkbox.length) {
+        console.error(`Checkbox with ID store-` + amenityId + ` not found`);
+        return;
+    }
+
+    console.log(checkbox.prop('checked'))
+    if (checkbox.prop('checked')) {
+        checkbox.prop('checked', false);
+        button.removeClass('btn-primary').addClass('btn-secondary').text('Select');
+        tempSelectedAmenityIds.splice(tempSelectedAmenityIds.indexOf(amenityId), 1);
+    } else {
+        checkbox.prop('checked', true);
+        button.removeClass('btn-secondary').addClass('btn-primary').text('Selected');
+        tempSelectedAmenityIds.push(amenityId);
+    }
+}
+
+
 function saveAmenities(selectedIndex, storeId) {
     var params = {};
 
@@ -472,14 +536,11 @@ function saveAmenities(selectedIndex, storeId) {
         });
     }
 
-    const selectedCheckboxes = $('input[name="amenities"]:checked');
+    //const selectedCheckboxes = $('input[name="amenities"]:checked');
+    const selectedCheckboxes = $('#amenity-list input.form-check-input:checked');
     selectedCheckboxes.each(function(idIndex) {
         const id = $(this).val();
         params["selectedAmenityIds[" + idIndex + "]"] = id;
-        // Remove the selected amenity from dropdown
-        $(`#amenityIdSelect input[value="${id}"]`).closest('.dropdown-item').remove();
-        $('input[name="amenities"]').prop('checked', false);
-        $('#selectedAmenities').text('Select Amenities');
     });
 
     params["storeId"] = storeId
@@ -490,6 +551,7 @@ function saveAmenities(selectedIndex, storeId) {
         data: params,
         success: function(resp) {
             safelyCloseModal('#addAmenitiesModal');
+            safelyCloseModal('#amenitiesSearchModal');
             var storeAmenitiesContainer = $("#storeAmenitiesContainer");
             storeAmenitiesContainer.html(resp);
         },
@@ -552,6 +614,7 @@ function deleteStoreAmenity(index) {
                 data: params,
                 success: function(resp) {
                     safelyCloseModal('#addAmenitiesModal');
+                    safelyCloseModal('#amenitiesSearchModal');
                     addAmenityToDropdown(amenityId, amenityName, retailerId);
                     var storeAmenitiesContainer = $("#storeAmenitiesContainer");
                     storeAmenitiesContainer.html(resp);
