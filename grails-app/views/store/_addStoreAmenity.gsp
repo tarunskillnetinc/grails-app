@@ -4,8 +4,6 @@
     </div>
 </section>
 
-<section id="modal-error"></section>
-
 <section id="modal-form">
     <g:form name="addListItemForm">
         <g:hiddenField id="selected.amenity.id" name="selected.amenity.id" value="${selectedAmenity?.amenity?.id}"/>
@@ -13,7 +11,7 @@
         <g:hiddenField id="selected.amenity.name" name="selected.amenity.name" value="${selectedAmenity?.amenity?.name}"/>
         <g:hiddenField id="selected.storeId" name="selected.storeId" value="${selectedAmenity?.storeId}"/>
 
-        <section id="additional-details-errors-container" class="container-fluid"></section>
+        <section id="amenity-edit-errors-container" class="container-fluid mt-3"></section>
 
         <!-- First row: Description and Quantity -->
         <div class="row mt-5">

@@ -476,10 +476,12 @@ function toggleSelectAmenity(amenityId, index) {
 
 function saveAmenities(selectedIndex, storeId) {
     var params = {};
+    var editValidationErrors = [];
 
     // Select all amenity items in the container
     var amenityItems = $(".amenities-container > div > .amenity-item");
 
+    //Loop over all existing amenities and add them to pass into server
     amenityItems.each(function(index) {
         // Amenity basic properties
         params["storeAmenities[" + index + "].amenity.id"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.id").val();
@@ -515,6 +517,7 @@ function saveAmenities(selectedIndex, storeId) {
         }
     });
 
+    //This is edit path
     // If selectedIndex is provided, directly replace that amenity with the modal form data
     if (selectedIndex !== undefined && selectedIndex !== null) {
         // Replace amenity basic properties
@@ -529,14 +532,36 @@ function saveAmenities(selectedIndex, storeId) {
             var dayValue = $("input[name='storeAmenities.regularHours[" + i + "].day']").val();
             var timeFrom = $("input[name='storeAmenities.regularHours[" + i + "].startTime']").val();
             var timeTo = $("input[name='storeAmenities.regularHours[" + i + "].endTime']").val();
-            var closed = $("input[name='storeAmenities.regularHours[" + i + "].closed']").is(":checked");
+            var open = $("input[name='storeAmenities.regularHours[" + i + "].closed']").is(":checked");
+
+            // Validation: If not closed and one time exists but the other doesn't
+            if (open && ((timeFrom && !timeTo) || (!timeFrom && timeTo))) {
+                // If day is open and one time exists, the other must also exist
+                editValidationErrors.push("For " + dayValue + ": Both start and end times must be provided");
+            }
 
             params["storeAmenities[" + selectedIndex + "].availability[" + i + "].day"] = dayValue;
             params["storeAmenities[" + selectedIndex + "].availability[" + i + "].startTime"] = timeFrom;
             params["storeAmenities[" + selectedIndex + "].availability[" + i + "].endTime"] = timeTo;
-            params["storeAmenities[" + selectedIndex + "].availability[" + i + "].closed"] = !closed;
+            params["storeAmenities[" + selectedIndex + "].availability[" + i + "].closed"] = !open;
         });
     }
+
+    //If there is any edit validation errors then display them on edit popup
+    if (editValidationErrors.length > 0) {
+        // Display errors in the error container
+        var errorHtml = '<div class="alert alert-danger"><ul>';
+        editValidationErrors.forEach(function(error) {
+            errorHtml += '<li>' + error + '</li>';
+        });
+        errorHtml += '</ul></div>';
+
+        $('#amenity-edit-errors-container').html(errorHtml);
+        return false; // Stop the submission
+    }
+
+    // Clear any previous errors
+    $('#modal-error').html('');
 
     //const selectedCheckboxes = $('input[name="amenities"]:checked');
     const selectedCheckboxes = $('#amenity-list input.form-check-input:checked');

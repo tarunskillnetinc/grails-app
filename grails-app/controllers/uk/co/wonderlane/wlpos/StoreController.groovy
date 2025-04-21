@@ -150,7 +150,7 @@ class StoreController {
          storeOpeningHoursCommand: storeOpeningHoursCommand,
          alcoholLicensingCommand: alcoholLicensingCommand,
          storeRestrictions: storeRestrictions,
-         amenities: storeService.getAmenitiesList(springSecurityService.principal.retailerId),
+         amenities: storeService.getAmenitiesList(springSecurityService.principal.retailerId, null),
          storeAmenities: storeService.convertToStoreRestrictionCommands(null, -1)
         ]
     }
