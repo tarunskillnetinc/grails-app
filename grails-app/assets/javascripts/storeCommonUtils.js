@@ -417,7 +417,11 @@ function getAllAmenities() {
 
     var amenityItems = $(".amenities-container > div > .amenity-item");
     amenityItems.each(function(index) {
-        filterParams["selectedAmenityIds[" + index + "]"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.id").val();
+        filterParams["addedAmenityIds[" + index + "]"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.id").val();
+    });
+
+    tempSelectedAmenityIds.forEach((amenityId, index) => {
+        filterParams["selectedAmenityIds[" + index + "]"] = amenityId;
     });
 
     $.ajax({
@@ -438,21 +442,26 @@ function clearAmenityFilters(){
     getAllAmenities()
 }
 
-function toggleSelectStore(amenityId, index) {
+function closeAmenitySelect(){
+    safelyCloseModal('#amenitiesSearchModal');
+    tempSelectedAmenityIds = [];
+}
+
+function toggleSelectAmenity(amenityId, index) {
+    // Your existing function code remains the same
     console.log(`Toggling store with ID: ` + amenityId + ` at index: ` + index);
     const button = $('#modal-amenity-select-' + index);
     if (!button.length) {
-        console.error(`Button with ID modal-store-select-` + index + ` not found`);
+        console.error(`Button with ID modal-amenity-select-` + index + ` not found`);
         return;
     }
 
     const checkbox = $('#amenity-' + amenityId);
     if (!checkbox.length) {
-        console.error(`Checkbox with ID store-` + amenityId + ` not found`);
+        console.error(`Checkbox with ID amenity-` + amenityId + ` not found`);
         return;
     }
 
-    console.log(checkbox.prop('checked'))
     if (checkbox.prop('checked')) {
         checkbox.prop('checked', false);
         button.removeClass('btn-primary').addClass('btn-secondary').text('Select');
@@ -556,11 +565,6 @@ function saveAmenities(selectedIndex, storeId) {
 
 function deleteStoreAmenity(index) {
     if (confirm("Are you sure you want to delete?")) {
-        const amenityId = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.id").val();
-        const amenityName = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.name").val();
-        const retailerId = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.retailerId").val();
-
-
         var storeAmenitiesContainer = $("#storeAmenitiesContainer > div");
         if (storeAmenitiesContainer.length) {
             var params = {}
@@ -608,7 +612,6 @@ function deleteStoreAmenity(index) {
                 success: function(resp) {
                     safelyCloseModal('#addAmenitiesModal');
                     safelyCloseModal('#amenitiesSearchModal');
-                    addAmenityToDropdown(amenityId, amenityName, retailerId);
                     var storeAmenitiesContainer = $("#storeAmenitiesContainer");
                     storeAmenitiesContainer.html(resp);
                 }
@@ -617,39 +620,4 @@ function deleteStoreAmenity(index) {
     }
 }
 
-function addAmenityToDropdown(id, name, retailerId) {
-    // Check if the amenity already exists in the dropdown
-    if ($(`#amenityIdSelect input[value="${id}"]`).length === 0) {
-        const newItem = `
-            <div class="dropdown-item">
-                <label class="mb-0">
-                    <input id="${id}" type="checkbox" name="amenities" value="${id}"
-                           data-name="${name}" data-retailer-id="${retailerId}">
-                    ${name}
-                </label>
-            </div>
-        `;
 
-        // Add the item to the dropdown
-        $('#amenityIdSelect').append(newItem);
-
-        // Sort all dropdown items alphabetically
-        sortAmenitiesDropdown();
-    }
-}
-
-// Function to sort the amenities dropdown alphabetically
-function sortAmenitiesDropdown() {
-    const dropdownMenu = $('#amenityIdSelect');
-    const items = dropdownMenu.find('.dropdown-item').get();
-
-    items.sort(function(a, b) {
-        const textA = $(a).text().trim().toUpperCase();
-        const textB = $(b).text().trim().toUpperCase();
-        return textA.localeCompare(textB);
-    });
-
-    $.each(items, function(index, item) {
-        dropdownMenu.append(item);
-    });
-}

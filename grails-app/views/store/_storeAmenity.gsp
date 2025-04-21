@@ -10,11 +10,12 @@
 
 <section>
     <div class="modal fade" id="amenitiesSearchModal" tabindex="-1" role="dialog" aria-labelledby="amenitiesSearchModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable custom-width-modal" role="document" style="max-width: 600px;">
+        <div class="modal-dialog modal-lg custom-width-modal" role="document" style="max-width: 600px;">
+            <!-- Removed modal-dialog-scrollable -->
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="amenitiesSearchModalLabel">Select Amenities</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="clearAmenityFilters();">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -35,7 +36,7 @@
                             <div class="card-body">
                                 <g:form name="filtersForm" id="filtersForm">
                                     <div class="form-group row align-items-center">
-                                        <label for="amenityNameFilter" class="col-auto pr-2 col-form-label-sm">Amenity</label>
+                                        <label for="amenityNameFilter" class="col-auto pr-2 col-form-label-sm">Amenity Name</label>
                                         <div class="col-5 pl-0">
                                             <g:textField id="amenityNameFilter" name="amenityNameFilter" value="${storeNameFilter}" class="form-control bottom-border" />
                                         </div>
@@ -49,14 +50,14 @@
                         </div>
                     </div>
 
-                    <!-- Store List to Select From -->
-                    <div id="store-selection-list">
+                    <!-- Store List to Select From - Only this div will be scrollable -->
+                    <div id="store-selection-list" style="max-height: 300px; overflow-y: auto;">
                         <!-- Store list will be loaded here via AJAX -->
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="tempSelectedStoreIds = []" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeAmenitySelect()" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-success" onclick="saveAmenities(null, ${storeSettings?.id})">Add Selected Stores</button>
                 </div>
             </div>
@@ -66,51 +67,10 @@
 
 <script type='text/javascript'>
     $(document).ready(function () {
-        initializeAmenitiesDropdown();
         $('#amenitiesSearchModal .card-header').on('click', function() {
             $('#filterCollapse').collapse('toggle');
         });
     });
 
-    function initializeAmenitiesDropdown() {
-        function updateSelectedAmenities() {
-            const selected = $('input[name="amenities"]:checked').map(function () {
-                return $(this).data('name');
-            }).get();
-
-            if (selected.length > 0) {
-                $('#add-special-opening-hours').prop("disabled", false);
-                $('#selectedAmenities').text(selected.join(', '));
-            } else {
-                $('#add-special-opening-hours').prop("disabled", true);
-                $('#selectedAmenities').text('Select Amenities');
-            }
-        }
-
-        // Update selected amenities on page load
-        updateSelectedAmenities();
-
-        $('#amenities').off('click');
-
-        $('#amenities').on('click', function (e) {
-            e.preventDefault();
-            $(this).parent().toggleClass('show');
-            $(this).next('.dropdown-menu').toggleClass('show');
-        });
-
-        $(document).on('click', function (e) {
-            if (!$(e.target).closest('.dropdown').length) {
-                if ($('#amenityIdSelect .dropdown-item').length === 0) {
-                    return;
-                }
-                $('.dropdown-menu').removeClass('show');
-                $('.dropdown').removeClass('show');
-            }
-        });
-
-        $(document).on('change', 'input[name="amenities"]', function () {
-            updateSelectedAmenities();
-        });
-    }
 
 </script>

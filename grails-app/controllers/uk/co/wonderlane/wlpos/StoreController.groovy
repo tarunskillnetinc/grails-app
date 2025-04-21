@@ -447,7 +447,7 @@ class StoreController {
         def sortParams = [:]
 
         if (!params.sort) {
-            sortParams = [max: 50, offset: 0, sort: "storeNumber", order: "ASC"]
+            sortParams = [max: 20, offset: 0, sort: "storeNumber", order: "ASC"]
         } else {
             sortParams.max = Integer.parseInt(params.max)
             sortParams.offset = Integer.parseInt(params.offset)
@@ -459,7 +459,7 @@ class StoreController {
             amenityNameFilter = params.amenityNameFilter
         }
 
-        List<Integer> selectedAmenityIds = getAmenitiesCommand?.getSelectedAmenityIds()
+        List<Integer> selectedAmenityIds = getAmenitiesCommand?.getAddedAmenityIds()
         def allAmenities =  storeService.getAmenitiesList(springSecurityService.principal.retailerId, amenityNameFilter)
         def filteredAmenities = allAmenities.findAll { amenity ->
             // Return true if the amenity ID is NOT in the selectedAmenityIds list
@@ -469,7 +469,7 @@ class StoreController {
 
       //  def paginatedStores = stores.subList(0 + sortParams.offset, Math.min(sortParams.max + sortParams.offset, stores.size()))
 
-        render(template: 'amenitiesSelectionList', model: [Amenities: filteredAmenities, totalResults: filteredAmenities.size(), sortParams: sortParams, storeNameFilter: amenityNameFilter ?: ""])
+        render(template: 'amenitiesSelectionList', model: [Amenities: filteredAmenities, selectedIds: getAmenitiesCommand?.getSelectedAmenityIds(), totalResults: filteredAmenities.size(), sortParams: sortParams, storeNameFilter: amenityNameFilter ?: ""])
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
@@ -875,5 +875,6 @@ class SelectedAmenitiesCommand {
 
 class GetAmenitiesCommand {
     int storeId
+    List<Integer> addedAmenityIds = new ArrayList<>()
     List<Integer> selectedAmenityIds = new ArrayList<>()
 }
