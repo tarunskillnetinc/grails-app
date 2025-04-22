@@ -58,7 +58,7 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeAmenitySelect()" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success" onclick="saveAmenities(null, ${storeSettings?.id})">Add Selected Stores</button>
+                    <button type="button" class="btn btn-success" onclick="saveAmenities(null, ${storeSettings?.id})">Add</button>
                 </div>
             </div>
         </div>

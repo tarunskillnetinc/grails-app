@@ -18,7 +18,7 @@
             <!-- Description -->
             <div class="col-md-6">
                 <div class="form-group row">
-                    <label for="selected.amenity.description" class="col-4 col-form-label text-right" style="text-align: right; padding-right: 15px;">Description</label>
+                    <label for="selected.amenity.description" class="col-4 col-form-label text-right" style="text-align: right; padding-right: 15px;">Additional Detail</label>
                     <div class="col-8">
                         <g:field type="text" id="selected.amenity.description" name="selected.amenity.description" class="form-control select-border" maxlength="30" value="${selectedAmenity?.additionalDetail}"/>
                     </div>

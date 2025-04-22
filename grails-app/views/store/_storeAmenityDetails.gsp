@@ -11,7 +11,7 @@
                         <g:hiddenField id="storeAmenities[${i}].count" name="storeAmenities[${i}].count" value="${storeAmenity?.count}"/>
                         <div class="amenity-name mb-3"><strong><g:message code="Amenity.${storeAmenity?.amenity?.name}" default="${storeAmenity?.amenity?.name}" /></strong></div>
                         <g:if test="${storeAmenity?.additionalDetail}">
-                            <div class="amenity-detail"><strong>Description:</strong> ${storeAmenity?.additionalDetail ?: 'Not specified'}</div>
+                            <div class="amenity-detail"><strong>Additional Detail:</strong> ${storeAmenity?.additionalDetail ?: 'Not specified'}</div>
                         </g:if>
 
                         <g:if test="${storeAmenity?.count}">
