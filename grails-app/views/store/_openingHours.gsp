@@ -114,7 +114,7 @@
                 </table>
             </div>
 
-            <div class="mt-3">
+            <div class="mt-3 col-4 ml-auto">
                 <a href="#" onclick="${commandPrefix}addSpecialHour('${commandPrefix}')" id="${commandPrefix}-add-special-opening-hours"
                    class="btn btn-wl pt-1 pb-1 pl-3 pr-4">${addSpecialHoursButtonText}</a>
             </div>
