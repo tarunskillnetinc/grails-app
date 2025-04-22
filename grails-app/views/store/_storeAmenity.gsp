@@ -1,6 +1,6 @@
 <div class="row mt-3">
     <div class="col-12 d-flex justify-content-center align-items-center">
-        <button id="add-amenities-btn" type="button" class="btn btn-wl mr-1" data-toggle="modal" data-target="#amenitiesSearchModal" onclick="getAllAmenities();">Add Amenities</button>
+        <button id="add-amenities-btn" type="button" class="btn btn-wl mr-1"  onclick="getAllAmenities();">Add Amenities</button>
     </div>
 </div>
 
@@ -8,7 +8,7 @@
     <g:render template="storeAmenityDetails" model="[storeAmenities: storeAmenities]" />
 </div>
 
-<section>
+<section id="amenitiesSearch-modal" class="container-fluid">
     <div class="modal fade" id="amenitiesSearchModal" tabindex="-1" role="dialog" aria-labelledby="amenitiesSearchModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg custom-width-modal" role="document" style="max-width: 600px;">
             <!-- Removed modal-dialog-scrollable -->
@@ -51,7 +51,7 @@
                     </div>
 
                     <!-- Store List to Select From - Only this div will be scrollable -->
-                    <div id="store-selection-list" style="max-height: 300px; overflow-y: auto;">
+                    <div id="amenity-selection-list" style="max-height: 300px; overflow-y: auto;">
                         <!-- Store list will be loaded here via AJAX -->
                     </div>
                 </div>
