@@ -82,8 +82,8 @@
                     date: 'fa fa-calendar',
                     up: 'fa fa-chevron-up',
                     down: 'fa fa-chevron-down',
-                    previous: 'fa fa-chevron-left',
-                    next: 'fa fa-chevron-right',
+                    previous: 'fa fa-angle-double-left',
+                    next: 'fa fa-angle-double-right',
                     today: 'fa fa-crosshairs',
                     clear: 'fa fa-trash',
                     close: 'fa fa-times'
@@ -102,8 +102,8 @@
                     date: 'fa fa-calendar',
                     up: 'fa fa-chevron-up',
                     down: 'fa fa-chevron-down',
-                    previous: 'fa fa-chevron-left',
-                    next: 'fa fa-chevron-right',
+                    previous: 'fa fa-angle-double-left',
+                    next: 'fa fa-angle-double-right',
                     today: 'fa fa-crosshairs',
                     clear: 'fa fa-trash',
                     close: 'fa fa-times'

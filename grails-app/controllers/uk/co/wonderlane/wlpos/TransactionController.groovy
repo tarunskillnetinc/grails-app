@@ -18,6 +18,7 @@ import uk.co.wonderlane.wlpos.entities.basketv2.RefundBasketItem
 import uk.co.wonderlane.wlpos.entities.basketv2.SimpleDiscountBasketItem
 import uk.co.wonderlane.wlpos.entities.transactionv2.BasketTransaction
 import uk.co.wonderlane.wlpos.entities.transactionv2.TillControlEvent
+import uk.co.wonderlane.wlpos.enums.IdentificationType
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.reporting.TransactionBasketItem
@@ -108,7 +109,7 @@ class TransactionController {
 
                 transactionBasketItem.totalPrice = (basketItem.total ?: BigDecimal.ZERO)
 
-                if (basketItem instanceof ProductBasketItem && basketItem.priceDetails && basketItem.priceDetails.size() > 0) {
+                if (basketItem instanceof ProductBasketItem && basketItem.priceDetails && basketItem.priceDetails.size() > 0 && !basketItem.voided) {
                     def vat_individual_total = new BigDecimal(0)
                     basketItem.priceDetails.each { detail ->
                         vat_individual_total += detail.vatAmount
@@ -144,10 +145,13 @@ class TransactionController {
 
                 priorAddedSeqNum = transactionBasketItem.seqNum
 
-                if (basketItem.product?.restrictions?.discountAllowed && basketItem.product?.restrictions?.discountAllowed == true) {
+                if (basketItem.product?.restrictions?.discountAllowed && basketItem.product?.restrictions?.discountAllowed == true && !basketItem.voided) {
                     discountableAmount = discountableAmount + basketItem.total
                 }
-                preDiscountTotal = preDiscountTotal + basketItem.total
+
+                if (!basketItem.voided) {
+                    preDiscountTotal = preDiscountTotal + basketItem.total
+                }
             }
 
             if (basketItem instanceof PromotionBasketItem) {
@@ -224,10 +228,22 @@ class TransactionController {
                     amountchange = -amountchange
                 }
 
+                def reasonDescription
+                try {
+                    def reasonEnum = IdentificationType.valueOf(event.reason)
+
+                    reasonDescription = message(code: "IdentificationType." + reasonEnum)
+                } catch (Exception ignored) {
+                }
+
+                if (!reasonDescription) { // fall back to using text
+                    reasonDescription = event.reason
+                }
+
                 eventLines.add([eventType        : event.type,
                                 seqnum: seqnum, // pull from product/variant, somehow.
                                 amount: amountchange,
-                                reason           : event.reason ?: "-",
+                                reason: reasonDescription ?: "-",
                                 overrideUsersName: event.overrideUser?.name ?: user?.name])
             }
 
@@ -244,6 +260,7 @@ class TransactionController {
                     def amount = -item.totalSavings
 
                     postDiscountsTotal -= item.totalSavings
+                    discountableAmount -= item.totalSavings
 
                     promotionItems.add([description: description, amount: amount])
                 }
@@ -258,6 +275,7 @@ class TransactionController {
                     if (item.total) {
                         amount = -item.total
                         postDiscountsTotal -= item.total
+                        discountableAmount -= item.total
                     } else if (item.discountPercentage) { // calculate the amount the discount card will yield.
                         BigDecimal percentage = new BigDecimal(item.discountPercentage).divide(new BigDecimal(100))
                         def discountAmount = discountableAmount * percentage
