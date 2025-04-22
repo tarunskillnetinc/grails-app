@@ -195,6 +195,21 @@ class StoreController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def saveNewStore(NewStoreCommand newStoreCommand) {
+
+        String storeAdditionalDetailJson
+        String storeOpeningHours
+        String storeLicensing
+        String storeRestrictions
+
+        try {
+            storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(storeCommand?.storeAdditionalDetails)
+            storeOpeningHours = gsonProvider.gson.toJson(storeService.getOpeningHoursAsObject(storeCommand.storeOpeningHoursCommand))
+            storeLicensing = gsonProvider.gson.toJson(storeService.getAlcoholLicensingCommandAsObject(storeCommand.alcoholLicensingCommand))
+            storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(storeCommand?.storeRestrictions))
+        } catch (Exception ex) {
+            newStoreCommand.errors.push(message(code: ex.getMessage()))
+        }
+
         if (!newStoreCommand.validate()) {
             def parentStores = storeService.getStoresByType(springSecurityService.principal.retailerId, StoreType.STORE).sort { it.config.storeNumber }
             def storeTypes = StoreType.values().findAll { it != StoreType.HEAD_OFFICE }
@@ -254,12 +269,10 @@ class StoreController {
 
             store.config = storeConfig
 
-            String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(newStoreCommand?.storeAdditionalDetails)
-            store.additionalDetails = storeAdditionalDetailJson
-
-            store.setOpeningHours(storeService.getOpeningHoursAsObject(newStoreCommand.storeOpeningHoursCommand))
-            store.setLicencing(storeService.getAlcoholLicensingCommandAsObject(newStoreCommand.alcoholLicensingCommand))
-            store.storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(newStoreCommand?.storeRestrictions))
+            store.setAdditionalDetails(storeAdditionalDetailJson)
+            store.setOpeningHours(storeOpeningHours)
+            store.setLicencing(storeLicensing)
+            store.setStoreRestrictions(storeRestrictions)
 
             storeService.saveStore(store)
 
@@ -371,7 +384,7 @@ class StoreController {
             storeLicensing = gsonProvider.gson.toJson(storeService.getAlcoholLicensingCommandAsObject(storeCommand.alcoholLicensingCommand))
             storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(storeCommand?.storeRestrictions))
         } catch (Exception ex) {
-            storeCommand.errors.push(ex.getMessage())
+            storeCommand.errors.push(message(code: ex.getMessage()))
         }
 
         // Note, this saving is deliberately being done completely outside of Hibernate and GORM because they don't handle JSON columns well (at all).
