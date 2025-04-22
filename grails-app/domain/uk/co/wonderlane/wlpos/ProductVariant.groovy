@@ -47,8 +47,9 @@ class ProductVariant implements Serializable {
 
     Collection<Barcode> barcodez = new ArrayList<>()
     Collection<Location> locationz = new ArrayList<>()
+    Collection<ProductAttributeValues> attributez = new ArrayList<>()
 
-    static transients = ['delete', 'barcodez', 'locationz']
+    static transients = ['delete', 'barcodez', 'locationz', 'attributez']
 
     static hasMany = [packs: Pack]
 
@@ -125,6 +126,7 @@ class ProductVariant implements Serializable {
         delete bindable: true
         barcodez bindable: true
         locationz bindable: true
+        attributez bindable: true
     }
 
     static int countMatchingSkusForRetailer(Long sku, Integer retailerId) {

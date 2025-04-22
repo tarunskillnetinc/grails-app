@@ -21,6 +21,7 @@
     <g:hiddenField name="variants[${index}].effectiveDate" value="${variant?.effectiveDate}" />
     <g:hiddenField name="variants[${index}].preferredSku" value="${variant?.preferredSku}" />
     <g:hiddenField name="variants[${index}].stockManagementType" value="${variant?.stockManagementType ?: StockManagementType.STANDARD}" />
+    <g:hiddenField name="variants[${index}].attributeValues" value="${stockManagementType ?: StockManagementType.STANDARD}" />
 
     <div class="col-2 my-auto" id="variants[${index}].skuText">${variant?.sku ?: 0}</div>
     <div class="col-2 my-auto" id="variants[${index}].retailPriceText"><g:formatNumber number="${variant?.currentPrice}" type="currency" /> (${variant?.retailPrice ? "store override" : "price band"})</div>
@@ -40,6 +41,14 @@
 
     <div id="variants[${index}].preferredSku" class="col-1 my-auto">
         ${variant?.preferredSku ? 'Yes' : ''}
+    </div>
+
+    <div id="variants[${index}].attributesContainer">
+        <g:each in="${attributes}" var="attribute" status="i">
+            <div id="attributesContainer${i}">
+                <g:render template="attribute" model="[variantIndex: index, attributeIndex: i, attribute: attribute]" />
+            </div>
+        </g:each>
     </div>
 
     <div class="col-1 my-auto text-right">
