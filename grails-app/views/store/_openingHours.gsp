@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <g:set var="commandObject" value="${pageScope[commandPrefix]}" />
-<div class="store-opening-hours">
+<div class="store-opening-hours" id="${commandPrefix}">
     <div class="row">
         <div class="col-md-5">
             <h5 class="mb-4">${titleRegularOpeningHours}</h5>
@@ -37,7 +37,7 @@
                                 <span class="validity"></span>
                             </td>
                             <td class="align-middle text-center">
-                                <div class="checkbox-wrapper">
+                                <div class="checkbox-wrapper p-0">
                                     <g:checkBox name="${commandPrefix}.regularHours[${i}].closed"
                                                 id="${commandPrefix}regularHours${i}closed"
                                                 class="form-check-input wl-checkbox" checked="${hour.closed}"
@@ -55,15 +55,16 @@
             <h5 class="mb-4">${titleSpecialOpeningHours}</h5>
 
             <div class="table-responsive">
-                <table id="${commandPrefix}-special-hours-tbl" class="table table-bordered custom-table right-table">
+                <table id="${commandPrefix}-special-hours-tbl"
+                       class="special-hours-tbl table table-bordered custom-table right-table">
                     <thead>
                     <tr>
-                        <th class="align-middle text-center col-6">Description</th>
+                        <th class="align-middle text-center col-4">Description</th>
                         <th class="align-middle text-center col-2">Date</th>
-                        <th class="align-middle text-center col-1">Start</th>
-                        <th class="align-middle text-center col-1">End</th>
-                        <th class="align-middle text-center col-1">Closed</th>
-                        <th class="align-middle text-center col-1">Actions</th>
+                        <th class="align-middle text-center column-midsize">Start</th>
+                        <th class="align-middle text-center column-midsize">End</th>
+                        <th class="align-middle text-center column-midsize">Closed</th>
+                        <th class="align-middle text-center col-2">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -93,7 +94,7 @@
                                        value="${special?.endTime}"/>
                             </td>
                             <td class="align-middle text-center">
-                                <div class="checkbox-wrapper">
+                                <div class="checkbox-wrapper p-0">
                                     <input type="checkbox"
                                            class="form-check-input wl-checkbox" ${special?.closed ? 'checked' : ''}
                                            disabled/>
@@ -104,7 +105,7 @@
                             </td>
                             <td class="text-center align-middle">
                                 <a href="#" onclick="${commandPrefix}editSpecialHour(${i},'${commandPrefix}')" id="${commandPrefix}-edit-specialOpeningHours[${i}]"
-                                   class="btn btn-sm btn-wl mr-1 fixed-width-btn">Edit</a>
+                                   class="btn btn-sm btn-wl fixed-width-btn">Edit</a>
                                 <a href="#" onclick="${commandPrefix}deleteSpecialHour(${i},'${commandPrefix}')" id="${commandPrefix}-delete-specialOpeningHours[${i}]"
                                    class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
                             </td>
@@ -114,7 +115,7 @@
                 </table>
             </div>
 
-            <div class="mt-3">
+            <div class="mt-3 text-right">
                 <a href="#" onclick="${commandPrefix}addSpecialHour('${commandPrefix}')" id="${commandPrefix}-add-special-opening-hours"
                    class="btn btn-wl pt-1 pb-1 pl-3 pr-4">${addSpecialHoursButtonText}</a>
             </div>
@@ -130,7 +131,7 @@
     margin-bottom: 1rem;
 }
 
-.checkbox-wrapper {
+.store-opening-hours .checkbox-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -212,9 +213,22 @@ td {
     position: relative;
 }
 
-#
-${commandPrefix} table input[type="time"]:invalid {
+.store-opening-hours table input[type="time"]:invalid {
     border: red 1px solid;
+}
+
+.special-hours-tbl td {
+    font-size: 0.9rem;
+}
+
+.store-opening-hours .column-midsize { /* column thats one and a half cols wide */
+    -ms-flex: 0 0 12.333333%;
+    flex: 0 0 12.333333%;
+    max-width: 12.333333%;
+}
+
+.store-opening-hours .checkbox-wrapper {
+    justify-content: center;
 }
 
 </style>
