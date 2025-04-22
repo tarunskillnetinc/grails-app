@@ -398,8 +398,19 @@ class StoreService extends MySqlDal {
     private OpeningTime regularHoursMap(OpeningTimeCommand openingTimeCommand) {
         OpeningTime openingTime = new OpeningTime()
         DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm")
-        openingTime.startTime = openingTimeCommand.startTime ? formatter.parseLocalTime(openingTimeCommand.startTime) : null
-        openingTime.endTime = openingTimeCommand.endTime ? formatter.parseLocalTime(openingTimeCommand.endTime) : null
+
+        try {
+            openingTime.startTime = openingTimeCommand.startTime ? formatter.parseLocalTime(openingTimeCommand.startTime) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.regular.date.invalid.format")
+        }
+
+        try {
+            openingTime.endTime = openingTimeCommand.endTime ? formatter.parseLocalTime(openingTimeCommand.endTime) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.regular.date.invalid.format")
+        }
+
         openingTime.closed = openingTimeCommand.closed
         return openingTime
     }
@@ -410,12 +421,30 @@ class StoreService extends MySqlDal {
         }
         DateTimeFormatter formatterDate = DateTimeFormat.forPattern("yyyy-MM-dd");
         DateTimeFormatter formatterTime = DateTimeFormat.forPattern("HH:mm")
+
         OpeningTimeOverride openingTimeOverride = new OpeningTimeOverride()
         openingTimeOverride.description = openingTimeOverrideCommand?.description
-        openingTimeOverride.date = openingTimeOverrideCommand?.date ? formatterDate.parseLocalDate(openingTimeOverrideCommand.date) : null
-        openingTimeOverride.startTime = openingTimeOverrideCommand?.startTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.startTime) : null
-        openingTimeOverride.endTime = openingTimeOverrideCommand?.endTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.endTime) : null
+
+        try {
+            openingTimeOverride.date = openingTimeOverrideCommand?.date ? formatterDate.parseLocalDate(openingTimeOverrideCommand.date) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.special.date.invalid.format")
+        }
+
+        try {
+            openingTimeOverride.startTime = openingTimeOverrideCommand?.startTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.startTime) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.special.starttime.invalid.format")
+        }
+
+        try {
+            openingTimeOverride.endTime = openingTimeOverrideCommand?.endTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.endTime) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.endtime.invalid.format")
+        }
+
         openingTimeOverride.closed = openingTimeOverrideCommand?.closed
+
         return openingTimeOverride
     }
 

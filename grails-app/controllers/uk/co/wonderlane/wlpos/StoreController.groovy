@@ -360,16 +360,25 @@ class StoreController {
         def oldPriceBand = store?.priceBand?.id
         def oldProductRange = store?.range?.id
 
+        String storeAdditionalDetailJson
+        String storeOpeningHours
+        String storeLicensing
+        String storeRestrictions
+
+        try {
+            storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(storeCommand?.storeAdditionalDetails)
+            storeOpeningHours = gsonProvider.gson.toJson(storeService.getOpeningHoursAsObject(storeCommand.storeOpeningHoursCommand))
+            storeLicensing = gsonProvider.gson.toJson(storeService.getAlcoholLicensingCommandAsObject(storeCommand.alcoholLicensingCommand))
+            storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(storeCommand?.storeRestrictions))
+        } catch (Exception ex) {
+            storeCommand.errors.push(ex.getMessage())
+        }
+
         // Note, this saving is deliberately being done completely outside of Hibernate and GORM because they don't handle JSON columns well (at all).
         if (storeCommand.validate() & storeCommand.config.validate()) { // Deliberately a single & so that both validates get called even if the first one fails.
             StoreConfig storeConfig = new StoreConfig()
 
             bindData(storeConfig, storeCommand.config)
-
-            String storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(storeCommand?.storeAdditionalDetails)
-            String storeOpeningHours = gsonProvider.gson.toJson(storeService.getOpeningHoursAsObject(storeCommand.storeOpeningHoursCommand))
-            String storeLicensing = gsonProvider.gson.toJson(storeService.getAlcoholLicensingCommandAsObject(storeCommand.alcoholLicensingCommand))
-            String storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(storeCommand?.storeRestrictions))
 
             storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours, storeLicensing, storeRestrictions)
 
