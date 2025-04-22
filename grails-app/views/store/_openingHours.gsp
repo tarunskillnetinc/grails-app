@@ -58,12 +58,12 @@
                 <table id="${commandPrefix}-special-hours-tbl" class="table table-bordered custom-table right-table">
                     <thead>
                     <tr>
-                        <th class="align-middle text-center col-6">Description</th>
+                        <th class="align-middle text-center col-4">Description</th>
                         <th class="align-middle text-center col-2">Date</th>
                         <th class="align-middle text-center col-1">Start</th>
                         <th class="align-middle text-center col-1">End</th>
-                        <th class="align-middle text-center col-1">Closed</th>
-                        <th class="align-middle text-center col-1">Actions</th>
+                        <th class="align-middle text-center col-2">Closed</th>
+                        <th class="align-middle text-center col-2">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
