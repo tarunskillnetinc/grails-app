@@ -61,9 +61,9 @@
                     <tr>
                         <th class="align-middle text-center col-4">Description</th>
                         <th class="align-middle text-center col-2">Date</th>
-                        <th class="align-middle text-center col-15">Start</th>
-                        <th class="align-middle text-center col-15">End</th>
-                        <th class="align-middle text-center col-15">Closed</th>
+                        <th class="align-middle text-center column-midsize">Start</th>
+                        <th class="align-middle text-center column-midsize">End</th>
+                        <th class="align-middle text-center column-midsize">Closed</th>
                         <th class="align-middle text-center col-2">Actions</th>
                     </tr>
                     </thead>
@@ -221,7 +221,7 @@ td {
     font-size: 0.9rem;
 }
 
-.store-opening-hours .col-15 { /* column thats one and a half cols wide */
+.store-opening-hours .column-midsize { /* column thats one and a half cols wide */
     -ms-flex: 0 0 12.333333%;
     flex: 0 0 12.333333%;
     max-width: 12.333333%;
