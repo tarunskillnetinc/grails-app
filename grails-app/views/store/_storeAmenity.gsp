@@ -1,6 +1,6 @@
 <div class="row mt-3">
-    <div class="col-12 d-flex justify-content-center align-items-center">
-        <button id="add-amenities-btn" type="button" class="btn btn-wl mr-1"  onclick="getAllAmenities();">Add Amenities</button>
+    <div class="col-12 d-flex justify-content-end align-items-center">
+        <button id="add-amenities-btn" type="button" class="btn btn-wl mr-4"  onclick="getAllAmenities();">Add Amenities</button>
     </div>
 </div>
 
