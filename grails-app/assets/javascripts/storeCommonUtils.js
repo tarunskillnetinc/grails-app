@@ -411,7 +411,6 @@ function closeStoreAmenityAddModal(){
 }
 
 function getAllAmenities() {
-    $('#amenitiesSearchModal').modal({show: true, backdrop: 'static', keyboard: false});
     var filterParams = {};
 
     $("#filters input").each(function () {filterParams[$(this).attr("name")] = $(this).val();}).get();
@@ -430,6 +429,7 @@ function getAllAmenities() {
         data: filterParams,
         success: function (response) {
             $('#amenity-selection-list').html(response);
+            $('#amenitiesSearchModal').modal({show: true, backdrop: 'static', keyboard: false});
         },
         error: function (xhr, status, error) {
             console.log('Error: ' + error);
