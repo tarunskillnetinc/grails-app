@@ -1,12 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <g:set var="commandObject" value="${pageScope[commandPrefix]}" />
-<div class="store-opening-hours">
+<div class="store-opening-hours" id="${commandPrefix}">
     <div class="row">
         <div class="col-md-5">
             <h5 class="mb-4">${titleRegularOpeningHours}</h5>
 
             <div class="table-responsive">
-                <table id='${commandPrefix}table' class="table table-bordered custom-table col-12">
+                <table id='${commandPrefix}table' class="specialtable table table-bordered custom-table col-12">
                     <thead>
                     <tr>
                         <th class="align-middle text-center col-4">Day</th>
@@ -37,7 +37,7 @@
                                 <span class="validity"></span>
                             </td>
                             <td class="align-middle text-center">
-                                <div class="checkbox-wrapper">
+                                <div class="checkbox-wrapper p-0">
                                     <g:checkBox name="${commandPrefix}.regularHours[${i}].closed"
                                                 id="${commandPrefix}regularHours${i}closed"
                                                 class="form-check-input wl-checkbox" checked="${hour.closed}"
@@ -93,7 +93,7 @@
                                        value="${special?.endTime}"/>
                             </td>
                             <td class="align-middle text-center">
-                                <div class="checkbox-wrapper">
+                                <div class="checkbox-wrapper p-0">
                                     <input type="checkbox"
                                            class="form-check-input wl-checkbox" ${special?.closed ? 'checked' : ''}
                                            disabled/>
@@ -130,7 +130,7 @@
     margin-bottom: 1rem;
 }
 
-.checkbox-wrapper {
+.store-opening-hours .checkbox-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -212,30 +212,21 @@ td {
     position: relative;
 }
 
-#
-${commandPrefix} table input[type="time"]:invalid {
+.specialtable table input[type="time"]:invalid {
     border: red 1px solid;
 }
 
-#${commandPrefix}-special-hours-tbl td {
+.specialtable-special-hours-tbl td {
     font-size: 0.9rem;
 }
 
-#
-${
-commandPrefix
-}
-.col-15 {
+.specialtable .col-15 { /* column thats one and a half cols wide */
     -ms-flex: 0 0 12.333333%;
     flex: 0 0 12.333333%;
     max-width: 12.333333%;
 }
 
-#
-${
-commandPrefix
-}
-.checkbox-wrapper {
+.specialtable .checkbox-wrapper {
     justify-content: center;
 }
 
