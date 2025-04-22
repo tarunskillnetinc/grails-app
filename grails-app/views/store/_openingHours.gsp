@@ -6,7 +6,7 @@
             <h5 class="mb-4">${titleRegularOpeningHours}</h5>
 
             <div class="table-responsive">
-                <table id='${commandPrefix}table' class="specialtable table table-bordered custom-table col-12">
+                <table id='${commandPrefix}table' class="table table-bordered custom-table col-12">
                     <thead>
                     <tr>
                         <th class="align-middle text-center col-4">Day</th>
@@ -55,14 +55,15 @@
             <h5 class="mb-4">${titleSpecialOpeningHours}</h5>
 
             <div class="table-responsive">
-                <table id="${commandPrefix}-special-hours-tbl" class="table table-bordered custom-table right-table">
+                <table id="${commandPrefix}-special-hours-tbl"
+                       class="special-hours-tbl table table-bordered custom-table right-table">
                     <thead>
                     <tr>
-                        <th class="align-middle text-center col-3">Description</th>
+                        <th class="align-middle text-center col-4">Description</th>
                         <th class="align-middle text-center col-2">Date</th>
                         <th class="align-middle text-center col-15">Start</th>
                         <th class="align-middle text-center col-15">End</th>
-                        <th class="align-middle text-center col-2">Closed</th>
+                        <th class="align-middle text-center col-15">Closed</th>
                         <th class="align-middle text-center col-2">Actions</th>
                     </tr>
                     </thead>
@@ -212,21 +213,21 @@ td {
     position: relative;
 }
 
-.specialtable table input[type="time"]:invalid {
+.store-opening-hours table input[type="time"]:invalid {
     border: red 1px solid;
 }
 
-.specialtable-special-hours-tbl td {
+.special-hours-tbl td {
     font-size: 0.9rem;
 }
 
-.specialtable .col-15 { /* column thats one and a half cols wide */
+.store-opening-hours .col-15 { /* column thats one and a half cols wide */
     -ms-flex: 0 0 12.333333%;
     flex: 0 0 12.333333%;
     max-width: 12.333333%;
 }
 
-.specialtable .checkbox-wrapper {
+.store-opening-hours .checkbox-wrapper {
     justify-content: center;
 }
 
