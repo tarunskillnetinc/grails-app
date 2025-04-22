@@ -104,7 +104,7 @@
                             </td>
                             <td class="text-center align-middle">
                                 <a href="#" onclick="${commandPrefix}editSpecialHour(${i},'${commandPrefix}')" id="${commandPrefix}-edit-specialOpeningHours[${i}]"
-                                   class="btn btn-sm btn-wl mr-1 fixed-width-btn">Edit</a>
+                                   class="btn btn-sm btn-wl fixed-width-btn">Edit</a>
                                 <a href="#" onclick="${commandPrefix}deleteSpecialHour(${i},'${commandPrefix}')" id="${commandPrefix}-delete-specialOpeningHours[${i}]"
                                    class="btn btn-sm btn-danger fixed-width-btn">Delete</a>
                             </td>
@@ -114,7 +114,7 @@
                 </table>
             </div>
 
-            <div class="mt-3 col-4 ml-auto">
+            <div class="mt-3 text-right">
                 <a href="#" onclick="${commandPrefix}addSpecialHour('${commandPrefix}')" id="${commandPrefix}-add-special-opening-hours"
                    class="btn btn-wl pt-1 pb-1 pl-3 pr-4">${addSpecialHoursButtonText}</a>
             </div>
@@ -229,6 +229,14 @@ commandPrefix
     -ms-flex: 0 0 12.333333%;
     flex: 0 0 12.333333%;
     max-width: 12.333333%;
+}
+
+#
+${
+commandPrefix
+}
+.checkbox-wrapper {
+    justify-content: center;
 }
 
 </style>
