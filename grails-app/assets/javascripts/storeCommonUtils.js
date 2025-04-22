@@ -355,8 +355,8 @@ function safelyCloseModal(modalId) {
 }
 
 function editAmenities(index) {
-    $("#addAmenitiesContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-    $('#addAmenitiesModal').modal({show: true, backdrop: 'static', keyboard: false});
+    $("#editAmenitiesContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#editAmenitiesModal').modal({show: true, backdrop: 'static', keyboard: false});
     var params = {}
 
     if (index !== undefined && index !== null) {
@@ -399,14 +399,14 @@ function editAmenities(index) {
         method: "GET",
         data: params,
         success: function (resp) {
-            $("#addAmenitiesContent").html(resp);
+            $("#editAmenitiesContent").html(resp);
         }
     });
 }
 
 function closeStoreAmenityAddModal(){
     if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
-        $('#addAmenitiesModal').modal('hide')
+        $('#editAmenitiesModal').modal('hide')
     }
 }
 
@@ -535,33 +535,25 @@ function saveAmenities(selectedIndex, storeId) {
             var open = $("input[name='storeAmenities.regularHours[" + i + "].closed']").is(":checked");
 
             // Validation: If not closed and one time exists but the other doesn't
-            if (open && ((timeFrom && !timeTo) || (!timeFrom && timeTo))) {
-                // If day is open and one time exists, the other must also exist
-                editValidationErrors.push("For " + dayValue + ": Both start and end times must be provided");
+            var error = validateAmenityTimes(dayValue, timeFrom, timeTo, open);
+            if (error) {
+                editValidationErrors.push(error);
             }
 
             params["storeAmenities[" + selectedIndex + "].availability[" + i + "].day"] = dayValue;
-            params["storeAmenities[" + selectedIndex + "].availability[" + i + "].startTime"] = timeFrom;
-            params["storeAmenities[" + selectedIndex + "].availability[" + i + "].endTime"] = timeTo;
+            params["storeAmenities[" + selectedIndex + "].availability[" + i + "].startTime"] = open ? timeFrom : "";
+            params["storeAmenities[" + selectedIndex + "].availability[" + i + "].endTime"] = open ? timeTo : "";
             params["storeAmenities[" + selectedIndex + "].availability[" + i + "].closed"] = !open;
         });
     }
 
     //If there is any edit validation errors then display them on edit popup
-    if (editValidationErrors.length > 0) {
-        // Display errors in the error container
-        var errorHtml = '<div class="alert alert-danger"><ul>';
-        editValidationErrors.forEach(function(error) {
-            errorHtml += '<li>' + error + '</li>';
-        });
-        errorHtml += '</ul></div>';
-
-        $('#amenity-edit-errors-container').html(errorHtml);
+    if (!displayValidationErrors(editValidationErrors, 'amenity-edit-errors-container')) {
         return false; // Stop the submission
     }
 
     // Clear any previous errors
-    $('#modal-error').html('');
+    $('#amenity-edit-errors-container').html('');
 
     //const selectedCheckboxes = $('input[name="amenities"]:checked');
     const selectedCheckboxes = $('#amenity-list input.form-check-input:checked');
@@ -577,7 +569,7 @@ function saveAmenities(selectedIndex, storeId) {
         type: 'POST',
         data: params,
         success: function(resp) {
-            safelyCloseModal('#addAmenitiesModal');
+            safelyCloseModal('#editAmenitiesModal');
             safelyCloseModal('#amenitiesSearchModal');
             var storeAmenitiesContainer = $("#storeAmenitiesContainer");
             storeAmenitiesContainer.html(resp);
@@ -635,14 +627,35 @@ function deleteStoreAmenity(index) {
                 method: "POST",
                 data: params,
                 success: function(resp) {
-                    safelyCloseModal('#addAmenitiesModal');
-                    safelyCloseModal('#amenitiesSearchModal');
                     var storeAmenitiesContainer = $("#storeAmenitiesContainer");
                     storeAmenitiesContainer.html(resp);
                 }
             });
         }
     }
+}
+
+function validateAmenityTimes(dayValue, timeFrom, timeTo, open) {
+    if (open && ((timeFrom && !timeTo) || (!timeFrom && timeTo))) {
+        return "For " + dayValue + ": Both start and end times must be provided";
+    }
+    return null; // No error
+}
+
+// Error display function
+function displayValidationErrors(errors, containerId) {
+    if (errors.length > 0) {
+        // Display errors in the error container
+        var errorHtml = '<div class="alert alert-danger"><ul>';
+        errors.forEach(function(error) {
+            errorHtml += '<li>' + error + '</li>';
+        });
+        errorHtml += '</ul></div>';
+
+        $('#' + containerId).html(errorHtml);
+        return false; // Indicates validation failed
+    }
+    return true; // Indicates validation passed
 }
 
 

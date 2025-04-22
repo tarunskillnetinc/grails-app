@@ -45,10 +45,19 @@
                         <a href="#" class="btn btn-sm btn-wl mr-2" style="min-width: 80px; font-size: 0.9rem;" onclick="editAmenities(${i})">Edit</a>
                         <a href="#" class="btn btn-sm btn-danger" style="min-width: 80px; font-size: 0.9rem;" onclick="deleteStoreAmenity(${i})">Delete</a>
                     </div>
-                </div>
-            </g:if>
-        </g:each>
+            </div>
+        </g:if>
+    </g:each>
+</div>
+
+<section id="editAmenities-modal" class="container-fluid">
+    <div class="modal fade" id="editAmenitiesModal" tabindex="-1" role="dialog" aria-labelledby="editAmenitiesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div id="editAmenitiesContent" class="modal-content"></div>
+        </div>
     </div>
+</section>
+
 
 <style>
     @media screen and (max-width: 1300px) {

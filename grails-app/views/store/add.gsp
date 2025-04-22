@@ -319,13 +319,6 @@
         </g:form>
     </section>
 
-    <section id="addAmenities-modal" class="container-fluid">
-        <div class="modal fade" id="addAmenitiesModal" tabindex="-1" role="dialog" aria-labelledby="addAmenitiesModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-                <div id="addAmenitiesContent" class="modal-content"></div>
-            </div>
-        </div>
-    </section>
 
 </body>
 </html>

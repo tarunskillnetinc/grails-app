@@ -431,7 +431,7 @@ class StoreController {
     }
 
     def ajaxAddAmenities(StoreAmenitiesCommand storeAmenitiesCommand){
-        render(template: "addStoreAmenity", model: [index : params?.index, selectedAmenity: storeAmenitiesCommand])
+        render(template: "editStoreAmenity", model: [index: params?.index, selectedAmenity: storeAmenitiesCommand])
     }
 
     def ajaxAddStoreAmenity(SelectedAmenitiesCommand selectedAmenitiesCommand){
@@ -442,16 +442,6 @@ class StoreController {
 
     def ajaxGetAllAmenities(GetAmenitiesCommand getAmenitiesCommand){
         String amenityNameFilter = null
-        def sortParams = [:]
-
-        if (!params.sort) {
-            sortParams = [max: 20, offset: 0, sort: "storeNumber", order: "ASC"]
-        } else {
-            sortParams.max = Integer.parseInt(params.max)
-            sortParams.offset = Integer.parseInt(params.offset)
-            sortParams.sort = params.sort
-            sortParams.order = params.order
-        }
 
         if (params.amenityNameFilter && params.amenityNameFilter != "null") {
             amenityNameFilter = params.amenityNameFilter
@@ -464,10 +454,7 @@ class StoreController {
             !(amenity.id in selectedAmenityIds)
         }
 
-
-      //  def paginatedStores = stores.subList(0 + sortParams.offset, Math.min(sortParams.max + sortParams.offset, stores.size()))
-
-        render(template: 'amenitiesSelectionList', model: [Amenities: filteredAmenities, selectedIds: getAmenitiesCommand?.getSelectedAmenityIds(), totalResults: filteredAmenities.size(), sortParams: sortParams, storeNameFilter: amenityNameFilter ?: ""])
+        render(template: 'amenitiesSelectionList', model: [Amenities: filteredAmenities, selectedIds: getAmenitiesCommand?.getSelectedAmenityIds(), storeNameFilter: amenityNameFilter ?: ""])
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
