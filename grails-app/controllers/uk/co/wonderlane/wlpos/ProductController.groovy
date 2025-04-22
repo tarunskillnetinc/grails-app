@@ -148,8 +148,6 @@ class ProductController extends BaseController {
 
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
-        // todo timmy here
-        List<ProductAttributeValues> productAttributeValuesList = productService.getDefaultAttributeValues(null, 0)
 
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
                                     statusValues    : ProductStatus.values(),
@@ -838,8 +836,6 @@ class ProductController extends BaseController {
             def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
             def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
-
-            // todo timmy here... losing attibutes here
 
             render(view: "add", model: [product            : product,
                                         skuList            : skuList(product),

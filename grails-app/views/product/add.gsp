@@ -241,7 +241,6 @@
 
                 var params = {};
 
-                // todo timmy here get variant values
                 if (index != null) {
                     var selector = "#variants\\[" +index +"\\]\\.";
 
@@ -350,6 +349,7 @@
 
                 if (sku === "") {
                     $("#addVariantForm").prepend(`<div class="alert alert-danger alert-wl" role="alert">SKU cannot be empty.</div>`)
+                    $("#addVariantSku").focus()
                     return;
                 }
 
@@ -360,6 +360,11 @@
                 var unitSize = $("#addVariantUnitSize").val();
                 var unitOfMeasure = $("#addVariantUnitOfMeasure").val();
                 var itemsInUnit = $("#addVariantItemsInUnit").val();
+                if (itemsInUnit === "") {
+                    $("#addVariantForm").prepend(`<div class="alert alert-danger alert-wl" role="alert">Items In Unit cannot be empty.</div>`)
+                    $("#addVariantItemsInUnit").focus()
+                    return;
+                }
 
                 var height = $("#addVariantHeightCm").val();
                 var width = $("#addVariantWidthCm").val();
@@ -448,10 +453,14 @@
                 var totalAttributes = $("#productInformationAttributeCount").val()
                 for (let loopIndex = 0; loopIndex <= totalAttributes; loopIndex = loopIndex + 1) {
                     var attributeSelector = "#productAttributeValues\\[" + loopIndex + "\\]";
+                    if (document.getElementById("productAttributeValues\\[" + loopIndex + "\\].checkBox")) {
+                        params["attributez[" + loopIndex + "].value"] = $(attributeSelector +"\\.checkBox").checked ? "true" : "false";
+                    } else {
+                        params["attributez[" + loopIndex + "].value"] = $(attributeSelector +"\\.value").val();
+                    }
                     params["attributez[" + loopIndex + "].id"] = $(attributeSelector +"\\.id").val();
                     params["attributez[" + loopIndex + "].sku"] = $(attributeSelector +"\\.sku").val();
                     params["attributez[" + loopIndex + "].storeId"] = $(attributeSelector +"\\.storeId").val();
-                    params["attributez[" + loopIndex + "].value"] = $(attributeSelector +"\\.value").val();
                     params["attributez[" + loopIndex + "].productAttributeId"] = $(attributeSelector +"\\.productAttributeId").val();
                     params["attributez[" + loopIndex + "].attributeName"] = $(attributeSelector +"\\.attributeName").val();
                     params["attributez[" + loopIndex + "].attributeType"] = $(attributeSelector +"\\.attributeType").val();
@@ -1165,7 +1174,7 @@
                     <g:each in="${product.variants.findAll { it.storeId == null || it.storeId == storeId }}" var="variant" status="i">
                         <g:hasErrors bean="${variant}">
                             <div class="ml-3 pl-3 border">
-                                Variant ${i+1}
+                                SKU ${variant.sku}
                                 <g:renderErrors bean="${variant}" as="list" />
 
                                 <g:each in="${variant.barcodes}" var="barcode" status="j">

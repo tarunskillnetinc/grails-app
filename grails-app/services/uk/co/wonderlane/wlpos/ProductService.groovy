@@ -758,53 +758,52 @@ class ProductService extends MySqlDal {
         sendProductUpdate(products, stores, true)
     }
     def sendProductUpdate(List<Product> products, List<Store> stores, boolean insert) {
-        // todo timmy here - put this back!
-//        if (!rabbitService.isOpen()) {
-//            throw new Exception("Rabbit MQ not available")
-//        }
-//
-//        stores?.each { Store store ->
-//            List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
-//            products.forEach({
-//                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.id, store.priceBand)
-//                List<ProductVariant> variants = getFilteredProductVariantsWithPriceForStore(productEntity, store.id)
-//                if (!variants.isEmpty()) {
-//                    // Only send the update to the store if there are variants to send. This could mean the store has
-//                    // old variants that don't get deleted but the alternative is sending incomplete product data.
-//                    productEntity.setVariants(variants)
-//                    productEntities.add(productEntity)
-//                }
-//            })
-//
-//            if (!productEntities.isEmpty()) {
-//                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
-//                syncMessage.setInsert(insert)
-//                syncMessage.setProducts(productEntities)
-//
-//                log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber} (insert: $insert)")
-//
-//                rabbitService.sendMessage(syncMessage)
-//
-//                productEntities.forEach({
-//                    def pricingClassificationId = it?.restrictions?.pricingClassificationId
-//
-//                    if (pricingClassificationId != null) {
-//                        List<uk.co.wonderlane.wlpos.entities.PricingClassification> pricingClassificationList = new ArrayList<>()
-//
-//                        def pricingClassification = pricingClassificationService.getPricingClassificationById(pricingClassificationId)
-//                        pricingClassificationList.add(pricingClassification.getPricingClassification())
-//
-//                        SyncMessage pricingSyncMessage = new SyncMessage(SyncMessageType.PRICING_CLASSIFICATION, springSecurityService.principal.retailerId, 0, 0, 0)
-//                        pricingSyncMessage.setInsert(insert)
-//                        pricingSyncMessage.setPricingClassifications(pricingClassificationList)
-//
-//                        log.println("Syncing ${pricingClassificationList.size()} pricing classification updates to store ${store.config.storeNumber} (insert: $insert)")
-//
-//                        rabbitService.sendMessage(pricingSyncMessage)
-//                    }
-//                })
-//            }
-//        }
+        if (!rabbitService.isOpen()) {
+            throw new Exception("Rabbit MQ not available")
+        }
+
+        stores?.each { Store store ->
+            List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
+            products.forEach({
+                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.id, store.priceBand)
+                List<ProductVariant> variants = getFilteredProductVariantsWithPriceForStore(productEntity, store.id)
+                if (!variants.isEmpty()) {
+                    // Only send the update to the store if there are variants to send. This could mean the store has
+                    // old variants that don't get deleted but the alternative is sending incomplete product data.
+                    productEntity.setVariants(variants)
+                    productEntities.add(productEntity)
+                }
+            })
+
+            if (!productEntities.isEmpty()) {
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
+                syncMessage.setInsert(insert)
+                syncMessage.setProducts(productEntities)
+
+                log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber} (insert: $insert)")
+
+                rabbitService.sendMessage(syncMessage)
+
+                productEntities.forEach({
+                    def pricingClassificationId = it?.restrictions?.pricingClassificationId
+
+                    if (pricingClassificationId != null) {
+                        List<uk.co.wonderlane.wlpos.entities.PricingClassification> pricingClassificationList = new ArrayList<>()
+
+                        def pricingClassification = pricingClassificationService.getPricingClassificationById(pricingClassificationId)
+                        pricingClassificationList.add(pricingClassification.getPricingClassification())
+
+                        SyncMessage pricingSyncMessage = new SyncMessage(SyncMessageType.PRICING_CLASSIFICATION, springSecurityService.principal.retailerId, 0, 0, 0)
+                        pricingSyncMessage.setInsert(insert)
+                        pricingSyncMessage.setPricingClassifications(pricingClassificationList)
+
+                        log.println("Syncing ${pricingClassificationList.size()} pricing classification updates to store ${store.config.storeNumber} (insert: $insert)")
+
+                        rabbitService.sendMessage(pricingSyncMessage)
+                    }
+                })
+            }
+        }
     }
 
     def isSingleStageSel() {
@@ -954,16 +953,6 @@ class ProductService extends MySqlDal {
         return results.sort { it.id }
     }
 
-    def processedValueForNullEmpty(String value, ProductAttributeType productAttributeType) {
-        if (value == null) {
-            value = "";
-        } else if (productAttributeType == ProductAttributeType.BOOLEAN && value == "false") {
-            value = "";
-        }
-
-        return value;
-    }
-
     List<ProductAttributeValues> getDefaultAttributeValues(Product product, long sku) {
         int retailerId = springSecurityService.principal.retailerId
         Integer storeId = springSecurityService.principal.storeId
@@ -982,6 +971,7 @@ class ProductService extends MySqlDal {
                     attributeType: it?.type,
                     listValues: it?.listValues
             )
+            defaultEntry.listValues = removeSquareBrackets(defaultEntry.listValues)
             values << defaultEntry
         }
         return values?.sort { it?.productAttributeId }
@@ -1010,6 +1000,8 @@ class ProductService extends MySqlDal {
                         value.attributeName = attribute.name
                         value.attributeType = attribute.type
                         value.listValues = attribute.listValues
+                        value.listValues = removeSquareBrackets(value.listValues)
+
                         skuAttributeMap.put(value.productAttributeId, value)
                     }
                 }
@@ -1032,6 +1024,7 @@ class ProductService extends MySqlDal {
                             attributeType: attributeEntry.value?.type,
                             listValues: attributeEntry.value?.listValues
                     )
+                    defaultValue.listValues = removeSquareBrackets(defaultValue.listValues)
                     skuEntry.getValue().put(attributeEntry.key, defaultValue)
                 }
             }
@@ -1046,7 +1039,23 @@ class ProductService extends MySqlDal {
         return returnValues
     }
 
-    ArrayList<ProductAttributeValues> saveUpdatedProductAttributeValues(Product product, ProductCommand editedProduct, ProductHistoryBuilder builder, effectiveDate) {
+    private static String removeSquareBrackets(String value) {
+        // bit of a hack method to clean up a string that came from an array (* util handles null)
+        return StringUtils.removeStart(StringUtils.removeEnd(value, "]"), "[")
+                .replace(", ", ",")
+    }
+
+    def saveUpdatedProductAttributeValues(Product product, ProductCommand editedProduct, ProductHistoryBuilder builder, effectiveDate) {
+        validateProductAttributes(product, editedProduct)
+
+        def variantErrors = product.variants.any { it.hasErrors() }
+        if (product.hasErrors() || variantErrors) {
+            if (!product.hasErrors()) {
+                product.errors.reject("Errors found on variants")
+            }
+            return
+        }
+
         int retailerId = springSecurityService.principal.retailerId
         Integer storeId = springSecurityService.principal.storeId
 
@@ -1054,7 +1063,6 @@ class ProductService extends MySqlDal {
             builder = new ProductHistoryBuilder(product.id, springSecurityService, effectiveDate)
         }
 
-        // todo timmy here - validations would be better done when updating the SKU if possible
         editedProduct.getVariants().each { variant ->
             variant.attributez?.each { attribute ->
                 ProductAttributeValues existingAttribute = null
@@ -1085,34 +1093,47 @@ class ProductService extends MySqlDal {
         }
     }
 
-//
-//    // todo timmy move to sku validation
-//    boolean isProductAttributeUpdateValidationsPassed(productAttributes, editedAttr, product){
-//        boolean isValidationPassed = true
-//        if (productAttributes?.type == ProductAttributeType.TEXT && editedAttr?.value != null) {
-//            if (editedAttr?.value?.length() > 50) {
-//                product.errors.reject('productAttributeValues.text.max.size', [productAttributes?.name] as Object[],
-//                        "Product attribute ${productAttributes?.name} validation failed")
-//                isValidationPassed = false
-//            }
-//        } else if (productAttributes?.type == ProductAttributeType.NUMERIC && editedAttr?.value != null) {
-//            try {
-//                // Try parsing the value as a BigDecimal
-//                BigDecimal numericValue = new BigDecimal(editedAttr?.value)
-//
-//                // Check if the value exceeds the maximum allowed value
-//                if (numericValue.compareTo(BigDecimal.ZERO) < 0 || numericValue.compareTo(new BigDecimal("999999.99")) > 0) {
-//                    product.errors.reject('productAttributeValues.numeric.default.out.of.range', [productAttributes?.name] as Object[],
-//                            "Product attribute ${productAttributes?.name} validation failed")
-//                    isValidationPassed = false
-//                }
-//            } catch (Exception e) {
-//                // If the value is not a valid number, return the appropriate error message
-//                product.errors.reject('productAttributeValues.numeric.default.not.a.number', [productAttributes?.name] as Object[],
-//                        "Product attribute ${productAttributes?.name} validation failed")
-//                isValidationPassed = false
-//            }
-//        }
-//        return isValidationPassed
-//    }
+    private static def validateProductAttributes(Product product, ProductCommand editedProduct) {
+        boolean failedValidation = false
+        editedProduct.getVariants().each { variant ->
+            ProductVariant existingVariant = product.variants.find { it.id == variant.id }
+            variant.attributez?.each { attribute ->
+                switch (attribute.attributeType) {
+                    case ProductAttributeType.TEXT:
+                        if (attribute.value?.length() > 50) {
+                            failedValidation = true
+                            addProductAttributesError(product, existingVariant, 'productAttributeValues.text.max.size', attribute.attributeName)
+                        }
+                        break
+                    case ProductAttributeType.NUMERIC:
+                        try {
+                            BigDecimal numericValue = new BigDecimal(attribute.value)
+                            if (numericValue < BigDecimal.ZERO || numericValue > new BigDecimal("999999.99")) {
+                                failedValidation = true
+                                addProductAttributesError(product, existingVariant, 'productAttributeValues.numeric.default.out.of.range', attribute.attributeName)
+                            }
+                        } catch (Exception ignored) {
+                            failedValidation = true
+                            addProductAttributesError(product, existingVariant, 'productAttributeValues.numeric.default.not.a.number', attribute.attributeName)
+                        }
+                        break
+                }
+            }
+        }
+        if (failedValidation && !product.hasErrors()) {
+            // this is here to force the product error path
+            product.errors.reject("product.variants.validation.error",
+                    "Product Variant(s) values have failed validation:")
+        }
+    }
+
+    private static def addProductAttributesError(Product product, ProductVariant existingVariant, String errorCode, String attributeName) {
+        if (existingVariant) {
+            existingVariant.errors.reject(errorCode, [attributeName] as Object[],
+                    "${attributeName} validation failed")
+        } else {
+            product.errors.reject(errorCode, [attributeName] as Object[],
+                    "${attributeName} validation failed")
+        }
+    }
 }

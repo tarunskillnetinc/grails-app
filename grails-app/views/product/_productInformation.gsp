@@ -122,7 +122,6 @@
                           noSelection="['': '']"
                           value="${attributeValue?.value ?: ''}"
                           class="col-12 form-control select-border"
-                          data-attribute-id="${attributeValue?.productAttributeId}"
                 />
             </g:if>
 
@@ -149,9 +148,8 @@
             <g:if test="${attributeValue?.attributeType == uk.co.wonderlane.wlpos.enums.ProductAttributeType.BOOLEAN}">
                 <div id="attribute_${attributeValue?.productAttributeId}" class="col-12 pt-3 mr-0 d-flex align-items-center">
                     <div class="form-check form-check-inline">
-                        <g:checkBox id="productAttributeValues[${index}].value"
-                                    name="productAttributeValues[${index}].value"
-                                    value="true"
+                        <g:checkBox id="productAttributeValues[${index}].checkBox"
+                                    name="productAttributeValues[${index}].checkBox"
                                     checked="${attributeValue?.value == 'true'}"
                                     class="form-check-input wl-checkbox"
                         />
