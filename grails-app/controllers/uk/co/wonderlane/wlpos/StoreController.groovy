@@ -150,7 +150,6 @@ class StoreController {
          storeOpeningHoursCommand: storeOpeningHoursCommand,
          alcoholLicensingCommand: alcoholLicensingCommand,
          storeRestrictions: storeRestrictions,
-         amenities: storeService.getAmenitiesList(springSecurityService.principal.retailerId, null),
          storeAmenities: storeService.convertToStoreRestrictionCommands(null, -1)
         ]
     }
@@ -198,7 +197,6 @@ class StoreController {
          storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours()),
          alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing()),
          storeRestrictions           : storeService.convertToStoreRestrictionCommand(store?.getStoreRestrictedHours()),
-         amenities                   : storeService.getAmenitiesList(springSecurityService.principal.retailerId, null),
          storeAmenities              : storeService.convertToStoreRestrictionCommands(store?.storeAmenities, store?.id)
         ]
 
@@ -221,7 +219,6 @@ class StoreController {
                                         storeOpeningHoursCommand: newStoreCommand.storeOpeningHoursCommand,
                                         alcoholLicensingCommand: newStoreCommand.alcoholLicensingCommand,
                                         storeRestrictions: newStoreCommand.storeRestrictions,
-                                        amenities: storeService.getAmenitiesList(springSecurityService.principal.retailerId),
                                         storeAmenities: newStoreCommand?.storeAmenities
             ])
         } else {
@@ -410,7 +407,8 @@ class StoreController {
                                            storeAdditionalDetails      : storeService.sortAdditionalDetails(storeCommand?.storeAdditionalDetails),
                                            storeOpeningHoursCommand    : storeCommand.storeOpeningHoursCommand,
                                            alcoholLicensingCommand     : storeCommand.alcoholLicensingCommand,
-                                           storeRestrictions           : storeCommand.storeRestrictions
+                                           storeRestrictions           : storeCommand.storeRestrictions,
+                                           storeAmenities              : storeCommand?.storeAmenities
             ])
 
         }
