@@ -453,8 +453,12 @@
                 var totalAttributes = $("#productInformationAttributeCount").val()
                 for (let loopIndex = 0; loopIndex <= totalAttributes; loopIndex = loopIndex + 1) {
                     var attributeSelector = "#productAttributeValues\\[" + loopIndex + "\\]";
-                    if (document.getElementById("productAttributeValues\\[" + loopIndex + "\\].checkBox")) {
-                        params["attributez[" + loopIndex + "].value"] = $(attributeSelector +"\\.checkBox").checked ? "true" : "false";
+                    var checkBox = document.getElementById("productAttributeValues[" + loopIndex + "].checkBox");
+                    var dateValue = document.getElementById("product_attribute_information_date_" + loopIndex);
+                    if (checkBox) {
+                        params["attributez[" + loopIndex + "].value"] = checkBox.checked ? "true" : "false";
+                    } else if (dateValue) {
+                        params["attributez[" + loopIndex + "].value"] = dateValue.value;
                     } else {
                         params["attributez[" + loopIndex + "].value"] = $(attributeSelector +"\\.value").val();
                     }
@@ -1220,8 +1224,8 @@
             <!-- Add variant modal. -->
             <div class="modal fade" id="addVariantModal" tabindex="-1" role="dialog" aria-labelledby="addVariantModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl" role="document">
-                    <div id="addVariantContent" class="modal-content">
-
+                    <div id="addVariantContent" class="modal-content" style="margin-bottom: 200px !important;">
+                        %{-- forcing a larger margin bottom here to allow extra space for a date picker on custom attributes --}%
                     </div>
                 </div>
             </div>

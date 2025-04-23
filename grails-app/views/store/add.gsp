@@ -16,6 +16,9 @@
         var saveStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxSaveStoreAdditionalDetail')}"
         var addStoreOtherRestrictionsValues = "${createLink(controller: 'store', action: 'ajaxAddStoreOtherRestrictions')}"
         var saveStoreOtherRestrictions = "${createLink(controller: 'store', action: 'ajaxSaveStoreOtherRestrictions')}"
+        var editAmenity = "${createLink(controller: 'store', action: 'ajaxEditAmenities')}"
+        var addStoreAmenities = "${createLink(controller: 'store', action: 'ajaxAddStoreAmenity')}"
+        var getStoreAmenities = "${createLink(controller: "store", action: 'ajaxGetAllAmenities')}"
 
         function typeChanged() {
             var selectedType = $("#type option:selected").val();
@@ -315,6 +318,7 @@
             </div>
         </g:form>
     </section>
+
 
 </body>
 </html>

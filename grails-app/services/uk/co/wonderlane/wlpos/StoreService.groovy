@@ -262,10 +262,8 @@ class StoreService extends MySqlDal {
         }
     }
 
-
     StoreOpeningHoursCommand convertToStoreOpeningHoursCommand(OpeningHours openingHours) {
         StoreOpeningHoursCommand command = new StoreOpeningHoursCommand()
-
         // Convert regular hours
         if (openingHours != null) {
             List<OpeningTimeCommand> regularHours = new ArrayList<>();
@@ -305,7 +303,6 @@ class StoreService extends MySqlDal {
                     new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
             ])
         }
-
         return command
     }
 
@@ -360,6 +357,189 @@ class StoreService extends MySqlDal {
         }
         return storeRestrictionsCommand
     }
+
+    List<StoreAmenitiesCommand> convertToStoreAmenitiesCommand(List<StoreAmenity> storeAmenities, int storeId) {
+        List<StoreAmenitiesCommand> storeAmenitiesCommands = new ArrayList<>()
+        if (storeAmenities != null && !storeAmenities.isEmpty()) {
+            storeAmenities.each { StoreAmenity storeAmenity ->
+                StoreAmenitiesCommand command = convertToStoreAmenityCommand(storeAmenity, storeId)
+                storeAmenitiesCommands.add(command)
+            }
+            storeAmenitiesCommands = storeAmenitiesCommands?.findAll { it != null}
+            storeAmenitiesCommands?.sort { a, b ->
+                a.amenity?.name?.toLowerCase() <=> b.amenity?.name?.toLowerCase()
+            }
+        }
+        return storeAmenitiesCommands
+    }
+
+    StoreAmenitiesCommand convertToStoreAmenityCommand(StoreAmenity storeAmenity, int storeId){
+        StoreAmenitiesCommand storeAmenitiesCommand = new StoreAmenitiesCommand()
+        if (storeAmenity != null) {
+            storeAmenitiesCommand.setAdditionalDetail(storeAmenity.getAdditionalDetail())
+            storeAmenitiesCommand.setCount(storeAmenity.getCount() != null ? storeAmenity.getCount() : 0)
+            storeAmenitiesCommand.setAmenity( new AmenityCommand(
+                    id: storeAmenity.amenity.id,
+                    retailerId: storeAmenity.amenity.retailerId.toString(),
+                    name: storeAmenity.amenity.name
+            ))
+            if (storeAmenity.getAvailability() != null) {
+                OpeningHours openingHours = gsonProvider.gson.fromJson(storeAmenity.getAvailability(), new TypeToken<OpeningHours>(){}.type)
+                List<OpeningTimeCommand> regularHours = new ArrayList<>();
+                addOpeningTimeToCmd(regularHours, "Monday", openingHours.getMonday())
+                addOpeningTimeToCmd(regularHours, "Tuesday", openingHours.getTuesday())
+                addOpeningTimeToCmd(regularHours, "Wednesday", openingHours.getWednesday())
+                addOpeningTimeToCmd(regularHours, "Thursday", openingHours.getThursday())
+                addOpeningTimeToCmd(regularHours, "Friday", openingHours.getFriday())
+                addOpeningTimeToCmd(regularHours, "Saturday", openingHours.getSaturday())
+                addOpeningTimeToCmd(regularHours, "Sunday", openingHours.getSunday())
+
+                storeAmenitiesCommand.setAvailability(regularHours)
+            } else {
+                storeAmenitiesCommand.availability =  getDefaultOpeningTimeCommandForAmenities()
+            }
+            storeAmenitiesCommand.storeId = storeId
+        } else {
+            storeAmenitiesCommand.availability = getDefaultOpeningTimeCommandForAmenities()
+        }
+        return storeAmenitiesCommand
+    }
+
+    List<Amenity> getAmenitiesList(int retailerId, String amenityNameFilter){
+        return Amenity.createCriteria().list {
+            eq('retailerId', retailerId)
+            if (amenityNameFilter) {
+                ilike('name', '%' + amenityNameFilter + '%')
+            }
+
+            order('name', 'asc')  // Optional: sort by name
+        } as List<Amenity>
+    }
+
+
+    def saveStoreAmenities(List<StoreAmenitiesCommand> storeAmenitiesCommand, Store store){
+        // Create maps for efficient lookup
+        Map<String, StoreAmenitiesCommand> storeAmenitiesCommandMap = createStoreAmenityCommandMap(storeAmenitiesCommand)
+        Map<String, StoreAmenity> storeAmenitiesMap = createStoreAmenityMap(store?.storeAmenities)
+
+        // First, delete any StoreAmenity entries that are no longer in the command list
+        storeAmenitiesMap.each { String key, StoreAmenity storeAmenity ->
+            if (!storeAmenitiesCommandMap.containsKey(key)) {  // This StoreAmenity is not in the updated list, so delete it
+                Amenity amenity = Amenity.get(storeAmenity?.amenity?.id)
+                StoreAmenity existingStoreAmenity = StoreAmenity.findByAmenityAndStore(amenity, store)
+                if (existingStoreAmenity) {
+                    store.storeAmenities.remove(existingStoreAmenity)
+                    storeAmenity.delete(flush: true)
+                }
+            }
+        }
+
+        // Then, save or update all entries from the command list
+        for (StoreAmenitiesCommand storeAmenity : storeAmenitiesCommand) {
+            Amenity amenity = Amenity.get(storeAmenity?.amenity?.id)
+            StoreAmenity existingAmenity = StoreAmenity.findByAmenityAndStore(amenity, store)
+            if (existingAmenity) {
+                existingAmenity.additionalDetail = storeAmenity.additionalDetail
+                existingAmenity.count = storeAmenity.count
+                OpeningHours openingHours = getAmenitiesAvailability(storeAmenity?.availability)
+                existingAmenity.availability = gsonProvider.gson.toJson(openingHours)
+            } else {
+                StoreAmenity newAmenity = getStoreAmenity(storeAmenity, store, amenity)
+                if (newAmenity) { // Create new entity
+                    store.storeAmenities.add(newAmenity)
+                    newAmenity.save(flush: true)
+                }
+            }
+        }
+    }
+
+    void updateStoreAmenityCommandForSelectedIds(SelectedAmenitiesCommand selectedAmenitiesCommand, Integer storeId){
+        selectedAmenitiesCommand.selectedAmenityIds.forEach {
+            amenityId -> {
+                Amenity amenity = Amenity.get(amenityId)
+                StoreAmenitiesCommand storeAmenitiesCommand = new StoreAmenitiesCommand()
+                storeAmenitiesCommand.availability = getDefaultOpeningTimeCommandForAmenities()
+                storeAmenitiesCommand.setAmenity(
+                        new AmenityCommand(
+                                id: amenity?.id,
+                                retailerId: amenity?.retailerId,
+                                name: amenity?.name
+                        )
+                )
+                storeAmenitiesCommand.storeId = storeId
+                selectedAmenitiesCommand.storeAmenities.add(storeAmenitiesCommand)
+            }
+        }
+    }
+
+    private Map<String, StoreAmenitiesCommand> createStoreAmenityCommandMap(List<StoreAmenitiesCommand> storeAmenities) {
+        Map<String, StoreAmenitiesCommand> result = [:]
+        storeAmenities.each { StoreAmenitiesCommand amenity ->
+            // Create a composite key using storeId and amenity.id
+            String compositeKey = "${amenity?.storeId}_${amenity?.amenity?.id}"
+            // Add to map with the composite key
+            result[compositeKey] = amenity
+        }
+        return result
+    }
+
+    private Map<String, StoreAmenity> createStoreAmenityMap(List<StoreAmenity> storeAmenities) {
+        Map<String, StoreAmenity> result = [:]
+        storeAmenities.each { StoreAmenity storeAmenity ->
+            // Create a composite key using store.id and amenity.id
+            String compositeKey = "${storeAmenity?.store?.id}_${storeAmenity?.amenity?.id}"
+            // Add to map with the composite key
+            result[compositeKey] = storeAmenity
+        }
+        return result
+    }
+
+    private StoreAmenity getStoreAmenity(StoreAmenitiesCommand storeAmenitiesCommand, Store store, Amenity amenity){
+        if (storeAmenitiesCommand != null) {
+            StoreAmenity storeAmenity = new StoreAmenity()
+            storeAmenity.setAdditionalDetail(storeAmenitiesCommand.additionalDetail)
+            storeAmenity.setCount(storeAmenitiesCommand.count)
+            storeAmenity.setStore(store)
+            storeAmenity.setAmenity(amenity)
+            OpeningHours openingHours = getAmenitiesAvailability(storeAmenitiesCommand?.availability)
+            storeAmenity.setAvailability(gsonProvider.gson.toJson(openingHours))
+            return storeAmenity
+        }
+        return null
+    }
+
+    def getAmenitiesAvailability(List<OpeningTimeCommand> availability) {
+        OpeningHours openingHours = new OpeningHours()
+        if (availability != null) {
+            availability?.forEach {regHours -> {
+                switch (regHours.day) {
+                    case "Monday":
+                        openingHours.monday = regularHoursMap(regHours)
+                        break
+                    case "Tuesday":
+                        openingHours.tuesday = regularHoursMap(regHours)
+                        break
+                    case "Wednesday":
+                        openingHours.wednesday = regularHoursMap(regHours)
+                        break
+                    case "Thursday":
+                        openingHours.thursday = regularHoursMap(regHours)
+                        break
+                    case "Friday":
+                        openingHours.friday = regularHoursMap(regHours)
+                        break
+                    case "Saturday":
+                        openingHours.saturday = regularHoursMap(regHours)
+                        break
+                    case "Sunday":
+                        openingHours.sunday = regularHoursMap(regHours)
+                        break
+                }
+            }}
+        }
+        return openingHours
+    }
+
 
     private void addOpeningTimeToCmd(List<OpeningTimeCommand> regularHours, String day, OpeningTime openingTime) {
         OpeningTimeCommand command = new OpeningTimeCommand()
@@ -520,5 +700,17 @@ class StoreService extends MySqlDal {
         storeOtherRestrictions.startDateTime = storeOtherRestrictionsCommand?.startDateTime ? LocalDateTime.parse(storeOtherRestrictionsCommand?.startDateTime, formatterDate) : null
         storeOtherRestrictions.endDateTime = storeOtherRestrictionsCommand?.endDateTime ? LocalDateTime.parse(storeOtherRestrictionsCommand?.endDateTime, formatterDate) : null
         return storeOtherRestrictions
+    }
+
+    private List<OpeningTimeCommand> getDefaultOpeningTimeCommandForAmenities(){
+        return [
+                new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: true)
+        ]
     }
 }
