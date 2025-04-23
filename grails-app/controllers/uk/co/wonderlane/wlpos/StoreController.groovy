@@ -465,7 +465,7 @@ class StoreController {
 
         List<Integer> selectedAmenityIds = getAmenitiesCommand?.getAddedAmenityIds()
         def allAmenities =  storeService.getAmenitiesList(springSecurityService.principal.retailerId, amenityNameFilter)
-        def filteredAmenities = allAmenities.findAll { amenity ->
+        def filteredAmenities = allAmenities?.findAll { amenity ->
             // Return true if the amenity ID is NOT in the selectedAmenityIds list
             !(amenity.id in selectedAmenityIds)
         }
