@@ -7,8 +7,10 @@ import grails.validation.Validateable
 import groovy.json.JsonSlurper
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
+import uk.co.wonderlane.wlpos.entities.OpeningHours
 import uk.co.wonderlane.wlpos.entities.OpeningTimeOverride
 import uk.co.wonderlane.wlpos.entities.StoreConfig
+import uk.co.wonderlane.wlpos.entities.StoreLicencing
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
@@ -201,16 +203,17 @@ class StoreController {
 
         // Detect any issues with the opening hours etc as json can throw unexpected errors.
         String storeAdditionalDetailJson
-        String storeOpeningHours
-        String storeLicensing
-        String storeRestrictions
+        OpeningHours storeOpeningHours
+        StoreLicencing storeLicensing
+        String storeRestrictionsJson
 
         try {
             storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(newStoreCommand?.storeAdditionalDetails)
-            storeOpeningHours = gsonProvider.gson.toJson(storeService.getOpeningHoursAsObject(newStoreCommand.storeOpeningHoursCommand))
-            storeLicensing = gsonProvider.gson.toJson(storeService.getAlcoholLicensingCommandAsObject(newStoreCommand.alcoholLicensingCommand))
-            storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(newStoreCommand?.storeRestrictions))
+            storeOpeningHours = storeService.getOpeningHoursAsObject(newStoreCommand.storeOpeningHoursCommand)
+            storeLicensing = storeService.getAlcoholLicensingCommandAsObject(newStoreCommand.alcoholLicensingCommand)
+            storeRestrictionsJson = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(newStoreCommand?.storeRestrictions))
         } catch (Exception ex) {
+            // add the errors to the newStoreCommand.
             newStoreCommand.errors.reject(ex.getMessage())
         }
 
@@ -273,10 +276,10 @@ class StoreController {
 
             store.config = storeConfig
 
-            store.setAdditionalDetails(storeAdditionalDetailJson)
+            store.additionalDetails = storeAdditionalDetailJson
             store.setOpeningHours(storeOpeningHours)
             store.setLicencing(storeLicensing)
-            store.setStoreRestrictions(storeRestrictions)
+            store.setStoreRestrictions(storeRestrictionsJson)
 
             storeService.saveStore(store)
 
@@ -383,15 +386,15 @@ class StoreController {
 
         // The json parsing can produce its own errors - detect these how.
         String storeAdditionalDetailJson
-        String storeOpeningHours
-        String storeLicensing
-        String storeRestrictions
+        String storeOpeningHoursJson
+        String storeLicensingJson
+        String storeRestrictionsJson
 
         try {
             storeAdditionalDetailJson = storeService.getAdditionalDetailsJsonString(storeCommand?.storeAdditionalDetails)
-            storeOpeningHours = gsonProvider.gson.toJson(storeService.getOpeningHoursAsObject(storeCommand.storeOpeningHoursCommand))
-            storeLicensing = gsonProvider.gson.toJson(storeService.getAlcoholLicensingCommandAsObject(storeCommand.alcoholLicensingCommand))
-            storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(storeCommand?.storeRestrictions))
+            storeOpeningHoursJson = gsonProvider.gson.toJson(storeService.getOpeningHoursAsObject(storeCommand.storeOpeningHoursCommand))
+            storeLicensingJson = gsonProvider.gson.toJson(storeService.getAlcoholLicensingCommandAsObject(storeCommand.alcoholLicensingCommand))
+            storeRestrictionsJson = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(storeCommand?.storeRestrictions))
         } catch (Exception ex) {
             storeCommand.errors.reject(ex.getMessage())
         }
@@ -403,7 +406,7 @@ class StoreController {
 
             bindData(storeConfig, storeCommand.config)
 
-            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours, storeLicensing, storeRestrictions)
+            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHoursJson, storeLicensingJson, storeRestrictionsJson)
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
