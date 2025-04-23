@@ -16,7 +16,7 @@
         var saveStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxSaveStoreAdditionalDetail')}"
         var addStoreOtherRestrictionsValues = "${createLink(controller: 'store', action: 'ajaxAddStoreOtherRestrictions')}"
         var saveStoreOtherRestrictions = "${createLink(controller: 'store', action: 'ajaxSaveStoreOtherRestrictions')}"
-        var addAmenity = "${createLink(controller: 'store', action: 'ajaxAddAmenities')}"
+        var editAmenity = "${createLink(controller: 'store', action: 'ajaxEditAmenities')}"
         var addStoreAmenities = "${createLink(controller: 'store', action: 'ajaxAddStoreAmenity')}"
         var getStoreAmenities = "${createLink(controller: "store", action: 'ajaxGetAllAmenities')}"
 

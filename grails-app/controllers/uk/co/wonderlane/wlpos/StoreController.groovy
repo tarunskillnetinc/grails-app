@@ -443,13 +443,16 @@ class StoreController {
         render(template: "storeRestrictions", model: [storeRestrictions: storeService.sortStoreRestrictions(storeRestrictionsCommand)])
     }
 
-    def ajaxAddAmenities(StoreAmenitiesCommand storeAmenitiesCommand){
+    def ajaxEditAmenities(StoreAmenitiesCommand storeAmenitiesCommand){
         render(template: "editStoreAmenity", model: [index: params?.index, selectedAmenity: storeAmenitiesCommand])
     }
 
     def ajaxAddStoreAmenity(SelectedAmenitiesCommand selectedAmenitiesCommand){
         Integer storeId = params.storeId != null ? Integer.parseInt(params.storeId) : -1
         storeService.updateStoreAmenityCommandForSelectedIds(selectedAmenitiesCommand, storeId)
+        if (selectedAmenitiesCommand?.storeAmenities) {
+            selectedAmenitiesCommand.storeAmenities = selectedAmenitiesCommand.storeAmenities.findAll { it != null }
+        }
         render(template: "storeAmenityDetails", model: [storeAmenities: selectedAmenitiesCommand?.storeAmenities])
     }
 
