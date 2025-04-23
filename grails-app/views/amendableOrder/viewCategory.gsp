@@ -121,19 +121,19 @@
 
                 <div class="card-body collapse" id="filterCollapse">
                     <div class="form-group row">
-                        <label for="skuSearch" class="col-2 col-form-label-sm text-right">Line Number</label>
-                        <div class="col-10 input-group">
+                        <label for="skuSearch" class="col-3 col-form-label-sm text-right">Line Number</label>
+                        <div class="col-9 input-group">
                             <g:textField id="skuSearch" name="skuSearch" maxlength="100" value="${sku}" class="form-control" aria-describedby="select-addon2" />
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="productDescriptionSearch" class="col-2 col-form-label-sm text-right">Description</label>
-                        <div class="col-10 input-group">
+                        <label for="productDescriptionSearch" class="col-3 col-form-label-sm text-right">Description</label>
+                        <div class="col-9 input-group">
                             <g:textField id="productDescriptionSearch" name="productDescriptionSearch" maxlength="100" value="${productDescription}" class="form-control" aria-describedby="select-addon2" />
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="deliveryDateSearch" class="col-2 col-form-label-sm text-right">Delivery Date</label>
+                        <label for="deliveryDateSearch" class="col-3 col-form-label-sm text-right">Delivery Date</label>
                         <div class="col-4 input-group">
                             <g:textField name="deliveryDateSearch" id="deliveryDateSearch" type="text" class="col-8 form-control bottom-border"
                                          value="${g.formatDate(format: "dd/MM/yyyy", date: deliveryDate?.toDate())}"
@@ -143,7 +143,7 @@
 
                     <div class="form-group row">
                         <div class="col-4 offset-8 text-right">
-                            <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                            <button id="reset-filters-btn" type="button" class="btn btn-danger text-right" onclick="resetForm()">Reset Filters</button>
                             <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>
                         </div>
                     </div>
