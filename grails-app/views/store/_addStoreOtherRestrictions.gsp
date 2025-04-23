@@ -11,7 +11,7 @@
         <asset:stylesheet src="bootstrap-4.min.css" />
         <asset:stylesheet src="font-awesome-all.css" />
 
-        <section id="other-restrictions-errors-container" class="container-fluid"></section>
+        <section id="other-restrictions-errors-container" class="container-fluid mt-3"></section>
 
         <!-- Description field (centralized) -->
         <div class="row form-group mb-5 mt-4">

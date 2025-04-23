@@ -133,6 +133,7 @@ function closeOtherRestrictionsAddModal(){
 }
 
 function saveOtherRestrictions() {
+    var editOtherRestrictionErrors = [];
     // Get values from the form
     const description = $("#otherRestrictionDescription").val();
     const startDateTime = $("#startDateTimePicker").val();
@@ -175,6 +176,19 @@ function saveOtherRestrictions() {
         params["otherRestrictions[" + otherRestrictionsCount + "].endDateTime"] = existingEndDateTime;
         otherRestrictionsCount++;
     });
+
+    var error = validateOtherRestrictions(description);
+    if (error) {
+        editOtherRestrictionErrors.push(error);
+    }
+
+    //If there is any edit validation errors then display them on edit popup
+    if (!displayValidationErrors(editOtherRestrictionErrors, 'other-restrictions-errors-container')) {
+        return false; // Stop the submission
+    }
+
+    // Clear any previous errors
+    $('#other-restrictions-errors-container').html('');
 
     var index = $("#otherRestrictionIndex").val();
     if (index === null || index === undefined || index === "") {
@@ -673,5 +687,12 @@ function uncheckAllSelectedAmenities() {
             }
         }
     });
+}
+
+function validateOtherRestrictions(description) {
+    if (description === null || description === undefined || description.trim() === "") {
+        return "Description cannot be empty. Please add description";
+    }
+    return null; // No error
 }
 

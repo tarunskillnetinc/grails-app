@@ -634,6 +634,18 @@ class NewStoreCommand implements Validateable {
                     return ['storeCommand.storeRestrictions.regularHours.timeRequired.error']
                 }
             }
+
+            if (val && val.otherRestrictions) {
+                def hasErrors = false
+                val.otherRestrictions.each { otherRestriction ->
+                    if (otherRestriction && otherRestriction.description == null) {
+                        hasErrors = true
+                    }
+                }
+                if (hasErrors) {
+                    return ['storeCommand.storeRestrictions.otherRestrictions.description.required.error']
+                }
+            }
             return true
         }
         storeAmenities nullable: true
@@ -692,6 +704,19 @@ class StoreCommand implements Validateable {
                     return ['storeCommand.storeRestrictions.regularHours.timeRequired.error']
                 }
             }
+
+            if (val && val.otherRestrictions) {
+                def hasErrors = false
+                val.otherRestrictions.each { otherRestriction ->
+                    if (otherRestriction && otherRestriction.description == null) {
+                        hasErrors = true
+                    }
+                }
+                if (hasErrors) {
+                    return ['storeCommand.storeRestrictions.otherRestrictions.description.required.error']
+                }
+            }
+
             return true
         }
         storeAmenities nullable: true
