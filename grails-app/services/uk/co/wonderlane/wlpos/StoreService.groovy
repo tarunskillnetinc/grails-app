@@ -354,7 +354,7 @@ class StoreService extends MySqlDal {
         return storeRestrictionsCommand
     }
 
-    List<StoreAmenitiesCommand> convertToStoreRestrictionCommands(List<StoreAmenity> storeAmenities, int storeId) {
+    List<StoreAmenitiesCommand> convertToStoreAmenitiesCommand(List<StoreAmenity> storeAmenities, int storeId) {
         List<StoreAmenitiesCommand> storeAmenitiesCommands = new ArrayList<>()
         if (storeAmenities != null && !storeAmenities.isEmpty()) {
             storeAmenities.each { StoreAmenity storeAmenity ->

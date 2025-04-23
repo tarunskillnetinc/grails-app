@@ -150,7 +150,7 @@ class StoreController {
          storeOpeningHoursCommand: storeOpeningHoursCommand,
          alcoholLicensingCommand: alcoholLicensingCommand,
          storeRestrictions: storeRestrictions,
-         storeAmenities: storeService.convertToStoreRestrictionCommands(null, -1)
+         storeAmenities: storeService.convertToStoreAmenitiesCommand(null, -1)
         ]
     }
 
@@ -197,7 +197,7 @@ class StoreController {
          storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours()),
          alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing()),
          storeRestrictions           : storeService.convertToStoreRestrictionCommand(store?.getStoreRestrictedHours()),
-         storeAmenities              : storeService.convertToStoreRestrictionCommands(store?.storeAmenities, store?.id)
+         storeAmenities              : storeService.convertToStoreAmenitiesCommand(store?.storeAmenities, store?.id)
         ]
 
     }
