@@ -221,28 +221,32 @@ class StoreService extends MySqlDal {
         if (storeRestrictionsCommand != null) {
             storeRestrictionsCommand.getRegularHours()?.forEach { enableHours ->
                 {
-                    switch (enableHours.day) {
-                        case "Monday":
-                            storeRestrictedHours.monday = getEnableHoursAsObject(enableHours)
-                            break
-                        case "Tuesday":
-                            storeRestrictedHours.tuesday = getEnableHoursAsObject(enableHours)
-                            break
-                        case "Wednesday":
-                            storeRestrictedHours.wednesday = getEnableHoursAsObject(enableHours)
-                            break
-                        case "Thursday":
-                            storeRestrictedHours.thursday = getEnableHoursAsObject(enableHours)
-                            break
-                        case "Friday":
-                            storeRestrictedHours.friday = getEnableHoursAsObject(enableHours)
-                            break
-                        case "Saturday":
-                            storeRestrictedHours.saturday = getEnableHoursAsObject(enableHours)
-                            break
-                        case "Sunday":
-                            storeRestrictedHours.sunday = getEnableHoursAsObject(enableHours)
-                            break
+                    try {
+                        switch (enableHours.day) {
+                            case "Monday":
+                                storeRestrictedHours.monday = getEnableHoursAsObject(enableHours)
+                                break
+                            case "Tuesday":
+                                storeRestrictedHours.tuesday = getEnableHoursAsObject(enableHours)
+                                break
+                            case "Wednesday":
+                                storeRestrictedHours.wednesday = getEnableHoursAsObject(enableHours)
+                                break
+                            case "Thursday":
+                                storeRestrictedHours.thursday = getEnableHoursAsObject(enableHours)
+                                break
+                            case "Friday":
+                                storeRestrictedHours.friday = getEnableHoursAsObject(enableHours)
+                                break
+                            case "Saturday":
+                                storeRestrictedHours.saturday = getEnableHoursAsObject(enableHours)
+                                break
+                            case "Sunday":
+                                storeRestrictedHours.sunday = getEnableHoursAsObject(enableHours)
+                                break
+                        }
+                    } catch (IllegalArgumentException ex) {
+                        throw new IllegalArgumentException("storeservice.restrictions.time.invalid.format")
                     }
                 }
             }
@@ -279,7 +283,7 @@ class StoreService extends MySqlDal {
                     OpeningTimeOverrideCommand overrideCommand = new OpeningTimeOverrideCommand()
                     overrideCommand.description = override.description
                     if (override.getDate() != null) {
-                        overrideCommand.setDate(override.getDate().toString("yyyy-MM-dd"))
+                        overrideCommand.setDate(override.getDate().toString("dd/MM/yyyy"))
                     }
                     overrideCommand.setStartTime(override.getStartTime() != null ? override.getStartTime().toString("HH:mm") : null)
                     overrideCommand.setEndTime(override.getEndTime() != null ? override.getEndTime().toString("HH:mm") : null)
@@ -578,8 +582,19 @@ class StoreService extends MySqlDal {
     private OpeningTime regularHoursMap(OpeningTimeCommand openingTimeCommand) {
         OpeningTime openingTime = new OpeningTime()
         DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm")
-        openingTime.startTime = openingTimeCommand.startTime ? formatter.parseLocalTime(openingTimeCommand.startTime) : null
-        openingTime.endTime = openingTimeCommand.endTime ? formatter.parseLocalTime(openingTimeCommand.endTime) : null
+
+        try {
+            openingTime.startTime = openingTimeCommand.startTime ? formatter.parseLocalTime(openingTimeCommand.startTime) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.regular.starttime.invalid.format")
+        }
+
+        try {
+            openingTime.endTime = openingTimeCommand.endTime ? formatter.parseLocalTime(openingTimeCommand.endTime) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.regular.endtime.invalid.format")
+        }
+
         openingTime.closed = openingTimeCommand.closed
         return openingTime
     }
@@ -588,14 +603,32 @@ class StoreService extends MySqlDal {
         if (openingTimeOverrideCommand == null) {
             return null
         }
-        DateTimeFormatter formatterDate = DateTimeFormat.forPattern("yyyy-MM-dd");
+        DateTimeFormatter formatterDate = DateTimeFormat.forPattern("dd/mm/yyyy");
         DateTimeFormatter formatterTime = DateTimeFormat.forPattern("HH:mm")
+
         OpeningTimeOverride openingTimeOverride = new OpeningTimeOverride()
         openingTimeOverride.description = openingTimeOverrideCommand?.description
-        openingTimeOverride.date = openingTimeOverrideCommand?.date ? formatterDate.parseLocalDate(openingTimeOverrideCommand.date) : null
-        openingTimeOverride.startTime = openingTimeOverrideCommand?.startTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.startTime) : null
-        openingTimeOverride.endTime = openingTimeOverrideCommand?.endTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.endTime) : null
+
+        try {
+            openingTimeOverride.date = openingTimeOverrideCommand?.date ? formatterDate.parseLocalDate(openingTimeOverrideCommand.date) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.special.date.invalid.format")
+        }
+
+        try {
+            openingTimeOverride.startTime = openingTimeOverrideCommand?.startTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.startTime) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.special.starttime.invalid.format")
+        }
+
+        try {
+            openingTimeOverride.endTime = openingTimeOverrideCommand?.endTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.endTime) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.special.endtime.invalid.format")
+        }
+
         openingTimeOverride.closed = openingTimeOverrideCommand?.closed
+
         return openingTimeOverride
     }
 
