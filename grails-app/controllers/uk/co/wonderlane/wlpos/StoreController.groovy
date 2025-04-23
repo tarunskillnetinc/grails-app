@@ -143,8 +143,15 @@ class StoreController {
                 otherRestrictions: []
         )
 
-        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges, storeOpeningHoursCommand: storeOpeningHoursCommand,
-         alcoholLicensingCommand: alcoholLicensingCommand, storeRestrictions: storeRestrictions]
+        [storeTypes: storeTypes,
+         parentStores: parentStores,
+         priceBands: priceBands,
+         ranges: ranges,
+         storeOpeningHoursCommand: storeOpeningHoursCommand,
+         alcoholLicensingCommand: alcoholLicensingCommand,
+         storeRestrictions: storeRestrictions,
+         storeAmenities: storeService.convertToStoreAmenitiesCommand(null, -1)
+        ]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -189,8 +196,10 @@ class StoreController {
          storeAdditionalDetails      : storeService.sortAdditionalDetails(store?.getAdditionalDetailsList()),
          storeOpeningHoursCommand    : storeService.convertToStoreOpeningHoursCommand(store?.getOpeningHours()),
          alcoholLicensingCommand     : storeService.convertToAlcoholLicensingCommand(store?.getLicencing()),
-         storeRestrictions           : storeService.convertToStoreRestrictionCommand(store?.getStoreRestrictedHours())
+         storeRestrictions           : storeService.convertToStoreRestrictionCommand(store?.getStoreRestrictedHours()),
+         storeAmenities              : storeService.convertToStoreAmenitiesCommand(store?.storeAmenities, store?.id)
         ]
+
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -209,7 +218,8 @@ class StoreController {
                                         storeAdditionalDetails: storeService.sortAdditionalDetails(newStoreCommand?.storeAdditionalDetails),
                                         storeOpeningHoursCommand: newStoreCommand.storeOpeningHoursCommand,
                                         alcoholLicensingCommand: newStoreCommand.alcoholLicensingCommand,
-                                        storeRestrictions: newStoreCommand.storeRestrictions
+                                        storeRestrictions: newStoreCommand.storeRestrictions,
+                                        storeAmenities: newStoreCommand?.storeAmenities
             ])
         } else {
             // Validated.
@@ -262,6 +272,7 @@ class StoreController {
             store.storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(newStoreCommand?.storeRestrictions))
 
             storeService.saveStore(store)
+            storeService.saveStoreAmenities(newStoreCommand?.storeAmenities, store)
 
             flash.message = "Store created successfully."
             redirect (action: "config", id: store.id)
@@ -372,6 +383,7 @@ class StoreController {
             String storeRestrictions = gsonProvider.gson.toJson(storeService.getStoreRestrictionsCommandAsObject(storeCommand?.storeRestrictions))
 
             storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig), storeAdditionalDetailJson, storeOpeningHours, storeLicensing, storeRestrictions)
+            storeService.saveStoreAmenities(storeCommand?.storeAmenities, store)
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
@@ -408,7 +420,8 @@ class StoreController {
                                            storeAdditionalDetails      : storeService.sortAdditionalDetails(storeCommand?.storeAdditionalDetails),
                                            storeOpeningHoursCommand    : storeCommand.storeOpeningHoursCommand,
                                            alcoholLicensingCommand     : storeCommand.alcoholLicensingCommand,
-                                           storeRestrictions           : storeCommand.storeRestrictions
+                                           storeRestrictions           : storeCommand.storeRestrictions,
+                                           storeAmenities              : storeCommand?.storeAmenities
             ])
 
         }
@@ -428,6 +441,41 @@ class StoreController {
 
     def ajaxSaveStoreOtherRestrictions(StoreRestrictionsCommand storeRestrictionsCommand) {
         render(template: "storeRestrictions", model: [storeRestrictions: storeService.sortStoreRestrictions(storeRestrictionsCommand)])
+    }
+
+    def ajaxEditAmenities(StoreAmenitiesCommand storeAmenitiesCommand){
+        render(template: "editStoreAmenity", model: [index: params?.index, selectedAmenity: storeAmenitiesCommand])
+    }
+
+    def ajaxAddStoreAmenity(SelectedAmenitiesCommand selectedAmenitiesCommand){
+        Integer storeId = params.storeId != null ? Integer.parseInt(params.storeId) : -1
+        storeService.updateStoreAmenityCommandForSelectedIds(selectedAmenitiesCommand, storeId)
+        if (selectedAmenitiesCommand?.storeAmenities) {
+            selectedAmenitiesCommand.storeAmenities = selectedAmenitiesCommand?.storeAmenities?.findAll { it != null}
+            selectedAmenitiesCommand.storeAmenities.sort { a, b ->
+                a.amenity?.name?.toLowerCase() <=> b.amenity?.name?.toLowerCase()
+            }
+        }
+
+
+        render(template: "storeAmenityDetails", model: [storeAmenities: selectedAmenitiesCommand?.storeAmenities])
+    }
+
+    def ajaxGetAllAmenities(GetAmenitiesCommand getAmenitiesCommand){
+        String amenityNameFilter = null
+
+        if (params.amenityNameFilter && params.amenityNameFilter != "null") {
+            amenityNameFilter = params.amenityNameFilter
+        }
+
+        List<Integer> selectedAmenityIds = getAmenitiesCommand?.getAddedAmenityIds()
+        def allAmenities =  storeService.getAmenitiesList(springSecurityService.principal.retailerId, amenityNameFilter)
+        def filteredAmenities = allAmenities?.findAll { amenity ->
+            // Return true if the amenity ID is NOT in the selectedAmenityIds list
+            !(amenity.id in selectedAmenityIds)
+        }
+
+        render(template: 'amenitiesSelectionList', model: [Amenities: filteredAmenities, selectedIds: getAmenitiesCommand?.getSelectedAmenityIds(), storeNameFilter: amenityNameFilter ?: ""])
     }
 
     private List loadDropdownData(retailerId, storeNumber) {
@@ -499,6 +547,7 @@ class NewStoreCommand implements Validateable {
     List<StoreAdditionalDetailCommand> storeAdditionalDetails
     AlcoholLicensingCommand alcoholLicensingCommand
     StoreRestrictionsCommand storeRestrictions
+    List<StoreAmenitiesCommand> storeAmenities
 
     static constraints = {
         storeNumber nullable: false,blank: false, min:1, max: 999999, validator: { val, obj ->
@@ -587,6 +636,7 @@ class NewStoreCommand implements Validateable {
             }
             return true
         }
+        storeAmenities nullable: true
 
     }
 }
@@ -604,6 +654,7 @@ class StoreCommand implements Validateable {
     StoreOpeningHoursCommand storeOpeningHoursCommand
     AlcoholLicensingCommand alcoholLicensingCommand
     StoreRestrictionsCommand storeRestrictions
+    List<StoreAmenitiesCommand> storeAmenities
 
     static constraints = {
         id nullable: true
@@ -643,6 +694,7 @@ class StoreCommand implements Validateable {
             }
             return true
         }
+        storeAmenities nullable: true
     }
 }
 
@@ -805,4 +857,30 @@ class StoreOtherRestrictionsCommand {
     String description
     String startDateTime
     String endDateTime
+}
+
+class AmenityCommand {
+    int id
+    String retailerId
+    String name
+}
+
+class StoreAmenitiesCommand {
+    String additionalDetail
+    int count
+    List<OpeningTimeCommand> availability;
+    AmenityCommand amenity
+    int storeId
+}
+
+class SelectedAmenitiesCommand {
+    int storeId
+    List<StoreAmenitiesCommand> storeAmenities = new ArrayList<>()
+    List<Integer> selectedAmenityIds = new ArrayList<>()
+}
+
+class GetAmenitiesCommand {
+    int storeId
+    List<Integer> addedAmenityIds = new ArrayList<>()
+    List<Integer> selectedAmenityIds = new ArrayList<>()
 }
