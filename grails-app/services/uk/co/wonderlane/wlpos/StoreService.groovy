@@ -361,6 +361,10 @@ class StoreService extends MySqlDal {
                 StoreAmenitiesCommand command = convertToStoreAmenityCommand(storeAmenity, storeId)
                 storeAmenitiesCommands.add(command)
             }
+            storeAmenitiesCommands = storeAmenitiesCommands?.findAll { it != null}
+            storeAmenitiesCommands?.sort { a, b ->
+                a.amenity?.name?.toLowerCase() <=> b.amenity?.name?.toLowerCase()
+            }
         }
         return storeAmenitiesCommands
     }

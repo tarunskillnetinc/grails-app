@@ -451,8 +451,13 @@ class StoreController {
         Integer storeId = params.storeId != null ? Integer.parseInt(params.storeId) : -1
         storeService.updateStoreAmenityCommandForSelectedIds(selectedAmenitiesCommand, storeId)
         if (selectedAmenitiesCommand?.storeAmenities) {
-            selectedAmenitiesCommand.storeAmenities = selectedAmenitiesCommand.storeAmenities.findAll { it != null }
+            selectedAmenitiesCommand.storeAmenities = selectedAmenitiesCommand?.storeAmenities?.findAll { it != null}
+            selectedAmenitiesCommand.storeAmenities.sort { a, b ->
+                a.amenity?.name?.toLowerCase() <=> b.amenity?.name?.toLowerCase()
+            }
         }
+
+
         render(template: "storeAmenityDetails", model: [storeAmenities: selectedAmenitiesCommand?.storeAmenities])
     }
 
