@@ -48,8 +48,13 @@ class RetailerController {
         }
 
         Integer multiplier = retailerCommand.alcoholMinimumPriceMultiplier
-        if (multiplier != null && (multiplier > 1000 || multiplier < 1)) {
+        if (multiplier != null && (multiplier < 1 || multiplier > 1000)) {
             errorMessages << message(code: 'retailer.alcoholMinimumPriceMultiplier.size')
+        }
+
+        Integer autoLogOff = retailerCommand.tillAutoLogOffInSeconds
+        if (autoLogOff != null && (autoLogOff < 10 || autoLogOff > 3600)) {
+            errorMessages << message(code: 'retailer.tillAutoLogOffInSeconds.size')
         }
 
         for(toggle in retailerCommand.menuItemDetails?.functionToggles?.values()){
@@ -244,6 +249,7 @@ class RetailerCommand implements Validateable {
     Integer cfdProfileImageCount
     boolean amendableOrdersEnabled
     Integer alcoholMinimumPriceMultiplier
+    Integer tillAutoLogOffInSeconds
     boolean charityEnabled
     boolean receiptInBranchOrders
 
