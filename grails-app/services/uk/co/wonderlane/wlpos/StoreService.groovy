@@ -283,7 +283,7 @@ class StoreService extends MySqlDal {
                     OpeningTimeOverrideCommand overrideCommand = new OpeningTimeOverrideCommand()
                     overrideCommand.description = override.description
                     if (override.getDate() != null) {
-                        overrideCommand.setDate(override.getDate().toString("yyyy-MM-dd"))
+                        overrideCommand.setDate(override.getDate().toString("dd/MM/yyyy"))
                     }
                     overrideCommand.setStartTime(override.getStartTime() != null ? override.getStartTime().toString("HH:mm") : null)
                     overrideCommand.setEndTime(override.getEndTime() != null ? override.getEndTime().toString("HH:mm") : null)
@@ -603,7 +603,7 @@ class StoreService extends MySqlDal {
         if (openingTimeOverrideCommand == null) {
             return null
         }
-        DateTimeFormatter formatterDate = DateTimeFormat.forPattern("yyyy-MM-dd");
+        DateTimeFormatter formatterDate = DateTimeFormat.forPattern("dd/mm/yyyy");
         DateTimeFormatter formatterTime = DateTimeFormat.forPattern("HH:mm")
 
         OpeningTimeOverride openingTimeOverride = new OpeningTimeOverride()

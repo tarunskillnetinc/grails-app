@@ -167,9 +167,9 @@
             var specialDate = $('#' + prefix + '-specialDate');
 
             specialDate.datepicker({
-                format: "yyyy-mm-dd",
+                format: "dd/mm/yyyy",
                 weekStart: 1,
-                startDate: "${new Date().format("yyyy-MM-dd")}",
+                startDate: "${new Date().format("dd/MM/yyyy")}",
                 todayHighlight: true,
                 autoclose: true,
                 todayBtn: "linked",
