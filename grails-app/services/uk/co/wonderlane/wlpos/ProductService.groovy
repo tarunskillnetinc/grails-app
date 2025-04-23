@@ -438,7 +438,7 @@ class ProductService extends MySqlDal {
         return results
     }
 
-    def searchProductsHql(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder, Boolean filterWithPendingChanges = false) {
+    def searchProductsHql(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder, Boolean filterWithPendingChanges = false, Boolean forPromotions = false) {
         def now = DateTime.now(DateTimeZone.UTC)
 
         def barcodeSkus = []
@@ -495,6 +495,9 @@ class ProductService extends MySqlDal {
             searchQuery += """LEFT JOIN RangeProduct rp ON p.id = rp.productId AND rp.range = :range """
         }
         searchQuery += """LEFT JOIN SelType st ON p.selType = st.id """
+        if (forPromotions) {
+            searchQuery += """LEFT JOIN Restrictions r ON p.restrictions = r.id """
+        }
 
         searchQuery += """WHERE p.retailerId = :retailerId """
 
@@ -551,6 +554,9 @@ class ProductService extends MySqlDal {
 
             searchQuery += """AND (pv.sku IN (:barcodeSkus)
                                      OR pk.id IN (:barcodePacks)) """
+        }
+        if (forPromotions) {
+            searchQuery += """AND (r.excludedFromPromotion IS NULL OR r.excludedFromPromotion = 0) """
         }
 
         if (sortColumn == "id" || sortColumn == "description") {
