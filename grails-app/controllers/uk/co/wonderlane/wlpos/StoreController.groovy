@@ -623,15 +623,27 @@ class NewStoreCommand implements Validateable {
         }
         storeRestrictions nullable: true, validator: { val, obj ->
             if (val && val.regularHours) {
-                def hasErrors = false
+                def hasRestrictionTimeMissingErrors = false
                 val.regularHours.each { enableHours ->
                     if (enableHours.restrictionEnabled &&
                             (!enableHours.timeFrom || !enableHours.timeTo)) {
-                        hasErrors = true
+                        hasRestrictionTimeMissingErrors = true
                     }
                 }
-                if (hasErrors) {
+                if (hasRestrictionTimeMissingErrors) {
                     return ['storeCommand.storeRestrictions.regularHours.timeRequired.error']
+                }
+            }
+
+            if (val && val.otherRestrictions) {
+                def hasOtherRestrictionDescriptionErrors = false
+                val.otherRestrictions.each { otherRestriction ->
+                    if (otherRestriction && otherRestriction.description == null) {
+                        hasOtherRestrictionDescriptionErrors = true
+                    }
+                }
+                if (hasOtherRestrictionDescriptionErrors) {
+                    return ['storeCommand.storeRestrictions.otherRestrictions.description.required.error']
                 }
             }
             return true
@@ -681,17 +693,30 @@ class StoreCommand implements Validateable {
         alcoholLicensingCommand nullable: true
         storeRestrictions nullable: true, validator: { val, obj ->
             if (val && val.regularHours) {
-                def hasErrors = false
+                def hasRestrictionTimeMissingErrors = false
                 val.regularHours.each { enableHours ->
                     if (enableHours.restrictionEnabled &&
                             (!enableHours.timeFrom || !enableHours.timeTo)) {
-                        hasErrors = true
+                        hasRestrictionTimeMissingErrors = true
                     }
                 }
-                if (hasErrors) {
+                if (hasRestrictionTimeMissingErrors) {
                     return ['storeCommand.storeRestrictions.regularHours.timeRequired.error']
                 }
             }
+
+            if (val && val.otherRestrictions) {
+                def hasOtherRestrictionDescriptionErrors = false
+                val.otherRestrictions.each { otherRestriction ->
+                    if (otherRestriction && otherRestriction.description == null) {
+                        hasOtherRestrictionDescriptionErrors = true
+                    }
+                }
+                if (hasOtherRestrictionDescriptionErrors) {
+                    return ['storeCommand.storeRestrictions.otherRestrictions.description.required.error']
+                }
+            }
+
             return true
         }
         storeAmenities nullable: true
