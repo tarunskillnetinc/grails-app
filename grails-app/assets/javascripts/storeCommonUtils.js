@@ -536,11 +536,8 @@ function saveAmenities(selectedIndex, storeId) {
             selectedInnerLoop++;
         }
     } else { //This is add newly selected amenities from popup
-        //const selectedCheckboxes = $('input[name="amenities"]:checked');
-        const selectedCheckboxes = $('#amenity-list input.form-check-input:checked');
-        selectedCheckboxes.each(function(idIndex) {
-            const id = $(this).val();
-            params["selectedAmenityIds[" + idIndex + "]"] = id;
+        tempSelectedAmenityIds.forEach((amenityId, index) => {
+            params["selectedAmenityIds[" + index + "]"] = amenityId;
         });
     }
 
