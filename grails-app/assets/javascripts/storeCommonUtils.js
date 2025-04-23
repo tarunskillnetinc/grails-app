@@ -443,8 +443,6 @@ function closeAmenitySelect(){
 }
 
 function toggleSelectAmenity(amenityId, index) {
-    // Your existing function code remains the same
-    console.log(`Toggling store with ID: ` + amenityId + ` at index: ` + index);
     const button = $('#modal-amenity-select-' + index);
     if (!button.length) {
         console.error(`Button with ID modal-amenity-select-` + index + ` not found`);
@@ -453,7 +451,6 @@ function toggleSelectAmenity(amenityId, index) {
 
     const checkbox = $('#amenity-' + amenityId);
     if (!checkbox.length) {
-        console.error(`Checkbox with ID amenity-` + amenityId + ` not found`);
         return;
     }
 
@@ -556,8 +553,6 @@ function saveAmenities(selectedIndex, storeId) {
     $('#amenity-edit-errors-container').html('');
 
     params["storeId"] = storeId
-
-    console.log(params)
 
     $.ajax({
         url: addStoreAmenities,
