@@ -454,8 +454,11 @@
                 for (let loopIndex = 0; loopIndex <= totalAttributes; loopIndex = loopIndex + 1) {
                     var attributeSelector = "#productAttributeValues\\[" + loopIndex + "\\]";
                     var checkBox = document.getElementById("productAttributeValues[" + loopIndex + "].checkBox");
+                    var dateValue = document.getElementById("product_attribute_information_date_" + loopIndex);
                     if (checkBox) {
                         params["attributez[" + loopIndex + "].value"] = checkBox.checked ? "true" : "false";
+                    } else if (dateValue) {
+                        params["attributez[" + loopIndex + "].value"] = dateValue.value;
                     } else {
                         params["attributez[" + loopIndex + "].value"] = $(attributeSelector +"\\.value").val();
                     }
