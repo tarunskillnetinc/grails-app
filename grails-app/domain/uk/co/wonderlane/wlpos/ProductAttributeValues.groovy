@@ -59,7 +59,7 @@ class ProductAttributeValues implements Serializable {
         }
 
         value nullable: true, validator: {val, obj ->
-            if (obj?.attributeType == ProductAttributeType.NUMERIC && val != null) {
+            if (obj?.attributeType == ProductAttributeType.NUMERIC && val != null && !val.isBlank()) {
                 try {
                     // Try parsing the value as a BigDecimal
                     BigDecimal numericValue = new BigDecimal(val)
