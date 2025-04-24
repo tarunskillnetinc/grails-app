@@ -1104,25 +1104,27 @@ class ProductService extends MySqlDal {
         editedProduct.getVariants().each { variant ->
             ProductVariant existingVariant = product.variants.find { it.id == variant.id }
             variant.attributez?.each { attribute ->
-                switch (attribute.attributeType) {
-                    case ProductAttributeType.TEXT:
-                        if (attribute.value?.length() > 50) {
-                            failedValidation = true
-                            addProductAttributesError(product, existingVariant, 'productAttributeValues.text.max.size', attribute.attributeName)
-                        }
-                        break
-                    case ProductAttributeType.NUMERIC:
-                        try {
-                            BigDecimal numericValue = new BigDecimal(attribute.value)
-                            if (numericValue < BigDecimal.ZERO || numericValue > new BigDecimal("999999.99")) {
+                if (attribute.value != null && !attribute.value.isBlank()) {
+                    switch (attribute.attributeType) {
+                        case ProductAttributeType.TEXT:
+                            if (attribute.value?.length() > 50) {
                                 failedValidation = true
-                                addProductAttributesError(product, existingVariant, 'productAttributeValues.numeric.default.out.of.range', attribute.attributeName)
+                                addProductAttributesError(product, existingVariant, 'productAttributeValues.text.max.size', attribute.attributeName)
                             }
-                        } catch (Exception ignored) {
-                            failedValidation = true
-                            addProductAttributesError(product, existingVariant, 'productAttributeValues.numeric.default.not.a.number', attribute.attributeName)
-                        }
-                        break
+                            break
+                        case ProductAttributeType.NUMERIC:
+                            try {
+                                BigDecimal numericValue = new BigDecimal(attribute.value)
+                                if (numericValue < BigDecimal.ZERO || numericValue > new BigDecimal("999999.99")) {
+                                    failedValidation = true
+                                    addProductAttributesError(product, existingVariant, 'productAttributeValues.numeric.default.out.of.range', attribute.attributeName)
+                                }
+                            } catch (Exception ignored) {
+                                failedValidation = true
+                                addProductAttributesError(product, existingVariant, 'productAttributeValues.numeric.default.not.a.number', attribute.attributeName)
+                            }
+                            break
+                    }
                 }
             }
         }
