@@ -7,10 +7,18 @@
     <asset:javascript src="storeCommonUtils.js" />
     <asset:javascript src="inert.min.js" />
 
+    <link rel="stylesheet" href="/assets/bootstrap-datepicker3.min.css?compile=false"/>
+    <script type="text/javascript" src="/assets/bootstrap-datepicker.min.js?compile=false"></script>
+
     <script type="text/javascript">
 
         var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
         var saveStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxSaveStoreAdditionalDetail')}"
+        var addStoreOtherRestrictionsValues = "${createLink(controller: 'store', action: 'ajaxAddStoreOtherRestrictions')}"
+        var saveStoreOtherRestrictions = "${createLink(controller: 'store', action: 'ajaxSaveStoreOtherRestrictions')}"
+        var editAmenity = "${createLink(controller: 'store', action: 'ajaxEditAmenities')}"
+        var addStoreAmenities = "${createLink(controller: 'store', action: 'ajaxAddStoreAmenity')}"
+        var getStoreAmenities = "${createLink(controller: "store", action: 'ajaxGetAllAmenities')}"
 
         function typeChanged() {
             var selectedType = $("#type option:selected").val();
@@ -47,10 +55,24 @@
             }
         }
 
+        function updateAlcoholLicensingVisibility() {
+            if($('#alcoholLicensingCommand\\.licensedToSellAlcohol').is(':checked')) {
+                $('#alcoholHoursContainer').show();
+            } else {
+                $('#alcoholHoursContainer').hide();
+            }
+        }
+
         $(document).ready(function() {
             $(document).on('click', '#addSpecialOpeningHoursModal', function(event) {
                 event.stopPropagation();
             });
+
+            $('#alcoholLicensingCommand\\.licensedToSellAlcohol').change(function() {
+                updateAlcoholLicensingVisibility();
+            });
+
+            updateAlcoholLicensingVisibility();
         });
     </script>
 </head>
@@ -297,13 +319,6 @@
         </g:form>
     </section>
 
-    <section id="addStoreAdditionalDetails-modal" class="container-fluid">
-        <div class="modal fade" id="addStoreAdditionalDetailsModal" tabindex="-1" role="dialog" aria-labelledby="addStoreAdditionalDetailsModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-                <div id="addStoreAdditionalDetailsContent" class="modal-content"></div>
-            </div>
-        </div>
-    </section>
 
 </body>
 </html>

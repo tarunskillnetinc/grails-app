@@ -333,11 +333,11 @@ beans = {
     }
 
     basketTransactionService(BasketTransactionService,
-            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.transactions.host'),
-                    Integer.parseInt(grailsApplication.config.getProperty('mysql.transactions.port')),
-                    grailsApplication.config.getProperty('mysql.transactions.username'),
-                    grailsApplication.config.getProperty('mysql.transactions.password'),
-                    grailsApplication.config.getProperty('mysql.transactions.database'))) {
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.reporting.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.reporting.port')),
+                    grailsApplication.config.getProperty('mysql.reporting.username'),
+                    grailsApplication.config.getProperty('mysql.reporting.password'),
+                    grailsApplication.config.getProperty('mysql.reporting.database'))) {
         springSecurityService = ref('springSecurityService')
         gsonProvider = ref("gsonProvider")
     }

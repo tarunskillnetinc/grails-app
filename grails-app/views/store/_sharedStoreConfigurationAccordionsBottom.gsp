@@ -13,7 +13,9 @@
     <div id="collapseStoreOpeningHours" class="collapse" aria-labelledby="storeOpeningHours" data-parent="#accordion">
         <div class="card-body py-5">
             <div class="col-12">
-                <g:render template="storeOpeningHours" model="[storeOpeningHoursCommand:storeOpeningHoursCommand]" />
+                <g:render template="openingHours" model="[commandPrefix: 'storeOpeningHoursCommand', storeOpeningHoursCommand: storeOpeningHoursCommand,
+                                                          titleRegularOpeningHours: 'Regular Store Opening Hours', titleSpecialOpeningHours:'Special Store Opening/Close Date & Time',
+                                                          addSpecialHoursButtonText: 'Add special opening hours']" />
             </div>
         </div>
     </div>
@@ -33,6 +35,21 @@
     <div id="collapseStoreLicense" class="collapse" aria-labelledby="storeLicense" data-parent="#accordion">
         <div class="card-body py-5">
             <div class="col-12">
+                <h4><b>Alcohol Licenses:</b></h4>
+                <div class="checkbox-wrapper d-flex align-items-center justify-content-start mb-5">
+                    <label for="alcoholLicensingCommand.licensedToSellAlcohol" class="mb-0 mr-2" style="position: relative; z-index: 2;">
+                        Beers, Wines and Spirits (BWS) License
+                    </label>
+                    <g:checkBox name="alcoholLicensingCommand.licensedToSellAlcohol"
+                           id="alcoholLicensingCommand.licensedToSellAlcohol"
+                           checked="${alcoholLicensingCommand?.licensedToSellAlcohol}"
+                           class="form-check-input wl-checkbox" style="position: relative; z-index: 1;"/>
+                </div>
+                <div id="alcoholHoursContainer">
+                    <g:render template="openingHours" model="[commandPrefix: 'alcoholLicensingCommand', alcoholLicensingCommand: alcoholLicensingCommand,
+                                                          titleRegularOpeningHours: 'Alcohol Licensing Hours', titleSpecialOpeningHours: 'Special Alcohol Licensing Date & Time',
+                    addSpecialHoursButtonText: 'Add special licensing hours']" />
+                </div>
             </div>
         </div>
     </div>
@@ -52,7 +69,8 @@
 
     <div id="collapseStoreRestrictions" class="collapse" aria-labelledby="storeRestrictions" data-parent="#accordion">
         <div class="card-body py-5">
-            <div class="col-12">
+            <div class="col-12" id="storeRestrictionsContainer">
+                <g:render template="storeRestrictions" model="[storeRestrictions: storeRestrictions]" />
             </div>
         </div>
     </div>
@@ -73,6 +91,7 @@
     <div id="collapseStoreAmenities" class="collapse" aria-labelledby="storeAmenities" data-parent="#accordion">
         <div class="card-body py-5">
             <div class="col-12">
+                <g:render template="storeAmenity" model="[storeAmenities: storeAmenities, storeSettings: storeSettings]" />
             </div>
         </div>
     </div>

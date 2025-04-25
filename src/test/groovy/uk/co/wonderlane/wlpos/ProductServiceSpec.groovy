@@ -177,10 +177,8 @@ class ProductServiceSpec extends Specification implements ServiceUnitTest<Produc
         ProductVariant testProductVariant = new ProductVariant(sku: 110, effectiveDate: DateTime.now(), product: product)
         testProductVariant.setId(100)
 
-        ProductAttributeValues productAttributeValues = new ProductAttributeValues(retailerId: 9, productId: 100, productAttributeId: 1, value: 10, product: product)
-
         when: 'saveProduct action is executed'
-        def serviceResponse = service.saveProduct(product, [testProductVariant], [productAttributeValues])
+        def serviceResponse = service.saveProduct(product, [testProductVariant])
 
         then: 'saveProduct action response is correct'
         serviceResponse != null

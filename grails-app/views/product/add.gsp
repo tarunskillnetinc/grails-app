@@ -272,13 +272,26 @@
 
                     params["stockManagementType"] = $(selector + "stockManagementType").val();
 
+                    var attributesContainers = $($(selector + "attributesContainer > div"));
+                    attributesContainers.each(function(loopIndex) {
+                        var attributeIndex = parseInt($(this).attr("id").substring(19));
+                        params["attributez[" + loopIndex + "].id"] = $(selector + "attributez\\[" + attributeIndex + "\\]\\.id").val();
+                        params["attributez[" + loopIndex + "].sku"] = $(selector + "attributez\\[" + attributeIndex + "\\]\\.sku").val();
+                        params["attributez[" + loopIndex + "].storeId"] = $(selector + "attributez\\[" + attributeIndex + "\\]\\.storeId").val();
+                        params["attributez[" + loopIndex + "].value"] = $(selector + "attributez\\[" + attributeIndex + "\\]\\.value").val();
+                        params["attributez[" + loopIndex + "].productAttributeId"] = $(selector + "attributez\\[" + attributeIndex + "\\]\\.productAttributeId").val();
+                        params["attributez[" + loopIndex + "].attributeName"] = $(selector + "attributez\\[" + attributeIndex + "\\]\\.attributeName").val();
+                        params["attributez[" + loopIndex + "].attributeType"] = $(selector + "attributez\\[" + attributeIndex + "\\]\\.attributeType").val();
+                        params["attributez[" + loopIndex + "].listValues"] = $(selector + "attributez\\[" + attributeIndex + "\\]\\.listValues").val();
+                    });
+
                     var barcodeContainers = $($(selector + "barcodesContainer > div"));
-                    barcodeContainers.each(function(loopIndex) {
+                    barcodeContainers.each(function (loopIndex) {
                         var barcodeIndex = parseInt($(this).attr("id").substring(16));
 
-                        params["barcodez[" +loopIndex +"].id"] = $(selector + "barcodez\\[" +barcodeIndex +"\\]\\.id").val();
-                        params["barcodez[" +loopIndex +"].barcode"] = $(selector + "barcodez\\[" +barcodeIndex +"\\]\\.barcode").val();
-                        params["barcodez[" +loopIndex +"].effectiveDate"] = $(selector + "barcodez\\[" +barcodeIndex +"\\]\\.effectiveDate").val();
+                        params["barcodez[" + loopIndex + "].id"] = $(selector + "barcodez\\[" + barcodeIndex + "\\]\\.id").val();
+                        params["barcodez[" + loopIndex + "].barcode"] = $(selector + "barcodez\\[" + barcodeIndex + "\\]\\.barcode").val();
+                        params["barcodez[" + loopIndex + "].effectiveDate"] = $(selector + "barcodez\\[" +barcodeIndex +"\\]\\.effectiveDate").val();
                         params["barcodez[" +loopIndex +"].recordStatus"] = $(selector + "barcodez\\[" +barcodeIndex +"\\]\\.recordStatus").val();
                     });
                 } else {
@@ -336,6 +349,7 @@
 
                 if (sku === "") {
                     $("#addVariantForm").prepend(`<div class="alert alert-danger alert-wl" role="alert">SKU cannot be empty.</div>`)
+                    $("#addVariantSku").focus()
                     return;
                 }
 
@@ -346,6 +360,11 @@
                 var unitSize = $("#addVariantUnitSize").val();
                 var unitOfMeasure = $("#addVariantUnitOfMeasure").val();
                 var itemsInUnit = $("#addVariantItemsInUnit").val();
+                if (itemsInUnit === "") {
+                    $("#addVariantForm").prepend(`<div class="alert alert-danger alert-wl" role="alert">Items In Unit cannot be empty.</div>`)
+                    $("#addVariantItemsInUnit").focus()
+                    return;
+                }
 
                 var height = $("#addVariantHeightCm").val();
                 var width = $("#addVariantWidthCm").val();
@@ -430,6 +449,27 @@
                     params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
                     params["locationz[" +loopIndex +"].locationHierarchy"] = $(locationSelector +"\\.locationHierarchy").val();
                 });
+
+                var totalAttributes = $("#productInformationAttributeCount").val()
+                for (let loopIndex = 0; loopIndex <= totalAttributes; loopIndex = loopIndex + 1) {
+                    var attributeSelector = "#productAttributeValues\\[" + loopIndex + "\\]";
+                    var checkBox = document.getElementById("productAttributeValues[" + loopIndex + "].checkBox");
+                    var dateValue = document.getElementById("product_attribute_information_date_" + loopIndex);
+                    if (checkBox) {
+                        params["attributez[" + loopIndex + "].value"] = checkBox.checked ? "true" : "false";
+                    } else if (dateValue) {
+                        params["attributez[" + loopIndex + "].value"] = dateValue.value;
+                    } else {
+                        params["attributez[" + loopIndex + "].value"] = $(attributeSelector +"\\.value").val();
+                    }
+                    params["attributez[" + loopIndex + "].id"] = $(attributeSelector +"\\.id").val();
+                    params["attributez[" + loopIndex + "].sku"] = $(attributeSelector +"\\.sku").val();
+                    params["attributez[" + loopIndex + "].storeId"] = $(attributeSelector +"\\.storeId").val();
+                    params["attributez[" + loopIndex + "].productAttributeId"] = $(attributeSelector +"\\.productAttributeId").val();
+                    params["attributez[" + loopIndex + "].attributeName"] = $(attributeSelector +"\\.attributeName").val();
+                    params["attributez[" + loopIndex + "].attributeType"] = $(attributeSelector +"\\.attributeType").val();
+                    params["attributez[" + loopIndex + "].listValues"] = $(attributeSelector +"\\.listValues").val();
+                }
 
                 /* Add sku to the preferred dropdown */
                 updateSkuDropdown(sku);
@@ -1138,7 +1178,7 @@
                     <g:each in="${product.variants.findAll { it.storeId == null || it.storeId == storeId }}" var="variant" status="i">
                         <g:hasErrors bean="${variant}">
                             <div class="ml-3 pl-3 border">
-                                Variant ${i+1}
+                                SKU ${variant.sku}
                                 <g:renderErrors bean="${variant}" as="list" />
 
                                 <g:each in="${variant.barcodes}" var="barcode" status="j">
@@ -1177,16 +1217,15 @@
                                                         isNewProduct       : isNewProduct,
                                                         snappyEnabled      : snappyEnabled,
                                                         locationsEnabled   : locationsEnabled,
-                                                        locationsType      : locationsType,
-                                                        productAttributeValuesList: productAttributeValuesList]"/>
+                                                        locationsType      : locationsType]"/>
         </section>
 
         <section id="addVariant-modal" class="container-fluid">
             <!-- Add variant modal. -->
             <div class="modal fade" id="addVariantModal" tabindex="-1" role="dialog" aria-labelledby="addVariantModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl" role="document">
-                    <div id="addVariantContent" class="modal-content">
-
+                    <div id="addVariantContent" class="modal-content" style="margin-bottom: 200px !important;">
+                        %{-- forcing a larger margin bottom here to allow extra space for a date picker on custom attributes --}%
                     </div>
                 </div>
             </div>

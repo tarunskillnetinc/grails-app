@@ -219,6 +219,14 @@ environments:
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 database: wlpos
+            reporting:
+                host: localhost
+                port: 3306
+                username: root
+                password: Pa**W0rd01
+                #username: "wonderlane"
+                #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                database: reporting
             transactions:
                 host: localhost
                 port: 3306
@@ -320,6 +328,12 @@ environments:
                 username: cloudoffice
                 password: CdtfudWdnGVS87IKs7dV
                 database: wlpos
+            reporting:
+                host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: CdtfudWdnGVS87IKs7dV
+                database: reporting
             transactions:
                 host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
                 port: 3306
@@ -421,6 +435,12 @@ environments:
                 username: cloudoffice
                 password: CdtfudWdnGVS87IKs7dV
                 database: persephone-wlpos
+            reporting:
+                host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: CdtfudWdnGVS87IKs7dV
+                database: persephone-reporting
             transactions:
                 host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
                 port: 3306
@@ -525,6 +545,12 @@ environments:
                 username: cloudoffice
                 password: CdtfudWdnGVS87IKs7dV
                 database: cerberus-wlpos
+            reporting:
+                host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: CdtfudWdnGVS87IKs7dV
+                database: cerberus-reporting
             transactions:
                 host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
                 port: 3306
@@ -629,6 +655,12 @@ environments:
                 username: cloudoffice
                 password: CdtfudWdnGVS87IKs7dV
                 database: zagreus-wlpos
+            reporting:
+                host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: CdtfudWdnGVS87IKs7dV
+                database: zagreus-reporting
             transactions:
                 host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
                 port: 3306
@@ -636,10 +668,10 @@ environments:
                 password: CdtfudWdnGVS87IKs7dV
                 database: zagreus-transactions
             loyalty:
-                host: localhost
+                host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
                 port: 3306
-                username: root
-                password: Pa**W0rd01
+                username: cloudoffice
+                password: CdtfudWdnGVS87IKs7dV
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 database: zagreus-loyalty
@@ -738,6 +770,12 @@ environments:
               username: cloudoffice
               password: CdtfudWdnGVS87IKs7dV
               database: ares-wlpos
+            reporting:
+                host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: CdtfudWdnGVS87IKs7dV
+                database: ares-reporting
             transactions:
               host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
               port: 3306
@@ -844,6 +882,12 @@ environments:
                 username: cloudoffice
                 password: G8blr10SYQ6lc8KCXxdh
                 database: wlpos
+            reporting:
+                host: retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: G8blr10SYQ6lc8KCXxdh
+                database: reporting
             transactions:
                 host: retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com
                 port: 3306
@@ -945,6 +989,12 @@ environments:
                 username: cloudoffice
                 password: G8blr10SYQ6lc8KCXxdh
                 database: clientuat1-wlpos
+            reporting:
+                host: retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: G8blr10SYQ6lc8KCXxdh
+                database: clientuat1-reporting
             transactions:
                 host: retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com
                 port: 3306
@@ -1049,6 +1099,12 @@ environments:
                 username: cloudoffice
                 password: G8blr10SYQ6lc8KCXxdh
                 database: clientuat2-wlpos
+            reporting:
+                host: retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: G8blr10SYQ6lc8KCXxdh
+                database: clientuat2-reporting
             transactions:
                 host: retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com
                 port: 3306
@@ -1152,6 +1208,12 @@ environments:
                 username: cloudoffice
                 password: oqtS8aMSBFw99QTMhMjd
                 database: wlpos
+            reporting:
+                host: retail-platform-prod.cluster-cxx1ro6csby3.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: oqtS8aMSBFw99QTMhMjd
+                database: reporting
             transactions:
                 host: retail-platform-prod.cluster-cxx1ro6csby3.eu-west-1.rds.amazonaws.com
                 port: 3306

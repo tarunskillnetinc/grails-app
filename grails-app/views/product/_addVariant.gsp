@@ -63,7 +63,7 @@
             <div id="setPriceMarked" class="col-4 mr-0 d-flex align-items-center">
                 <div class="form-check form-check-inline">
                     <g:checkBox name="addVariantPriceMarked" id="addVariantPriceMarked" class="form-check-input wl-checkbox" checked="${variant?.priceMarked}" />
-                    <label class="form-check-label font-weight-bold">Price Marked</label>
+                    <label class="form-check-label font-weight-bold pl-2">Price Marked</label>
                 </div>
             </div>
         </div>
@@ -201,6 +201,14 @@
                 <a href="#" onclick="addBarcode('#addBarcodesContainer');" class="btn btn-wl">Add Barcode</a>
             </div>
         </div>
+
+        <g:hiddenField name="productInformationAttributeCount" value="${variant?.attributez?.size() ?: 0}" />
+        <g:if test="${variant?.attributez?.size() > 0}">
+            <div id="addProductInformationContainer">
+                <g:render template="productInformation" model="[attributeValues: variant?.attributez]" />
+            </div>
+        </g:if>
+
     </g:form>
 </div>
 

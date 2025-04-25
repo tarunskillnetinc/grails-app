@@ -4,6 +4,8 @@ import com.google.gson.reflect.TypeToken
 import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
 import uk.co.wonderlane.wlpos.entities.OpeningHours
 import uk.co.wonderlane.wlpos.entities.StoreConfig
+import uk.co.wonderlane.wlpos.entities.StoreLicencing
+import uk.co.wonderlane.wlpos.entities.StoreRestrictedHours
 
 import java.lang.reflect.Type
 
@@ -28,6 +30,9 @@ class Store {
     boolean deleted
     String additionalDetails
     String openingHours
+    String licencing
+    String storeRestrictions
+    Collection<StoreAmenity> storeAmenities = new ArrayList<>()
 
     // This constructor is required or dependency injection (springSecurityService) breaks.
     public Store() {}
@@ -51,6 +56,9 @@ class Store {
         deleted column: "deleted"
         additionalDetails column: "additionalDetails", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         openingHours column: "openingHours", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        licencing column: "licencing", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        storeRestrictions column: "storeRestrictions", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        storeAmenities key: 'storeId',  cascade: "none"
     }
 
     static constraints = {
@@ -69,6 +77,8 @@ class Store {
         deleted nullable: false
         additionalDetails nullable: true
         openingHours nullable: true
+        licencing nullable: true
+        storeRestrictions nullable: true
     }
 
     def colorCodeValidator(String colorCode) {
@@ -119,11 +129,37 @@ class Store {
     }
 
     void setOpeningHours(OpeningHours openingHours) {
-        this.openingHours = gsonProvider.gson.toJson(openingHours)
+        if (openingHours != null) {
+            this.openingHours = gsonProvider.gson.toJson(openingHours)
+        }
     }
 
     String getOpeningHoursString() {
         return openingHours
+    }
+
+    StoreLicencing getLicencing() {
+        if (this.licencing != null) {
+            return gsonProvider.gson.fromJson(this.licencing, StoreLicencing.class)
+        }
+        return null
+    }
+
+    void setLicencing(StoreLicencing licencing) {
+        if (licencing != null) {
+            this.licencing = gsonProvider.gson.toJson(licencing)
+        }
+    }
+
+    StoreRestrictedHours getStoreRestrictedHours() {
+        if (storeRestrictions != null) {
+            return gsonProvider.gson.fromJson(storeRestrictions, new TypeToken<StoreRestrictedHours>(){}.type)
+        }
+        return null
+    }
+
+    String getLicencingString() {
+        return this.licencing
     }
 
     List<StoreAdditionalDetail> getAdditionalDetailsList() {
