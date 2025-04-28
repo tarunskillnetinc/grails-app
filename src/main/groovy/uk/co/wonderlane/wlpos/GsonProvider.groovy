@@ -12,38 +12,20 @@ import uk.co.wonderlane.wlpos.entities.basketv2.BasketItem
 import uk.co.wonderlane.wlpos.entities.event.message.TaskEventMessage
 import uk.co.wonderlane.wlpos.entities.transactionv2.Transaction
 import uk.co.wonderlane.wlpos.requests.clientexport.StockTransaction
+import uk.co.wonderlane.wlpos.utils.GsonUtil
 import uk.co.wonderlane.wlpos.utils.PropertyBasedInterfaceMarshal
 
 import java.lang.reflect.Type
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 class GsonProvider {
 
     private Gson gson
 
     GsonProvider() {
-        gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd")
-                .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
-                    @Override
-                    JsonElement serialize(DateTime json, Type typeOfSrc, JsonSerializationContext context) {
-                        return new JsonPrimitive(ISODateTimeFormat.dateTime().print(json))
-                    }
-                })
-                .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
-                    @Override
-                    DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                        return ISODateTimeFormat.dateTime().parseDateTime(json.getAsString()).withZone(DateTimeZone.UTC)
-                    }
-                })
-                .registerTypeAdapter(StockTransaction.class, new PropertyBasedInterfaceMarshal())
-                .registerTypeAdapter(TaskEventMessage.class, new PropertyBasedInterfaceMarshal())
-                .registerTypeAdapter(uk.co.wonderlane.wlpos.entities.basket.BasketItem.class, new PropertyBasedInterfaceMarshal())
-                .registerTypeAdapter(uk.co.wonderlane.wlpos.entities.transaction.Transaction.class, new PropertyBasedInterfaceMarshal())
-                .registerTypeAdapter(BasketItem.class, new PropertyBasedInterfaceMarshal())
-                .registerTypeAdapter(Transaction.class, new PropertyBasedInterfaceMarshal())
-                .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
-                .registerTypeAdapter(LocalTime.class, new LocalTimeTypeAdapter())
-                .create()
+        // todo - shifts are using a different date format so may need to use their own gson in the future
+        gson = GsonUtil.getGson("yyyy-MM-dd")
     }
 
     def getGson() {

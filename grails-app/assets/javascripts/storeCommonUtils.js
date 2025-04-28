@@ -1,3 +1,5 @@
+let tempSelectedAmenityIds = [];
+
 function addStoreAdditionalDetail(index, description, value) {
     $("#addStoreAdditionalDetailsContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
     $('#addStoreAdditionalDetailsModal').modal({show: true, backdrop: 'static', keyboard: false});
@@ -62,7 +64,7 @@ function saveStoreAdditionalDetail(){
         success: function(resp) {
             var storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer");
             storeAdditionalDetailsContainer.html(resp);
-            $('#addStoreAdditionalDetailsModal').modal("hide");
+            safelyCloseModal('#addStoreAdditionalDetailsModal');
         }
     });
 }
@@ -88,7 +90,7 @@ function deleteAdditionalDetail(index) {
                 success: function(resp) {
                     var storeAdditionalDetailsContainer = $("#storeAdditionalDetailsContainer");
                     storeAdditionalDetailsContainer.html(resp);
-                    $('#addStoreAdditionalDetailsModal').modal("hide");
+                    safelyCloseModal('#addStoreAdditionalDetailsModal');
                 }
             });
         }
@@ -97,6 +99,600 @@ function deleteAdditionalDetail(index) {
 
 function closeStoreAdditionalDetailAddModal() {
     if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
-        $('#addStoreAdditionalDetailsModal').modal('hide')
+        safelyCloseModal('#addStoreAdditionalDetailsModal');
     }
 }
+
+function addOtherRestrictions(index, description, startDateTime, endDateTime) {
+    $("#addStoreOtherRestrictionContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#addStoreOtherRestrictionModal').modal({show: true, backdrop: 'static', keyboard: false});
+    var params = {index: index, description: description, startDateTime: startDateTime, endDateTime:endDateTime }
+    $.ajax({
+        url: addStoreOtherRestrictionsValues, // Replace with the actual URL endpoint
+        method: "GET",
+        data: params,
+        success: function (resp) {
+            try {
+                $("#addStoreOtherRestrictionContent").html(resp);
+            } catch (e) {
+                console.error('Error processing response:', e);
+                $("#addStoreOtherRestrictionContent").html("Error loading content. Please try again.");
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX error:', error);
+            $("#addStoreOtherRestrictionContent").html("Error loading content. Please try again.");
+        }
+    });
+}
+
+function closeOtherRestrictionsAddModal(){
+    if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+        safelyCloseModal('#addStoreOtherRestrictionModal');
+    }
+}
+
+function saveOtherRestrictions() {
+    var editOtherRestrictionErrors = [];
+    // Get values from the form
+    const description = $("#otherRestrictionDescription").val();
+    const startDateTime = $("#startDateTimePicker").val();
+    const endDateTime = $("#endDateTimePicker").val();
+
+    // Create params object for AJAX submission
+    let params = {};
+
+    // Add regular hours to params
+    $("#restriction-days-tbl tbody tr").each(function(loopIndex) {
+        const row = $(this);
+        const isEnabled = row.find("input[name^='storeRestrictions.regularHours'][name$='.restrictionEnabled']").is(':checked');
+        const day = row.find("td:nth-child(2)").text().trim();
+        params[`regularHours[${loopIndex}].restrictionEnabled`] = isEnabled;
+        params[`regularHours[${loopIndex}].day`] = day;
+
+        if (isEnabled) {
+            // Only get and set time values if enabled
+            const timeFrom = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeFrom']").val();
+            const timeTo = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeTo']").val();
+            params[`regularHours[${loopIndex}].timeFrom`] = timeFrom;
+            params[`regularHours[${loopIndex}].timeTo`] = timeTo;
+        } else {
+            // Explicitly set to empty string or null depending on what your backend expects
+            params[`regularHours[${loopIndex}].timeFrom`] = ""; // or null
+            params[`regularHours[${loopIndex}].timeTo`] = ""; // or null
+        }
+
+    });
+
+    // Add existing other restrictions to params
+    let otherRestrictionsCount = 0;
+    $("#other-restrictions-special-days-tbl tbody tr").each(function(index) {
+        const row = $(this);
+        const existingDescription = row.find("input[name$='.description']").val();
+        const existingStartDateTime = row.find("input[name$='.startDateTime']").val() || row.find("input[name$='.date']").val();
+        const existingEndDateTime = row.find("input[name$='.endDateTime']").val() || row.find("input[name$='.startTime']").val();
+        params["otherRestrictions[" + otherRestrictionsCount + "].description"] = existingDescription;
+        params["otherRestrictions[" + otherRestrictionsCount + "].startDateTime"] = existingStartDateTime;
+        params["otherRestrictions[" + otherRestrictionsCount + "].endDateTime"] = existingEndDateTime;
+        otherRestrictionsCount++;
+    });
+
+    var error = validateOtherRestrictions(description);
+    if (error) {
+        editOtherRestrictionErrors.push(error);
+    }
+
+    //If there is any edit validation errors then display them on edit popup
+    if (!displayValidationErrors(editOtherRestrictionErrors, 'other-restrictions-errors-container')) {
+        return false; // Stop the submission
+    }
+
+    // Clear any previous errors
+    $('#other-restrictions-errors-container').html('');
+
+    var index = $("#otherRestrictionIndex").val();
+    if (index === null || index === undefined || index === "") {
+        index = getNextOtherRestrictionsIndex();
+    } else {
+        index = parseInt(index, 10);
+    }
+
+    // Add the new restriction
+    params["otherRestrictions[" + index + "].description"] = description;
+    params["otherRestrictions[" + index + "].startDateTime"] = startDateTime;
+    params["otherRestrictions[" + index + "].endDateTime"] = endDateTime;
+    params["index"] = index;
+
+    // Submit via AJAX
+    $.ajax({
+        url: saveStoreOtherRestrictions,
+        type: 'POST',
+        data: params,
+        success: function(resp) {
+            safelyCloseModal('#addStoreOtherRestrictionModal');
+            var storeRestrictionContainer = $("#storeRestrictionsContainer");
+            storeRestrictionContainer.html(resp);
+            attachCheckboxListeners()
+        },
+        error: function(xhr, status, error) {
+            $("#other-restrictions-errors-container").append(
+                '<div class="alert alert-danger">Error saving data: ' + error + '</div>'
+            ).show();
+        }
+    });
+}
+
+function deleteOtherRestriction(index) {
+    if (confirm("Are you sure you want to delete?")) {
+        var otherRestrictionContainer = $("#storeRestrictionsContainer > div");
+        if (otherRestrictionContainer.length) {
+            var params = {}
+            $("#restriction-days-tbl tbody tr").each(function(loopIndex) {
+                const row = $(this);
+                const isEnabled = row.find("input[name^='storeRestrictions.regularHours'][name$='.restrictionEnabled']").is(':checked');
+                const day = row.find("td:nth-child(2)").text().trim();
+                params[`regularHours[${loopIndex}].restrictionEnabled`] = isEnabled;
+                params[`regularHours[${loopIndex}].day`] = day;
+                if (isEnabled) {
+                    // Only get and set time values if enabled
+                    const timeFrom = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeFrom']").val();
+                    const timeTo = row.find("input[name^='storeRestrictions.regularHours'][name$='.timeTo']").val();
+                    params[`regularHours[${loopIndex}].timeFrom`] = timeFrom;
+                    params[`regularHours[${loopIndex}].timeTo`] = timeTo;
+                } else {
+                    // Explicitly set to empty string or null depending on what your backend expects
+                    params[`regularHours[${loopIndex}].timeFrom`] = ""; // or null
+                    params[`regularHours[${loopIndex}].timeTo`] = ""; // or null
+                }
+            });
+
+
+            // Add existing other restrictions to params
+            $("#other-restrictions-special-days-tbl tbody tr").each(function(loopIndex) {
+                const row = $(this);
+                const existingDescription = row.find("input[name$='.description']").val();
+                const existingStartDateTime = row.find("input[name$='.startDateTime']").val() || row.find("input[name$='.date']").val();
+                const existingEndDateTime = row.find("input[name$='.endDateTime']").val() || row.find("input[name$='.startTime']").val();
+                if (loopIndex !== index) {
+                    params["otherRestrictions[" + loopIndex + "].description"] = existingDescription;
+                    params["otherRestrictions[" + loopIndex + "].startDateTime"] = existingStartDateTime;
+                    params["otherRestrictions[" + loopIndex + "].endDateTime"] = existingEndDateTime;
+                }
+            });
+
+
+            $.ajax({
+                url: saveStoreOtherRestrictions,
+                method: "POST",
+                data: params,
+                success: function(resp) {
+                    otherRestrictionContainer.html(resp);
+                    safelyCloseModal('#addStoreOtherRestrictionModal');
+                }
+            });
+        }
+    }
+}
+
+function getNextOtherRestrictionsIndex() {
+    // Get the current highest index from the table rows
+    var highestIndex = -1;
+
+    $("#other-restrictions-special-days-tbl tbody tr").each(function() {
+        var rowId = $(this).attr('id');
+        if (rowId && rowId.startsWith('special-hour-row-')) {
+            var rowIndex = parseInt(rowId.split('-').pop(), 10);
+            if (!isNaN(rowIndex) && rowIndex > highestIndex) {
+                highestIndex = rowIndex;
+            }
+        }
+    });
+
+    // Return the next available index
+    return highestIndex + 1;
+}
+
+function attachCheckboxListeners() {
+    const checkboxes = document.querySelectorAll('input[name^="storeRestrictions.regularHours"][name$=".restrictionEnabled"]');
+
+    checkboxes.forEach(function(checkbox) {
+        // Remove any existing event listeners to prevent duplicates
+        checkbox.removeEventListener('change', toggleTimeInputs);
+
+        // Add event listener for checkbox changes
+        checkbox.addEventListener('change', toggleTimeInputs);
+    });
+}
+
+// Function to handle checkbox changes
+function toggleTimeInputs() {
+    // Find the time input fields in the same row
+    const timeInputsContainer = this.closest('tr').querySelector('.restriction-time-inputs');
+    timeInputsContainer.style.display = this.checked ? 'flex' : 'none';
+}
+
+function safelyCloseModal(modalId) {
+    // First, get references to all elements
+    const modal = $(modalId);
+
+    // Store references to dropdowns before closing modal
+    const activeDropdowns = $('.dropdown-toggle[aria-expanded="true"]');
+
+    // Move the modal to the body element before closing it
+    if (!modal.parent().is('body')) {
+        modal.detach().appendTo('body');
+    }
+
+    // Hide the modal properly
+    modal.modal('hide');
+
+    // Force cleanup of backdrop
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open').css('padding-right', '').css('overflow', '');
+
+    // Fix dropdown aria attributes after modal is closed
+    setTimeout(function() {
+        // Reset all dropdowns first
+        $('.dropdown-toggle').attr('aria-expanded', 'false');
+        $('.dropdown-menu').removeClass('show');
+
+        // Then properly reinitialize them
+        $('.dropdown-toggle').each(function() {
+            try {
+                $(this).dropdown('dispose');
+            } catch(e) {}
+            $(this).dropdown();
+        });
+
+        // Force any open dropdowns to close
+        $('.dropdown-menu.show').removeClass('show');
+        $('.dropdown.show').removeClass('show');
+
+        // Force browser to recalculate layout
+        document.body.offsetHeight;
+
+        // Return focus to the accordion
+        $('.accordion-button:not(.collapsed)').focus();
+
+        // Force a browser repaint
+        $(window).trigger('resize');
+    }, 150);
+
+    // Add direct click handler to ensure dropdowns work
+    $(document).off('click.fixDropdowns', '.dropdown-toggle').on('click.fixDropdowns', '.dropdown-toggle', function(e) {
+        const menu = $(this).next('.dropdown-menu');
+        const isExpanded = $(this).attr('aria-expanded') === 'true';
+
+        // Toggle this dropdown's aria-expanded attribute correctly
+        $(this).attr('aria-expanded', !isExpanded);
+    });
+}
+
+function editAmenities(index) {
+    $("#editAmenitiesContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#editAmenitiesModal').modal({show: true, backdrop: 'static', keyboard: false});
+    var params = {}
+
+    if (index !== undefined && index !== null) {
+        params["amenity.id"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.id").val();
+        params["amenity.retailerId"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.retailerId").val();
+        params["amenity.name"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.name").val();
+        params["storeId"] = $("#storeAmenities\\[" + index + "\\]\\.storeId").val();
+
+        // Additional details if present
+        var additionalDetail = $("#storeAmenities\\[" + index + "\\]\\.additionalDetail");
+        if (additionalDetail.length) {
+            params["additionalDetail"] = additionalDetail.val();
+        }
+
+        // Count if present
+        var count = $("#storeAmenities\\[" + index + "\\]\\.count");
+        if (count.length) {
+            params["count"] = count.val();
+        }
+
+        // Availability hours - loop over to get 7 days
+        var j = 0;
+        while (j < 7) {
+            params["availability[" + j + "].day"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.day").val();
+            params["availability[" + j + "].startTime"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.startTime").val();
+            params["availability[" + j + "].endTime"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.endTime").val();
+            params["availability[" + j + "].closed"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.closed").val();
+            j++;
+        }
+    }
+    params["index"] = index
+
+    $.ajax({
+        url: editAmenity,
+        method: "GET",
+        data: params,
+        success: function (resp) {
+            $("#editAmenitiesContent").html(resp);
+        }
+    });
+}
+
+function closeStoreAmenityAddModal(){
+    if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+        $('#editAmenitiesModal').modal('hide')
+    }
+}
+
+function getAllAmenities() {
+    var filterParams = {};
+
+    $("#filters input").each(function () {filterParams[$(this).attr("name")] = $(this).val();}).get();
+
+    var amenityItems = $(".amenities-container > div > .amenity-item");
+    amenityItems.each(function(index) {
+        filterParams["addedAmenityIds[" + index + "]"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.id").val();
+    });
+
+    tempSelectedAmenityIds.forEach((amenityId, index) => {
+        filterParams["selectedAmenityIds[" + index + "]"] = amenityId;
+    });
+
+    $.ajax({
+        url: getStoreAmenities,
+        data: filterParams,
+        success: function (response) {
+            $('#amenity-selection-list').html(response);
+            $('#amenitiesSearchModal').modal({show: true, backdrop: 'static', keyboard: false});
+        },
+        error: function (xhr, status, error) {
+            console.log('Error: ' + error);
+        }
+    });
+}
+
+function clearAmenityFilters(){
+    $("#amenityNameFilter").val("");
+    getAllAmenities()
+}
+
+function closeAmenitySelect(){
+    safelyCloseModal('#amenitiesSearchModal');
+    tempSelectedAmenityIds = [];
+}
+
+function toggleSelectAmenity(amenityId, index) {
+    const button = $('#modal-amenity-select-' + index);
+    if (!button.length) {
+        console.error(`Button with ID modal-amenity-select-` + index + ` not found`);
+        return;
+    }
+
+    const checkbox = $('#amenity-' + amenityId);
+    if (!checkbox.length) {
+        return;
+    }
+
+    if (checkbox.prop('checked')) {
+        checkbox.prop('checked', false);
+        button.removeClass('btn-primary').addClass('btn-secondary').text('Select');
+        tempSelectedAmenityIds.splice(tempSelectedAmenityIds.indexOf(amenityId), 1);
+    } else {
+        checkbox.prop('checked', true);
+        button.removeClass('btn-secondary').addClass('btn-primary').text('Selected');
+        tempSelectedAmenityIds.push(amenityId);
+    }
+}
+
+
+function saveAmenities(selectedIndex, storeId) {
+    var params = {};
+    var editValidationErrors = [];
+
+    // Select all amenity items in the container
+    var amenityItems = $(".amenities-container > div > .amenity-item");
+
+    //Loop over all existing amenities and add them to pass into server
+    amenityItems.each(function(index) {
+        // Amenity basic properties
+        params["storeAmenities[" + index + "].amenity.id"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.id").val();
+        params["storeAmenities[" + index + "].amenity.retailerId"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.retailerId").val();
+        params["storeAmenities[" + index + "].amenity.name"] = $("#storeAmenities\\[" + index + "\\]\\.amenity\\.name").val();
+        params["storeAmenities[" + index + "].storeId"] = $("#storeAmenities\\[" + index + "\\]\\.storeId").val();
+
+        // Additional details if present
+        var additionalDetail = $("#storeAmenities\\[" + index + "\\]\\.additionalDetail");
+        if (additionalDetail.length) {
+            params["storeAmenities[" + index + "].additionalDetail"] = additionalDetail.val();
+        }
+
+        // Count if present
+        var count = $("#storeAmenities\\[" + index + "\\]\\.count");
+        if (count.length) {
+            params["storeAmenities[" + index + "].count"] = count.val();
+        }
+
+        // Availability hours
+        var j = 0;
+        while (j < 7 ) {  // Availability hours - loop over to get 7 days
+            params["storeAmenities[" + index + "].availability[" + j + "].day"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.day").val();
+            params["storeAmenities[" + index + "].availability[" + j + "].startTime"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.startTime").val();
+            params["storeAmenities[" + index + "].availability[" + j + "].endTime"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.endTime").val();
+            params["storeAmenities[" + index + "].availability[" + j + "].closed"] = $("#storeAmenities\\[" + index + "\\]\\.availability\\[" + j + "\\]\\.closed").val();
+            j++;
+        }
+    });
+
+    //This is edit path
+    // If selectedIndex is provided, directly replace that amenity with the modal form data
+    if (selectedIndex !== undefined && selectedIndex !== null) {
+        // Replace amenity basic properties
+        params["storeAmenities[" + selectedIndex + "].amenity.id"] = $("#selected\\[" + selectedIndex + "\\]\\.amenity\\.id").val();
+        params["storeAmenities[" + selectedIndex + "].amenity.retailerId"] = $("#selected\\[" + selectedIndex + "\\]\\.amenity\\.retailerId").val();
+        params["storeAmenities[" + selectedIndex + "].amenity.name"] = $("#selected\\[" + selectedIndex + "\\]\\.amenity\\.name").val();
+        params["storeAmenities[" + selectedIndex + "].additionalDetail"] = $("#selected\\[" + selectedIndex + "\\]\\.amenity\\.description").val();
+        params["storeAmenities[" + selectedIndex + "].count"] = $("#selected\\[" + selectedIndex + "\\]\\.amenity\\.quantity").val() || "0";
+
+        // Find all day containers for selected index
+
+        var selectedInnerLoop = 0;
+        while (selectedInnerLoop < 7 ) {  // Availability hours - loop over to get edited 7 days
+            var dayValue = $("input[name='storeAmenities\\[" + selectedIndex + "\\]\\.regularHours[" + selectedInnerLoop + "].day']").val();
+            var timeFrom = $("input[name='storeAmenities\\[" + selectedIndex + "\\]\\.regularHours[" + selectedInnerLoop + "].startTime']").val();
+            var timeTo = $("input[name='storeAmenities\\[" + selectedIndex + "\\]\\.regularHours[" + selectedInnerLoop + "].endTime']").val();
+            var open = $("input[name='storeAmenities\\[" + selectedIndex + "\\]\\.regularHours[" + selectedInnerLoop + "].closed']").is(":checked");
+
+            // Validation: If not closed and one time exists but the other doesn't
+            var error = validateAmenityTimes(dayValue, timeFrom, timeTo, open);
+            if (error) {
+                editValidationErrors.push(error);
+            }
+
+            params["storeAmenities[" + selectedIndex + "].availability[" + selectedInnerLoop + "].day"] = dayValue;
+            params["storeAmenities[" + selectedIndex + "].availability[" + selectedInnerLoop + "].startTime"] = open ? timeFrom : "";
+            params["storeAmenities[" + selectedIndex + "].availability[" + selectedInnerLoop + "].endTime"] = open ? timeTo : "";
+            params["storeAmenities[" + selectedIndex + "].availability[" + selectedInnerLoop + "].closed"] = !open;
+            selectedInnerLoop++;
+        }
+    } else { //This is add newly selected amenities from popup
+        tempSelectedAmenityIds.forEach((amenityId, index) => {
+            params["selectedAmenityIds[" + index + "]"] = amenityId;
+        });
+    }
+
+    //If there is any edit validation errors then display them on edit popup
+    if (!displayValidationErrors(editValidationErrors, 'amenity-edit-errors-container')) {
+        return false; // Stop the submission
+    }
+
+    // Clear any previous errors
+    $('#amenity-edit-errors-container').html('');
+
+    params["storeId"] = storeId
+
+    $.ajax({
+        url: addStoreAmenities,
+        type: 'POST',
+        data: params,
+        success: function(resp) {
+            // Unselect all checkboxes in the amenity list
+            tempSelectedAmenityIds = [];
+            uncheckAllSelectedAmenities();
+            safelyCloseModal('#editAmenitiesModal');
+            safelyCloseModal('#amenitiesSearchModal');
+            var storeAmenitiesContainer = $("#storeAmenitiesContainer");
+            storeAmenitiesContainer.html(resp);
+        },
+        error: function(xhr, status, error) {
+            console.error('Error updating amenities:', error);
+        }
+    });
+}
+
+function deleteStoreAmenity(index) {
+    if (confirm("Are you sure you want to delete?")) {
+        var storeAmenitiesContainer = $("#storeAmenitiesContainer > div");
+        if (storeAmenitiesContainer.length) {
+            var params = {}
+            var amenityItems = $(".amenities-container > div > .amenity-item");
+            amenityItems.each(function(loopIndex) {
+                if (index !== loopIndex) {
+                    // Amenity basic properties
+                    params["storeAmenities[" + loopIndex + "].amenity.id"] = $("#storeAmenities\\[" + loopIndex + "\\]\\.amenity\\.id").val();
+                    params["storeAmenities[" + loopIndex + "].amenity.retailerId"] = $("#storeAmenities\\[" + loopIndex + "\\]\\.amenity\\.retailerId").val();
+                    params["storeAmenities[" + loopIndex + "].amenity.name"] = $("#storeAmenities\\[" + loopIndex + "\\]\\.amenity\\.name").val();
+                    params["storeAmenities[" + loopIndex + "].storeId"] = $("#storeAmenities\\[" + loopIndex + "\\]\\.storeId").val();
+
+                    // Additional details if present
+                    var additionalDetail = $("#storeAmenities\\[" + loopIndex + "\\]\\.additionalDetail");
+                    if (additionalDetail.length) {
+                        params["storeAmenities[" + loopIndex + "].additionalDetail"] = additionalDetail.val();
+                    }
+
+                    // Count if present
+                    var count = $("#storeAmenities\\[" + loopIndex + "\\]\\.count");
+                    if (count.length) {
+                        params["storeAmenities[" + loopIndex + "].count"] = count.val();
+                    }
+
+                    // Availability hours
+                    var j = 0;
+                    while (j < 7) {  // Availability hours - loop over to get 7 days
+                        params["storeAmenities[" + loopIndex + "].availability[" + j + "].day"] = $("#storeAmenities\\[" + loopIndex + "\\]\\.availability\\[" + j + "\\]\\.day").val();
+                        params["storeAmenities[" + loopIndex + "].availability[" + j + "].startTime"] = $("#storeAmenities\\[" + loopIndex + "\\]\\.availability\\[" + j + "\\]\\.startTime").val();
+                        params["storeAmenities[" + loopIndex + "].availability[" + j + "].endTime"] = $("#storeAmenities\\[" + loopIndex + "\\]\\.availability\\[" + j + "\\]\\.endTime").val();
+                        params["storeAmenities[" + loopIndex + "].availability[" + j + "].closed"] = $("#storeAmenities\\[" + loopIndex + "\\]\\.availability\\[" + j + "\\]\\.closed").val();
+                        j++;
+                    }
+                }
+            });
+            $.ajax({
+                url: addStoreAmenities,
+                method: "POST",
+                data: params,
+                success: function(resp) {
+                    tempSelectedAmenityIds = [];
+                    uncheckAllSelectedAmenities();
+                    var storeAmenitiesContainer = $("#storeAmenitiesContainer");
+                    storeAmenitiesContainer.html(resp);
+                }
+            });
+        }
+    }
+}
+
+function validateAmenityTimes(dayValue, timeFrom, timeTo, open) {
+    if (open && ((timeFrom && !timeTo) || (!timeFrom && timeTo))) {
+        return "For " + dayValue + ": Both start and end times must be provided";
+    }
+    return null; // No error
+}
+
+// Error display function
+function displayValidationErrors(errors, containerId) {
+    if (errors.length > 0) {
+        // Display errors in the error container
+        var errorHtml = '<div class="alert alert-danger"><ul>';
+        errors.forEach(function(error) {
+            errorHtml += '<li>' + error + '</li>';
+        });
+        errorHtml += '</ul></div>';
+
+        $('#' + containerId).html(errorHtml);
+        return false; // Indicates validation failed
+    }
+    return true; // Indicates validation passed
+}
+
+function uncheckAllSelectedAmenities() {
+    // Get all checked checkboxes
+    const checkedBoxes = $('#amenity-list input.form-check-input:checked');
+
+    // For each checked checkbox, update UI elements
+    checkedBoxes.each(function() {
+        const amenityId = $(this).val();
+        const index = $(this).data('index') ||
+            $(this).closest('[data-index]').data('index') ||
+            $(this).attr('id').replace('amenity-', '');
+
+        // Uncheck the checkbox
+        $(this).prop('checked', false);
+
+        // Update button appearance
+        const button = $('#modal-amenity-select-' + index);
+        if (button.length) {
+            button.removeClass('btn-primary').addClass('btn-secondary').text('Select');
+        }
+
+        // Remove from temporary array if it exists
+        if (typeof tempSelectedAmenityIds !== 'undefined') {
+            const idIndex = tempSelectedAmenityIds.indexOf(amenityId);
+            if (idIndex > -1) {
+                tempSelectedAmenityIds.splice(idIndex, 1);
+            }
+        }
+    });
+}
+
+function validateOtherRestrictions(description) {
+    if (description === null || description === undefined || description.trim() === "") {
+        return "Description cannot be empty. Please add description";
+    }
+    return null; // No error
+}
+

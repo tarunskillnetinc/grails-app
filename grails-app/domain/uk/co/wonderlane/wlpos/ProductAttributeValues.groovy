@@ -8,21 +8,25 @@ class ProductAttributeValues implements Serializable {
 
     Integer id
     Integer retailerId
+    Integer storeId
+    long sku
     Integer productAttributeId
     String value
     ProductAttributes productAttributes
     String attributeName
     ProductAttributeType attributeType
+    String listValues
 
-    static transients = ['productAttributes', 'attributeName', 'attributeType']
+    static transients = ['productAttributes', 'attributeName', 'attributeType', 'listValues']
 
     static mapping = {
         autowire true
         table "productattributevalues"
         version false
 
-        id composite: ['retailerId', 'product', 'productAttributeId']
         retailerId column: "retailerId", sqlType: "tinyint"
+        storeId column: "storeId", sqlType: "smallint"
+        sku column: "sku"
         productAttributeId column: "productAttributeId"
         value column: "value"
         product column: "productId"
@@ -42,6 +46,12 @@ class ProductAttributeValues implements Serializable {
             }
         }
 
+        sku nullable: false , validator: { val, obj ->
+            if (val == null) {
+                return ['productAttributeValues.sku.empty', [obj?.attributeName]]
+            }
+        }
+
         productAttributeId nullable: false , validator: { val, obj ->
             if (val == null) {
                 return ['productAttributeValues.attributeId.empty', [obj?.attributeName]]
@@ -49,7 +59,7 @@ class ProductAttributeValues implements Serializable {
         }
 
         value nullable: true, validator: {val, obj ->
-            if (obj?.attributeType == ProductAttributeType.NUMERIC && val != null) {
+            if (obj?.attributeType == ProductAttributeType.NUMERIC && val != null && !val.isBlank()) {
                 try {
                     // Try parsing the value as a BigDecimal
                     BigDecimal numericValue = new BigDecimal(val)
@@ -69,9 +79,11 @@ class ProductAttributeValues implements Serializable {
             }
         }
 
+        storeId nullable: true
         product nullable: true
         productAttributes bindable: true
         attributeName bindable: true
         attributeType bindable: true
+        listValues bindable: true
     }
 }

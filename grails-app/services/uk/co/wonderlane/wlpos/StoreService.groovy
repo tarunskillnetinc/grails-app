@@ -6,15 +6,21 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.entities.EnableHours
 import uk.co.wonderlane.wlpos.entities.OpeningHours
 import uk.co.wonderlane.wlpos.entities.OpeningTime
 import uk.co.wonderlane.wlpos.entities.OpeningTimeOverride
 import uk.co.wonderlane.wlpos.entities.StoreAdditionalDetail
+import uk.co.wonderlane.wlpos.entities.StoreLicencing
+import uk.co.wonderlane.wlpos.entities.StoreOtherRestrictions
+import uk.co.wonderlane.wlpos.entities.StoreRestrictedHours
 
 import java.lang.reflect.Type
 import java.sql.CallableStatement
 import java.sql.Connection
 import java.sql.Types
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.stream.Collectors
 
 @Transactional
@@ -97,19 +103,19 @@ class StoreService extends MySqlDal {
         return [stores, storeCount.first()]
     }
 
-    def saveStore(StoreCommand store, String configString, String storeAdditionalDetail, String openingHoursString) {
-        return doSaveStore(store, configString, storeAdditionalDetail, openingHoursString)
+    def saveStore(StoreCommand store, String configString, String storeAdditionalDetail, String openingHoursString, String storeLicensing, String storeRestrictions) {
+        return doSaveStore(store, configString, storeAdditionalDetail, openingHoursString, storeLicensing, storeRestrictions)
     }
 
     // Needs to not be transactional otherwise Hibernate tries to save the store object rather than allowing the stored procedure to do it (well, it does both).
     @Transactional (readOnly = true)
     def saveStore(Store store) {
-        return doSaveStore(store, store.configString, store.additionalDetails, store.openingHoursString)
+        return doSaveStore(store, store.configString, store.additionalDetails, store.openingHoursString, store.licencingString, store.storeRestrictions)
     }
 
-    private void doSaveStore(def store, String configString, String storeAdditionalDetail, String openingHours) {
+    private void doSaveStore(def store, String configString, String storeAdditionalDetail, String openingHours, String storeLicensing, String storeRestrictions) {
         Connection conn = getConnection()
-        CallableStatement cstmt = conn.prepareCall("{ call saveStore(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+        CallableStatement cstmt = conn.prepareCall("{ call saveStore(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
             if (store.id && store.id > 0) {
@@ -132,6 +138,8 @@ class StoreService extends MySqlDal {
             cstmt.setString(9, configString)
             cstmt.setString(10, storeAdditionalDetail)
             cstmt.setString(11, openingHours)
+            cstmt.setString(12, storeLicensing)
+            cstmt.setString(13, storeRestrictions)
             cstmt.executeUpdate()
 
             def resultSet = cstmt.getResultSet()
@@ -191,16 +199,71 @@ class StoreService extends MySqlDal {
 
             openingHours.specialOpeningHours = new ArrayList<>()
             storeOpeningHoursCommand.getSpecialOpeningHours()?.forEach {specialHours ->{
-                openingHours.specialOpeningHours.add(openingHoursOverrideMap(specialHours))
+                if (specialHours != null) {
+                    openingHours.specialOpeningHours.add(openingHoursOverrideMap(specialHours))
+                }
             }}
         }
         return openingHours
     }
 
+    def getAlcoholLicensingCommandAsObject(AlcoholLicensingCommand alcoholLicensingCommand) {
+        StoreLicencing storeLicencing = new StoreLicencing()
+        if (alcoholLicensingCommand != null) {
+            storeLicencing.setAlcoholLicensingHours(getOpeningHoursAsObject(alcoholLicensingCommand))
+            storeLicencing.setLicensedToSellAlcohol(alcoholLicensingCommand.licensedToSellAlcohol)
+        }
+        return storeLicencing
+    }
+
+    def getStoreRestrictionsCommandAsObject(StoreRestrictionsCommand storeRestrictionsCommand) {
+        StoreRestrictedHours storeRestrictedHours = new StoreRestrictedHours()
+        if (storeRestrictionsCommand != null) {
+            storeRestrictionsCommand.getRegularHours()?.forEach { enableHours ->
+                {
+                    try {
+                        switch (enableHours.day) {
+                            case "Monday":
+                                storeRestrictedHours.monday = getEnableHoursAsObject(enableHours)
+                                break
+                            case "Tuesday":
+                                storeRestrictedHours.tuesday = getEnableHoursAsObject(enableHours)
+                                break
+                            case "Wednesday":
+                                storeRestrictedHours.wednesday = getEnableHoursAsObject(enableHours)
+                                break
+                            case "Thursday":
+                                storeRestrictedHours.thursday = getEnableHoursAsObject(enableHours)
+                                break
+                            case "Friday":
+                                storeRestrictedHours.friday = getEnableHoursAsObject(enableHours)
+                                break
+                            case "Saturday":
+                                storeRestrictedHours.saturday = getEnableHoursAsObject(enableHours)
+                                break
+                            case "Sunday":
+                                storeRestrictedHours.sunday = getEnableHoursAsObject(enableHours)
+                                break
+                        }
+                    } catch (IllegalArgumentException ex) {
+                        throw new IllegalArgumentException("storeservice.restrictions.time.invalid.format")
+                    }
+                }
+            }
+            storeRestrictedHours.storeOtherRestrictions = new ArrayList<>()
+            storeRestrictionsCommand.getOtherRestrictions()?.forEach { otherRestrictions ->
+                {
+                    if (otherRestrictions != null) {
+                        storeRestrictedHours.storeOtherRestrictions.add(getStoreOtherRestrictionAsObject(otherRestrictions))
+                    }
+                }
+            }
+            return storeRestrictedHours
+        }
+    }
 
     StoreOpeningHoursCommand convertToStoreOpeningHoursCommand(OpeningHours openingHours) {
         StoreOpeningHoursCommand command = new StoreOpeningHoursCommand()
-
         // Convert regular hours
         if (openingHours != null) {
             List<OpeningTimeCommand> regularHours = new ArrayList<>();
@@ -219,7 +282,9 @@ class StoreService extends MySqlDal {
                 for (OpeningTimeOverride override : openingHours.getSpecialOpeningHours()) {
                     OpeningTimeOverrideCommand overrideCommand = new OpeningTimeOverrideCommand()
                     overrideCommand.description = override.description
-                    overrideCommand.setDate(override.getDate().toString("yyyy-MM-dd"))
+                    if (override.getDate() != null) {
+                        overrideCommand.setDate(override.getDate().toString("dd/MM/yyyy"))
+                    }
                     overrideCommand.setStartTime(override.getStartTime() != null ? override.getStartTime().toString("HH:mm") : null)
                     overrideCommand.setEndTime(override.getEndTime() != null ? override.getEndTime().toString("HH:mm") : null)
                     overrideCommand.setClosed(override.isClosed())
@@ -238,10 +303,243 @@ class StoreService extends MySqlDal {
                     new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: false)
             ])
         }
-
-
         return command
     }
+
+    AlcoholLicensingCommand convertToAlcoholLicensingCommand(StoreLicencing storeLicencing) {
+        StoreOpeningHoursCommand storeOpeningHoursCommand = convertToStoreOpeningHoursCommand(storeLicencing?.alcoholLicensingHours);
+        return new AlcoholLicensingCommand(
+                licensedToSellAlcohol: storeLicencing?.licensedToSellAlcohol,
+                regularHours: storeOpeningHoursCommand?.regularHours,
+                specialOpeningHours: storeOpeningHoursCommand?.specialOpeningHours
+        )
+    }
+
+    StoreRestrictionsCommand convertToStoreRestrictionCommand(StoreRestrictedHours storeRestrictedHours){
+        StoreRestrictionsCommand storeRestrictionsCommand = new StoreRestrictionsCommand()
+        if (storeRestrictedHours != null) {
+            List<EnableHoursCommand> regularHours = new ArrayList<>();
+            addEnabledTimeToCmd(regularHours, "Monday", storeRestrictedHours.getMonday())
+            addEnabledTimeToCmd(regularHours, "Tuesday", storeRestrictedHours.getTuesday())
+            addEnabledTimeToCmd(regularHours, "Wednesday", storeRestrictedHours.getWednesday())
+            addEnabledTimeToCmd(regularHours, "Thursday", storeRestrictedHours.getThursday())
+            addEnabledTimeToCmd(regularHours, "Friday", storeRestrictedHours.getFriday())
+            addEnabledTimeToCmd(regularHours, "Saturday", storeRestrictedHours.getSaturday())
+            addEnabledTimeToCmd(regularHours, "Sunday", storeRestrictedHours.getSunday())
+            storeRestrictionsCommand.setRegularHours(regularHours)
+
+            List<StoreOtherRestrictionsCommand> otherRestrictions = new ArrayList<>();
+            java.time.format.DateTimeFormatter formatterDate = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+            if (storeRestrictedHours.getStoreOtherRestrictions() != null) {
+                for (StoreOtherRestrictions override : storeRestrictedHours.getStoreOtherRestrictions()) {
+                    StoreOtherRestrictionsCommand overrideCommand = new StoreOtherRestrictionsCommand()
+                    overrideCommand.description = override.description
+                    if (override.getStartDateTime() != null) {
+                        overrideCommand.setStartDateTime(override.getStartDateTime()?.format(formatterDate))
+                    }
+                    if (override.getEndDateTime() != null) {
+                        overrideCommand.setEndDateTime(override.getEndDateTime()?.format(formatterDate))
+                    }
+                    otherRestrictions.add(overrideCommand)
+                }
+            }
+            storeRestrictionsCommand.setOtherRestrictions(otherRestrictions)
+        } else {
+            storeRestrictionsCommand.setRegularHours([
+                    new EnableHoursCommand(day: 'Monday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                    new EnableHoursCommand(day: 'Tuesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                    new EnableHoursCommand(day: 'Wednesday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                    new EnableHoursCommand(day: 'Thursday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                    new EnableHoursCommand(day: 'Friday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                    new EnableHoursCommand(day: 'Saturday', timeFrom: '', timeTo: '', restrictionEnabled: false),
+                    new EnableHoursCommand(day: 'Sunday', timeFrom: '', timeTo: '', restrictionEnabled: false)
+            ])
+        }
+        return storeRestrictionsCommand
+    }
+
+    List<StoreAmenitiesCommand> convertToStoreAmenitiesCommand(List<StoreAmenity> storeAmenities, int storeId) {
+        List<StoreAmenitiesCommand> storeAmenitiesCommands = new ArrayList<>()
+        if (storeAmenities != null && !storeAmenities.isEmpty()) {
+            storeAmenities.each { StoreAmenity storeAmenity ->
+                StoreAmenitiesCommand command = convertToStoreAmenityCommand(storeAmenity, storeId)
+                storeAmenitiesCommands.add(command)
+            }
+            storeAmenitiesCommands = storeAmenitiesCommands?.findAll { it != null}
+            storeAmenitiesCommands?.sort { a, b ->
+                a.amenity?.name?.toLowerCase() <=> b.amenity?.name?.toLowerCase()
+            }
+        }
+        return storeAmenitiesCommands
+    }
+
+    StoreAmenitiesCommand convertToStoreAmenityCommand(StoreAmenity storeAmenity, int storeId){
+        StoreAmenitiesCommand storeAmenitiesCommand = new StoreAmenitiesCommand()
+        if (storeAmenity != null) {
+            storeAmenitiesCommand.setAdditionalDetail(storeAmenity.getAdditionalDetail())
+            storeAmenitiesCommand.setCount(storeAmenity.getCount() != null ? storeAmenity.getCount() : 0)
+            storeAmenitiesCommand.setAmenity( new AmenityCommand(
+                    id: storeAmenity.amenity.id,
+                    retailerId: storeAmenity.amenity.retailerId.toString(),
+                    name: storeAmenity.amenity.name
+            ))
+            if (storeAmenity.getAvailability() != null) {
+                OpeningHours openingHours = gsonProvider.gson.fromJson(storeAmenity.getAvailability(), new TypeToken<OpeningHours>(){}.type)
+                List<OpeningTimeCommand> regularHours = new ArrayList<>();
+                addOpeningTimeToCmd(regularHours, "Monday", openingHours.getMonday())
+                addOpeningTimeToCmd(regularHours, "Tuesday", openingHours.getTuesday())
+                addOpeningTimeToCmd(regularHours, "Wednesday", openingHours.getWednesday())
+                addOpeningTimeToCmd(regularHours, "Thursday", openingHours.getThursday())
+                addOpeningTimeToCmd(regularHours, "Friday", openingHours.getFriday())
+                addOpeningTimeToCmd(regularHours, "Saturday", openingHours.getSaturday())
+                addOpeningTimeToCmd(regularHours, "Sunday", openingHours.getSunday())
+
+                storeAmenitiesCommand.setAvailability(regularHours)
+            } else {
+                storeAmenitiesCommand.availability =  getDefaultOpeningTimeCommandForAmenities()
+            }
+            storeAmenitiesCommand.storeId = storeId
+        } else {
+            storeAmenitiesCommand.availability = getDefaultOpeningTimeCommandForAmenities()
+        }
+        return storeAmenitiesCommand
+    }
+
+    List<Amenity> getAmenitiesList(int retailerId, String amenityNameFilter){
+        return Amenity.createCriteria().list {
+            eq('retailerId', retailerId)
+            if (amenityNameFilter) {
+                ilike('name', '%' + amenityNameFilter + '%')
+            }
+
+            order('name', 'asc')  // Optional: sort by name
+        } as List<Amenity>
+    }
+
+
+    def saveStoreAmenities(List<StoreAmenitiesCommand> storeAmenitiesCommand, Store store){
+        // Create maps for efficient lookup
+        Map<String, StoreAmenitiesCommand> storeAmenitiesCommandMap = createStoreAmenityCommandMap(storeAmenitiesCommand)
+        Map<String, StoreAmenity> storeAmenitiesMap = createStoreAmenityMap(store?.storeAmenities)
+
+        // First, delete any StoreAmenity entries that are no longer in the command list
+        storeAmenitiesMap.each { String key, StoreAmenity storeAmenity ->
+            if (!storeAmenitiesCommandMap.containsKey(key)) {  // This StoreAmenity is not in the updated list, so delete it
+                Amenity amenity = Amenity.get(storeAmenity?.amenity?.id)
+                StoreAmenity existingStoreAmenity = StoreAmenity.findByAmenityAndStore(amenity, store)
+                if (existingStoreAmenity) {
+                    store.storeAmenities.remove(existingStoreAmenity)
+                    storeAmenity.delete(flush: true)
+                }
+            }
+        }
+
+        // Then, save or update all entries from the command list
+        for (StoreAmenitiesCommand storeAmenity : storeAmenitiesCommand) {
+            Amenity amenity = Amenity.get(storeAmenity?.amenity?.id)
+            StoreAmenity existingAmenity = StoreAmenity.findByAmenityAndStore(amenity, store)
+            if (existingAmenity) {
+                existingAmenity.additionalDetail = storeAmenity.additionalDetail
+                existingAmenity.count = storeAmenity.count
+                OpeningHours openingHours = getAmenitiesAvailability(storeAmenity?.availability)
+                existingAmenity.availability = gsonProvider.gson.toJson(openingHours)
+            } else {
+                StoreAmenity newAmenity = getStoreAmenity(storeAmenity, store, amenity)
+                if (newAmenity) { // Create new entity
+                    store.storeAmenities.add(newAmenity)
+                    newAmenity.save(flush: true)
+                }
+            }
+        }
+    }
+
+    void updateStoreAmenityCommandForSelectedIds(SelectedAmenitiesCommand selectedAmenitiesCommand, Integer storeId){
+        selectedAmenitiesCommand.selectedAmenityIds.forEach {
+            amenityId -> {
+                Amenity amenity = Amenity.get(amenityId)
+                StoreAmenitiesCommand storeAmenitiesCommand = new StoreAmenitiesCommand()
+                storeAmenitiesCommand.availability = getDefaultOpeningTimeCommandForAmenities()
+                storeAmenitiesCommand.setAmenity(
+                        new AmenityCommand(
+                                id: amenity?.id,
+                                retailerId: amenity?.retailerId,
+                                name: amenity?.name
+                        )
+                )
+                storeAmenitiesCommand.storeId = storeId
+                selectedAmenitiesCommand.storeAmenities.add(storeAmenitiesCommand)
+            }
+        }
+    }
+
+    private Map<String, StoreAmenitiesCommand> createStoreAmenityCommandMap(List<StoreAmenitiesCommand> storeAmenities) {
+        Map<String, StoreAmenitiesCommand> result = [:]
+        storeAmenities.each { StoreAmenitiesCommand amenity ->
+            // Create a composite key using storeId and amenity.id
+            String compositeKey = "${amenity?.storeId}_${amenity?.amenity?.id}"
+            // Add to map with the composite key
+            result[compositeKey] = amenity
+        }
+        return result
+    }
+
+    private Map<String, StoreAmenity> createStoreAmenityMap(List<StoreAmenity> storeAmenities) {
+        Map<String, StoreAmenity> result = [:]
+        storeAmenities.each { StoreAmenity storeAmenity ->
+            // Create a composite key using store.id and amenity.id
+            String compositeKey = "${storeAmenity?.store?.id}_${storeAmenity?.amenity?.id}"
+            // Add to map with the composite key
+            result[compositeKey] = storeAmenity
+        }
+        return result
+    }
+
+    private StoreAmenity getStoreAmenity(StoreAmenitiesCommand storeAmenitiesCommand, Store store, Amenity amenity){
+        if (storeAmenitiesCommand != null) {
+            StoreAmenity storeAmenity = new StoreAmenity()
+            storeAmenity.setAdditionalDetail(storeAmenitiesCommand.additionalDetail)
+            storeAmenity.setCount(storeAmenitiesCommand.count)
+            storeAmenity.setStore(store)
+            storeAmenity.setAmenity(amenity)
+            OpeningHours openingHours = getAmenitiesAvailability(storeAmenitiesCommand?.availability)
+            storeAmenity.setAvailability(gsonProvider.gson.toJson(openingHours))
+            return storeAmenity
+        }
+        return null
+    }
+
+    def getAmenitiesAvailability(List<OpeningTimeCommand> availability) {
+        OpeningHours openingHours = new OpeningHours()
+        if (availability != null) {
+            availability?.forEach {regHours -> {
+                switch (regHours.day) {
+                    case "Monday":
+                        openingHours.monday = regularHoursMap(regHours)
+                        break
+                    case "Tuesday":
+                        openingHours.tuesday = regularHoursMap(regHours)
+                        break
+                    case "Wednesday":
+                        openingHours.wednesday = regularHoursMap(regHours)
+                        break
+                    case "Thursday":
+                        openingHours.thursday = regularHoursMap(regHours)
+                        break
+                    case "Friday":
+                        openingHours.friday = regularHoursMap(regHours)
+                        break
+                    case "Saturday":
+                        openingHours.saturday = regularHoursMap(regHours)
+                        break
+                    case "Sunday":
+                        openingHours.sunday = regularHoursMap(regHours)
+                        break
+                }
+            }}
+        }
+        return openingHours
+    }
+
 
     private void addOpeningTimeToCmd(List<OpeningTimeCommand> regularHours, String day, OpeningTime openingTime) {
         OpeningTimeCommand command = new OpeningTimeCommand()
@@ -260,24 +558,77 @@ class StoreService extends MySqlDal {
         regularHours.add(command)
     }
 
+    def sortStoreRestrictions(StoreRestrictionsCommand restrictions) {
+        if (restrictions == null) {
+            return null
+        }
+
+        // Filter out empty items from otherRestrictions
+        if (restrictions.otherRestrictions) {
+            restrictions.otherRestrictions = restrictions.otherRestrictions.findAll { restriction ->
+                restriction != null
+            }
+
+            // Sort the filtered list by description (case-insensitive)
+            restrictions.otherRestrictions.sort { a, b ->
+                (a?.description ?: "").compareToIgnoreCase(b?.description ?: "")
+            }
+        }
+
+        // Return the complete StoreRestrictionsCommand object
+        return restrictions
+    }
+
     private OpeningTime regularHoursMap(OpeningTimeCommand openingTimeCommand) {
         OpeningTime openingTime = new OpeningTime()
         DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm")
-        openingTime.startTime = openingTimeCommand.startTime ? formatter.parseLocalTime(openingTimeCommand.startTime) : null
-        openingTime.endTime = openingTimeCommand.endTime ? formatter.parseLocalTime(openingTimeCommand.endTime) : null
+
+        try {
+            openingTime.startTime = openingTimeCommand.startTime ? formatter.parseLocalTime(openingTimeCommand.startTime) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.regular.starttime.invalid.format")
+        }
+
+        try {
+            openingTime.endTime = openingTimeCommand.endTime ? formatter.parseLocalTime(openingTimeCommand.endTime) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.regular.endtime.invalid.format")
+        }
+
         openingTime.closed = openingTimeCommand.closed
         return openingTime
     }
 
     private OpeningTimeOverride openingHoursOverrideMap(OpeningTimeOverrideCommand openingTimeOverrideCommand) {
-        DateTimeFormatter formatterDate = DateTimeFormat.forPattern("yyyy-MM-dd");
+        if (openingTimeOverrideCommand == null) {
+            return null
+        }
+        DateTimeFormatter formatterDate = DateTimeFormat.forPattern("dd/mm/yyyy");
         DateTimeFormatter formatterTime = DateTimeFormat.forPattern("HH:mm")
+
         OpeningTimeOverride openingTimeOverride = new OpeningTimeOverride()
-        openingTimeOverride.description = openingTimeOverrideCommand.description
-        openingTimeOverride.date = openingTimeOverrideCommand.date ? formatterDate.parseLocalDate(openingTimeOverrideCommand.date) : null
-        openingTimeOverride.startTime = openingTimeOverrideCommand.startTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.startTime) : null
-        openingTimeOverride.endTime = openingTimeOverrideCommand.endTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.endTime) : null
-        openingTimeOverride.closed = openingTimeOverrideCommand.closed
+        openingTimeOverride.description = openingTimeOverrideCommand?.description
+
+        try {
+            openingTimeOverride.date = openingTimeOverrideCommand?.date ? formatterDate.parseLocalDate(openingTimeOverrideCommand.date) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.special.date.invalid.format")
+        }
+
+        try {
+            openingTimeOverride.startTime = openingTimeOverrideCommand?.startTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.startTime) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.special.starttime.invalid.format")
+        }
+
+        try {
+            openingTimeOverride.endTime = openingTimeOverrideCommand?.endTime ? formatterTime.parseLocalTime(openingTimeOverrideCommand.endTime) : null
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("storeservice.special.endtime.invalid.format")
+        }
+
+        openingTimeOverride.closed = openingTimeOverrideCommand?.closed
+
         return openingTimeOverride
     }
 
@@ -292,5 +643,74 @@ class StoreService extends MySqlDal {
                     }
                 })
                 .collect(Collectors.toList());
+    }
+
+    private void addEnabledTimeToCmd(List<EnableHoursCommand> regularHours, String day, EnableHours enableHours) {
+        EnableHoursCommand command = new EnableHoursCommand()
+        command.setDay(day)
+
+        if (enableHours != null) {
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm")
+            LocalTime timeFrom = enableHours.getTimeFrom()
+            if (timeFrom != null) {
+                command.setTimeFrom(timeFrom.format(formatter))
+            } else {
+                command.setTimeFrom(null)
+            }
+
+            LocalTime timeTo = enableHours.getTimeTo()
+            if (timeTo != null) {
+                command.setTimeTo(timeTo.format(formatter))
+            } else {
+                command.setTimeTo(null)
+            }
+            command.setRestrictionEnabled(enableHours.isRestrictionEnabled())
+        } else {
+            command.setTimeFrom(null)
+            command.setTimeTo(null)
+            command.setRestrictionEnabled(false)
+        }
+
+        regularHours.add(command)
+    }
+
+    private EnableHours getEnableHoursAsObject(EnableHoursCommand enableHoursCommand) {
+        EnableHours enableHours = new EnableHours()
+        if (enableHoursCommand != null) {
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+            if (enableHoursCommand.restrictionEnabled) {
+                enableHours.timeFrom = enableHoursCommand.timeFrom ? LocalTime.parse(enableHoursCommand.timeFrom, formatter) : null
+                enableHours.timeTo = enableHoursCommand.timeTo ? LocalTime.parse(enableHoursCommand.timeTo, formatter) : null
+            } else {
+                enableHours.timeFrom = null
+                enableHours.timeTo = null
+            }
+            enableHours.restrictionEnabled = enableHoursCommand.restrictionEnabled
+        }
+        return enableHours
+    }
+
+    private StoreOtherRestrictions getStoreOtherRestrictionAsObject(StoreOtherRestrictionsCommand storeOtherRestrictionsCommand) {
+        if (storeOtherRestrictionsCommand == null) {
+            return null
+        }
+        java.time.format.DateTimeFormatter formatterDate = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        StoreOtherRestrictions storeOtherRestrictions = new StoreOtherRestrictions()
+        storeOtherRestrictions.description = storeOtherRestrictionsCommand?.description
+        storeOtherRestrictions.startDateTime = storeOtherRestrictionsCommand?.startDateTime ? LocalDateTime.parse(storeOtherRestrictionsCommand?.startDateTime, formatterDate) : null
+        storeOtherRestrictions.endDateTime = storeOtherRestrictionsCommand?.endDateTime ? LocalDateTime.parse(storeOtherRestrictionsCommand?.endDateTime, formatterDate) : null
+        return storeOtherRestrictions
+    }
+
+    private List<OpeningTimeCommand> getDefaultOpeningTimeCommandForAmenities(){
+        return [
+                new OpeningTimeCommand(day: 'Monday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Tuesday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Wednesday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Thursday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Friday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Saturday', startTime: '', endTime: '', closed: true),
+                new OpeningTimeCommand(day: 'Sunday', startTime: '', endTime: '', closed: true)
+        ]
     }
 }

@@ -4,12 +4,21 @@ import grails.gorm.transactions.Transactional
 import org.hibernate.Session
 import org.hibernate.Transaction
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
+import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.reporting.BasketTransactionParameterContainer
+
+import java.sql.CallableStatement
+import java.sql.Connection
+import java.sql.ResultSet
+import java.sql.SQLException
 
 @Transactional("transactions")
 class TransactionService {
 
     def springSecurityService
     def sessionFactory
+    def basketTransactionService
 
     def getReceipts(DateTime fromDate, DateTime toDate, Integer tillId, Integer transactionId, String sort, String order, int offset, int max) {
         def receiptsCriteria = Receipt.createCriteria()
@@ -17,6 +26,7 @@ class TransactionService {
         def results
         def totalCount = 0
 
+        // Fetch the receipts from the transactions schema
         results = receiptsCriteria.list([offset: offset, max: max, sort: sort, order: order]) {
             eq("retailerId", springSecurityService.principal.retailerId)
 
@@ -38,7 +48,7 @@ class TransactionService {
 
         totalCount = results.totalCount
 
-        // Fetch all stores for this retailer
+        // Fetch all stores for this retailer from the wlpos schema.
         def stores = Store.withNewSession { session ->
             Store.findAllByRetailerId(springSecurityService.principal.retailerId)
         }
@@ -50,6 +60,20 @@ class TransactionService {
                 storeConfig.storeNumber == receipt.storeId
             }
             [receipt: receipt, store: store]
+        }
+
+        // Build the list of parameters to fetch the totals from the reporting schema.
+        List<BasketTransactionParameterContainer> parameterItems = []
+
+        for (def item : combinedResults) {
+            parameterItems.add(new BasketTransactionParameterContainer(item.store.id, item.receipt.tillId, item.receipt.transactionId, item.receipt.id))
+        }
+
+        def transactionTotals = basketTransactionService.getBasketTransactionTotals(parameterItems)
+
+        // Update the receipts bit.
+        for (def item : combinedResults) {
+            item.receipt.grandtotal = transactionTotals.get(item.receipt.id)?.grandtotal
         }
 
         return [combinedResults, totalCount]
