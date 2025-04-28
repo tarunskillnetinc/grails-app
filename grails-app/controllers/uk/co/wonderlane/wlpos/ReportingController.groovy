@@ -1965,7 +1965,7 @@ class ReportingController {
 
     private String getDeliveriesCsv(List<ProductList> deliveries, Retailer retailer) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Delivery ID,Type,${retailer?.config?.retailerTerminologyConfig?.storeTerm} No,${retailer?.config?.retailerTerminologyConfig?.storeTerm} Name,Status,Delivery Date,Supplier,Supplier Reference,Shipment Reference,Number of Cages, Number of ${retailer?.config?.retailerTerminologyConfig?.packTerm}s,Total Cost\n")
+        stringBuilder.append("Delivery ID,Type,${retailer?.config?.retailerTerminologyConfig?.storeTerm} No,${retailer?.config?.retailerTerminologyConfig?.storeTerm} Name,Status,Delivery Date,Supplier,Supplier Reference,Shipment Reference,Number of Cages, Number of ${retailer?.config?.retailerTerminologyConfig?.packTerm}s,Cost of Delivery\n")
 
         Map<Integer, StoreConfig> storeConfigMap = new HashMap<>()
 

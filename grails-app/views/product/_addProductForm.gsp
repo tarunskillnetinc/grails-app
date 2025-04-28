@@ -189,6 +189,10 @@
                                     <g:checkBox name="snappyProduct" class="col-1 form-check-input wl-checkbox" checked="${product?.snappyProduct}"/>
                                 </div>
                             </fieldset>
+                            <div class="row mt-1 form-group form-check pl-0">
+                                <label for="hospitality" class="col-3 col-form-label text-right pr-4">Hospitality</label>
+                                <g:checkBox name="hospitality" class="col-1 form-check-input wl-checkbox" checked="${product?.hospitality}"/>
+                            </div>
                         </div>
 
                         <div class="col-12 col-lg-6">
