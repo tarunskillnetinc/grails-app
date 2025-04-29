@@ -2017,7 +2017,7 @@ class ReportingController {
 
     private String getDeliveryCsv(List<ProductListItem> delivery, Retailer retailer) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Product SKU,Product Description,Items Delivered,Total Cost\n")
+        stringBuilder.append("SKU,Description,Quantity Delivered,Total Cost\n")
 
         delivery?.each { item ->
             stringBuilder.append(item?.productVariant?.sku)
