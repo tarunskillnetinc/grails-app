@@ -1422,7 +1422,8 @@ class ReportingController {
 
         packLines = sortParams.offset < packLines.size() ? packLines.subList(sortParams.offset, (sortParams.offset + sortParams.max < packLines.size() ? sortParams.offset + sortParams.max : packLines.size())) : []
 
-        render(template: "deliveryPackLineResults", model: [packLines   : packLines,
+        render(template: "deliveryPackLineResults", model: [retailer    : Retailer.get(springSecurityService.principal.retailerId),
+                                                            packLines   : packLines,
                                                             userColumns : reportingService.getReportColumns(ReportType.DELIVERY_ITEM),
                                                             sortParams  : sortParams,
                                                             totalResults: totalCount])
