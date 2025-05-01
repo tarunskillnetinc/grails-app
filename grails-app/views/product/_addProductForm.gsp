@@ -126,8 +126,8 @@
                         <div class="col-2 font-weight-bold">Cost Price</div>
                         <div class="col-2 font-weight-bold">Barcodes</div>
                         <div class="col-2 font-weight-bold">Packs</div>
-                        <div class="col-1 font-weight-bold">Preferred SKU</div>
-                        <div class="col-1 font-weight-bold">&nbsp;</div>
+                        <!-- Prevent word break by making last two column headers one div -->
+                        <div class="col-2 font-weight-bold">Preferred SKU</div>
                     </div>
 
                     <div id="variantsContainer">
@@ -140,7 +140,12 @@
                         <g:each in="${product?.variants}" var="variant" status="i">
                             <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                 <div id="variant-${i}">
-                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes, unitOfMeasure: variant.unitOfMeasure?.id, storeId: storeId]" />
+                                    <g:render template="variant" model="[
+                                            index: i, variant: variant,
+                                            barcodes: variant.barcodez ? variant.barcodez : variant.barcodes,
+                                            attributes: variant.attributez,
+                                            unitOfMeasure: variant.unitOfMeasure?.id,
+                                            storeId: storeId]" />
                                 </div>
                             </g:if>
                         </g:each>
@@ -312,7 +317,7 @@
                                 <g:hiddenField name="scoSaleMessageId" value="${product?.scoMessages?.isEmpty() ? '' : product?.scoMessages?.max { it.id }?.id}" />
                             </div>
                             <div class="row mt-1 form-group">
-                                <label for="discreetMessage" class="col-4 col-form-label text-right pr-4">Discreet Message:</label>
+                                <label for="discreetMessage" class="col-4 col-form-label text-right pr-4">CFD Message:</label>
                                 <g:textField maxLength="48" name="discreetMessage" value="${product?.discreetMessage}" class="col-3 form-control" />
                             </div>
                         </div>
@@ -459,30 +464,6 @@
                 </div>
             </div>
         </g:if>
-
-        <g:if test="${productAttributeValuesList?.size() > 0}">
-            <div class="card bg-light border-wl accordion-card">
-                <div class="card-header pointer" id="productInformation" data-toggle="collapse" data-target="#collapseProductInformation" aria-expanded="true" aria-controls="collapseProductInformation">
-                    <div class="row">
-                        <div class="col-10"><strong>Product Information</strong></div>
-                        <div class="col-2 text-right">
-                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="collapseProductInformation" class="collapse collapsed" aria-labelledby="ProductInformation" data-parent="#accordion">
-                    <div class="card-body py-5">
-                        <div id="ProductInformationContainer"  style="max-height: 300px; overflow-x: hidden; overflow-y: auto;">
-                            <g:render template="productInformation" model="[productAttributeValuesList: productAttributeValuesList, isStore: storeId == null]" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </g:if>
-
 
 
         <!-- Product history. -->

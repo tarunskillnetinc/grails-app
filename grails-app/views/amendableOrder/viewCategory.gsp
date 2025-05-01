@@ -134,7 +134,7 @@
                     </div>
                     <div class="form-group row">
                         <label for="deliveryDateSearch" class="col-3 col-form-label-sm text-right">Delivery Date</label>
-                        <div class="col-4 input-group">
+                        <div class="col-5 input-group">
                             <g:textField name="deliveryDateSearch" id="deliveryDateSearch" type="text" class="col-8 form-control bottom-border"
                                          value="${g.formatDate(format: "dd/MM/yyyy", date: deliveryDate?.toDate())}"
                                          autocomplete="off"/>
@@ -142,7 +142,7 @@
                     </div>
 
                     <div class="form-group row">
-                        <div class="col-4 offset-8 text-right">
+                        <div class="col-8 offset-4 text-right">
                             <button id="reset-filters-btn" type="button" class="btn btn-danger text-right" onclick="resetForm()">Reset Filters</button>
                             <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>
                         </div>

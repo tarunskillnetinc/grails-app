@@ -69,20 +69,20 @@
                             <g:checkBox name="columns" id="columnsPackCost" class="form-check-input"
                                         value="packCost"
                                         checked="${!userColumns || userColumns?.columns?.find { it.column == 'packCost' }?.enabled}"/>
-                            <label class="form-check-label" for="columnsPackCost">Pack Cost</label>
+                            <label class="form-check-label" for="columnsPackCost">${retailer?.config?.retailerTerminologyConfig?.packTerm} Cost</label>
                         </div>
 
                         <div class="form-group form-check">
                             <g:checkBox name="columns" id="columnsPackSize" class="form-check-input" value="packSize"
                                         checked="${!userColumns || userColumns?.columns?.find { it.column == 'packSize' }?.enabled}"/>
-                            <label class="form-check-label" for="columnsPackSize">Pack Size</label>
+                            <label class="form-check-label" for="columnsPackSize">${retailer?.config?.retailerTerminologyConfig?.packTerm} Size</label>
                         </div>
 
                         <div class="form-group form-check">
                             <g:checkBox name="columns" id="columnsDeliveryQuantity" class="form-check-input"
                                         value="deliveryQuantity"
                                         checked="${!userColumns || userColumns?.columns?.find { it.column == 'deliveryQuantity' }?.enabled}"/>
-                            <label class="form-check-label" for="columnsDeliveryQuantity">Packs Delivered</label>
+                            <label class="form-check-label" for="columnsDeliveryQuantity">${retailer?.config?.retailerTerminologyConfig?.packTerm}s Delivered</label>
                         </div>
 
                         <div class="form-group form-check">

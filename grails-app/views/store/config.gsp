@@ -12,15 +12,31 @@
     <asset:javascript src="money-mask.js" />
     <asset:javascript src="numberHelper.js" />
     <asset:javascript src="storeCommonUtils.js" />
+    <asset:javascript src="bootstrap-datepicker.min.js"/>
+
+    <link rel="stylesheet" href="/assets/bootstrap-datepicker3.min.css?compile=false"/>
 
     <script type="text/javascript">
 
         var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
         var saveStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxSaveStoreAdditionalDetail')}"
+        var addStoreOtherRestrictionsValues = "${createLink(controller: 'store', action: 'ajaxAddStoreOtherRestrictions')}"
+        var saveStoreOtherRestrictions = "${createLink(controller: 'store', action: 'ajaxSaveStoreOtherRestrictions')}"
+        var editAmenity = "${createLink(controller: 'store', action: 'ajaxEditAmenities')}"
+        var addStoreAmenities = "${createLink(controller: 'store', action: 'ajaxAddStoreAmenity')}"
+        var getStoreAmenities = "${createLink(controller: "store", action: 'ajaxGetAllAmenities')}"
 
         function updateColorIndicator(color, indicatorId) {
             var colorPickerElement = document.getElementById(indicatorId);
             colorPickerElement.value = "#" + color; // Prepend "#" to the color value
+        }
+
+        function updateAlcoholLicensingVisibility() {
+            if($('#alcoholLicensingCommand\\.licensedToSellAlcohol').is(':checked')) {
+                $('#alcoholHoursContainer').show();
+            } else {
+                $('#alcoholHoursContainer').hide();
+            }
         }
 
         $(document).ready(function() {
@@ -41,9 +57,13 @@
                 $('#cash-container').html(data);
             });
 
+            $('#alcoholLicensingCommand\\.licensedToSellAlcohol').change(function() {
+                updateAlcoholLicensingVisibility();
+            });
+
+            updateAlcoholLicensingVisibility();
+
         });
-
-
 
     </script>
 
@@ -136,14 +156,6 @@
     <g:else>
         <g:render template="storeConfig" model='${pageScope}'/>
     </g:else>
-
-    <section id="addStoreAdditionalDetails-modal" class="container-fluid">
-        <div class="modal fade" id="addStoreAdditionalDetailsModal" tabindex="-1" role="dialog" aria-labelledby="addStoreAdditionalDetailsModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-                <div id="addStoreAdditionalDetailsContent" class="modal-content"></div>
-            </div>
-        </div>
-    </section>
 
 </body>
 </html>

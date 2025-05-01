@@ -91,7 +91,11 @@ class ProductController extends BaseController {
         def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
-        List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product)
+
+        Map<String, List<ProductAttributeValues>> skuAttributesMap = productService.getProductAttributeValues(product)
+        product.getVariants().each {
+            it.setAttributez(skuAttributesMap.getOrDefault(it.sku, productService.getDefaultAttributeValues(product, it.sku)))
+        }
 
         render(view: "add", model: [product            : product,
                                     skuList            : skuList(product),
@@ -109,8 +113,7 @@ class ProductController extends BaseController {
                                     snappyEnabled      : springSecurityService.principal.retailer.config.snappyShopperEnabled,
                                     locationsEnabled   : locationsEnabled,
                                     locationsType      : locationsType,
-                                    loyaltyEnabled     : loyaltyEnabled,
-                                    productAttributeValuesList: productAttributeValuesList])
+                                    loyaltyEnabled     : loyaltyEnabled])
     }
 
     private void setEffectiveDate() {
@@ -145,7 +148,6 @@ class ProductController extends BaseController {
 
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
-        List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(null)
 
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
                                     statusValues    : ProductStatus.values(),
@@ -158,8 +160,7 @@ class ProductController extends BaseController {
                                     isNewProduct    : true,
                                     locationsEnabled: locationsEnabled,
                                     locationsType   : springSecurityService.principal.retailer.config.locationsType.name(),
-                                    loyaltyEnabled  : loyaltyEnabled,
-                                    productAttributeValuesList: productAttributeValuesList])
+                                    loyaltyEnabled  : loyaltyEnabled])
     }
 
     def search(boolean filterHospitalityAndNoStockSalesAllowed) {
@@ -531,8 +532,6 @@ class ProductController extends BaseController {
 
         List<RangeProduct> existingRangeProducts = new ArrayList<>()
 
-        ArrayList<ProductAttributeValues> updatedAttributes = new ArrayList<>()
-
         if (newProduct) {
             changeAffectsSel = true
             if (isRequest) {
@@ -602,6 +601,11 @@ class ProductController extends BaseController {
                     location.storeId = springSecurityService.principal.storeId
                     location.sku = variant.sku
                 }
+
+                variant.attributez?.each { attribute ->
+                    attribute.storeId = springSecurityService.principal.storeId
+                    attribute.sku = variant.sku
+                }
             }
         } else {
             product = productService.getProduct(Integer.parseInt(isRequest ? paramsMap.id : editedProduct.id as String))
@@ -648,9 +652,6 @@ class ProductController extends BaseController {
             // Variants.
             productVariantsList = getUpdatedProductVariantsOnSave(editedProduct, product, builder, changeAffectsSel, effectiveDate)
 
-            // Load product attribute values
-            updatedAttributes = productService.getUpdatedProductAttributeValues(product, editedProduct, builder, effectiveDate)
-
             // Range Products
             for (RangeProduct rangeProduct in product.ranges) {
                 // Copy the items without copying the list itself for later reference to which products have been unranged
@@ -683,7 +684,7 @@ class ProductController extends BaseController {
             restrictionsService.saveRestrictions(product.restrictions)
 
             // Check for errors after each save, otherwise the BO will report a 500 - EntityInsertAction was vetoed error.
-            productService.saveProduct(product, productVariantsList, updatedAttributes)
+            productService.saveProduct(product, productVariantsList)
             if (product.hasErrors()) {
                 return product
             }
@@ -694,6 +695,11 @@ class ProductController extends BaseController {
             }
 
             productService.saveLocations(product)
+            if (product.hasErrors()) {
+                return product
+            }
+
+            productService.saveUpdatedProductAttributeValues(product, editedProduct, builder, effectiveDate)
             if (product.hasErrors()) {
                 return product
             }
@@ -831,7 +837,6 @@ class ProductController extends BaseController {
             def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
             def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
-            List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product ?: null)
 
             render(view: "add", model: [product            : product,
                                         skuList            : skuList(product),
@@ -848,8 +853,7 @@ class ProductController extends BaseController {
                                         vatValues          : vatValues,
                                         locationsType      : springSecurityService.principal.retailer.config.locationsType.name(),
                                         locationsEnabled   : locationsEnabled,
-                                        loyaltyEnabled     : loyaltyEnabled,
-                                        productAttributeValuesList: productAttributeValuesList])
+                                        loyaltyEnabled     : loyaltyEnabled])
         }
     }
 
@@ -912,6 +916,7 @@ class ProductController extends BaseController {
                     checkProductVariantForLocationChanges(product, existingVariant, editedVariant)
                     checkProductVariantForBarcodeChanges(product, existingVariant, editedVariant, effectiveDate)
                 }
+                reapplyAttributez(product, existingVariant, editedVariant)
             } else {
                 changeAffectsSel = true
                 ProductVariant newVariant = new ProductVariant()
@@ -970,11 +975,32 @@ class ProductController extends BaseController {
                         }
                 })
 
+                reapplyAttributez(product, newVariant, editedVariant)
+
                 productVariantList.add(newVariant)
             }
         }
 
         return productVariantList
+    }
+
+    private void reapplyAttributez(def product, def variant, def editedVariant) {
+        editedVariant.attributez.forEach({
+            edited ->
+                ProductAttributeValues newValue = new ProductAttributeValues(
+                        id: edited.id,
+                        retailerId: springSecurityService.principal.retailerId,
+                        storeId: springSecurityService.principal.storeId,
+                        product: product,
+                        sku: editedVariant.sku,
+                        productAttributeId: edited.productAttributeId,
+                        value: edited.value,
+                        attributeName: edited.attributeName,
+                        attributeType: edited.attributeType,
+                        listValues: edited.listValues
+                )
+                variant.attributez.add(newValue)
+        })
     }
 
     private DateTime getEffectiveDate(def effectiveDate) {
@@ -1755,6 +1781,11 @@ class ProductController extends BaseController {
             wacValue = WeightedAverageCostPriceUtil.calculateRetailerWacForSku(productService.getAllProductVariantsForSku(cmd.sku))
         }
 
+        if (isNewVariant) {
+            List<ProductAttributeValuesCommand> attributeValues = productService.getDefaultAttributeValues(null, 0)
+            cmd.attributez = attributeValues
+        }
+
         render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, wacValue: wacValue?:BigDecimal.ZERO, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant, unitsOfMeasure: unitsOfMeasure])
     }
 
@@ -1765,7 +1796,8 @@ class ProductController extends BaseController {
     def ajaxSaveVariant(AddVariantCommand cmd) {
         def storeId = springSecurityService.principal.storeId
 
-        render(template: "variant", model: [index: cmd.index, variant: cmd, barcodes: cmd.barcodez, storeId: storeId])
+
+        render(template: "variant", model: [index: cmd.index, variant: cmd, barcodes: cmd.barcodez, attributes: cmd.attributez, storeId: storeId])
     }
 
     def ajaxAddTempLocation(AddVariantCommand cmd) {
@@ -2054,6 +2086,7 @@ class ProductController extends BaseController {
 
             productVariant.barcodez.clear()
             productVariant.barcodez.addAll(barcodes)
+
             variants.add(productVariant)
         })
 
@@ -2143,6 +2176,7 @@ class AddVariantCommand {
     List<AddBarcodeCommand> barcodez
     List<AddPackCommand> packs
     List<AddLocationCommand> locationz
+    List<ProductAttributeValuesCommand> attributez
     boolean zeroPrice
     Integer defaultSupplierId
     int operationMode
@@ -2401,6 +2435,7 @@ class ProductVariantCommand {
     Collection<PackCommand> packs = new ArrayList<>()
     Collection<BarcodeCommand> barcodez = new ArrayList<>()
     Collection<LocationCommand> locationz = new ArrayList<>()
+    Collection<ProductAttributeValuesCommand> attributez = new ArrayList<>()
 }
 
 class PackCommand {
@@ -2461,12 +2496,15 @@ class RangeProductCommand {
 }
 
 class ProductAttributeValuesCommand {
-
+    Integer id
     Integer retailerId
+    Integer storeId
+    long sku
     Integer productAttributeId
     String value
     String attributeName
     ProductAttributeType attributeType
+    String listValues
 }
 
 class CSVUploadProduct {

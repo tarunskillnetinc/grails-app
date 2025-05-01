@@ -10,6 +10,7 @@
     <asset:javascript src="popper.min.js" />
     <asset:javascript src="multi-select-checks.js" />
     <asset:javascript src="money-mask.js" />
+    <asset:javascript src="bootstrap-datepicker.min.js"/>
 
 </head>
 <body>

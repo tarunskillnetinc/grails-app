@@ -13,7 +13,7 @@
             offset: ${sortParams?.offset},
             sortColumn: 'packCost',
             sortOrder: ${sortParams?.sortColumn == 'packCost' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">Pack Cost</a></div>
+        });">${retailer?.config?.retailerTerminologyConfig?.packTerm} Cost</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "packSize" }?.enabled}">
         <div class="col-1 font-weight-bold"><a href="#" onclick="getReportData({
@@ -21,7 +21,7 @@
             offset: ${sortParams?.offset},
             sortColumn: 'packSize',
             sortOrder: ${sortParams?.sortColumn == 'packSize' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">Pack Size</a></div>
+        });">${retailer?.config?.retailerTerminologyConfig?.packTerm} Size</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "deliveryQuantity" }?.enabled}">
         <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({
@@ -29,7 +29,7 @@
             offset: ${sortParams?.offset},
             sortColumn: 'deliveryQuantity',
             sortOrder: ${sortParams?.sortColumn == 'deliveryQuantity' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">Packs Delivered</a></div>
+        });">${retailer?.config?.retailerTerminologyConfig?.packTerm}s Delivered</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalQuantity" }?.enabled}">
         <div class="col-1 font-weight-bold"><a href="#" onclick="getReportData({
