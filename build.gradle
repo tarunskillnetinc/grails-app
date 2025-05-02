@@ -68,7 +68,7 @@ dependencies {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
 
-    implementation 'uk.co.wonderlane.wlpos:Common:1.17.10-SNAPSHOT'
+    implementation 'uk.co.wonderlane.wlpos:Common:1.17.34-WTR-Skillnet-SNAPSHOT'
 
     implementation "org.grails:grails-core:6.1.2"
     implementation ("org.springframework.boot:spring-boot-starter-actuator:2.7.18")
