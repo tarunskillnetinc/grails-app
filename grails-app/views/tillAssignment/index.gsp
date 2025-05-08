@@ -255,8 +255,8 @@
             </div>
 
             <div class="col-3 text-right">
-                <a id="addTill" href="#" class="btn btn-wl mt-1" onclick="addTill();">Add Till</a>
-                <a id="refresh" href="#" class="btn btn-wl mt-1" onclick="getTills();">Refresh</a>
+                <a id="addTill" href="#" class="btn btn-wl" onclick="addTill();">Add Till</a>
+                <a id="refresh" href="#" class="btn btn-wl" onclick="getTills();">Refresh</a>
             </div>
         </div>
     </section>

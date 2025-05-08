@@ -14,9 +14,7 @@
 
         <div id="search-results" style="word-break: break-all; word-wrap: break-word;">
             <g:if test="${productAttributes?.isEmpty()}">
-                <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
-                    <h3 class="text-muted">No results found</h3>
-                </div>
+                <div id="noResultsRow" class="col-12 pt-2 pb-2 text-center wl-striped0">No results found.</div>
             </g:if>
             <g:else>
                 <g:each in="${productAttributes}" var="productAttribute" status="i">

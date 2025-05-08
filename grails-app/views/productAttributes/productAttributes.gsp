@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="layout" content="main"/>
-    <title>Retailer Product Attributes</title>
+    <title>Product Attributes</title>
 
     <style>
     .checkbox-container {
@@ -55,36 +55,34 @@
             <div class="col">
                 <ol class="breadcrumb">
                     <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li id="breadcrumb-2" class="breadcrumb-item active"
-                        aria-current="page">Retailer Product Attributes</li>
+                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Product Attribute Management</li>
                 </ol>
             </div>
         </div>
     </nav>
 </section>
+
 <section id="header-container" class="container-fluid">
-    <div class="row header-wl mt-0">
+    <div class="row header-wl mt-3">
         <div class="col-8 offset-2">
-            <h2 id="page-title" class="mx-auto my-auto">Retailer Product Attributes</h2>
+            <h2 id="page-title" class="mx-auto my-auto">Product Attribute Management</h2>
         </div>
 
-        <div class="col-12 text-right mt-3">
-            <div class="d-flex justify-content-end align-items-center">
-                <g:link elementId="cancel-btn" uri="/" tabindex="-1"
-                        role="button" class="btn btn-wl ml-1"
-                        onclick="return confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');">Cancel</g:link>
-                <button id="save-btn" class="btn btn-success ml-1" name="save"
-                        onclick="submitForm('${productAttributes?.size() > 0 ? productAttributes?.get(0)?.name:''}');">Save</button>
-            </div>
-        </div>
-
-        <div class="col-12 text-right mt-3">
-            <div class="d-flex justify-content-end align-items-center">
-                <g:link elementId="add-product-attribute-btn"  controller="productAttributes" action="addProductAttribute" tabindex="-1" role="button"
-                        class="btn btn-wl ml-1">Add Product Attribute</g:link>
-            </div>
+        <div class="col-2 text-right">
+            <g:link elementId="cancel-btn" uri="/" tabindex="-1"
+                    role="button" class="btn btn-wl ml-1"
+                    onclick="return confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');">Cancel</g:link>
+            <button id="save-btn" class="btn btn-success ml-1" name="save"
+                    onclick="submitForm('${productAttributes?.size() > 0 ? productAttributes?.get(0)?.name:''}');">Save</button>
         </div>
     </div>
+    <div class="row">
+        <div class="col-12 text-right mt-3">
+            <g:link elementId="add-product-attribute-btn"  controller="productAttributes" action="addProductAttribute" tabindex="-1" role="button"
+                    class="btn btn-wl ml-1">Add Product Attribute</g:link>
+        </div>
+    </div>
+    
     <div id="error-container" class="container-fluid mt-3">
     </div>
     <div>

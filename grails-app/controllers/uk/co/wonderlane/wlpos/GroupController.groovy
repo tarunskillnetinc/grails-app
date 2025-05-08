@@ -9,6 +9,12 @@ class GroupController {
     def groupService
 
     def index() {
+        if (springSecurityService.principal.storeId) {
+            flash.error = "You cannot access this page when logged in as a store."
+            redirect (view:"/")
+            return
+        }
+
         def groups = groupService.getGroupsByLevel(1)
         def groupLevels = GroupLevel.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "level", order: "ASC"])
 

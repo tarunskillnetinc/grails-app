@@ -8,6 +8,7 @@ import uk.co.wonderlane.wlpos.enums.CharityGroupType
 
 @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
 class CharityOrganisationsController {
+
     def springSecurityService
     def charityService
     def rabbitService
@@ -16,6 +17,18 @@ class CharityOrganisationsController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
+        if (!springSecurityService.principal.retailer.config.charityEnabled) {
+            flash.error = "Charity organisations are not configured for your retailer."
+            redirect(uri: "/")
+            return
+        }
+
+        if (springSecurityService.principal.storeId) {
+            flash.error = "You cannot access this page when logged in as a store."
+            redirect(uri: "/")
+            return
+        }
+
         [typeOptions: CharityGroupType.values()]
     }
 
