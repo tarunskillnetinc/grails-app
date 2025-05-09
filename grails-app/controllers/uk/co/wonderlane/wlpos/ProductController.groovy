@@ -115,7 +115,7 @@ class ProductController extends BaseController {
                                     locationsEnabled   : locationsEnabled,
                                     locationsType      : locationsType,
                                     loyaltyEnabled     : loyaltyEnabled,
-                                    stores             : storeService.getActiveStores(springSecurityService.principal.retailerId)])
+                                    stores             : storeService.getActiveStores(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }])
     }
 
     private void setEffectiveDate() {
