@@ -435,7 +435,7 @@
                                     <label for="phyCountCutOffTime" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Physical Inventory Count Cut-Off Time</label>
                                     <div class="col-7 col-lg-4">
                                         <input type="time"
-                                               class="col-5 form-control bottom-border"
+                                               class="col-6 form-control bottom-border"
                                                name="phyCountCutOffTime"
                                                id="phyCountCutOffTime"
                                                value="${retailer?.config?.phyCountCutOffTime}"
