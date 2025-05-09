@@ -29,7 +29,6 @@ class SupplierController {
     //This is for load symbol subscription (Affiliation) view initially
     def subscriptions() {}
 
-
     //search for suppliers
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGetSearchSupplier(SupplierSortParams sortParams) {

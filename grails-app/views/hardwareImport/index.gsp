@@ -188,7 +188,7 @@
             </div>
             <div class="col-2 text-right d-inline-flex flex-row justify-content-end">
 
-                <button class="btn btn-wl p-2 ml-2" onclick="selectHardwareUploadFile()" id="uploadHardwareBtn">Upload Hardware</button>
+                <button class="btn btn-wl" onclick="selectHardwareUploadFile()" id="uploadHardwareBtn">Upload Hardware</button>
                 <input type="file" name="file" accept=".csv,.CSV"
                        id="csvFileUploadInput" style="display:none" oninput="uploadHardwareImportFile()" oncancel="resetHardwareInput()">
             </div>

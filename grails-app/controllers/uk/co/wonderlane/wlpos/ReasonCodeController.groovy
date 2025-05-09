@@ -14,6 +14,7 @@ import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import static groovy.json.JsonOutput.toJson
 
 class ReasonCodeController {
+
     def reasonCodeHistoryService
     def springSecurityService
     def rabbitService
@@ -21,7 +22,13 @@ class ReasonCodeController {
     MessageSource messageSource
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def index() { }
+    def index() {
+        if (springSecurityService.principal.storeId) {
+            flash.error = "You cannot access this page when logged in as a store."
+            redirect(uri: "/")
+            return
+        }
+    }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSearch() {

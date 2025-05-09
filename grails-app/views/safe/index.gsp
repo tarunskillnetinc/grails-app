@@ -49,8 +49,14 @@
 </section>
 
 <section id="safe-container" class="container-fluid">
-    <div class="header-wl mt-3">
-        <h2 id="page-title" class="mx-auto">Safe Configuration</h2>
+    <div class="row header-wl mt-3">
+        <div class="col-8 offset-2">
+            <h2 id="page-title" class="mx-auto my-auto">Safe Configuration</h2>
+        </div>
+
+        <div class="col-2 text-right">
+            <g:link elementId="count-safe-button" type="button" class="btn btn-wl" action="addSafe" params="[id: null, edit: false]" onclick="return addInactiveSafesParam(this)">Add New Safe</g:link>
+        </div>
     </div>
 
     <div id="messages-container"></div>
@@ -99,14 +105,6 @@
                     </div>
                 </div>
 
-            </div>
-        </div>
-
-        <div class="col-6">
-            <div class="d-flex justify-content-end">
-                <g:link elementId="count-safe-button" type="button" class="btn btn-wl p-2"
-                        action="addSafe" params="[id: null, edit: false]"
-                        onclick="return addInactiveSafesParam(this)">Add New Safe</g:link>
             </div>
         </div>
     </div>

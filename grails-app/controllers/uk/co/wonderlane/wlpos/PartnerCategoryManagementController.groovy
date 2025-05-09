@@ -9,6 +9,12 @@ class PartnerCategoryManagementController extends BaseController{
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
+        if (springSecurityService.principal.storeId) {
+            flash.error = "You cannot access this page when logged in as a store."
+            redirect(uri: "/")
+            return
+        }
+
         int retailerId = springSecurityService.principal.retailerId
         List<EcomSupplier> ecomSuppliers = EcomSupplier.findAllByRetailerIdAndDeleted(retailerId, false)
 
@@ -20,7 +26,7 @@ class PartnerCategoryManagementController extends BaseController{
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def ajaxGetPartnerCategories(){
+    def ajaxGetPartnerCategories() {
         EcomSupplier ecomSupplier = null
         int retailerId = springSecurityService.principal.retailerId
         Integer supplierId = params.partnerSupplierIdFilter ? Integer.valueOf(params.partnerSupplierIdFilter) : null

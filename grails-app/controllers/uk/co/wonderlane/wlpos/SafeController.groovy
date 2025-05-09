@@ -11,9 +11,11 @@ class SafeController {
 
     def index() {
         if (!springSecurityService.principal.storeId) {
-            flash.error = "You do not have access to this page."
+            flash.error = "You cannot access this page at head office level, please log in as a store."
             redirect(uri: "/")
+            return
         }
+
         boolean inactiveSafes = params?.inactiveSafes ? Boolean.parseBoolean(params.inactiveSafes) : false
         [showInactiveSafes: inactiveSafes]
     }

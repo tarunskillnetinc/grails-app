@@ -81,13 +81,13 @@
             </div>
 
             <div class="col-3 text-right">
-                <g:link elementId="count-safe-button" type="button" class="btn btn-wl p-2" action="addPartnerCategory" params="[isNew: true]">Add Partner Category</g:link>
+                <g:link elementId="count-safe-button" type="button" class="btn btn-wl" action="addPartnerCategory" params="[isNew: true]">Add Partner Category</g:link>
             </div>
         </div>
     </section>
 
     <section id="filters-section" class="container-fluid">
-        <div class="row mt-3">
+        <div class="row mt-4">
             <div class="col-6">
                 <div id="filters" class="card bg-light border-wl">
                     <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="collapseExample">
@@ -139,13 +139,17 @@
                 </div>
             </div>
         </div>
+    </section>
 
+    <section id="alerts-section" class="container-fluid">
         <div id="messages-container">
             <g:if test="${flash.message}"><div id="alerts-success-container-message" class="alert alert-success  mt-4" role="alert">${flash.message}</div></g:if>
             <g:if test="${flash.error}"><div id="alerts-success-container-message" class="alert alert-danger mt-4" role="alert">${flash.error}</div></g:if>
         </div>
+    </section>
 
-        <div id="results-container" class="align-content-center">
+    <section id="results-section" class="container-fluid">
+        <div id="results-container" class="align-content-center mt-5">
             <g:render template="partnerCategoryResults"/>
         </div>
 

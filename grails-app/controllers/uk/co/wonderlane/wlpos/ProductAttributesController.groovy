@@ -18,7 +18,7 @@ class ProductAttributesController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def productAttributes() {
         if (springSecurityService.principal.storeId) {
-            flash.error = "You cannot access this page while logged in with a store."
+            flash.error = "You cannot access this page when logged in as a store."
             redirect(uri: "/")
             return
         }

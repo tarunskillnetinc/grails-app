@@ -23,7 +23,7 @@ class ShiftController {
 
     def index() {
         if (!springSecurityService.principal.storeId) {
-            flash.error = "You do not have access to this page."
+            flash.error = "You cannot access this page at head office level, please log in as a store."
             redirect(uri: "/")
             return
         }

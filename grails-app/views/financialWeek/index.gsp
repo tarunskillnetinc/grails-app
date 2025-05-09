@@ -282,12 +282,14 @@
         <input type="file" name="file" accept=".csv,.CSV" id="csvFileUploadInput" style="display:none" oninput="uploadFinancialWeekImportFile()" oncancel="resetFileUploadInput()">
 
         <!-- Header with title -->
-        <div class="header-wl mb-8 section-gap">
-            <h2 id="page-title" class="mx-auto my-auto">Financial Weeks</h2>
+        <div class="row header-wl mt-3">
+            <div class="col-8 offset-2">
+                <h2 id="page-title" class="mx-auto my-auto">Financial Weeks</h2>
+            </div>
         </div>
 
         <!-- Download section with label, dropdown, and button aligned closely together -->
-        <div class="download-container mt-8">
+        <div class="download-container mt-5">
 
             <!-- Upload button centered below the header -->
             <button class="btn btn-info p-3 px-5 mt-8" onclick="selectFinancialWeekUploadFile()" id="uploadFinancialWeekBtn">Upload Financial Week File</button>
