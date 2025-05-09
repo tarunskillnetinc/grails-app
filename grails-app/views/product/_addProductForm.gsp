@@ -465,6 +465,51 @@
             </div>
         </g:if>
 
+        <!-- Stock. -->
+        <g:if test="${!isNewProduct}">
+            <div class="card bg-light border-wl accordion-card">
+                <div class="card-header pointer" id="productStock" data-toggle="collapse" data-target="#collapseProductStock" aria-expanded="true" aria-controls="collapseProductStock">
+                    <div class="row">
+                        <div class="col-10"><strong>Product Stock</strong></div>
+                        <div class="col-2 text-right">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="collapseProductStock" class="collapse" aria-labelledby="productStock" data-parent="#accordion">
+                    <div class="card-body py-5">
+                        <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                            <div class="row mb-5">
+                                <div class="col-8 offset-2">
+                                    <div class="row">
+                                        <div class="col-3 offset-5 text-right">
+                                            <label for="selectStoreStock" class="col-form-label mr-4">Select a <g:terminology term="storeTerm" case="lower" /></label>
+                                        </div>
+                                        <div class="col-4 px-2">
+                                            <g:select name="selectStoreStock" from="${stores}" noSelection="${['-1': 'Select a ' + g.terminology(term: 'storeTerm', case: 'lower')]}" optionKey="id" optionValue="${{it.config.storeNumber + ' - ' + it.config.storeName}}" class="form-control select-border" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </g:if>
+
+                        <div class="row col-8 offset-2 table-wl bottom-border">
+                            <div class="col-3 font-weight-bold">SKU</div>
+                            <div class="col-3 font-weight-bold"><g:terminology term="quantityInStockTerm" /></div>
+                            <div class="col-3 font-weight-bold"><g:terminology term="quantityOnOrderTerm" /></div>
+                            <div class="col-3 font-weight-bold"><g:terminology term="deliveredTerm" /></div>
+                        </div>
+
+                        <div id="productStockContainer">
+                            <g:render template="productStockResults" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </g:if>
 
         <!-- Product history. -->
         <div class="card bg-light border-wl accordion-card">
@@ -485,8 +530,5 @@
                 </div>
             </div>
         </div>
-
     </div>
-
-
 </g:form>

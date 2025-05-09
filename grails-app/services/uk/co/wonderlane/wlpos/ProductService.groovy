@@ -18,6 +18,7 @@ import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
 import uk.co.wonderlane.wlpos.utils.QuantityHelper
 
+import java.math.RoundingMode
 import java.sql.*
 import java.util.Date
 import java.util.stream.Collectors
@@ -960,6 +961,25 @@ class ProductService extends MySqlDal {
         }
 
         return results.sort { it.id }
+    }
+
+    def getProductStock(int productId, int storeId) {
+        // Deliberately querying from Product downwards so that we get all SKUs returned, including null entries. If we start with ProductStock then nulls wouldn't return.
+        StringBuilder queryBuilder = new StringBuilder()
+        queryBuilder.append("SELECT DISTINCT COALESCE(ps.sku, pv.sku), COALESCE(ps.quantityInStock, 0), COALESCE(ps.quantityOnOrder, 0), COALESCE(ps.quantityDelivered, 0) FROM Product p ")
+                    .append("JOIN ProductVariant pv ON p.id = pv.product AND (pv.storeId IS NULL OR pv.storeId = :storeId) ")
+                    .append("LEFT JOIN ProductStock ps ON pv.sku = ps.sku AND ps.storeId = :storeId ")
+                    .append("WHERE p.id = :productId AND p.retailerId = :retailerId ")
+
+
+        def queryResults = ProductStock.executeQuery(queryBuilder.toString(), [retailerId: springSecurityService.principal.retailerId, storeId: storeId, productId: productId])
+        def results = []
+
+        queryResults?.each {
+            results.add([sku: it[0], quantityInStock: BigDecimal.valueOf(it[1]).setScale(3, RoundingMode.HALF_UP), quantityOnOrder: BigDecimal.valueOf(it[2]).setScale(3, RoundingMode.HALF_UP), quantityDelivered: BigDecimal.valueOf(it[3]).setScale(3, RoundingMode.HALF_UP)])
+        }
+
+        return results
     }
 
     List<ProductAttributeValues> getDefaultAttributeValues(Product product, long sku) {

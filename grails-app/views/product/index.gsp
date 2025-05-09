@@ -346,7 +346,7 @@
                 </div>
             </div>
 
-            <div id="results-container" class="align-content-center">
+            <div id="results-container" class="align-content-center mt-4">
                 <g:render template="productSearchResults" />
             </div>
         </section>
