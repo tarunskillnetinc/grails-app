@@ -131,7 +131,7 @@
                 $('#selectStoreStock').change(function() {
                     var selectedStoreId = $('#selectStoreStock option:selected').val();
 
-                    getProductStock(${product?.id}, selectedStoreId);
+                    getProductStock(${product?.id ?: -1}, selectedStoreId);
                 });
 
                 $('#collapsePromotions').on('show.bs.collapse', function () {
@@ -142,7 +142,7 @@
                     var storeId = ${sec.loggedInUserInfo(field: 'storeId') ?: -1};
 
                     if (storeId > -1) {
-                        getProductStock(${product?.id}, storeId);
+                        getProductStock(${product?.id ?: -1}, storeId);
                     }
                 });
 
