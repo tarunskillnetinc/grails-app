@@ -35,8 +35,9 @@
         if ($('#manualOpen').prop('disabled')) {
             isDisabledInputs = true;
         }
-        const onlyRetailerLevel = ${onlyRetailerLevel};
-        const isStoreLevelLogin = ${isStoreLevelLogin?isStoreLevelLogin:false};
+
+        const isStoreLevelLogin = ${isStoreLevelLogin ? isStoreLevelLogin : false};
+        const onlyRetailerLevel = !isStoreLevelLogin;
 
         const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         createMultiSelectorChecks('automaticCloseDaysSelector', 'automaticCloseDays', weekdays, "Select Days", isDisabledInputs);
@@ -289,12 +290,12 @@
 </script>
 
 <section id="header-container" class="container-fluid">
-    <div class="row header-wl mt-0">
+    <div class="row header-wl mt-3">
         <div class="col-8 offset-2">
             <h2 id="page-title" class="mx-auto my-auto">${storeLevelExist ? "Cash Management Configuration" : "Cash Management"}</h2>
         </div>
 
-        <div class="col-12 text-right mt-3">
+        <div class="col-2 text-right">
             <div class="d-flex justify-content-end align-items-center">
                 <g:if test="${onlyRetailerLevel && (isStoreLevelLogin==null || isStoreLevelLogin == false)}">
                     <g:link elementId="cancel-btn" controller="cashManagement" action="index" tabindex="-1" role="button" class="btn btn-wl ml-1">Cancel</g:link>

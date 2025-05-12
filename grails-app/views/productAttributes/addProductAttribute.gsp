@@ -124,7 +124,7 @@
       <div class="col">
         <ol class="breadcrumb">
           <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-          <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link controller="productAttributes" action="productAttributes">Retailer Product Attributes</g:link></li>
+          <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link controller="productAttributes" action="productAttributes">Product Attribute Management</g:link></li>
           <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Add Product Attribute</li>
         </ol>
       </div>

@@ -24,8 +24,8 @@ class OrderController {
 
     def add() {
         // Only allowed at store level currently.
-        if (springSecurityService.principal.storeId == null || springSecurityService.principal.id <= 0){
-            flash.error = "This function is not available at head office level."
+        if (springSecurityService.principal.storeId == null || springSecurityService.principal.id <= 0) {
+            flash.error = "You cannot access this page at head office level, please log in as a store."
             redirect(controller: "reporting", action: "orders")
             return
         }
@@ -64,7 +64,7 @@ class OrderController {
     def edit(int id) {
         // Only allowed at store level currently.
         if (springSecurityService.principal.storeId == null || springSecurityService.principal.id <= 0){
-            flash.error = "This function is not available at head office level."
+            flash.error = "You cannot access this page at head office level, please log in as a store."
             redirect(controller: "reporting", action: "orders")
             return
         }
@@ -88,7 +88,7 @@ class OrderController {
     def productListItem(int id) {
         // If user do not logged in store level then redirect user back to reporting page
         if (springSecurityService.principal.storeId == null || springSecurityService.principal.id <= 0) {
-            flash.error = "This function is not available at head office level."
+            flash.error = "You cannot access this page at head office level, please log in as a store."
             redirect(controller: "reporting", action: "orders")
             return
         }

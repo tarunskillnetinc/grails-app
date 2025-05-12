@@ -115,7 +115,7 @@
             </div>
 
             <div class="col-3 text-right">
-                <button id="addStoreButton" type="button" class="btn btn-wl mt-1" onclick="window.location.href='/store/add/addStoreButton'">Add Store</button>
+                <button id="addStoreButton" type="button" class="btn btn-wl" onclick="window.location.href='/store/add/addStoreButton'">Add Store</button>
             </div>
         </div>
     </section>

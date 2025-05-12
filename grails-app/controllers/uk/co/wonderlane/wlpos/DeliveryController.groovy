@@ -5,22 +5,37 @@ import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 
 class DeliveryController {
+
     private static final String VALID = "Valid"
     private static final String INVALID_NO_MATCHING_PRODUCT_LIST = "Invalid - No matching delivery"
     private static final String INVALID_MULTIPLE_MATCHES = "Invalid - Multiple deliveries with this supplier reference"
     private static final String INVALID_DUPLICATE = "Invalid - Duplicate supplier reference"
     private static final String INVALID_DELIVERY_ALREADY_COMPLETE = "Invalid - Delivery has already been completed"
 
+    def springSecurityService
     def branchOrderService
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
+        if (!springSecurityService.principal.retailer.config.receiptInBranchOrders) {
+            flash.error = "Branch order deliveries are not configured for your retailer."
+            redirect(uri: "/")
+            return
+        }
+
         session.VALIDATIONRESULTS = []
         session.VALIDDELIVERIES = []
+
         redirect(action: "deliveries", model: [deliveries: session.VALIDATIONRESULTS])
     }
 
     def deliveries() {
+        if (!springSecurityService.principal.retailer.config.receiptInBranchOrders) {
+            flash.error = "Branch order deliveries are not configured for your retailer."
+            redirect(uri: "/")
+            return
+        }
+
         render(view: "deliveries", model: [deliveries: session.VALIDATIONRESULTS])
     }
 

@@ -23,6 +23,7 @@ import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductMessageType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.StockManagementType
+import uk.co.wonderlane.wlpos.enums.VoucherType
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
 import uk.co.wonderlane.wlpos.utils.WeightedAverageCostPriceUtil
@@ -113,7 +114,8 @@ class ProductController extends BaseController {
                                     snappyEnabled      : springSecurityService.principal.retailer.config.snappyShopperEnabled,
                                     locationsEnabled   : locationsEnabled,
                                     locationsType      : locationsType,
-                                    loyaltyEnabled     : loyaltyEnabled])
+                                    loyaltyEnabled     : loyaltyEnabled,
+                                    stores             : storeService.getActiveStores(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }])
     }
 
     private void setEffectiveDate() {
@@ -512,6 +514,22 @@ class ProductController extends BaseController {
                 messageId: editedProduct.scoSaleMessageId,
                 messageType: ProductMessageType.SCO
         ))
+    }
+
+    def ajaxGetProductStock(Integer productId, Integer storeId) {
+        if (springSecurityService.principal.storeId != null && springSecurityService.principal.storeId != storeId) {
+            response.status = 403
+            render "Error"
+            return
+        }
+
+        def productStocks = []
+
+        if (storeId > 0) {
+            productStocks = productService.getProductStock(productId, storeId)
+        }
+
+        render(template: "productStockResults", model: [productStocks: productStocks])
     }
 
     private Product saveProduct(ProductCommand editedProduct, def paramsMap, boolean isRequest) {

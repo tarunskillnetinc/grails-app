@@ -21,7 +21,7 @@ class CategoryController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
         if (springSecurityService.principal.storeId) {
-            flash.error = "You do not have access to this page."
+            flash.error = "You cannot access this page when logged in as a store."
             redirect(uri: "/")
             return
         }
@@ -82,7 +82,7 @@ class CategoryController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def add() {
         if (springSecurityService.principal.storeId) {
-            flash.error = "You do not have access to this page."
+            flash.error = "You cannot access this page when logged in as a store."
             redirect(uri: "/")
             return
         }
@@ -285,7 +285,7 @@ class CategoryController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def show(int id) {
         if (springSecurityService.principal.storeId) {
-            flash.error = "You do not have access to this page."
+            flash.error = "You cannot access this page when logged in as a store."
             redirect(uri: "/")
             return
         }
@@ -338,7 +338,7 @@ class CategoryController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def categoryProductMapping() {
         if (springSecurityService.principal.storeId) {
-            flash.error = "You do not have access to this page."
+            flash.error = "You cannot access this page when logged in as a store."
             redirect(uri: "/")
             return
         }
@@ -377,7 +377,7 @@ class CategoryController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def addCategoryProduct() {
         if (springSecurityService.principal.storeId) {
-            flash.error = "You do not have access to this page."
+            flash.error = "You cannot access this page when logged in as a store."
             redirect(uri: "/")
             return
         }

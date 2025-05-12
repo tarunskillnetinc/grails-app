@@ -7,11 +7,18 @@ import uk.co.wonderlane.wlpos.transactions.FinancialWeek
 
 @Secured(['ROLE_ENGINEER'])
 class FinancialWeekController {
+
     def springSecurityService
     def financialWeekService
 
     @Secured(['ROLE_ENGINEER'])
     def index() {
+        if (springSecurityService.principal.storeId) {
+            flash.error = "You cannot access this page when logged in as a store."
+            redirect(uri: "/")
+            return
+        }
+
         try {
             int retailerId = springSecurityService.principal.retailerId
             List<String> financialYears = financialWeekService.loadFinancialYears(retailerId)

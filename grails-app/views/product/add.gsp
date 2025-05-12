@@ -27,6 +27,7 @@
             var getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
             var categorySearchUrl = "${createLink(controller: 'product', action: 'ajaxSearchCategories')}";
             var getPromotionsUrl = "${createLink(controller: 'promotion', action: 'ajaxGetPromotionsForProduct')}";
+            var getProductStockUrl = "${createLink(controller: 'product', action: 'ajaxGetProductStock')}";
 
             $(document).ready(function () {
                 setFieldActivity()
@@ -59,8 +60,7 @@
                 });
 
                 $("#restrictions\\.buyerIdRequired").change(function() {
-                    $("#restrictions\\.buyerIdForced").prop("" +
-                        "", false);
+                    $("#restrictions\\.buyerIdForced").prop("checked", false);
                     $("#restrictions\\.buyerIdForced").attr("disabled", !this.checked);
                     $("#restrictions\\.buyerAgeRestriction").val("");
                     $("#restrictions\\.buyerAgeRestriction").attr("readonly", !this.checked);
@@ -128,8 +128,22 @@
                     }
                 });
 
+                $('#selectStoreStock').change(function() {
+                    var selectedStoreId = $('#selectStoreStock option:selected').val();
+
+                    getProductStock(${product?.id}, selectedStoreId);
+                });
+
                 $('#collapsePromotions').on('show.bs.collapse', function () {
                     getPromotions(${product?.id});
+                });
+
+                $('#collapseProductStock').on('show.bs.collapse', function () {
+                    var storeId = ${sec.loggedInUserInfo(field: 'storeId') ?: -1};
+
+                    if (storeId > -1) {
+                        getProductStock(${product?.id}, storeId);
+                    }
                 });
 
                 $('#collapseProductHistory').on('show.bs.collapse', function () {
@@ -164,8 +178,6 @@
                 });
 
                 $("#restrictions\\.allowsLoyaltyPointsCollection").attr("disabled", ${!loyaltyEnabled});
-
-
             }
 
             // Automatically populate the first SKU with the main product item code since it's mostly a 1-1 relationship.
@@ -1057,6 +1069,23 @@
                 });
             }
 
+            function getProductStock(productId, storeId) {
+                $('#productStockContainer').html("<div class=\"d-flex justify-content-center\">\n" +
+                    "  <div class=\"spinner-border\" role=\"status\">\n" +
+                    "    <span class=\"sr-only\">Loading...</span>\n" +
+                    "  </div>\n" +
+                    "</div>");
+
+                $.ajax({
+                    url: getProductStockUrl,
+                    method: "GET",
+                    data: { productId: productId, storeId: storeId },
+                    success: function(resp) {
+                        $("#productStockContainer").html(resp);
+                    }
+                });
+            }
+
             // Trigger this when category is selected.
             function onCategoryChanged(selectedCategoryId) {
                 //call category map restrictions only when adding new product and restriction tab is not change by manually
@@ -1217,7 +1246,8 @@
                                                         isNewProduct       : isNewProduct,
                                                         snappyEnabled      : snappyEnabled,
                                                         locationsEnabled   : locationsEnabled,
-                                                        locationsType      : locationsType]"/>
+                                                        locationsType      : locationsType,
+                                                        stores             : stores]"/>
         </section>
 
         <section id="addVariant-modal" class="container-fluid">

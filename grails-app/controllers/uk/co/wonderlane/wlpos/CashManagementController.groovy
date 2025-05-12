@@ -16,42 +16,39 @@ class CashManagementController {
             .create()
 
     def index(Integer storeId, String storeNumber, String storeName) {
-        CashManagement cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
-                springSecurityService.principal.storeId)
-        def storeLevelExist = springSecurityService.principal.storeId != null && cashManagement != null
-        def onlyRetailerLevel = springSecurityService.principal.storeId == null;
-        def isStoreLevelLogin = null;
-        if (params.onlyRetailerLevel) {
-            onlyRetailerLevel = Boolean.parseBoolean(params.onlyRetailerLevel)
-        }
+        CashManagement cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+
+        def storeLevelExist = springSecurityService.principal.storeId && cashManagement != null
+
+        boolean viewingFromStoreManagement = storeNumber != null
+
         if (params.storeLevelExist) {
             storeLevelExist = Boolean.parseBoolean(params.storeLevelExist)
         }
-        if (params.isStoreLevelLogin) {
-            isStoreLevelLogin = Boolean.parseBoolean(params.isStoreLevelLogin)
-        }
+
         if (springSecurityService.principal.storeId != null && cashManagement == null) {
-            cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
-                    null)
+            cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId, null)
         }
+
         if (springSecurityService.principal.storeId != null && storeNumber == null) {
             def store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
             storeNumber = store?.config?.storeNumber
             storeName = store?.config?.storeName
         }
+
         CashManagementConfigViewAdapter cashManagementConfigViewAdapter = null
         if (cashManagement != null) {
-            cashManagementConfigViewAdapter = gson.fromJson(gson.toJson(cashManagement.config),
-                    CashManagementConfigViewAdapter.class)
+            cashManagementConfigViewAdapter = gson.fromJson(gson.toJson(cashManagement.config), CashManagementConfigViewAdapter.class)
             cashManagementConfigViewAdapter.setTillAutoSnapshotDaysFormat(cashManagementConfigViewAdapter.getTillAutoSnapshotDays())
             cashManagementConfigViewAdapter.setSafeAutoSnapshotDaysFormat(cashManagementConfigViewAdapter.getSafeAutoSnapshotDays())
             cashManagementConfigViewAdapter.setTillShiftsAutoCloseDaysFormat(cashManagementConfigViewAdapter.getTillShiftsAutoCloseDays())
         }
-        if (springSecurityService.principal.storeId != null && (!isStoreLevelLogin || params.isStoreLevelLogin==null)) {
+
+        if (viewingFromStoreManagement) {
             // Render the example template when storeLevelExist is false
-            render(template: "/cashManagement/cashManagement", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false, storeId:springSecurityService.principal.storeId, storeNumber:storeNumber, storeName:storeName])
+            render(template: "/cashManagement/cashManagement", model: [config: cashManagementConfigViewAdapter, isStoreLevelLogin: (springSecurityService.principal.storeId != null), onlyRetailerLevel: (springSecurityService.principal.storeId == null), storeLevelExist: storeLevelExist, storeId: springSecurityService.principal.storeId, storeNumber:storeNumber, storeName:storeName])
         } else {
-            [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: onlyRetailerLevel, isStoreLevelLogin:isStoreLevelLogin,  storeId:springSecurityService.principal.storeId, storeNumber:storeNumber, storeName:storeName]
+            [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, isStoreLevelLogin: (springSecurityService.principal.storeId != null), onlyRetailerLevel: (springSecurityService.principal.storeId == null), storeId:springSecurityService.principal.storeId, storeNumber:storeNumber, storeName:storeName]
         }
     }
 
