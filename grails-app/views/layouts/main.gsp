@@ -235,94 +235,108 @@
                     </sec:ifAnyGranted>
 
                     <!-- Administration -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="administration-dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administration</a>
+                    <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="administration-dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administration</a>
 
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="administration-dropdown">
-                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
-                                <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                    <g:link elementId="store-configuration-menu-item" controller="store" action="config" class="dropdown-item">Store Configuration</g:link>
-                                </g:if>
-                                <g:else>
-                                    <div class="dropdown-submenu">
-                                        <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="estate-management-sub-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Estate Management</a>
-                                        <div class="dropdown-menu" aria-labelledby="estate-management-sub-menu">
-                                            <g:link elementId="store-management-menu-item" controller="store" class="dropdown-item">Store Management</g:link>
-                                            <g:link elementId="till-assignment-menu-item" controller="tillAssignment" class="dropdown-item">Till Management</g:link>
-                                            <g:link elementId="store-hierarchy-menu-item" controller="group" class="dropdown-item disabled">Store Hierarchy</g:link>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="administration-dropdown">
+                                <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
+                                    <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                        <g:link elementId="store-configuration-menu-item" controller="store" action="config" class="dropdown-item">Store Configuration</g:link>
+                                    </g:if>
+                                    <g:else>
+                                        <div class="dropdown-submenu">
+                                            <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="estate-management-sub-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Estate Management</a>
+                                            <div class="dropdown-menu" aria-labelledby="estate-management-sub-menu">
+                                                <g:link elementId="store-management-menu-item" controller="store" class="dropdown-item">Store Management</g:link>
+                                                <g:link elementId="till-assignment-menu-item" controller="tillAssignment" class="dropdown-item">Till Management</g:link>
+                                                <g:link elementId="store-hierarchy-menu-item" controller="group" class="dropdown-item disabled">Store Hierarchy</g:link>
+                                            </div>
                                         </div>
-                                    </div>
-                                </g:else>
-                            </sec:ifAnyGranted>
+                                    </g:else>
+                                </sec:ifAnyGranted>
 
-                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
-                                <div class="dropdown-submenu">
-                                    <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="inventory-management-sub-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Inventory Management</a>
-                                    <div class="dropdown-menu" aria-labelledby="inventory-management-sub-menu">
-                                        <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                                            <g:link elementId="central-counts-menu-item" controller="productList" class="dropdown-item">Central Counts</g:link>
-                                        </g:if>
-
-                                        <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.receiptInBranchOrders').toBoolean()}">
-                                            <g:link elementId="deliveries-menu-item" controller="delivery" class="dropdown-item">Deliveries</g:link>
-                                        </g:if>
-                                        <g:else>
-                                            <g:link elementId="deliveries-menu-item" controller="delivery" class="dropdown-item disabled">Deliveries</g:link>
-                                        </g:else>
-
-                                        <g:link elementId="inventory-adjustments-menu-item" controller="productList" action="inventoryAdjustments" class="dropdown-item disabled">Inventory Adjustments</g:link>
-
-                                        <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                                            <g:link elementId="reset-store-inventory-menu-item" controller="productList" action="resetStoreInventory" class="dropdown-item disabled">Reset Store Inventory</g:link>
-                                        </g:if>
-                                    </div>
-                                </div>
-                            </sec:ifAnyGranted>
-
-                            <div class="dropdown-submenu">
-                                <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="retailer-configuration-sub-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Retailer Configuration</a>
-                                <div class="dropdown-menu" aria-labelledby="retailer-configuration-sub-menu">
-                                    <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
-                                        <g:link elementId="cash-management-menu-item" controller="cashManagement" class="dropdown-item">Cash Management</g:link>
-
-                                        <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                            <g:link elementId="safe-configuration-menu-item" controller="safe" class="dropdown-item">Safe Configuration</g:link>
-                                        </g:if>
-                                        <g:else>
-                                            <g:link elementId="financial-weeks-menu-item" controller="financialWeek" class="dropdown-item">Financial Weeks</g:link>
-                                            <g:link elementId="reason-codes-menu-item" controller="reasonCode" class="dropdown-item">Reason Codes</g:link>
-                                            <g:link elementId="tender-types-menu-item" controller="tenderType" class="dropdown-item">Tender Types</g:link>
-                                            <g:link elementId="barcode-configuration-menu-item" controller="barcodeConfig" class="dropdown-item">Barcode Configuration</g:link>
-
-                                            <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.charityEnabled').toBoolean()}">
-                                                <g:link elementId="charity-organisations-menu-item" controller="charityOrganisations" class="dropdown-item">Charity Organisations</g:link>
-                                            </g:if>
-                                        </g:else>
-
-                                        <g:link elementId="supplier-affiliations-menu-item" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
-                                    </sec:ifAnyGranted>
-                                    <sec:ifAnyGranted roles="ROLE_STORE_MANAGER">
-                                        <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                            <g:link elementId="safe-configuration-menu-item" controller="safe" class="dropdown-item">Safe Configuration</g:link>
-                                            <g:link elementId="supplier-affiliations-menu-item" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
-                                        </g:if>
-                                    </sec:ifAnyGranted>
-                                </div>
-                            </div>
-
-                            <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
                                     <div class="dropdown-submenu">
-                                        <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="product-configuration-sub-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Product Configuration</a>
-                                        <div class="dropdown-menu" aria-labelledby="product-configuration-sub-menu">
-                                            <g:link elementId="departments-and-categories-menu-item" controller="category" class="dropdown-item">Departments & Categories</g:link>
-                                            <g:link elementId="product-groups-menu-item" controller="productGroup" class="dropdown-item">Product Groups</g:link>
-                                            <g:link elementId="partner-categories-menu-item" controller="partnerCategoryManagement" class="dropdown-item">Partner Categories</g:link>
-                                            <g:link elementId="product-attributes-menu-item" controller="productAttributes" class="dropdown-item" action="productAttributes">Product Attributes</g:link>
+                                        <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="inventory-management-sub-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Inventory Management</a>
+                                        <div class="dropdown-menu" aria-labelledby="inventory-management-sub-menu">
+                                            <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                                <g:link elementId="central-counts-menu-item" controller="productList" class="dropdown-item">Central Counts</g:link>
+                                            </g:if>
+
+                                            <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.receiptInBranchOrders').toBoolean()}">
+                                                <g:link elementId="deliveries-menu-item" controller="delivery" class="dropdown-item">Deliveries</g:link>
+                                            </g:if>
+                                            <g:else>
+                                                <g:link elementId="deliveries-menu-item" controller="delivery" class="dropdown-item disabled">Deliveries</g:link>
+                                            </g:else>
+
+                                            <g:link elementId="inventory-adjustments-menu-item" controller="productList" action="inventoryAdjustments" class="dropdown-item disabled">Inventory Adjustments</g:link>
+
+                                            <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                                <g:link elementId="reset-store-inventory-menu-item" controller="productList" action="resetStoreInventory" class="dropdown-item disabled">Reset Store Inventory</g:link>
+                                            </g:if>
                                         </div>
                                     </div>
                                 </sec:ifAnyGranted>
-                            </g:if>
+
+                                <div class="dropdown-submenu">
+                                    <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="retailer-configuration-sub-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Retailer Configuration</a>
+                                    <div class="dropdown-menu" aria-labelledby="retailer-configuration-sub-menu">
+                                        <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
+                                            <g:link elementId="cash-management-menu-item" controller="cashManagement" class="dropdown-item">Cash Management</g:link>
+
+                                            <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                                <g:link elementId="safe-configuration-menu-item" controller="safe" class="dropdown-item">Safe Configuration</g:link>
+                                            </g:if>
+                                            <g:else>
+                                                <g:link elementId="financial-weeks-menu-item" controller="financialWeek" class="dropdown-item">Financial Weeks</g:link>
+                                                <g:link elementId="reason-codes-menu-item" controller="reasonCode" class="dropdown-item">Reason Codes</g:link>
+                                                <g:link elementId="tender-types-menu-item" controller="tenderType" class="dropdown-item">Tender Types</g:link>
+                                                <g:link elementId="barcode-configuration-menu-item" controller="barcodeConfig" class="dropdown-item">Barcode Configuration</g:link>
+
+                                                <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.charityEnabled').toBoolean()}">
+                                                    <g:link elementId="charity-organisations-menu-item" controller="charityOrganisations" class="dropdown-item">Charity Organisations</g:link>
+                                                </g:if>
+                                            </g:else>
+
+                                            <g:link elementId="supplier-affiliations-menu-item" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
+                                        </sec:ifAnyGranted>
+                                        <sec:ifAnyGranted roles="ROLE_STORE_MANAGER, ROLE_SUPERVISOR">
+                                            <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                                <g:link elementId="safe-configuration-menu-item" controller="safe" class="dropdown-item">Safe Configuration</g:link>
+                                                <g:link elementId="supplier-affiliations-menu-item" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
+                                            </g:if>
+                                        </sec:ifAnyGranted>
+                                    </div>
+                                </div>
+
+                                <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                    <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
+                                        <div class="dropdown-submenu">
+                                            <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="product-configuration-sub-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Product Configuration</a>
+                                            <div class="dropdown-menu" aria-labelledby="product-configuration-sub-menu">
+                                                <g:link elementId="departments-and-categories-menu-item" controller="category" class="dropdown-item">Departments & Categories</g:link>
+                                                <g:link elementId="product-groups-menu-item" controller="productGroup" class="dropdown-item">Product Groups</g:link>
+                                                <g:link elementId="partner-categories-menu-item" controller="partnerCategoryManagement" class="dropdown-item">Partner Categories</g:link>
+                                                <g:link elementId="product-attributes-menu-item" controller="productAttributes" class="dropdown-item" action="productAttributes">Product Attributes</g:link>
+                                            </div>
+                                        </div>
+                                    </sec:ifAnyGranted>
+                                </g:if>
+
+                                <sec:ifAnyGranted roles='ROLE_ENGINEER'>
+                                    <div class="dropdown-submenu">
+                                        <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="engineer-functions-sub-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Engineer Functions</a>
+                                        <div class="dropdown-menu" aria-labelledby="engineer-functions-sub-menu">
+                                            <g:link elementId="retailer-configuration-menu-item" controller="retailer" class="dropdown-item">Retailer Configuration</g:link>
+                                            <g:link elementId="hardware-import-menu-item" controller="hardwareImport" class="dropdown-item">Hardware Import</g:link>
+                                        </div>
+                                    </div>
+                                </sec:ifAnyGranted>
+                            </div>
+                        </li>
+                    </sec:ifAnyGranted>
 
                             <sec:ifAnyGranted roles='ROLE_ENGINEER'>
                                 <div class="dropdown-submenu">

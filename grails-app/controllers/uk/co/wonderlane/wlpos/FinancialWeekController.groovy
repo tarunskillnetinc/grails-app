@@ -5,13 +5,13 @@ import groovy.json.JsonOutput
 import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.transactions.FinancialWeek
 
-@Secured(['ROLE_ENGINEER'])
+@Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
 class FinancialWeekController {
 
     def springSecurityService
     def financialWeekService
 
-    @Secured(['ROLE_ENGINEER'])
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
         if (springSecurityService.principal.storeId) {
             flash.error = "You cannot access this page when logged in as a store."
@@ -32,7 +32,7 @@ class FinancialWeekController {
         }
     }
 
-    @Secured(['ROLE_ENGINEER'])
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxCSVFinancialWeekImport() {
         int retailerId = springSecurityService.principal.retailerId
         def file = request.getFile('file')
@@ -79,7 +79,7 @@ class FinancialWeekController {
         }
     }
 
-    @Secured(['ROLE_ENGINEER'])
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def downloadCsv() {
         try {
             int retailerId = springSecurityService.principal.retailerId
