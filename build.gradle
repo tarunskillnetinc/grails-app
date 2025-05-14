@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "1.15.37.Skillnet-SNAPSHOT"
+version "1.15.38.Skillnet-SNAPSHOT"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"idea"
