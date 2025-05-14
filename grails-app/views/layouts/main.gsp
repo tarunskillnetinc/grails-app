@@ -331,25 +331,13 @@
                                         <div class="dropdown-menu" aria-labelledby="engineer-functions-sub-menu">
                                             <g:link elementId="retailer-configuration-menu-item" controller="retailer" class="dropdown-item">Retailer Configuration</g:link>
                                             <g:link elementId="hardware-import-menu-item" controller="hardwareImport" class="dropdown-item">Hardware Import</g:link>
+                                            <g:link elementId="physical-inventory-count-exclusion-menu-item" controller="physicalInventoryCountExclusion" class="dropdown-item">Physical Inventory Count Exclusion</g:link>
                                         </div>
                                     </div>
                                 </sec:ifAnyGranted>
                             </div>
                         </li>
                     </sec:ifAnyGranted>
-
-                            <sec:ifAnyGranted roles='ROLE_ENGINEER'>
-                                <div class="dropdown-submenu">
-                                    <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="engineer-functions-sub-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Engineer Functions</a>
-                                    <div class="dropdown-menu" aria-labelledby="engineer-functions-sub-menu">
-                                        <g:link elementId="retailer-configuration-menu-item" controller="retailer" class="dropdown-item">Retailer Configuration</g:link>
-                                        <g:link elementId="hardware-import-menu-item" controller="hardwareImport" class="dropdown-item">Hardware Import</g:link>
-                                        <g:link elementId="physical-inventory-count-exclusion-dropdown" controller="physicalInventoryCountExclusion" class="dropdown-item">Physical Inventory Count Exclusion</g:link>
-                                    </div>
-                                </div>
-                            </sec:ifAnyGranted>
-                        </div>
-                    </li>
 
                     <!-- Monitoring -->
                     <li class="nav-item dropdown">
