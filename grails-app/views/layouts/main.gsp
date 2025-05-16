@@ -271,10 +271,10 @@
                                                 <g:link elementId="deliveries-menu-item" controller="delivery" class="dropdown-item disabled">Deliveries</g:link>
                                             </g:else>
 
-                                            <g:link elementId="inventory-adjustments-menu-item" controller="productList" action="inventoryAdjustments" class="dropdown-item disabled">Inventory Adjustments</g:link>
+                                            <g:link elementId="inventory-adjustments-menu-item" controller="inventory" class="dropdown-item">Inventory Adjustments</g:link>
 
                                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                                                <g:link elementId="reset-store-inventory-menu-item" controller="productList" action="resetStoreInventory" class="dropdown-item disabled">Reset Store Inventory</g:link>
+                                                <g:link elementId="reset-store-inventory-menu-item" controller="stock" class="dropdown-item">Reset Store Inventory</g:link>
                                             </g:if>
                                         </div>
                                     </div>
