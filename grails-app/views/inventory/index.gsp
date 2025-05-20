@@ -98,15 +98,15 @@
     </section>
 
      <div class="row mx-5 pt-3 pb-2" style="display: flex; align-items: center;">
-        <label for="status" class="col-1 col-form-label-sm text-right" >Status</label>
-        <div class="input-group-append">
-            <g:select id="statusSelect" name="statusSelect" from="${['All', 'Pending', 'Scheduled', 'Completed']}" value="" valueMessagePrefix="reasonCodeSelect" class="form-control select-border" style="z-index: 0;" />
-        </div>
-        <div class="col-12 text-right" style = "max-width:71%">
-                <button id="uploadBtn" type="button" class="btn btn-wl mt-1" >Upload CSV</button>
-                <input type="file" id="csvFile" name="csvFile" accept=".csv,.CSV"
-                                   style="display:none" oncancel="resetExclusionInput()">
-        </div>
+         <label for="status" class="col-1 col-form-label-sm text-right">Status</label>
+         <div class="input-group-append">
+             <g:select id="statusSelect" name="statusSelect" from="${['All', 'Pending', 'Scheduled', 'Completed']}" value="" valueMessagePrefix="reasonCodeSelect" class="form-control select-border" style="z-index: 0;" />
+         </div>
+         <div class="col-12 text-right" style="max-width:71%">
+             <button id="uploadBtn" type="button" class="btn btn-wl mt-1">Upload CSV</button>
+             <input type="file" id="csvFile" name="csvFile" accept=".csv,.CSV"
+                    style="display:none" oncancel="resetExclusionInput()">
+         </div>
      </div>
         <div id="results-container" class="align-content-center">
           <g:render template="stockStatusSearchResults" />
@@ -143,6 +143,10 @@
                              </div>
                          </div>
                      </section>
+
+
+
+
 
 
 </body>

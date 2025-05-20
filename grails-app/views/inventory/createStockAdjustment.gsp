@@ -73,6 +73,187 @@
             }
         }
     }
+
+
+      var getStoresUrl = "${createLink(controller: 'inventory', action: 'ajaxGetStores')}"
+      var deleteStoreUrl = "${createLink(controller: 'store', action: 'ajaxDeleteStore')}"
+      var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
+
+      var globalSortParams = null;
+
+      $(function() {
+          var sort = "${sort}";
+          var order = "${order}"
+
+          getStores({max: ${max ?: 'null'}, offset: ${offset ?: 'null'}, sort: (sort !== "" ? sort : null), order: (order !== "" ? order : null)});
+          $('#ExitButton').on('click', function() {
+              if (confirm('Are you sure you want to exit?')) {
+                  window.location.href = "${createLink(uri: '/')}";
+              }
+          });
+
+          $(document).on('click', '#cancelButton', function() {
+              if (confirm('Are you sure you want to cancel?')) {
+                  window.location.href = "${createLink(uri: '/')}";
+              }
+          });
+      });
+
+      function searchStores(sortParams) {
+          getStores(sortParams);
+      }
+
+      function getStores(sortParams) {
+          $('#search-results').html("");
+          $("#loading-indicator").show();
+
+          var filterParams = {};
+
+          $("#filtersForm input").each(function() {
+              filterParams[$(this).attr("name")] = $(this).val();
+          }).get();
+
+          $("#filtersForm :checkbox:checked").each(function() {
+              filterParams[$(this).attr("name")] = true;
+          }).get();
+
+          globalSortParams = sortParams;
+
+          $.extend(filterParams, globalSortParams);
+
+          $.ajax({
+              url: getStoresUrl,
+              data: filterParams,
+              success: function(resp) {
+                  $('#results-container').html(resp);
+                  $("#loading-indicator").hide();
+              },
+              error: function(xhr, status, error) {
+                  $("#loading-indicator").hide();
+                  $('#errors-container').html('<div class="alert alert-danger mt-3">Error loading stores: ' + error + '</div>');
+                  console.error("AJAX Error:", status, error);
+              }
+          });
+      }
+
+      function clearFilters() {
+          $("#filtersForm input").each(function() {
+              $(this).val("");
+          }).get();
+
+          $("#filtersForm :checkbox:checked").each(function() {
+              $(this).prop("checked", false);
+          }).get();
+
+          getStores();
+      }
+
+      function filter(inputName, dropDownName) {
+          var keyword = document.getElementById(inputName).value.toLowerCase();
+          var select = document.getElementById(dropDownName);
+          for (var i = 0; i < select.length; i++) {
+              var txt = select.options[i].text.toLowerCase();
+              if (!txt.match(keyword)) {
+                  $(select.options[i]).attr('disabled', 'disabled').hide();
+              } else {
+                  $(select.options[i]).removeAttr('disabled').show();
+              }
+          }
+      }
+
+      function clearStoreFilters() {
+          $('#modalStoreNumberFilter').val('');
+          $('#modalStoreNameFilter').val('');
+          $('#selectAllStores').prop('checked', false);
+      }
+
+      function getStores() {
+          $('#store-results-container').html("");
+          $("#store-loading-indicator").show();
+
+          var filterParams = {
+              storeNumberFilter: $('#modalStoreNumberFilter').val(),
+              storeNameFilter: $('#modalStoreNameFilter').val(),
+              max: 50,
+              offset: 0
+          };
+
+          $.ajax({
+              url: getStoresUrl,
+              data: filterParams,
+              success: function(resp) {
+                  $('#store-results-container').html(resp);
+                  $("#store-loading-indicator").hide();
+
+                  $('#selectAllStores').on('change', function() {
+                      $('.store-checkbox').prop('checked', $(this).is(':checked'));
+                  });
+
+                  $(document).on('change', '.store-checkbox', function() {
+                      updateSelectAllCheckbox();
+                  });
+              },
+              error: function(xhr, status, error) {
+                  $("#store-loading-indicator").hide();
+                  $('#store-results-container').html('<div class="alert alert-danger mt-3">Error loading stores: ' + error + '</div>');
+                  console.error("AJAX Error:", status, error);
+              }
+          });
+      }
+
+      function updateSelectAllCheckbox() {
+          var allChecked = true;
+          var anyChecked = false;
+
+          $('.store-checkbox').each(function() {
+              if($(this).is(':checked')) {
+                  anyChecked = true;
+              } else {
+                  allChecked = false;
+              }
+          });
+
+          $('#selectAllStores').prop('checked', allChecked);
+      }
+
+      function addSelectedStores() {
+          var selectedStores = [];
+
+          $('.store-checkbox:checked').each(function() {
+              selectedStores.push({
+                  id: $(this).data('store-id'),
+                  storeNumber: $(this).data('store-number'),
+                  storeName: $(this).data('store-name')
+              });
+          });
+
+          if (selectedStores.length === 0) {
+              alert('Please select at least one store.');
+              return;
+          }
+
+          console.log('Selected stores:', selectedStores);
+
+          $('#addStoresModal').modal('hide');
+
+          $('#successMessage').text('Successfully added ' + selectedStores.length + ' store(s)').show();
+          setTimeout(function() {
+              $('#successMessage').hide();
+          }, 5000);
+      }
+
+      $(document).ready(function() {
+          $('#addStoresModal').on('shown.bs.modal', function() {
+              clearStoreFilters();
+              getStores();
+          });
+
+          $('#addStoresModal').on('hidden.bs.modal', function() {
+              $(document).off('change', '.store-checkbox');
+          });
+      });
+
+
 </script>
 </head>
 
@@ -113,7 +294,8 @@
      <div class="row mx-5 pt-3 pb-2" style="display: flex; align-items: center;">
           <div class="col-12 text-right">
             <button id="addProductButton" type="button" class="btn btn-wl mt-1" data-toggle="modal" data-target="#productSearchModal">Add Product(s)</button>
-            <button id="addStoreButton" type="button" class="btn btn-wl mt-1" onclick="">Add Store(s)</button>
+            <button type="button" class="btn btn-wl" data-toggle="modal" data-target="#addStoresModal">Add Store(s)</button>
+           <!-- <button id="addStoreButton" type="button" class="btn btn-wl mt-1" onclick="">Add Store(s)</button>-->
           </div>
           </div>
 
@@ -143,6 +325,91 @@
 
              <!-- Product search modal -->
              <g:render template="/product/productSearch" />
+
+
+<div class="modal fade" id="addStoresModal" tabindex="-1" role="dialog" aria-labelledby="addStoresModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Store(s)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <section id="filters-section" class="container-fluid">
+                    <!-- Search filters section -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div id="filters" class="card bg-light border-wl">
+                                <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                                    <div class="row">
+                                        <div class="col-10">Store Search</div>
+                                        <div class="col-2 text-right">
+                                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body collapse show" id="filterCollapse">
+                                    <div class="form-group row">
+                                        <label for="modalStoreNumberFilter" class="col-3 col-form-label-sm text-right">Store Number</label>
+                                        <div class="col-4">
+                                            <input id="modalStoreNumberFilter" type="number" min="0" max="2147483647" name="storeNumberFilter" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+                                        </div>
+                                        <div class="col-5 text-right">
+                                            <button id="filter-clear-button" type="button" class="btn btn-danger" onclick="clearStoreFilters();">Reset Filter</button>
+                                            <button type="button" class="btn btn-success" onclick="addSelectedStores()">Save</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="modalStoreNameFilter" class="col-3 col-form-label-sm text-right">Store Name</label>
+                                        <div class="col-4">
+                                            <input id="modalStoreNameFilter" name="storeNameFilter" class="form-control bottom-border" />
+                                        </div>
+                                        <div class="col-5 text-right">
+                                            <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getStores();">Search</button>
+                                            <button type="button" class="btn btn-wl ml-2" data-dismiss="modal">Cancel</button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-7 offset-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="selectAllStores">
+                                                <label class="form-check-label" for="selectAllStores">
+                                                    All Stores
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Results Table Section -->
+                <section id="store-results-section" class="container-fluid mt-3">
+                    <div class="card bg-light border-wl">
+                        <div class="card-body p-0">
+                            <div id="store-loading-indicator" class="text-center py-3" style="display: none;">
+                                <div class="spinner-border" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                            <div id="store-results-container">
+                                <!-- Store results will be loaded here via AJAX -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 </body>
