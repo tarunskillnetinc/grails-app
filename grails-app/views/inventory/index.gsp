@@ -11,7 +11,7 @@
      <script type="application/javascript">
      $(document).ready(function () {
        $('#uploadBtn').click(function () {
-           $('#csvFile').click();  // This opens the file chooser dialog
+           $('#csvFile').click();
          });
 
          $('#csvFile').on('change', function () {

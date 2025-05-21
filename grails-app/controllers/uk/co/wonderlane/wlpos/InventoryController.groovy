@@ -38,7 +38,7 @@ class InventoryController {
                 }
                 totalLines++
                 def parts = line.split(",")
-                def productName = parts[0]?.trim()  // Assuming product name is first column
+                def productName = parts[0]?.trim()
 
                 if (productName) {
                     def product = productService.getProduct(productName)
@@ -90,7 +90,6 @@ class InventoryController {
                 return
             }
 
-            // Parse store info from the parameter
             def storeInfo = selectedStore.split('-')
             def storeNumber = storeInfo[0]
             def storeName = storeInfo.size() > 1 ? storeInfo[1] : ""
@@ -113,7 +112,6 @@ class InventoryController {
         def sortParams = [:]
 
         try {
-            // --- 1) Safe parsing with defaults ---
             try {
                 sortParams.max = params.max?.toInteger() ?: 50
             } catch(NumberFormatException _) {
@@ -127,16 +125,13 @@ class InventoryController {
             sortParams.sort  = params.sort ?: "storeNumber"
             sortParams.order = params.order ?: "ASC"
 
-            // --- 2) Parse storeNumberFilter ---
             if (params.storeNumberFilter) {
                 try {
                     storeNumberFilter = params.storeNumberFilter.toInteger()
                 } catch(NumberFormatException ignored) {
-                    // leave null
                 }
             }
 
-            // --- 3) Other filters ---
             if (params.storeNameFilter && params.storeNameFilter != "null") {
                 storeNameFilter = params.storeNameFilter
             }
@@ -144,7 +139,6 @@ class InventoryController {
                 showDeletedFilter = true
             }
 
-            // --- 4) Fetch from service ---
             def (stores, storeCount) = storeService.searchStores(
                     springSecurityService.principal.retailerId,
                     storeNumberFilter,
@@ -153,7 +147,6 @@ class InventoryController {
                     sortParams
             )
 
-            // --- 5) Render partial ---
             render(template: "storeSearchResults", model: [
                     stores:              stores,
                     totalResults:        storeCount,
@@ -163,7 +156,6 @@ class InventoryController {
                     showDeletedFilter:   showDeletedFilter
             ])
         } catch (Exception e) {
-            // DEBUG: return the real exception message so we know what's wrong
             log.error("ajaxGetStores failed", e)
             render status: 500, text: "DEBUG ERROR: ${e.class.simpleName}: ${e.message}"
         }

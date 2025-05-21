@@ -9,7 +9,8 @@
       <asset:javascript src="jquery-ui.js" />
       <asset:stylesheet src="jquery-ui.css" />
 <script>
-    function productSelected (id, itemCode, description) {
+
+    function productSelected(id, itemCode, description) {
         var addProductUrl = "${createLink(controller: 'inventory', action: 'ajaxAddProduct')}";
 
         $.ajax({
@@ -37,7 +38,7 @@
 
                 $('#noResultsRow').hide();
 
-                let i = productList.children().length - 1; // remove hidden noResultsRow
+                let i = productList.children().length - 1;
                 let row = $('#productVariant' +id);
                 row.addClass("wl-striped" +((i-1) % 2));
                 row.find('#prod-0-id').attr("id", "prod-" + i + "-id");
@@ -46,9 +47,13 @@
                 row.find('#prod-0-colour').attr("id", "prod-" + i + "-colour");
                 row.find('#prod-0-size').attr("id", "prod-" + i + "-size");
                 row.find('#prod-0-remove-btn').attr("id", "prod-" + i + "-remove-btn");
+
+                // Enable store button after adding product
+                checkProductsAndEnableStoreButton();
             }
         });
     }
+
 
     function removeProduct(productId) {
         $('#product' +productId).remove();
@@ -216,31 +221,79 @@
           $('#selectAllStores').prop('checked', allChecked);
       }
 
-      function addSelectedStores() {
-          var selectedStores = [];
 
-          $('.store-checkbox:checked').each(function() {
-              selectedStores.push({
-                  id: $(this).data('store-id'),
-                  storeNumber: $(this).data('store-number'),
-                  storeName: $(this).data('store-name')
-              });
-          });
+     var currentProductId = null;
 
-          if (selectedStores.length === 0) {
-              alert('Please select at least one store.');
-              return;
-          }
+     function setCurrentProductId(productId) {
+         currentProductId = productId;
+         // Load existing stores if any
+         if (productId) {
+             var storesData = $('#product' + productId + ' .selected-stores').val();
+             if (storesData) {
+                 try {
+                     var stores = JSON.parse(storesData);
+                     // Uncheck all checkboxes first
+                     $('.store-checkbox').prop('checked', false);
+                     // Check the boxes for stores already selected
+                     stores.forEach(function(store) {
+                         $('.store-checkbox[data-store-id="' + store.id + '"]').prop('checked', true);
+                     });
+                     updateSelectAllCheckbox();
+                 } catch (e) {
+                     console.error("Error parsing stores data:", e);
+                 }
+             }
+         }
+     }
 
-          console.log('Selected stores:', selectedStores);
+     function addSelectedStores() {
+         var selectedStores = [];
+         var selectedStoreNames = [];
+         var selectedStoreData = [];
 
-          $('#addStoresModal').modal('hide');
+         $('.store-checkbox:checked').each(function() {
+             var storeId = $(this).data('store-id');
+             var storeNumber = $(this).data('store-number');
+             var storeName = $(this).data('store-name');
 
-          $('#successMessage').text('Successfully added ' + selectedStores.length + ' store(s)').show();
-          setTimeout(function() {
-              $('#successMessage').hide();
-          }, 5000);
-      }
+             selectedStores.push(storeId);
+             selectedStoreNames.push(storeName);
+             selectedStoreData.push({
+                 id: storeId,
+                 number: storeNumber,
+                 name: storeName
+             });
+         });
+
+         if (selectedStores.length === 0) {
+             alert('Please select at least one store.');
+             return;
+         }
+
+         // Update only the current product if specified, otherwise update all
+         if (currentProductId) {
+             updateProductStores(currentProductId, selectedStoreData, selectedStores.length, selectedStoreNames.join(', '));
+             currentProductId = null; // Reset after update
+         } else {
+             // Update all products (if you want this functionality)
+             $('.selected-stores').val(JSON.stringify(selectedStoreData));
+             $('.stores-count').text(selectedStores.length);
+             $('.stores-list').text(selectedStoreNames.join(', '));
+         }
+
+         $('#addStoresModal').modal('hide');
+         $('#successMessage').text('Successfully added ' + selectedStores.length + ' store(s)').show();
+         setTimeout(function() {
+             $('#successMessage').hide();
+         }, 5000);
+     }
+
+     function updateProductStores(productId, storeData, count, names) {
+         $('#product' + productId + ' .selected-stores').val(JSON.stringify(storeData));
+         $('#product' + productId + ' .stores-count').text(count);
+         $('#product' + productId + ' .stores-list').text(names);
+     }
+
 
       $(document).ready(function() {
           $('#addStoresModal').on('shown.bs.modal', function() {
@@ -253,6 +306,60 @@
           });
       });
 
+
+    function checkProductsAndEnableStoreButton() {
+        var hasProducts = $('#productList').children().length > 1 ||
+                         ($('#productList').children().length === 1 && !$('#noResultsRow').is(':visible'));
+
+        $('#addStoresButton').prop('disabled', !hasProducts);
+
+        if (!hasProducts) {
+            $('#addStoresButton').attr('title', 'Please add products first');
+        } else {
+            $('#addStoresButton').removeAttr('title');
+        }
+    }
+
+    function removeProduct(productId) {
+        $('#product' +productId).remove();
+
+        var productList = $('#productList');
+
+        if (productList.children().length === 1) {
+            var noResultsRow = $('#noResultsRow');
+
+            noResultsRow.removeClass("wl-striped0");
+            noResultsRow.removeClass("wl-striped1");
+            noResultsRow.addClass("wl-striped0");
+            noResultsRow.show();
+        } else {
+            for (var i = 1 ; i <= productList.children().length ; i++) {
+                var child = $('#productList>div:nth-child(' +i +')');
+
+                child.removeClass("wl-striped0");
+                child.removeClass("wl-striped1");
+
+                child.addClass("wl-striped" +(i % 2));
+            }
+        }
+
+        // Check if we need to disable store button
+        checkProductsAndEnableStoreButton();
+    }
+
+        $(document).ready(function() {
+            // Initialize store button state
+            checkProductsAndEnableStoreButton();
+
+            $('#addStoresModal').on('shown.bs.modal', function() {
+                clearStoreFilters();
+                getStores();
+            });
+
+            $('#addStoresModal').on('hidden.bs.modal', function() {
+                $(document).off('change', '.store-checkbox');
+            });
+        });
 
 </script>
 </head>
@@ -294,8 +401,10 @@
      <div class="row mx-5 pt-3 pb-2" style="display: flex; align-items: center;">
           <div class="col-12 text-right">
             <button id="addProductButton" type="button" class="btn btn-wl mt-1" data-toggle="modal" data-target="#productSearchModal">Add Product(s)</button>
-            <button type="button" class="btn btn-wl" data-toggle="modal" data-target="#addStoresModal">Add Store(s)</button>
-           <!-- <button id="addStoreButton" type="button" class="btn btn-wl mt-1" onclick="">Add Store(s)</button>-->
+          <!--   <button type="button" class="btn btn-wl" data-toggle="modal" data-target="#addStoresModal">Add Store(s)</button>-->
+        <!--  <button type="button" class="btn btn-wl" data-toggle="modal" data-target="#addStoresModal" onclick="setCurrentProductId('${product?.id}')">Add Store(s)</button>-->
+       <!--  <button type="button" class="btn btn-sm btn-wl mt-1" data-toggle="modal" data-target="#addStoresModal" onclick="setCurrentProductId('${product?.id}')">Add Stores</button>-->
+        <button type="button" class="btn btn-sm btn-wl mt-1" id="addStoresButton" data-toggle="modal" data-target="#addStoresModal" onclick="setCurrentProductId('${product?.id}')" disabled>Add Stores</button>
           </div>
           </div>
 
@@ -304,6 +413,7 @@
                <div class="col my-auto font-weight-bold">Barcode</div>
                <div class="col my-auto font-weight-bold">Description</div>
                <div class="col my-auto font-weight-bold">Category</div>
+               <div class="col my-auto  font-weight-bold">Current Quantity</div>
                <div class="col my-auto  font-weight-bold">Current Quantity</div>
                <div class="col my-auto  font-weight-bold">Amended Quantity</div>
                <div class="col my-auto font-weight-bold">Total Number of Stores</div>
