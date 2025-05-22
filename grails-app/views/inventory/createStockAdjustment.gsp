@@ -428,7 +428,6 @@
                <div class="col my-auto font-weight-bold">Description</div>
                <div class="col my-auto font-weight-bold">Category</div>
                <div class="col my-auto  font-weight-bold">Current Quantity</div>
-               <div class="col my-auto  font-weight-bold">Current Quantity</div>
                <div class="col my-auto  font-weight-bold">Amended Quantity</div>
                <div class="col my-auto font-weight-bold">Total Number of Stores</div>
                <div class="col my-auto font-weight-bold">Action</div>
