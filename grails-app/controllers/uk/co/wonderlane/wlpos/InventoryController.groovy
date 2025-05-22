@@ -3,6 +3,8 @@ package uk.co.wonderlane.wlpos
 import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
 class InventoryController {
     def productService
@@ -10,12 +12,71 @@ class InventoryController {
     def springSecurityService
     def categoryService
     def storeService
+    def productListService
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
         List<ReasonCode> reasonCodes = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_OUT)
-        [reasonCodes: reasonCodes]
+        def stockAdjustments = getStockAdjustments(params.statusSelect ?: 'All')
+
+        [reasonCodes: reasonCodes, stockAdjustments: stockAdjustments]
     }
+
+    private def getStockAdjustments(String status) {
+        def criteria = ProductList.createCriteria()
+
+        def stockAdjustments = criteria.list {
+            eq("retailerId", springSecurityService.principal.retailerId)
+
+            // Use 'or' to match any of the types that might be inventory adjustments
+            or {
+                eq("type", ProductListType.ORDER)  // Orders can be treated as stock adjustments
+                eq("type", ProductListType.DELIVERY)  // Deliveries affect inventory
+                eq("stockAdjustedOnCompletion", true)  // Any list that adjusts stock
+            }
+
+            if (status && status != 'All') {
+                try {
+                    eq("status", ProductListStatus.valueOf(status.toUpperCase()))
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid status filter: ${status}")
+                    // If status is invalid, default to show all
+                }
+            }
+
+            // Eager fetch productListItems to avoid N+1 query issues
+            fetchMode 'productListItems', org.hibernate.FetchMode.JOIN
+
+            order("id", "desc")
+            maxResults(50)
+        }
+
+        // Make sure all data is properly loaded
+        stockAdjustments.each { adjustment ->
+            // Force lazy collections to load
+            if (adjustment.productListItems == null) {
+                adjustment.productListItems = []
+            }
+        }
+
+        return stockAdjustments
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxFilterAdjustments() {
+        def stockAdjustments = getStockAdjustments(params.status)
+
+        // Ensure each ProductList has its items loaded
+        stockAdjustments.each { adjustment ->
+            // Force initialization of the productListItems collection
+            if (adjustment.productListItems == null) {
+                adjustment.productListItems = []
+            }
+        }
+
+        render(template: "stockStatusSearchResults", model: [stockAdjustments: stockAdjustments])
+    }
+
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxImportCSV() {
         def file = request.getFile("csvFile")
@@ -160,5 +221,4 @@ class InventoryController {
             render status: 500, text: "DEBUG ERROR: ${e.class.simpleName}: ${e.message}"
         }
     }
-
 }

@@ -61,6 +61,77 @@
                   function selectReasonCode(reasonCodeId) {
                         window.location.href = '${createLink(controller: 'inventory', action:'createStockAdjustment')}' + '?reasonCodeId=' +reasonCodeId;
                   }
+
+                  // Add this to the $(document).ready function in index.gsp
+                  $('#statusSelect').change(function() {
+                      let selectedStatus = $(this).val();
+                      $.ajax({
+                          url: "${createLink(controller: 'inventory', action: 'ajaxFilterAdjustments')}",
+                          type: "GET",
+                          data: {
+                              status: selectedStatus
+                          },
+                          success: function(response) {
+                              $("#results-container").html(response);
+                          },
+                          error: function(xhr) {
+                              console.error("Filter failed:", xhr.responseText);
+                              if (xhr.status === 500) {
+                                  alert("An error occurred while filtering stock adjustments. Please check the server logs.");
+                              } else {
+                                  alert("Filter failed: " + xhr.statusText);
+                              }
+                          }
+                      });
+                  });
+
+                  $(document).ready(function () {
+                    $('#uploadBtn').click(function () {
+                      $('#csvFile').click();
+                    });
+
+                    // Add our new code here
+                    $('#statusSelect').change(function() {
+                      let selectedStatus = $(this).val();
+                      $.ajax({
+                        url: "${createLink(controller: 'inventory', action: 'ajaxFilterAdjustments')}",
+                        type: "GET",
+                        data: {
+                          status: selectedStatus
+                        },
+                        success: function(response) {
+                          $("#results-container").html(response);
+                        },
+                        error: function(xhr) {
+                          console.error("Filter failed:", xhr.responseText);
+                          if (xhr.status === 500) {
+                            alert("An error occurred while filtering stock adjustments. Please check the server logs.");
+                          } else {
+                            alert("Filter failed: " + xhr.statusText);
+                          }
+                        }
+                      });
+                    });
+
+                    // Rest of your existing code...
+                  });
+
+         $(document).ready(function() {
+             // Check for success message in URL
+             const urlParams = new URLSearchParams(window.location.search);
+             const successMessage = urlParams.get('successMessage');
+
+             if (successMessage) {
+                 $('#successMessage').text(successMessage).show();
+                 setTimeout(function() {
+                     $('#successMessage').hide();
+                 }, 5000);
+
+                 // Clean URL
+                 window.history.replaceState({}, document.title, window.location.pathname);
+             }
+         });
+
              </script>
 </head>
 

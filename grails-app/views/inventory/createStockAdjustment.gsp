@@ -361,6 +361,19 @@
             });
         });
 
+        $(document).ready(function() {
+            // Handle save button click
+            $('#saveButton').click(function() {
+                $('#saveConfirmationModal').modal('show');
+            });
+
+            // Handle confirmation - just redirect with success message
+            $('#confirmSaveYes').click(function() {
+                $('#saveConfirmationModal').modal('hide');
+                window.location.href = "${createLink(controller: 'inventory', action: 'index')}?successMessage=Requested+Inventory+chnages+have+been+successfully+completed";
+            });
+        });
+
 </script>
 </head>
 
@@ -387,7 +400,8 @@
 
             <div class="col-3 text-right">
                 <button id="cancelButton" type="button" class="btn btn-wl mt-1" onclick="">Cancel</button>
-                <button id="saveButton" type="button" class="btn btn-wl mt-1" onclick="">Save</button>
+             <!---   <button id="saveButton" type="button" class="btn btn-wl mt-1" onclick="">Save</button>--->
+                <button id="saveButton" type="button" class="btn btn-wl mt-1">Save</button>
             </div>
         </div>
     </section>
@@ -520,7 +534,26 @@
     </div>
 </div>
 
-
+<!-- Confirmation Modal -->
+<div class="modal fade" id="saveConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="saveConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white text-center"> <!-- Added text-center -->
+                <h5 class="modal-title w-100" id="saveConfirmationModalLabel">WARNING!</h5> <!-- Added w-100 for full width -->
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <p>You are about to adjust/overwrite stock levels of the product selected within the stores assigned</p>
+                <p>Do you wish to continue?</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-success" id="confirmSaveYes">YES</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">NO</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
