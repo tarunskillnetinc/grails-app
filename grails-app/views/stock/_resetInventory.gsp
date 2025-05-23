@@ -55,7 +55,7 @@
                     ${storeNumber}, ${storeName}</strong>.</p>
                 <p><strong>To action the 'Reset Store Inventory' please confirm you wish to continue by entering :</strong></p>
 
-                <g:form controller="inventory" action="resetInventory" method="POST">
+                <g:form controller="stock" action="resetInventory" method="POST">
                     <div class="form-group">
                         <label>The Store Number:</label>
                         <g:textField name="storeNumber" class="form-control" required="true"/>
