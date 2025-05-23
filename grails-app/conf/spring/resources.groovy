@@ -201,6 +201,15 @@ beans = {
         sessionFactory = ref('sessionFactory')
     }
 
+    jobService(JobService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+                    grailsApplication.config.getProperty('mysql.wlpos.username'),
+                    grailsApplication.config.getProperty('mysql.wlpos.password'),
+                    grailsApplication.config.getProperty('mysql.wlpos.database'))) {
+        springSecurityService = ref('springSecurityService')
+    }
+
     branchOrderService(BranchOrderService,
             new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
                     Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),

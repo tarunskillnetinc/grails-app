@@ -164,12 +164,24 @@ class BackOfficeRabbitService extends RabbitService {
             sendExchangeMessage(exchangeName, gson.toJson(syncMessage))
         } else {
             String exchangeName = String.format("R%d", syncMessage.getRetailerId())
+            String queueName = 'demo'
 
             // Note, declaring the exchange here means that we don't throw any errors, but there would be no queues attached to it so our message wouldn't go anywhere.
             declareExchange(exchangeName)
+            declareQueue(queueName, exchangeName)
 
             sendExchangeMessage(exchangeName, gson.toJson(syncMessage))
         }
+    }
+
+    void sendJobsMessage(SyncMessage syncMessage) throws IOException {
+        initVirtualHost(springSecurityService.principal.retailer.config.rabbitMqVirtualHost)
+
+        String exchangeName = 'Jobs'
+
+        declareExchange(exchangeName)
+
+        sendExchangeMessage(exchangeName, gson.toJson(syncMessage))
     }
 
     void sendOfferAllocationMessage(String exchange, SyncMessage loyaltyOfferSyncMessage){
