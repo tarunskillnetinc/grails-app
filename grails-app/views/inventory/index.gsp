@@ -202,8 +202,7 @@
          <button id="confirmBtn" class="btn btn-success">Continue</button>
      </div>
 
-             <!-- Product search modal -->
-             <g:render template="/product/productSearch" />
+
 
               <section id="showPopUp-modal" class="container-fluid">
                          <div class="modal fade" id="showReasonCodeModal" tabindex="-1"  role="dialog" aria-labelledby="showReasonCodeLabel" data-backdrop="false" aria-hidden="true" >

@@ -2,6 +2,8 @@ package uk.co.wonderlane.wlpos
 
 import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
@@ -221,4 +223,50 @@ class InventoryController {
             render status: 500, text: "DEBUG ERROR: ${e.class.simpleName}: ${e.message}"
         }
     }
+
+//    def ajaxSearchProducts() {
+//        session.PENDING_CHANGES = params.pendingChanges
+//        session.PRODUCT_SEARCH_TERM = params.searchTerm
+//        Boolean filterWithPendingChanges = Boolean.parseBoolean(params.pendingChanges)
+//        session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
+//
+//        def products = productService.searchProductsHql(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc", filterWithPendingChanges)
+//
+//        render(template: "productSearch", model: [products    : products.products,
+//                                                         storeId     : springSecurityService.principal.storeId,
+//                                                         userColumns : productService.getColumns(),
+//                                                         searchTerm  : params.searchTerm,
+//                                                         searchBy    : params.searchBy,
+//                                                         max         : params.max ?: 50,
+//                                                         offset      : params.offset,
+//                                                         totalResults: products.totalCount])
+//    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSearchProducts() {
+        def searchTerm = params.searchTerm
+        def searchBy = params.searchBy ?: "everything"
+        def max = params.max ? params.int('max') : 50
+        def offset = params.offset ? params.int('offset') : 0
+
+        def products = productService.searchProductsHql(
+                searchTerm,
+                searchBy,
+                max,
+                offset,
+                "id",
+                "asc",
+                false
+        )
+
+        render(template: "/inventory/addProductSearchResults", model: [
+                products: products.products,
+                totalResults: products.totalCount,
+                searchTerm: searchTerm,
+                searchBy: searchBy,
+                max: max,
+                offset: offset
+        ])
+    }
+
 }

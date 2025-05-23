@@ -8,11 +8,12 @@
     <div id="prod-${pos}-description" class="col my-auto">${product?.product?.description}</div>
     <div id="prod-${pos}-category" class="col my-auto">${category?.description}</div>
     <div id="prod-${pos}-quantity" class="col my-auto">20</div>
-    <div id="prod-${pos}-amended" class="col my-auto"><input type="number" min="0"/></div>
+    <div id="prod-${pos}-amended" class="col my-auto"><input type="number" min="0" class="form-control form-control-sm" style="width: 70px;"/></div>
     <div class="col my-auto font-weight-bold stores-info">
         <span class="stores-count">0</span>
     </div>
-    <div class="col-1 my-auto">
+    <div class="col-2 my-auto d-flex align-items-center">
+        <button class="btn btn-sm btn-info view-adjustment-btn mr-1" onclick="viewAdjustments(${product?.id})" style="display: none;">View Adjustment</button>
         <a id="prod-${pos}-remove-btn" href="#" class="btn btn-sm btn-danger" onClick="removeProduct(${product?.id});">Remove</a>
     </div>
 </div>
