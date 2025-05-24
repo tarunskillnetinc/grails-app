@@ -2,6 +2,8 @@ package uk.co.wonderlane.wlpos
 
 import grails.plugin.springsecurity.annotation.Secured
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
 import java.util.UUID
 import java.util.Date

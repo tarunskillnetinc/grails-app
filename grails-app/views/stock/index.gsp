@@ -14,14 +14,16 @@
         var getStoresUrl = "${createLink(controller: 'stock', action: 'ajaxGetStores')}"
         var deleteStoreUrl = "${createLink(controller: 'store', action: 'ajaxDeleteStore')}"
         var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
+        var getStockAdjustmentsUrl = "<g:createLink controller='stock' action='ajaxGetStockAdjustments'/>"
 
         var globalSortParams = null;
 
         $(function() {
             var sort = "${sort}";
             var order = "${order}"
-
+            
             getStores({max: ${max ?: 'null'}, offset: ${offset ?: 'null'}, sort: (sort !== "" ? sort : null), order: (order !== "" ? order : null)});
+            getStockAdjustments(); // Call the new function on page load
         });
 
         function getStores(sortParams) {
@@ -182,6 +184,12 @@
             <div class="modal-dialog modal-lg" role="document">
                 <div id="advancedTillContent" class="modal-content"></div>
             </div>
+        </div>
+    </section>
+
+    <section id="stock-adjustments-container" class="container-fluid mb-3">
+        <div id="stockAdjustmentResultsContainer">
+            <!-- Stock adjustment search results will be loaded here -->
         </div>
     </section>
 

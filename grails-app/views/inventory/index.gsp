@@ -90,7 +90,14 @@
                       $('#csvFile').click();
                     });
 
-                    // Add our new code here
+                    // Explicitly call the stock adjustments action on page load
+                    $.ajax({
+                        url: "<g:createLink controller='inventory' action='ajaxGetStockAdjustments'/>",
+                        success: function(resp) {
+                            $('#results-container').html(resp); // Load results into the existing container
+                        }
+                    });
+
                     $('#statusSelect').change(function() {
                       let selectedStatus = $(this).val();
                       $.ajax({
@@ -112,7 +119,6 @@
                         }
                       });
                     });
-
                     // Rest of your existing code...
                   });
 
@@ -171,7 +177,7 @@
      <div class="row mx-5 pt-3 pb-2" style="display: flex; align-items: center;">
          <label for="status" class="col-1 col-form-label-sm text-right">Status</label>
          <div class="input-group-append">
-             <g:select id="statusSelect" name="statusSelect" from="${['All', 'Pending', 'Scheduled', 'Completed']}" value="" valueMessagePrefix="reasonCodeSelect" class="form-control select-border" style="z-index: 0;" />
+             <g:select id="statusSelect" name="statusSelect" from="${['All', 'Pending', 'In progress', 'Complete']}" value="" valueMessagePrefix="reasonCodeSelect" class="form-control select-border" style="z-index: 0;" />
          </div>
          <div class="col-12 text-right" style="max-width:71%">
              <button id="uploadBtn" type="button" class="btn btn-wl mt-1">Upload CSV</button>
@@ -202,7 +208,8 @@
          <button id="confirmBtn" class="btn btn-success">Continue</button>
      </div>
 
-
+             <!-- Product search modal -->
+             <g:render template="/product/productSearch" />
 
               <section id="showPopUp-modal" class="container-fluid">
                          <div class="modal fade" id="showReasonCodeModal" tabindex="-1"  role="dialog" aria-labelledby="showReasonCodeLabel" data-backdrop="false" aria-hidden="true" >
@@ -213,8 +220,6 @@
                              </div>
                          </div>
                      </section>
-
-
 
 
 

@@ -397,7 +397,7 @@
 					$('#saveConfirmationModal').modal('show');
 				});
 
-				// Handle confirmation - just redirect with success message
+				// Handle confirmation - save stores then redirect
 				$('#confirmSaveYes').click(function() {
 					$('#saveConfirmationModal').modal('hide');
 					window.location.href = "${createLink(controller: 'inventory', action: 'index')}?successMessage=Requested+Inventory+chnages+have+been+successfully+completed";
@@ -567,6 +567,21 @@
 				$('.selected-stores').val(JSON.stringify(selectedStoreData));
 				$('.stores-count').text(selectedStores.length);
 				$('.stores-list').text(selectedStoreNames.join(', '));
+			}
+
+			// Collect selected stores
+			if (selectedStores.length > 0) {
+				$.ajax({
+					url: '${createLink(controller: 'inventory', action: 'saveProductListStores')}',
+					method: 'POST',
+					contentType: 'application/json',
+					data: JSON.stringify({stores: selectedStores}),
+					error: function(xhr) {
+						alert('Failed to save stores: ' + xhr.responseText);
+					}
+				});
+			} else {
+				window.location.href = '${createLink(controller: 'inventory', action: 'index')}';
 			}
 
 			// Show/hide view adjustment button based on store count

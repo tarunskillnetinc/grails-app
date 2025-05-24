@@ -7,6 +7,7 @@ import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
+import uk.co.wonderlane.wlpos.ProductListStore
 
 class InventoryController {
     def productService
@@ -18,7 +19,7 @@ class InventoryController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
-        List<ReasonCode> reasonCodes = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_OUT)
+        List<ReasonCode> reasonCodes = reasonCodeService.getReasonCodesByRetailer(springSecurityService.principal.retailerId)
         def stockAdjustments = getStockAdjustments(params.statusSelect ?: 'All')
 
         [reasonCodes: reasonCodes, stockAdjustments: stockAdjustments]
@@ -66,17 +67,20 @@ class InventoryController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxFilterAdjustments() {
-        def stockAdjustments = getStockAdjustments(params.status)
-
-        // Ensure each ProductList has its items loaded
-        stockAdjustments.each { adjustment ->
-            // Force initialization of the productListItems collection
-            if (adjustment.productListItems == null) {
-                adjustment.productListItems = []
+        def allResults = getStockAdjustmentData()
+        
+        def filteredResults = []
+        if (params.status && params.status != 'All') {
+            filteredResults = allResults.stockAdjustmentResults.findAll { result ->
+                def statusToMatch = params.status.toUpperCase()
+                result.status?.equalsIgnoreCase(statusToMatch) ||
+                result.status?.toString()?.toUpperCase()?.contains(statusToMatch)
             }
+        } else {
+            filteredResults = allResults.stockAdjustmentResults
         }
 
-        render(template: "stockStatusSearchResults", model: [stockAdjustments: stockAdjustments])
+        render(template: "stockStatusSearchResults", model: [stockAdjustmentResults: filteredResults])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -131,7 +135,40 @@ class InventoryController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def createStockAdjustment() {
-        println(params.reasonCodeId)
+        if (!params.reasonCodeId) {
+            flash.error = "Reason code is required"
+            render view: 'createStockAdjustment'
+            return
+        }
+
+        def reasonCodes = reasonCodeService.findReasonCodesByIds([params.reasonCodeId.toLong()])
+        if (reasonCodes.empty) {
+            flash.error = "Invalid reason code"
+            render view: 'createStockAdjustment'
+            return
+        }
+
+        def reasonCode = reasonCodes.first()
+        def productList = new ProductList(
+            retailerId: springSecurityService.principal.retailerId,
+            userId: springSecurityService.principal.username,
+            reasonId: reasonCode.id,
+            reasonDescription: reasonCode.description,
+            status: ProductListStatus.PENDING,
+            type: ProductListType.STOCK_ADJUSTMENT,
+            dateStarted: new DateTime(DateTimeZone.UTC)
+        )
+
+        if (!productList.validate()) {
+            flash.error = "Failed to create stock adjustment: ${productList.errors}"
+            render view: 'createStockAdjustment'
+            return
+        }
+
+        productListService.saveProductList(productList)
+        session.currentProductListId = productList.id
+
+        flash.message = "Stock adjustment created successfully"
         render view: 'createStockAdjustment'
     }
 
@@ -139,6 +176,28 @@ class InventoryController {
     def ajaxAddProduct(int productId) {
         def product = productService.getProductVariant(productId)
         def category = categoryService.getCategory(product.product.categoryId)
+        
+        // Get current product list from session
+        def productListId = session.currentProductListId
+        if (!productListId) {
+            render status: 400, text: "No active product list found"
+            return
+        }
+
+        // Create new product list item
+        def productListItem = new ProductListItem(
+            productList: ProductList.get(productListId),
+            productVariant: product,
+            productQuantityInStock: null,
+            quantity: null,
+            fillQuantity: 0.000
+        )
+
+        if (!productListService.saveProductListItem(productListItem)) {
+            log.error("Failed to save product list item: ${productListItem.errors}")
+            render status: 500, text: "Failed to add product to list"
+            return
+        }
 
         render(template: "stockSearchResults", model: [product: product, category:category])
     }
@@ -267,6 +326,85 @@ class InventoryController {
                 max: max,
                 offset: offset
         ])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxGetStockAdjustments() {
+        def results = getStockAdjustmentData()
+        render(template: "/inventory/stockStatusSearchResults", model: results)
+    }
+
+    private def getStockAdjustmentData() {
+        def stockAdjustmentResults = []
+
+        // Query ProductList entries filtered by retailerId
+        def productLists = ProductList.createCriteria().list {
+            eq("retailerId", springSecurityService.principal.retailerId)
+        }
+
+        // Populate the results with counts from related tables
+        productLists.each { productList ->
+            def storeCount = ProductListStore.countByProductList(productList)
+            def productCount = ProductListItem.countByProductList(productList)
+
+            stockAdjustmentResults << [
+                    id: productList.id,
+                    status: productList.status?.getFriendlyName() ?: productList.status,
+                    totalStores: storeCount,
+                    totalProducts: productCount,
+                    dateActioned: productList.dateCompleted?.toDate() // Convert Joda DateTime to Java Date
+            ]
+        }
+
+        return [stockAdjustmentResults: stockAdjustmentResults]
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def saveProductListStores() {
+        def productListId = session.currentProductListId
+        if (!productListId) {
+            render status: 400, text: "No active product list"
+            return
+        }
+
+        def storeData = request.JSON?.stores
+        if (!storeData) {
+            render status: 400, text: "No stores provided"
+            return
+        }
+
+        try {
+            ProductList.withTransaction { status ->
+                def productList = ProductList.get(productListId)
+                if (!productList) {
+                    render status: 404, text: "Product list not found"
+                    return
+                }
+
+                storeData.each { store ->
+                    def storeInstance = Store.get(store)
+                    if (!storeInstance) {
+                        log.warn("Store not found with ID: ${store.id}")
+                        return
+                    }
+
+                    def productListStore = new ProductListStore(
+                        productList: productList,
+                        store: storeInstance
+                    )
+                    
+                    if (!productListStore.save(flush: true)) {
+                        log.error("Failed to save ProductListStore: ${productListStore.errors}")
+                        throw new RuntimeException("Failed to save store association")
+                    }
+                    log.debug("Saved ProductListStore: ${productList.id} -> ${storeInstance.id}")
+                }
+                render status: 200, text: "Stores saved successfully"
+            }
+        } catch (Exception e) {
+            log.error("Failed to save stores", e)
+            render status: 500, text: "Failed to save stores: ${e.message}"
+        }
     }
 
 }

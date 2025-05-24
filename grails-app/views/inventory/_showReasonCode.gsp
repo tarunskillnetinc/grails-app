@@ -12,7 +12,7 @@
 
     <div id="supplierListView">
         <g:each in="${reasonCodes}" var="reasonCode" status="i">
-            <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Select Reason Code." onclick="selectReasonCode(${reasonCode.code})">
+            <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Select Reason Code." onclick="selectReasonCode(${reasonCode.id})">
                 <div id="reasonCode-name-${i + 1}" class="col-12 text-truncate-wrap">${reasonCode.description}</div>
             </div>
         </g:each>
