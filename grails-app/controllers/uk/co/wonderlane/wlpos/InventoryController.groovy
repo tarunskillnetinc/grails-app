@@ -4,7 +4,11 @@ import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.enums.JobStatus
+import uk.co.wonderlane.wlpos.enums.JobType
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
+import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.ProductListStore
@@ -15,6 +19,8 @@ class InventoryController {
     def springSecurityService
     def categoryService
     def storeService
+    def rabbitService
+    def jobService
     def productListService
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -332,6 +338,91 @@ class InventoryController {
     def ajaxGetStockAdjustments() {
         def results = getStockAdjustmentData()
         render(template: "/inventory/stockStatusSearchResults", model: results)
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def finalizeStockAdjustment() {
+        def productListId = session.currentProductListId
+        if (!productListId) {
+            render status: 400, text: "Missing productListId"
+            return
+        }
+
+        try {
+            ProductList.withTransaction { status ->
+                // Update ProductList status
+                def productList = ProductList.get(productListId)
+                productList.status = "SCHEDULED"
+                productList.save(flush: true)
+
+                // Update quantities for items with amended quantity
+                ProductListItem.findAllByProductList(productList).each { item ->
+                    if (item.fillQuantity != null) {
+                        item.quantity = item.fillQuantity
+                        item.save(flush: true)
+                    }
+                }
+
+                // Create Job record
+                def job = new Job()
+                job.uuid = UUID.randomUUID()
+                job.type = JobType.STOCK_ADJUSTMENT
+                job.storeId= null
+                job.status = JobStatus.PENDING
+                job.dateCreated = DateTime.now()
+                job.productListId = productListId
+                job.retailerId = springSecurityService.principal.retailerId
+                jobService.saveJob(job)
+
+                // Send RabbitMQ message
+                def syncMessage = new SyncMessage(
+                        SyncMessageType.STOCK_ADJUSTMENT,
+                        springSecurityService.principal.retailerId,
+                        null,
+                        null,
+                        null
+                )
+                syncMessage.setUuid(job.uuid)
+                syncMessage.setStatus(JobStatus.PENDING)
+                syncMessage.setProductListId(job.productListId)
+                rabbitService.sendJobsMessage(syncMessage)
+
+                render status: 200, text: "Stock adjustment scheduled successfully"
+            }
+        } catch (Exception e) {
+            log.error("Failed to finalize stock adjustment", e)
+            render status: 500, text: "Failed to schedule stock adjustment: ${e.message}"
+        }
+    }
+
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxRemoveProduct() {
+        def productId = params.long('productId')
+        def productListId = session.currentProductListId
+        
+        if (!productId || !productListId) {
+            render status: 400, text: "Missing required parameters"
+            return
+        }
+    
+        try {
+            ProductList.withTransaction { status ->
+                def productListItem = ProductListItem.findByProductListAndProductVariant(
+                    ProductList.get(productListId),
+                    ProductVariant.get(productId))
+                
+                if (productListItem) {
+                    productListItem.delete(flush: true)
+                    render status: 200, text: "Product removed successfully"
+                } else {
+                    render status: 404, text: "Product not found in list"
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to remove product", e)
+            render status: 500, text: "Failed to remove product: ${e.message}"
+        }
     }
 
     private def getStockAdjustmentData() {

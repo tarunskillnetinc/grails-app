@@ -62,31 +62,6 @@
 		}
 
 
-		function removeProduct(productId) {
-			$('#product' +productId).remove();
-
-			var productList = $('#productList');
-
-			if (productList.children().length === 1) {
-				var noResultsRow = $('#noResultsRow');
-
-				noResultsRow.removeClass("wl-striped0");
-				noResultsRow.removeClass("wl-striped1");
-				noResultsRow.addClass("wl-striped0");
-				noResultsRow.show();
-			} else {
-				for (var i = 1 ; i <= productList.children().length ; i++) {
-					var child = $('#productList>div:nth-child(' +i +')');
-
-					child.removeClass("wl-striped0");
-					child.removeClass("wl-striped1");
-
-					child.addClass("wl-striped" +(i % 2));
-				}
-			}
-		}
-
-
 		  var getStoresUrl = "${createLink(controller: 'inventory', action: 'ajaxGetStores')}"
 		  var deleteStoreUrl = "${createLink(controller: 'store', action: 'ajaxDeleteStore')}"
 		  var addStoreAdditionalDetails = "${createLink(controller: 'store', action: 'ajaxAddStoreAdditionalDetail')}"
@@ -351,30 +326,36 @@
 		}
 
 		function removeProduct(productId) {
-			$('#product' +productId).remove();
+			var removeUrl = "${createLink(controller: 'inventory', action: 'ajaxRemoveProduct')}";
+			
+			$.ajax({
+				url: removeUrl,
+				method: 'POST',
+				data: { productId: productId },
+				success: function() {
+					$('#product' + productId).remove();
+					var productList = $('#productList');
 
-			var productList = $('#productList');
-
-			if (productList.children().length === 1) {
-				var noResultsRow = $('#noResultsRow');
-
-				noResultsRow.removeClass("wl-striped0");
-				noResultsRow.removeClass("wl-striped1");
-				noResultsRow.addClass("wl-striped0");
-				noResultsRow.show();
-			} else {
-				for (var i = 1 ; i <= productList.children().length ; i++) {
-					var child = $('#productList>div:nth-child(' +i +')');
-
-					child.removeClass("wl-striped0");
-					child.removeClass("wl-striped1");
-
-					child.addClass("wl-striped" +(i % 2));
+					if (productList.children().length === 1) {
+						var noResultsRow = $('#noResultsRow');
+						noResultsRow.removeClass("wl-striped0");
+						noResultsRow.removeClass("wl-striped1");
+						noResultsRow.addClass("wl-striped0");
+						noResultsRow.show();
+					} else {
+						for (var i = 1; i <= productList.children().length; i++) {
+							var child = $('#productList>div:nth-child(' + i + ')');
+							child.removeClass("wl-striped0");
+							child.removeClass("wl-striped1");
+							child.addClass("wl-striped" + (i % 2));
+						}
+					}
+					checkProductsAndEnableStoreButton();
+				},
+				error: function(xhr) {
+					alert('Failed to remove product: ' + xhr.responseText);
 				}
-			}
-
-			// Check if we need to disable store button
-			checkProductsAndEnableStoreButton();
+			});
 		}
 
 			$(document).ready(function() {
@@ -400,7 +381,16 @@
 				// Handle confirmation - save stores then redirect
 				$('#confirmSaveYes').click(function() {
 					$('#saveConfirmationModal').modal('hide');
-					window.location.href = "${createLink(controller: 'inventory', action: 'index')}?successMessage=Requested+Inventory+chnages+have+been+successfully+completed";
+					$.ajax({
+						url: "${createLink(controller: 'inventory', action: 'finalizeStockAdjustment')}",
+						method: "POST",
+						success: function() {
+							window.location.href = "${createLink(controller: 'inventory', action: 'index')}?successMessage=Stock+adjustment+has+been+scheduled";
+						},
+						error: function(xhr) {
+							alert("Failed to schedule stock adjustment: " + xhr.responseText);
+						}
+					});
 				});
 			});
 
