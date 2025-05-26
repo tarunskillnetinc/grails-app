@@ -12,54 +12,74 @@
 		var lastSelectedStores = [];
 
 		function productSelected(id, itemCode, description) {
-			var addProductUrl = "${createLink(controller: 'inventory', action: 'ajaxAddProduct')}";
+            var addProductUrl = "${createLink(controller: 'inventory', action: 'ajaxAddProduct')}";
+            let productList = $("#productList");
+            let warningMessage = $('#warning-message');
 
-			$.ajax({
-				url: addProductUrl,
-				data: { productId: id },
-				success: function(resp) {
-					let productList = $("#productList")
-					let warningMessage = $('#warning-message')
+            // First check if product already exists in the list
+            if ($('#product' + id).length > 0) {
+                if (warningMessage.length) {
+                    warningMessage.text("This product has already been added to the adjustment list.");
+                    warningMessage.removeClass("hidden").addClass("show");
 
-					for (const element of productList.children()) {
-						if (element.id.toUpperCase() === "PRODUCTVARIANT" + id) {
-							if (warningMessage.length) {
-								warningMessage.text("Product has already been added.")
-								warningMessage.removeClass("hidden")
-							}
-							return
-						}
-					}
+                    // Hide the warning after 3 seconds
+                    setTimeout(function() {
+                        warningMessage.removeClass("show").addClass("hidden");
+                    }, 3000);
+                }
+                return false; // Exit function
+            }
 
-					if (warningMessage.length) {
-						warningMessage.addClass("hidden")
-					}
+            // If we get here, product isn't in the list yet
+            $.ajax({
+                url: addProductUrl,
+                method: 'POST',
+                data: {
+                    productId: id,
+                    itemCode: itemCode,
+                    description: description
+                },
+                success: function(resp) {
+                    // Hide any existing warning
+                    if (warningMessage.length) {
+                        warningMessage.addClass("hidden").removeClass("show");
+                    }
 
-					productList.append(resp);
+                    // Add the new product
+                    productList.append(resp);
+                    $('#noResultsRow').hide();
 
-					$('#noResultsRow').hide();
+                    // Update row styling and IDs
+                    let i = productList.children().length - 1;
+                    let row = $('#product' + id);
+                    row.addClass("wl-striped" + ((i-1) % 2));
 
-					let i = productList.children().length - 1;
-					let row = $('#productVariant' +id);
-					row.addClass("wl-striped" +((i-1) % 2));
-					row.find('#prod-0-id').attr("id", "prod-" + i + "-id");
-					row.find('#prod-0-sku').attr("id", "prod-" + i + "-sku");
-					row.find('#prod-0-description').attr("id", "prod-" + i + "-description");
-					row.find('#prod-0-colour').attr("id", "prod-" + i + "-colour");
-					row.find('#prod-0-size').attr("id", "prod-" + i + "-size");
-					row.find('#prod-0-remove-btn').attr("id", "prod-" + i + "-remove-btn");
+                    // Update element IDs to maintain uniqueness
+                    row.find('#prod-0-id').attr("id", "prod-" + i + "-id");
+                    row.find('#prod-0-sku').attr("id", "prod-" + i + "-sku");
+                    row.find('#prod-0-description').attr("id", "prod-" + i + "-description");
+                    row.find('#prod-0-colour').attr("id", "prod-" + i + "-colour");
+                    row.find('#prod-0-size').attr("id", "prod-" + i + "-size");
+                    row.find('#prod-0-remove-btn').attr("id", "prod-" + i + "-remove-btn");
 
-					// Apply last selected stores to the new product if any exist
-					if (lastSelectedStores.length > 0) {
-						var storeNames = lastSelectedStores.map(store => store.name).join(', ');
-						updateProductStores(id, lastSelectedStores, lastSelectedStores.length, storeNames);
-					}
+                    // Apply last selected stores if any exist
+                    if (lastSelectedStores.length > 0) {
+                        var storeNames = lastSelectedStores.map(store => store.name).join(', ');
+                        updateProductStores(id, lastSelectedStores, lastSelectedStores.length, storeNames);
+                    }
 
-					// Enable store button after adding product
-					checkProductsAndEnableStoreButton();
-				}
-			});
-		}
+                    // Enable store button if needed
+                    checkProductsAndEnableStoreButton();
+                },
+                error: function(xhr) {
+                    if (warningMessage.length) {
+                        warningMessage.text("Failed to add product: " + xhr.responseText);
+                        warningMessage.removeClass("hidden").addClass("show");
+                    }
+                    console.error("Error adding product:", xhr.responseText);
+                }
+            });
+        }
 
 
 		  var getStoresUrl = "${createLink(controller: 'inventory', action: 'ajaxGetStores')}"
@@ -154,39 +174,69 @@
 			  $('#selectAllStores').prop('checked', false);
 		  }
 
-		  function getStores() {
-			  $('#store-results-container').html("");
-			  $("#store-loading-indicator").show();
+		 function getStores() {
+             $('#store-results-container').html("");
+             $("#store-loading-indicator").show();
 
-			  var filterParams = {
-				  storeNumberFilter: $('#modalStoreNumberFilter').val(),
-				  storeNameFilter: $('#modalStoreNameFilter').val(),
-				  max: 50,
-				  offset: 0
-			  };
+             var filterParams = {
+                 storeNumberFilter: $('#modalStoreNumberFilter').val(),
+                 storeNameFilter: $('#modalStoreNameFilter').val(),
+                 max: 50,
+                 offset: 0
+             };
 
-			  $.ajax({
-				  url: getStoresUrl,
-				  data: filterParams,
-				  success: function(resp) {
-					  $('#store-results-container').html(resp);
-					  $("#store-loading-indicator").hide();
+             $.ajax({
+                 url: getStoresUrl,
+                 data: filterParams,
+                 success: function(resp) {
+                     $('#store-results-container').html(resp);
+                     $("#store-loading-indicator").hide();
 
-					  $('#selectAllStores').on('change', function() {
-						  $('.store-checkbox').prop('checked', $(this).is(':checked'));
-					  });
+                     $('#selectAllStores').on('change', function() {
+                         $('.store-checkbox').prop('checked', $(this).is(':checked'));
+                     });
 
-					  $(document).on('change', '.store-checkbox', function() {
-						  updateSelectAllCheckbox();
-					  });
-				  },
-				  error: function(xhr, status, error) {
-					  $("#store-loading-indicator").hide();
-					  $('#store-results-container').html('<div class="alert alert-danger mt-3">Error loading stores: ' + error + '</div>');
-					  console.error("AJAX Error:", status, error);
-				  }
-			  });
-		  }
+                     $(document).on('change', '.store-checkbox', function() {
+                         updateSelectAllCheckbox();
+                     });
+
+                     // ADDED: Restore previously selected stores after AJAX completes
+                     if (currentProductId) {
+                         var storesData = $('#product' + currentProductId + ' .selected-stores').val();
+                         if (storesData) {
+                             try {
+                                 var stores = JSON.parse(storesData);
+                                 // Check the boxes for stores already selected
+                                 stores.forEach(function(store) {
+                                     $('.store-checkbox[data-store-id="' + store.id + '"]').prop('checked', true);
+                                 });
+                                 updateSelectAllCheckbox();
+                             } catch (e) {
+                                 console.error("Error parsing stores data:", e);
+                             }
+                         }
+                     } else if (lastSelectedStores && lastSelectedStores.length > 0) {
+                         // If no specific product, use last selected stores
+                         lastSelectedStores.forEach(function(store) {
+                             $('.store-checkbox[data-store-id="' + store.id + '"]').prop('checked', true);
+                         });
+                         updateSelectAllCheckbox();
+                     }
+                 },
+                 error: function(xhr, status, error) {
+                     $("#store-loading-indicator").hide();
+                     $('#store-results-container').html('<div class="alert alert-danger mt-3">Error loading stores: ' + error + '</div>');
+                     console.error("AJAX Error:", status, error);
+                 }
+             });
+         }
+
+        var currentProductId = null;
+
+        function setCurrentProductId(productId) {
+            currentProductId = productId;
+            // The checkbox restoration will happen in getStores() after AJAX completes
+        }
 
 		  function updateSelectAllCheckbox() {
 			  var allChecked = true;
@@ -229,55 +279,7 @@
 		 }
 
 
-		 function productSelected(id, itemCode, description) {
-			 var addProductUrl = "${createLink(controller: 'inventory', action: 'ajaxAddProduct')}";
 
-			 $.ajax({
-				 url: addProductUrl,
-				 data: { productId: id },
-				 success: function(resp) {
-					 let productList = $("#productList")
-					 let warningMessage = $('#warning-message')
-
-					 for (const element of productList.children()) {
-						 if (element.id.toUpperCase() === "PRODUCTVARIANT" + id) {
-							 if (warningMessage.length) {
-								 warningMessage.text("Product has already been added.")
-								 warningMessage.removeClass("hidden")
-							 }
-							 return
-						 }
-					 }
-
-					 if (warningMessage.length) {
-						 warningMessage.addClass("hidden")
-					 }
-
-					 productList.append(resp);
-
-					 $('#noResultsRow').hide();
-
-					 let i = productList.children().length - 1;
-					 let row = $('#productVariant' +id);
-					 row.addClass("wl-striped" +((i-1) % 2));
-					 row.find('#prod-0-id').attr("id", "prod-" + i + "-id");
-					 row.find('#prod-0-sku').attr("id", "prod-" + i + "-sku");
-					 row.find('#prod-0-description').attr("id", "prod-" + i + "-description");
-					 row.find('#prod-0-colour').attr("id", "prod-" + i + "-colour");
-					 row.find('#prod-0-size').attr("id", "prod-" + i + "-size");
-					 row.find('#prod-0-remove-btn').attr("id", "prod-" + i + "-remove-btn");
-
-					 // Apply last selected stores to the new product if any exist
-					 if (lastSelectedStores.length > 0) {
-						 var storeNames = lastSelectedStores.map(store => store.name).join(', ');
-						 updateProductStores(id, lastSelectedStores, lastSelectedStores.length, storeNames);
-					 }
-
-					 // Enable store button after adding product
-					 checkProductsAndEnableStoreButton();
-				 }
-			 });
-		 }
 
 		$(document).ready(function() {
 			// Initialize view adjustment buttons based on store assignments
@@ -327,7 +329,7 @@
 
 		function removeProduct(productId) {
 			var removeUrl = "${createLink(controller: 'inventory', action: 'ajaxRemoveProduct')}";
-			
+
 			$.ajax({
 				url: removeUrl,
 				method: 'POST',
