@@ -344,7 +344,7 @@ class InventoryController {
     def finalizeStockAdjustment() {
         def productListId = session.currentProductListId
         if (!productListId) {
-            render status: 400, text: "Missing productListId"
+            render status: 400, text: "Missing productListId in session"
             return
         }
 
@@ -355,15 +355,16 @@ class InventoryController {
                 productList.status = "SCHEDULED"
                 productList.save(flush: true)
 
-                // Update quantities for items with amended quantity
+                def amendedQuantities = params.amendedQuantities ?
+                    JSON.parse(params.amendedQuantities) : [:]
+                
                 ProductListItem.findAllByProductList(productList).each { item ->
-                    if (item.fillQuantity != null) {
-                        item.quantity = item.fillQuantity
+                    if (amendedQuantities[item.productVariant.id.toString()]) {
+                        item.fillQuantity = amendedQuantities[item.productVariant.id.toString()].toInteger()
                         item.save(flush: true)
                     }
                 }
 
-                // Create Job record
                 def job = new Job()
                 job.uuid = UUID.randomUUID()
                 job.type = JobType.STOCK_ADJUSTMENT
@@ -374,7 +375,6 @@ class InventoryController {
                 job.retailerId = springSecurityService.principal.retailerId
                 jobService.saveJob(job)
 
-                // Send RabbitMQ message
                 def syncMessage = new SyncMessage(
                         SyncMessageType.STOCK_ADJUSTMENT,
                         springSecurityService.principal.retailerId,

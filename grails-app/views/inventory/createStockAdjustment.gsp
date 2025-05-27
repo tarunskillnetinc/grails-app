@@ -382,9 +382,22 @@
 				// Handle confirmation - save stores then redirect
 				$('#confirmSaveYes').click(function() {
 					$('#saveConfirmationModal').modal('hide');
+					
+					var amendedQuantities = {};
+					$('.amended-quantity-input').each(function() {
+						var productId = $(this).attr('name').replace('amendedQuantity_', '');
+						var amendedQty = $(this).val();
+						if (amendedQty !== '') {
+							amendedQuantities[productId] = amendedQty;
+						}
+					});
+
 					$.ajax({
 						url: "${createLink(controller: 'inventory', action: 'finalizeStockAdjustment')}",
 						method: "POST",
+						data: {
+							amendedQuantities: JSON.stringify(amendedQuantities)
+						},
 						success: function() {
 							window.location.href = "${createLink(controller: 'inventory', action: 'index')}?successMessage=Stock+adjustment+has+been+scheduled";
 						},

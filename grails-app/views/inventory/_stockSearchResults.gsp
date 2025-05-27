@@ -8,7 +8,7 @@
     <div id="prod-${pos}-description" class="col my-auto">${product?.product?.description}</div>
     <div id="prod-${pos}-category" class="col my-auto">${category?.description}</div>
     <div id="prod-${pos}-quantity" class="col my-auto">20</div>
-    <div id="prod-${pos}-amended" class="col my-auto"><input type="number" min="0" class="form-control form-control-sm" style="width: 70px;"/></div>
+    <div id="prod-${pos}-amended" class="col my-auto"><input type="number" min="0" class="form-control form-control-sm amended-quantity-input" style="width: 70px;" name="amendedQuantity_${product?.id}"/></div>
     <div class="col my-auto font-weight-bold stores-info">
         <span class="stores-count">0</span>
     </div>
