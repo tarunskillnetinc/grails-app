@@ -235,7 +235,6 @@
 
         function setCurrentProductId(productId) {
             currentProductId = productId;
-            // The checkbox restoration will happen in getStores() after AJAX completes
         }
 
 		  function updateSelectAllCheckbox() {
@@ -481,48 +480,65 @@
 			  // searchProducts();
 		  }
 
-		 function viewAdjustments(productId) {
-			 // Get the selected stores data
-			 var storesData = $('#product' + productId + ' .selected-stores').val();
+        function viewAdjustments(productId) {
+                     // Get the selected stores data
+                     var storesData = $('#product' + productId + ' .selected-stores').val();
 
-			 if (!storesData || storesData === '') {
-				 alert('No stores have been assigned to this product.');
-				 return;
-			 }
+                     if (!storesData || storesData === '') {
+                         alert('No stores have been assigned to this product.');
+                         return;
+                     }
 
-			 try {
-				 var stores = JSON.parse(storesData);
-				 var productRow = $('#product' + productId);
-				 var itemCode = productRow.find('#prod-0-id').text();
-				 var barcode = productRow.find('#prod-0-sku').text();
-				 var description = productRow.find('#prod-0-description').text();
-				 var amendedQty = productRow.find('input[type="number"]').val() || '0';
+                     try {
+                         var stores = JSON.parse(storesData);
+                         var productRow = $('#product' + productId);
 
-				 // Clear previous content
-				 $('#adjustmentsTableBody').empty();
+                         // Debug: Log the entire product row HTML
+                         console.log("Product Row HTML:", productRow.html());
 
-				 // Add rows for each store
-				 stores.forEach(function(store) {
-					 $('#adjustmentsTableBody').append(
-						 '<tr>' +
-						 '   <td>' + store.number + '</td>' +
-						 '   <td>' + store.name + '</td>' +
-						 '   <td>' + itemCode + '</td>' +
-						 '   <td>' + barcode + '</td>' +
-						 '   <td>' + description + '</td>' +
-						 '   <td>20</td>' + // Assuming current quantity is always 20 as shown in your template
-						 '   <td>' + amendedQty + '</td>' +
-						 '</tr>'
-					 );
-				 });
+                         // Find all elements with IDs starting with 'prod-' in this row
+                         var prodElements = productRow.find('[id^="prod-"]');
+                         console.log("Product Elements:", prodElements);
 
-				 // Show the modal
-				 $('#viewAdjustmentsModal').modal('show');
-			 } catch (e) {
-				 console.error("Error parsing stores data:", e);
-				 alert('Error loading store data. Please try again.');
-			 }
-		 }
+                         // Get the product data - use more flexible selectors
+                         var itemCode = productRow.find('[id$="-id"]').text().trim();
+                         var barcode = productRow.find('[id$="-sku"]').text().trim();
+                         var description = productRow.find('[id$="-description"]').text().trim();
+                         var amendedQty = productRow.find('input[type="number"]').val() || '0';
+
+                         // Debug: Log the retrieved values
+                         console.log("Retrieved values:", {
+                             itemCode: itemCode,
+                             barcode: barcode,
+                             description: description,
+                             amendedQty: amendedQty
+                         });
+
+                         // Clear previous content
+                         $('#adjustmentsTableBody').empty();
+
+                         // Add rows for each store
+                         stores.forEach(function(store) {
+                             $('#adjustmentsTableBody').append(
+                                 '<tr>' +
+                                 '   <td>' + store.number + '</td>' +
+                                 '   <td>' + store.name + '</td>' +
+                                 '   <td>' + itemCode + '</td>' +
+                                 '   <td>' + barcode + '</td>' +
+                                 '   <td>' + description + '</td>' +
+                                 '   <td>20</td>' + // Assuming current quantity is always 20 as shown in your template
+                                 '   <td>' + amendedQty + '</td>' +
+                                 '</tr>'
+                             );
+                         });
+
+                         // Show the modal
+                         $('#viewAdjustmentsModal').modal('show');
+                     } catch (e) {
+                         console.error("Error parsing stores data:", e);
+                         alert('Error loading store data. Please try again.');
+                     }
+                 }
 
 		function addSelectedStores() {
 			var selectedStores = [];
