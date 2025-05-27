@@ -138,6 +138,48 @@
              }
          });
 
+        $(document).ready(function() {
+            // Make rows clickable and show modal
+            $(document).on('click', '.clickable-row', function() {
+                var id = $(this).data('id');
+                var status = $(this).data('status');
+                var totalStores = $(this).data('total-stores');
+                var totalProducts = $(this).data('total-products');
+                var dateActioned = $(this).data('date-actioned');
+
+                // Set basic info in modal
+                $('#modal-adjustment-id').text(id);
+                $('#modal-adjustment-status').text(status);
+                $('#modal-adjustment-stores').text(totalStores);
+                $('#modal-adjustment-products').text(totalProducts);
+                $('#modal-adjustment-date').text(dateActioned);
+
+                // Load products via AJAX
+                $.ajax({
+                    url: "${createLink(controller: 'inventory', action: 'ajaxGetAdjustmentProducts')}",
+                    data: { adjustmentId: id },
+                    success: function(response) {
+                        $('#adjustmentProductsContainer').html(response);
+                    },
+                    error: function(xhr) {
+                        $('#adjustmentProductsContainer').html('<div class="alert alert-danger">Failed to load products</div>');
+                    }
+                });
+
+                // Show modal
+                $('#adjustmentDetailsModal').modal('show');
+            });
+
+            // Add hover effect for clickable rows
+            $(document).on('mouseenter', '.clickable-row', function() {
+                $(this).css('cursor', 'pointer');
+                $(this).addClass('bg-light');
+            }).on('mouseleave', '.clickable-row', function() {
+                $(this).removeClass('bg-light');
+            });
+        });
+
+
              </script>
 </head>
 
@@ -177,7 +219,7 @@
      <div class="row mx-5 pt-3 pb-2" style="display: flex; align-items: center;">
          <label for="status" class="col-1 col-form-label-sm text-right">Status</label>
          <div class="input-group-append">
-             <g:select id="statusSelect" name="statusSelect" from="${['All', 'Pending', 'In progress', 'Complete']}" value="" valueMessagePrefix="reasonCodeSelect" class="form-control select-border" style="z-index: 0;" />
+             <g:select id="statusSelect" name="statusSelect" from="${['All', 'Pending', 'In progress', 'Complete', 'Scheduled']}" value="" valueMessagePrefix="reasonCodeSelect" class="form-control select-border" style="z-index: 0;" />
          </div>
          <div class="col-12 text-right" style="max-width:71%">
              <button id="uploadBtn" type="button" class="btn btn-wl mt-1">Upload CSV</button>
