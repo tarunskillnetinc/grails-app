@@ -1,7 +1,6 @@
-<div class="modal-header" style="text-align: center">
-    <h2>Select A Reason Code</h2>
+<div class="modal-header" style="display: flex; justify-content: center; align-items: center;">
+    <h5>Select A Reason Code</h5>
 </div>
-
 
 <div class="modal-body" style="max-height: 500px; overflow-x: auto; overflow-y: auto;">
 
