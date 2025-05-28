@@ -592,7 +592,10 @@
             });
 
             if (selectedStores.length === 0) {
-                alert('Please select at least one store.');
+                $('#failureMessage').text('Please select at least one store.').show();
+                setTimeout(function() {
+                    $('#failureMessage').hide();
+                }, 5000);
                 return;
             }
 
@@ -620,7 +623,10 @@
                     contentType: 'application/json',
                     data: JSON.stringify({stores: selectedStores}),
                     error: function(xhr) {
-                        alert('Failed to save stores: ' + xhr.responseText);
+                        $('#failureMessage').text('Failed to save stores: ' + xhr.responseText).show();
+                        setTimeout(function() {
+                            $('#failureMessage').hide();
+                        }, 5000);
                     }
                 });
             } else {
