@@ -670,6 +670,7 @@
 					<h2 id="page-title" class="mx-auto my-auto">Store Stock Adjustment</h2>
 				</div>
 
+
 				<div class="col-3 text-right">
 					 <button id="addProductButton" type="button" class="btn btn-wl mt-1" data-toggle="modal" data-target="#inventoryProductSearchModal">Add Product(s)</button>
 					 <button id="cancelButton" type="button" class="btn btn-wl mt-1" onclick="window.location.href='${createLink(controller: 'inventory', action: 'index')}'">Cancel</button>
