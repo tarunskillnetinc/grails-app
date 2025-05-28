@@ -659,10 +659,8 @@
 
 		 <div class="row mx-5 pt-3 pb-2" style="display: flex; align-items: center;">
 			  <div class="col-12 text-right">
-			<!--    <button id="addProductButton" type="button" class="btn btn-wl mt-1" data-toggle="modal" data-target="#productSearchModal">Add Product(s)</button>-->
 				<button id="addProductButton" type="button" class="btn btn-wl mt-1" data-toggle="modal" data-target="#inventoryProductSearchModal">Add Product(s)</button>
-				<button type="button" class="btn btn-sm btn-wl mt-1" id="addStoresButton" data-toggle="modal" data-target="#addStoresModal" onclick="setCurrentProductId('${product?.id}')" disabled>Add Stores</button>
-			  </div>
+			    <button type="button" class="btn btn-wl mt-1" id="addStoresButton" data-toggle="modal" data-target="#addStoresModal" onclick="setCurrentProductId('${product?.id}')" disabled>Add Stores(s)</button>			  </div>
 			  </div>
 
 		 <div class="row mt-4 ml-0 mr-0 bottom-border">
@@ -694,12 +692,10 @@
 	<div class="modal fade" id="addStoresModal" tabindex="-1" role="dialog" aria-labelledby="addStoresModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">Add Store(s)</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
+				<div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h5 class="modal-title" style="flex: 1; text-align: center; margin: 0;">Add Store(s)</h5>
+                    </button>
+                </div>
 				<div class="modal-body">
 					<section id="filters-section" class="container-fluid">
 						<!-- Search filters section -->
@@ -852,9 +848,9 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title">Stock Adjustments</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
+					<button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                        Exit
+                    </button>
 				</div>
 				<div class="modal-body">
 					<table class="table table-bordered">
