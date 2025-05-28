@@ -664,12 +664,16 @@
 			</nav>
 		</section>
 
+		<section id="alerts-container" class="container-fluid">
+                <div class="alert alert-success alert-wl mx-0" role="alert" id="successMessage" style="display: none"></div>
+                <div class="alert alert-danger alert-wl mx-0" role="alert" id="failureMessage" style="display: none"></div>
+        </section>
+
 		<section id="store-management" class="container-fluid">
 			<div class="row header-wl mt-3">
 				<div class="col-6 offset-3">
 					<h2 id="page-title" class="mx-auto my-auto">Store Stock Adjustment</h2>
 				</div>
-
 
 				<div class="col-3 text-right">
 					 <button id="addProductButton" type="button" class="btn btn-wl mt-1" data-toggle="modal" data-target="#inventoryProductSearchModal">Add Product(s)</button>
@@ -679,10 +683,7 @@
 			</div>
 		</section>
 
-		<section id="alerts-container" class="container-fluid">
-				<div class="alert alert-success alert-wl mx-0" role="alert" id="successMessage" style="display: none"></div>
-				<div class="alert alert-danger alert-wl mx-0" role="alert" id="failureMessage" style="display: none"></div>
-		</section>
+
 		</section>
 
 		 <div class="row mx-3 pt-3 pb-2" style="display: flex; justify-content: flex-end;">
