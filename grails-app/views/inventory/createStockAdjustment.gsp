@@ -286,14 +286,30 @@
 
 
 		 function updateProductStores(productId, storeData, count, names) {
-			 $('#product' + productId + ' .selected-stores').val(JSON.stringify(storeData));
-			 $('#product' + productId + ' .stores-count').text(count);
-			 $('#product' + productId + ' .stores-list').text(names);
+             $('#product' + productId + ' .selected-stores').val(JSON.stringify(storeData));
+             $('#product' + productId + ' .stores-count').text(count);
+             $('#product' + productId + ' .stores-list').text(names);
 
-			 // Show/hide the view adjustment button
-			 var viewBtn = $('#product' + productId + ' .view-adjustment-btn');
-			 viewBtn.toggle(storeData && storeData.length > 0);
-		 }
+             // Show/hide the view adjustment button
+             var viewBtn = $('#product' + productId + ' .view-adjustment-btn');
+             viewBtn.toggle(storeData && storeData.length > 0);
+
+             // Check if any product has stores assigned
+             var hasStores = false;
+             $('.selected-stores').each(function() {
+                 if ($(this).val() && JSON.parse($(this).val()).length > 0) {
+                     hasStores = true;
+                     return false; // break out of the loop
+                 }
+             });
+
+             // Show/hide the Save button based on whether any product has stores
+             if (hasStores) {
+                 $('#saveButton').removeClass('hidden');
+             } else {
+                 $('#saveButton').addClass('hidden');
+             }
+         }
 
 
 		  $(document).ready(function() {
@@ -320,38 +336,48 @@
         }
 
 		function removeProduct(productId) {
-			var removeUrl = "${createLink(controller: 'inventory', action: 'ajaxRemoveProduct')}";
+            var removeUrl = "${createLink(controller: 'inventory', action: 'ajaxRemoveProduct')}";
 
-			$.ajax({
-				url: removeUrl,
-				method: 'POST',
-				data: { productId: productId },
-				success: function() {
-					$('#product' + productId).remove();
-					var productList = $('#productList');
+            $.ajax({
+                url: removeUrl,
+                method: 'POST',
+                data: { productId: productId },
+                success: function() {
+                    $('#product' + productId).remove();
+                    var productList = $('#productList');
 
-					if (productList.children().length === 1) {
-						var noResultsRow = $('#noResultsRow');
-						noResultsRow.removeClass("wl-striped0");
-						noResultsRow.removeClass("wl-striped1");
-						noResultsRow.addClass("wl-striped0");
-						noResultsRow.show();
-					} else {
-						for (var i = 1; i <= productList.children().length; i++) {
-							var child = $('#productList>div:nth-child(' + i + ')');
-							child.removeClass("wl-striped0");
-							child.removeClass("wl-striped1");
-							child.addClass("wl-striped" + (i % 2));
-						}
-					}
-					checkProductsAndEnableStoreButton();
-				},
-				error: function(xhr) {
-					alert('Failed to remove product: ' + xhr.responseText);
-				}
-			});
-		}
-
+                    if (productList.children().length === 1) {
+                        var noResultsRow = $('#noResultsRow');
+                        noResultsRow.removeClass("wl-striped0");
+                        noResultsRow.removeClass("wl-striped1");
+                        noResultsRow.addClass("wl-striped0");
+                        noResultsRow.show();
+                        // Hide Save button when no products left
+                        $('#saveButton').addClass('hidden');
+                    } else {
+                        for (var i = 1; i <= productList.children().length; i++) {
+                            var child = $('#productList>div:nth-child(' + i + ')');
+                            child.removeClass("wl-striped0");
+                            child.removeClass("wl-striped1");
+                            child.addClass("wl-striped" + (i % 2));
+                        }
+                        // Check if any remaining products have stores
+                        var hasStores = false;
+                        $('.selected-stores').each(function() {
+                            if ($(this).val() && JSON.parse($(this).val()).length > 0) {
+                                hasStores = true;
+                                return false;
+                            }
+                        });
+                        $('#saveButton').toggleClass('hidden', !hasStores);
+                    }
+                    checkProductsAndEnableStoreButton();
+                },
+                error: function(xhr) {
+                    alert('Failed to remove product: ' + xhr.responseText);
+                }
+            });
+        }
 			$(document).ready(function() {
 				// Initialize store button state
 				checkProductsAndEnableStoreButton();
@@ -547,71 +573,73 @@
                  }
 
 		function addSelectedStores() {
-			var selectedStores = [];
-			var selectedStoreNames = [];
-			var selectedStoreData = [];
+            var selectedStores = [];
+            var selectedStoreNames = [];
+            var selectedStoreData = [];
 
-			$('.store-checkbox:checked').each(function() {
-				var storeId = $(this).data('store-id');
-				var storeNumber = $(this).data('store-number');
-				var storeName = $(this).data('store-name');
+            $('.store-checkbox:checked').each(function() {
+                var storeId = $(this).data('store-id');
+                var storeNumber = $(this).data('store-number');
+                var storeName = $(this).data('store-name');
 
-				selectedStores.push(storeId);
-				selectedStoreNames.push(storeName);
-				selectedStoreData.push({
-					id: storeId,
-					number: storeNumber,
-					name: storeName
-				});
-			});
+                selectedStores.push(storeId);
+                selectedStoreNames.push(storeName);
+                selectedStoreData.push({
+                    id: storeId,
+                    number: storeNumber,
+                    name: storeName
+                });
+            });
 
-			if (selectedStores.length === 0) {
-				alert('Please select at least one store.');
-				return;
-			}
+            if (selectedStores.length === 0) {
+                alert('Please select at least one store.');
+                return;
+            }
 
-			// Update last selected stores
-			lastSelectedStores = selectedStoreData;
+            // Update last selected stores
+            lastSelectedStores = selectedStoreData;
 
-			// Update only the current product if specified, otherwise update all
-			if (currentProductId) {
-				updateProductStores(currentProductId, selectedStoreData, selectedStores.length, selectedStoreNames.join(', '));
-			} else {
-				// Update all products
-				$('.selected-stores').val(JSON.stringify(selectedStoreData));
-				$('.stores-count').text(selectedStores.length);
-				$('.stores-list').text(selectedStoreNames.join(', '));
-			}
+            // Update only the current product if specified, otherwise update all
+            if (currentProductId) {
+                updateProductStores(currentProductId, selectedStoreData, selectedStores.length, selectedStoreNames.join(', '));
+            } else {
+                // Update all products
+                $('.selected-stores').val(JSON.stringify(selectedStoreData));
+                $('.stores-count').text(selectedStores.length);
+                $('.stores-list').text(selectedStoreNames.join(', '));
 
-			// Collect selected stores
-			if (selectedStores.length > 0) {
-				$.ajax({
-					url: '${createLink(controller: 'inventory', action: 'saveProductListStores')}',
-					method: 'POST',
-					contentType: 'application/json',
-					data: JSON.stringify({stores: selectedStores}),
-					error: function(xhr) {
-						alert('Failed to save stores: ' + xhr.responseText);
-					}
-				});
-			} else {
-				window.location.href = '${createLink(controller: 'inventory', action: 'index')}';
-			}
+                // Show the Save button since we've added stores
+                $('#saveButton').removeClass('hidden');
+            }
 
-			// Show/hide view adjustment button based on store count
-			$('.view-adjustment-btn').each(function() {
-				var productId = $(this).closest('.row').attr('id').replace('product', '');
-				var storesData = $('#product' + productId + ' .selected-stores').val();
-				$(this).toggle(storesData && storesData !== '' && JSON.parse(storesData).length > 0);
-			});
+            // Collect selected stores
+            if (selectedStores.length > 0) {
+                $.ajax({
+                    url: '${createLink(controller: 'inventory', action: 'saveProductListStores')}',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({stores: selectedStores}),
+                    error: function(xhr) {
+                        alert('Failed to save stores: ' + xhr.responseText);
+                    }
+                });
+            } else {
+                window.location.href = '${createLink(controller: 'inventory', action: 'index')}';
+            }
 
-			$('#addStoresModal').modal('hide');
-			$('#successMessage').text('Successfully added ' + selectedStores.length + ' store(s)').show();
-			setTimeout(function() {
-				$('#successMessage').hide();
-			}, 5000);
-		}
+            // Show/hide view adjustment button based on store count
+            $('.view-adjustment-btn').each(function() {
+                var productId = $(this).closest('.row').attr('id').replace('product', '');
+                var storesData = $('#product' + productId + ' .selected-stores').val();
+                $(this).toggle(storesData && storesData !== '' && JSON.parse(storesData).length > 0);
+            });
 
+            $('#addStoresModal').modal('hide');
+            $('#successMessage').text('Successfully added ' + selectedStores.length + ' store(s)').show();
+            setTimeout(function() {
+                $('#successMessage').hide();
+            }, 5000);
+        }
 	</script>
 	</head>
 
@@ -653,7 +681,7 @@
 		 <div class="row mx-3 pt-3 pb-2" style="display: flex; justify-content: flex-end;">
 			  <div class="col-5 text-right">
                     <button type="button" class="btn btn-wl mt-1 hidden " id="addStoresButton" data-toggle="modal" data-target="#addStoresModal" onclick="setCurrentProductId('${product?.id}')" >Add Stores(s)</button>			  </div>
-                    <button id="saveButton" type="button" class="btn btn-success mt-1">Save</button>
+                    <button id="saveButton" type="button" class="btn btn-success mt-1 hidden">Save</button>
               </div>
 
 		 <div class="row mt-4 ml-0 mr-0 bottom-border">
