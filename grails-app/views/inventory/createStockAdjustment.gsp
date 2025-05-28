@@ -99,11 +99,6 @@
 				  }
 			  });
 
-			  $(document).on('click', '#cancelButton', function() {
-				  if (confirm('Are you sure you want to cancel?')) {
-					  window.location.href = "${createLink(uri: '/')}";
-				  }
-			  });
 		  });
 
 		  function searchStores(sortParams) {
@@ -382,7 +377,7 @@
 				// Handle confirmation - save stores then redirect
 				$('#confirmSaveYes').click(function() {
 					$('#saveConfirmationModal').modal('hide');
-					
+
 					var amendedQuantities = {};
 					$('.amended-quantity-input').each(function() {
 						var productId = $(this).attr('name').replace('amendedQuantity_', '');
@@ -644,7 +639,7 @@
 				</div>
 
 				<div class="col-3 text-right">
-					<button id="cancelButton" type="button" class="btn btn-wl mt-1" onclick="">Cancel</button>
+					 <button id="cancelButton" type="button" class="btn btn-wl mt-1" onclick="window.location.href='${createLink(controller: 'inventory', action: 'index')}'">Cancel</button>
 				 <!---   <button id="saveButton" type="button" class="btn btn-wl mt-1" onclick="">Save</button>--->
 					<button id="saveButton" type="button" class="btn btn-wl mt-1">Save</button>
 				</div>

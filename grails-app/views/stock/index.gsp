@@ -18,29 +18,29 @@
 
         var globalSortParams = null;
 
-        $(function() {
-            var sort = "${sort}";
-            var order = "${order}"
-            
-            getStores({max: ${max ?: 'null'}, offset: ${offset ?: 'null'}, sort: (sort !== "" ? sort : null), order: (order !== "" ? order : null)});
-            getStockAdjustments(); // Call the new function on page load
-        });
-
         function getStores(sortParams) {
             $('#search-results').html("");
             $("#loading-indicator").show();
+            $("#resetInventoryContainer").hide();
+            $("#results-container").show();
 
             var filterParams = {};
 
-            $("#filtersForm input").each(function() {
-                filterParams[$(this).attr("name")] = $(this).val();
-            }).get();
+           // Only include filter params if they have values
+              var storeNumber = $("#storeNumberFilter").val();
+              var storeName = $("#storeNameFilter").val();
 
-            $("#filtersForm :checkbox:checked").each(function() {
-                filterParams[$(this).attr("name")] = true;
-            }).get();
+              if (storeNumber) {
+                  filterParams.storeNumberFilter = storeNumber;
+              }
+              if (storeName) {
+                  filterParams.storeNameFilter = storeName;
+              }
 
-            globalSortParams = sortParams;
+              // Always include showDeletedFilter (false by default)
+              filterParams.showDeletedFilter = $("#showDeletedFilter").is(":checked");
+
+              globalSortParams = sortParams || {max: 50, offset: 0, sort: 'storeNumber', order: 'ASC'};
 
             $.extend(filterParams, globalSortParams);
 
@@ -49,6 +49,11 @@
                 data: filterParams,
                 success: function(resp) {
                     $('#results-container').html(resp);
+                    $("#loading-indicator").hide();
+                },
+                error: function() {
+                    $("#loading-indicator").hide();
+                    alert('Failed to load stores');
                 }
             });
         }
@@ -63,7 +68,9 @@
                 $(this).prop("checked", false);
             }).get();
 
-            getStores();
+             $('#results-container').html("");
+             $("#resetInventoryContainer").hide();
+             $("#results-container").show();
         }
 
         function filter(inputName, dropDownName) {
@@ -102,10 +109,6 @@
             <div class="col-6 offset-3">
                 <h2 id="page-title" class="mx-auto my-auto">Reset Store Inventory Figures</h2>
             </div>
-
-            <div class="col-3 text-right">
-                <button id="ExitButton" type="button" class="btn btn-danger" onclick="">Exit</button>
-            </div>
         </div>
     </section>
 
@@ -115,17 +118,17 @@
         <div class="row mt-3">
             <div class="col-6">
                 <div id="filters" class="card bg-light border-wl">
-                    <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="collapseExample">
+                    <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="collapseExample">
                         <div class="row">
                             <div class="col-10">Store Search</div>
                             <div class="col-2 text-right">
-                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-up-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
                                 </svg>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body collapse" id="filterCollapse">
+                    <div class="card-body collapse show" id="filterCollapse">
                         <g:form name="filtersForm" id="filtersForm">
                             <div class="form-group row">
                                 <label for="storeNumberFilter" class="col-3 col-form-label-sm text-right">Store Number</label>
@@ -145,7 +148,7 @@
 
                                 <div class="col-12 text-right">
                                     <button id="filter-clear-button" type="button" class="btn btn-danger text-right" onclick="clearFilters();">Reset Filters</button>
-                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getStores();">Filter</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getStores(globalSortParams || {max: 50, offset: 0, sort: 'storeNumber', order: 'ASC'});">Search</button>
                                 </div>
                             </div>
                         </g:form>

@@ -1,43 +1,47 @@
 <script>
-
 $(document).ready(function () {
-                $('#saveButton').on('click', function () {
-                    // Collect checked store numbers
+    // Handle checkbox changes
+    $('input[name="selectedStocks"]').on('change', function () {
+        if ($(this).is(':checked')) {
+            $('input[name="selectedStocks"]').not(this).prop('checked', false);
+            $('#actionButtons').show(); // Show buttons when any checkbox is checked
+        } else {
+            // Hide buttons if no checkboxes are checked
+            if ($('input[name="selectedStocks"]:checked').length === 0) {
+                $('#actionButtons').hide();
+            }
+        }
+    });
 
-                    let selectedStore = $("input[name='selectedStocks']:checked")
-                                      .map(function () {
-                                          return this.value;
-                                      }).get();
+    $('#saveButton').on('click', function () {
+        let selectedStore = $("input[name='selectedStocks']:checked")
+                          .map(function () {
+                              return this.value;
+                          }).get();
 
-                       if (!selectedStore) {
-                            alert('Please select a store.');
-                            return;
-                        }
-                    $.ajax({
-                        url: "${createLink(controller: 'stock', action: 'ajaxResetInventoryTemplate')}",
-                        type: "GET",
-                        traditional: true,
-                        data: {
-                                    selectedStore: selectedStore
-                        },
-                        success: function (response) {
-                            console.log("AJAX response:", response);
-                            $('#results-container').hide();
-                            $('#resetInventoryContainer').html(response).show();
-                        },
-                        error: function () {
-                            alert('Failed to load template');
-                        }
-                    });
-                });
-            });
-             $(document).ready(function () {
-                    $('input[name="selectedStocks"]').on('change', function () {
-                        if ($(this).is(':checked')) {
-                            $('input[name="selectedStocks"]').not(this).prop('checked', false);
-                        }
-                    });
-                });
+        if (!selectedStore) {
+            alert('Please select a store.');
+            return;
+        }
+
+        $.ajax({
+            url: "${createLink(controller: 'stock', action: 'ajaxResetInventoryTemplate')}",
+            type: "GET",
+            traditional: true,
+            data: {
+                selectedStore: selectedStore
+            },
+            success: function (response) {
+                console.log("AJAX response:", response);
+                $('#results-container').hide();
+                $('#resetInventoryContainer').html(response).show();
+            },
+            error: function () {
+                alert('Failed to load template');
+            }
+        });
+    });
+});
 </script>
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <div class="col-2 font-weight-bold"><a id="product-list-store-number" href="#" onclick="getStores({
@@ -70,22 +74,24 @@ $(document).ready(function () {
     <g:if test="${!stores || stores?.size() == 0}">
         <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No stores found.</div>
     </g:if>
-
-    <g:each in="${stores}" var="store" status="i">
-        <div id="store-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" ">
-            <div id="store-number-${i + 1}" class="col-2 my-auto">${store.config.storeNumber}</div>
-            <div id="store-name-${i + 1}" class="col-2 my-auto">${store.config.storeName}</div>
-            <div class="col-3 my-auto text-right">
-                 <g:checkBox name="selectedStocks" id="selectedStock${i + 1}"
-                             value="${store.config.storeNumber}-${store.config.storeName}"
-                             class="form-check-input wl-checkbox" checked="false"/>
+    <g:else>
+        <g:each in="${stores}" var="store" status="i">
+            <div id="store-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" ">
+                <div id="store-number-${i + 1}" class="col-2 my-auto">${store.config.storeNumber}</div>
+                <div id="store-name-${i + 1}" class="col-4 my-auto">${store.config.storeName}</div>
+               <div>
+                   <g:checkBox name="selectedStocks" id="selectedStock${i + 1}"
+                               value="${store.config.storeNumber}-${store.config.storeName}"
+                               class="form-check-input wl-checkbox my-auto" checked="${false}"/>
+               </div>
             </div>
+        </g:each>
+
+        <div class="col-12 text-right mt-3 " id="actionButtons" style="display: none;">
+            <button id="cancelButton" type="button" class="btn btn-danger text-right" onclick="">Cancel</button>
+            <button id="saveButton" type="button" class="btn btn-wl text-right" onclick="">Save</button>
         </div>
-    </g:each>
-    <div class="col-12 text-right">
-        <button id="cancelButton" type="button" class="btn btn-danger text-right" onclick="">Cancel</button>
-        <button id="saveButton" type="button" class="btn btn-wl text-right" onclick="">Save</button>
-    </div>
+    </g:else>
 </div>
 
 <div class="my-3 text-right">

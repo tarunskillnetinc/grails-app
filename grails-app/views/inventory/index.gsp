@@ -205,7 +205,7 @@
 
             <div class="col-3 text-right">
                 <button id="createAdjustmentButton" type="button" class="btn btn-wl mt-1" onclick="createStockAdjustmentClicked()">Create Stock Adjustment</button>
-                <button id="cancelButton" type="button" class="btn btn-wl mt-1" onclick="">Cancel</button>
+                <button id="cancelButton" type="button" class="btn btn-wl mt-1" onclick="window.location.href='${createLink(uri: '/')}'">Cancel</button>
             </div>
 
     </section>
