@@ -233,19 +233,32 @@
         }
 
 		  function updateSelectAllCheckbox() {
-			  var allChecked = true;
-			  var anyChecked = false;
+              var allChecked = true;
+              var anyChecked = false;
 
-			  $('.store-checkbox').each(function() {
-				  if($(this).is(':checked')) {
-					  anyChecked = true;
-				  } else {
-					  allChecked = false;
-				  }
-			  });
+              $('.store-checkbox').each(function() {
+                  if($(this).is(':checked')) {
+                      anyChecked = true;
+                  } else {
+                      allChecked = false;
+                  }
+              });
 
-			  $('#selectAllStores').prop('checked', allChecked);
-		  }
+              $('#selectAllStores').prop('checked', allChecked);
+              $('.save-stores-btn').toggle(anyChecked);
+          }
+
+          $(document).ready(function() {
+              // Initialize checkbox handlers
+              $('#selectAllStores').on('change', function() {
+                  $('.store-checkbox').prop('checked', $(this).is(':checked'));
+                  updateSelectAllCheckbox();
+              });
+
+              $(document).on('change', '.store-checkbox', function() {
+                  updateSelectAllCheckbox();
+              });
+          });
 
 
 		 var currentProductId = null;
@@ -309,17 +322,15 @@
 
 
 		function checkProductsAndEnableStoreButton() {
-			var hasProducts = $('#productList').children().length > 1 ||
-							 ($('#productList').children().length === 1 && !$('#noResultsRow').is(':visible'));
+            var hasProducts = $('#productList').children().length > 1 ||
+                             ($('#productList').children().length === 1 && !$('#noResultsRow').is(':visible'));
 
-			$('#addStoresButton').prop('disabled', !hasProducts);
-
-			if (!hasProducts) {
-				$('#addStoresButton').attr('title', 'Please add products first');
-			} else {
-				$('#addStoresButton').removeAttr('title');
-			}
-		}
+            if (hasProducts) {
+                $('#addStoresButton').removeClass('hidden');
+            } else {
+                $('#addStoresButton').addClass('hidden');
+            }
+        }
 
 		function removeProduct(productId) {
 			var removeUrl = "${createLink(controller: 'inventory', action: 'ajaxRemoveProduct')}";
@@ -639,9 +650,9 @@
 				</div>
 
 				<div class="col-3 text-right">
+					 <button id="addProductButton" type="button" class="btn btn-wl mt-1" data-toggle="modal" data-target="#inventoryProductSearchModal">Add Product(s)</button>
 					 <button id="cancelButton" type="button" class="btn btn-wl mt-1" onclick="window.location.href='${createLink(controller: 'inventory', action: 'index')}'">Cancel</button>
-				 <!---   <button id="saveButton" type="button" class="btn btn-wl mt-1" onclick="">Save</button>--->
-					<button id="saveButton" type="button" class="btn btn-wl mt-1">Save</button>
+
 				</div>
 			</div>
 		</section>
@@ -652,11 +663,11 @@
 		</section>
 		</section>
 
-		 <div class="row mx-5 pt-3 pb-2" style="display: flex; align-items: center;">
-			  <div class="col-12 text-right">
-				<button id="addProductButton" type="button" class="btn btn-wl mt-1" data-toggle="modal" data-target="#inventoryProductSearchModal">Add Product(s)</button>
-			    <button type="button" class="btn btn-wl mt-1" id="addStoresButton" data-toggle="modal" data-target="#addStoresModal" onclick="setCurrentProductId('${product?.id}')" disabled>Add Stores(s)</button>			  </div>
-			  </div>
+		 <div class="row mx-3 pt-3 pb-2" style="display: flex; justify-content: flex-end;">
+			  <div class="col-5 text-right">
+                    <button type="button" class="btn btn-wl mt-1 hidden " id="addStoresButton" data-toggle="modal" data-target="#addStoresModal" onclick="setCurrentProductId('${product?.id}')" >Add Stores(s)</button>			  </div>
+                    <button id="saveButton" type="button" class="btn btn-success mt-1">Save</button>
+              </div>
 
 		 <div class="row mt-4 ml-0 mr-0 bottom-border">
 			   <div class="col my-auto font-weight-bold">Item Code</div>
@@ -709,15 +720,15 @@
 									</div>
 									<div class="card-body collapse show" id="filterCollapse">
 										<div class="form-group row">
-											<label for="modalStoreNumberFilter" class="col-3 col-form-label-sm text-right">Store Number</label>
-											<div class="col-4">
-												<input id="modalStoreNumberFilter" type="number" min="0" max="2147483647" name="storeNumberFilter" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
-											</div>
-											<div class="col-5 text-right">
-												<button id="filter-clear-button" type="button" class="btn btn-danger" onclick="clearStoreFilters();">Reset Filter</button>
-												<button type="button" class="btn btn-success" onclick="addSelectedStores()">Save</button>
-											</div>
-										</div>
+                                            <label for="modalStoreNumberFilter" class="col-3 col-form-label-sm text-right">Store Number</label>
+                                            <div class="col-4">
+                                                <input id="modalStoreNumberFilter" type="number" min="0" max="2147483647" name="storeNumberFilter" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+                                            </div>
+                                            <div class="col-5 text-right">
+                                                <button id="filter-clear-button" type="button" class="btn btn-danger" onclick="clearStoreFilters();">Reset Filter</button>
+                                                <button type="button" class="btn btn-success save-stores-btn" onclick="addSelectedStores()" style="display: none;">Save</button>
+                                            </div>
+                                        </div>
 
 										<div class="form-group row">
 											<label for="modalStoreNameFilter" class="col-3 col-form-label-sm text-right">Store Name</label>

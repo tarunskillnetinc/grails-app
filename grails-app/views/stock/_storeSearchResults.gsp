@@ -88,7 +88,7 @@ $(document).ready(function () {
         </g:each>
 
         <div class="col-12 text-right mt-3 " id="actionButtons" style="display: none;">
-            <button id="cancelButton" type="button" class="btn btn-danger text-right" onclick="">Cancel</button>
+            <button id="cancelButton" type="button" class="btn btn-wl mt-1" onclick="window.location.href='${createLink(uri: '/stock')}'">Cancel</button>
             <button id="saveButton" type="button" class="btn btn-wl text-right" onclick="">Save</button>
         </div>
     </g:else>
