@@ -233,32 +233,19 @@
         }
 
 		  function updateSelectAllCheckbox() {
-              var allChecked = true;
-              var anyChecked = false;
+			  var allChecked = true;
+			  var anyChecked = false;
 
-              $('.store-checkbox').each(function() {
-                  if($(this).is(':checked')) {
-                      anyChecked = true;
-                  } else {
-                      allChecked = false;
-                  }
-              });
+			  $('.store-checkbox').each(function() {
+				  if($(this).is(':checked')) {
+					  anyChecked = true;
+				  } else {
+					  allChecked = false;
+				  }
+			  });
 
-              $('#selectAllStores').prop('checked', allChecked);
-              $('.save-stores-btn').toggle(anyChecked);
-          }
-
-          $(document).ready(function() {
-              // Initialize checkbox handlers
-              $('#selectAllStores').on('change', function() {
-                  $('.store-checkbox').prop('checked', $(this).is(':checked'));
-                  updateSelectAllCheckbox();
-              });
-
-              $(document).on('change', '.store-checkbox', function() {
-                  updateSelectAllCheckbox();
-              });
-          });
+			  $('#selectAllStores').prop('checked', allChecked);
+		  }
 
 
 		 var currentProductId = null;
@@ -720,15 +707,15 @@
 									</div>
 									<div class="card-body collapse show" id="filterCollapse">
 										<div class="form-group row">
-                                            <label for="modalStoreNumberFilter" class="col-3 col-form-label-sm text-right">Store Number</label>
-                                            <div class="col-4">
-                                                <input id="modalStoreNumberFilter" type="number" min="0" max="2147483647" name="storeNumberFilter" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
-                                            </div>
-                                            <div class="col-5 text-right">
-                                                <button id="filter-clear-button" type="button" class="btn btn-danger" onclick="clearStoreFilters();">Reset Filter</button>
-                                                <button type="button" class="btn btn-success save-stores-btn" onclick="addSelectedStores()" style="display: none;">Save</button>
-                                            </div>
-                                        </div>
+											<label for="modalStoreNumberFilter" class="col-3 col-form-label-sm text-right">Store Number</label>
+											<div class="col-4">
+												<input id="modalStoreNumberFilter" type="number" min="0" max="2147483647" name="storeNumberFilter" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+											</div>
+											<div class="col-5 text-right">
+												<button id="filter-clear-button" type="button" class="btn btn-danger" onclick="clearStoreFilters();">Reset Filter</button>
+												<button type="button" class="btn btn-success" onclick="addSelectedStores()">Save</button>
+											</div>
+										</div>
 
 										<div class="form-group row">
 											<label for="modalStoreNameFilter" class="col-3 col-form-label-sm text-right">Store Name</label>
