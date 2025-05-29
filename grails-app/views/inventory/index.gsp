@@ -219,7 +219,7 @@
      <div class="row mx-5 pt-3 pb-2" style="display: flex; align-items: center;">
          <label for="status" class="col-1 col-form-label-sm text-right">Status</label>
          <div class="input-group-append">
-             <g:select id="statusSelect" name="statusSelect" from="${['All', 'Pending', 'In progress', 'Complete', 'Scheduled']}" value="" valueMessagePrefix="reasonCodeSelect" class="form-control select-border" style="z-index: 0;" />
+             <g:select id="statusSelect" name="statusSelect" from="${['All', 'Complete', 'Scheduled']}" value="" valueMessagePrefix="reasonCodeSelect" class="form-control select-border" style="z-index: 0;" />
          </div>
          <div class="col-12 text-right" style="max-width:71%">
              <button id="uploadBtn" type="button" class="btn btn-wl mt-1">Upload CSV</button>
