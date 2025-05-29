@@ -89,7 +89,7 @@ $(document).ready(function () {
 
         <div class="col-12 text-right mt-3 " id="actionButtons" style="display: none;">
             <button id="cancelButton" type="button" class="btn btn-wl mt-1" onclick="window.location.href='${createLink(uri: '/stock')}'">Cancel</button>
-            <button id="saveButton" type="button" class="btn btn-wl text-right" onclick="">Save</button>
+            <button id="saveButton" type="button" class="btn btn-success mt-1 text-right" onclick="">Save</button>
         </div>
     </g:else>
 </div>
