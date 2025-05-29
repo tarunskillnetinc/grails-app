@@ -522,4 +522,21 @@ class InventoryController {
         }
     }
 
+    // Add this method to your InventoryController.groovy
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSearchReasonCodes() {
+        def searchTerm = params.searchTerm?.toLowerCase()?.trim()
+        def reasonCodes = []
+
+        if (searchTerm) {
+            // Search reason codes by description containing the search term
+            reasonCodes = reasonCodeService.getReasonCodesByRetailer(springSecurityService.principal.retailerId)
+                    .findAll { it.description.toLowerCase().contains(searchTerm) }
+        }
+
+        render(template: "/inventory/reasonCodeSearchResults", model: [reasonCodes: reasonCodes])
+    }
+
+
 }

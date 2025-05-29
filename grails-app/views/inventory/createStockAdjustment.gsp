@@ -9,6 +9,57 @@
 		  <asset:javascript src="jquery-ui.js" />
 		  <asset:stylesheet src="jquery-ui.css" />
 	<script>
+
+	$(document).ready(function () {
+           $('#uploadBtn').click(function () {
+               $('#csvFile').click();
+             });
+
+             $('#csvFile').on('change', function () {
+               if (this.files.length > 0) {
+
+                         let fileInput = $("#csvFile")[0];
+                         if (!fileInput.files.length) {
+                             alert("Please select a CSV file.");
+                             return;
+                         }
+
+                         let formData = new FormData();
+                         formData.append("csvFile", fileInput.files[0]);
+
+                         $.ajax({
+                             url: "${createLink(controller: 'inventory', action: 'ajaxImportCSV')}",
+                             type: "POST",
+                             data: formData,
+                             processData: false,
+                             contentType: false,
+                             success: function (response) {
+                                 $("#fileName").text(response.file);
+                                 $("#totalLines").text(response.total);
+                                 $("#successLines").text(response.success);
+                                 $("#errorLines").text(response.errors);
+                                 $("#errorLog").val(response.errorLog.join('\n'));
+                                 $("#csvDialog").dialog({
+                                     modal: true,
+                                     width: 600
+                                 });
+                             },
+                             error: function (xhr) {
+                                 alert("Upload failed: " + xhr.statusText);
+                             }
+                         });
+               }
+             });
+
+              $(document).on('productAdded', function() {
+                                  $('#uploadBtn').hide();
+                                  $('#addStoresButton').show();
+                              });
+
+
+             });
+
+
 		var lastSelectedStores = [];
 
 		function productSelected(id, itemCode, description) {
@@ -70,6 +121,8 @@
 
                     // Enable store button if needed
                     checkProductsAndEnableStoreButton();
+                    $(document).trigger('productAdded');
+
                 },
                 error: function(xhr) {
                     if (warningMessage.length) {
@@ -649,6 +702,7 @@
             }, 5000);
         }
 	</script>
+
 	</head>
 
 	<body>
@@ -690,6 +744,7 @@
 
 		 <div class="row mx-3 pt-3 pb-2" style="display: flex; justify-content: flex-end;">
 			  <div class="col-5 text-right">
+			        <button id="uploadBtn" type="button" class="btn btn-wl mt-1">Upload CSV</button> <input type="file" id="csvFile" name="csvFile" accept=".csv,.CSV" style="display:none" oncancel="resetExclusionInput()">
                     <button type="button" class="btn btn-wl mt-1 hidden " id="addStoresButton" data-toggle="modal" data-target="#addStoresModal" onclick="setCurrentProductId('${product?.id}')" >Add Stores(s)</button>			  </div>
                     <button id="saveButton" type="button" class="btn btn-success mt-1 hidden">Save</button>
               </div>
@@ -874,37 +929,58 @@
 	</div>
 
 	<!-- View Adjustments Modal -->
-	<div class="modal fade" id="viewAdjustmentsModal" tabindex="-1" role="dialog" aria-labelledby="viewAdjustmentsModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">Stock Adjustments</h5>
-					<button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
-                        Exit
-                    </button>
-				</div>
-				<div class="modal-body">
-					<table class="table table-bordered">
-						<thead class="thead-light">
-							<tr>
-								<th>Store ID</th>
-								<th>Store Name</th>
-								<th>Item Code</th>
-								<th>Barcode</th>
-								<th>Description</th>
-								<th>Old Quantity</th>
-								<th>New Quantity</th>
-							</tr>
-						</thead>
-						<tbody id="adjustmentsTableBody">
-							<!-- Content will be populated by JavaScript -->
-						</tbody>
-					</table>
-				</div>
+    <div class="modal fade" id="viewAdjustmentsModal" tabindex="-1" role="dialog" aria-labelledby="viewAdjustmentsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content" style="padding: 15px">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Stock Adjustments</h5>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                            Exit
+                        </button>
+                    </div>
+                    <div class="modal-body" style="padding: 0;">
+                        <div style="max-height: 60vh; overflow-y: auto;">
+                            <table class="table table-bordered" style="margin-bottom: 0;">
+                                <thead class="thead-light" style="position: sticky; top: 0; background: white; z-index: 1;">
+                                    <tr>
+                                        <th>Store ID</th>
+                                        <th>Store Name</th>
+                                        <th>Item Code</th>
+                                        <th>Barcode</th>
+                                        <th>Description</th>
+                                        <th>Old Quantity</th>
+                                        <th>New Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adjustmentsTableBody">
+                                    <!-- Content will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-			</div>
-		</div>
-	</div>
+        <div id="csvDialog" title="" style="display:none;text-align: center;">
+                <p>Import file <span id="fileName">[File Name]</span> contains <span id="totalLines">0</span>
+                  Inventory Adjustment Lines
+                </p>
+                <p><span id="successLines">0</span> lines read in successfully</p>
+                <p><span id="errorLines">0</span> lines reported error</p>
+
+                <div>
+                    <p><strong>Error Log:</strong></p>
+                    <textarea id="errorLog" rows="5" style="width: 100%;" readonly></textarea>
+                </div>
+
+                <p style="font-weight:bold;">You are about to adjust/overwrite stock levels of the product(s) selected within the store(s) assigned.</p>
+                <p style="font-weight:bold;">Do you wish to continue</p>
+
+                <button id="cancelBtn" class="btn btn-danger" onclick="handleCancel()">Cancel</button>
+                <button id="confirmBtn" class="btn btn-success">Continue</button>
+            </div>
+
 
 	</body>
 	</html>

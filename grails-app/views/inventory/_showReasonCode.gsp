@@ -9,16 +9,53 @@
         <input type="text" class="form-control" placeholder="Search for a reason code" id="reasonCodeSearchInput" onkeyup="ajaxSearchReasonCode()">
     </div>
 
-    <div id="supplierListView">
-        <g:each in="${reasonCodes}" var="reasonCode" status="i">
-            <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Select Reason Code." onclick="selectReasonCode(${reasonCode.id})">
-                <div id="reasonCode-name-${i + 1}" class="col-12 text-truncate-wrap">${reasonCode.description}</div>
-            </div>
-        </g:each>
+    <!-- Initially empty container that will be populated by search -->
+    <div id="supplierListView" style="overflow-y: auto;">
+        <!-- Reason codes will appear here after search -->
     </div>
 
 </div>
 
-<div class="modal-footer">
-    <button type="button" id="cancelShowReasonCodeButton" class="btn btn-secondary" onclick="cancelReasonCodeView()" data-dismiss="modal">Cancel</button>
-</div>
+
+
+<script>
+function ajaxSearchReasonCode() {
+    var searchTerm = $('#reasonCodeSearchInput').val().trim();
+
+    // If search term is empty, clear the results
+    if (searchTerm.length === 0) {
+        $('#supplierListView').html('');
+        return;
+    }
+
+    // Only search if user has entered at least 1 character
+    if (searchTerm.length >= 1) {
+        $.ajax({
+            url: "${createLink(controller: 'inventory', action: 'ajaxSearchReasonCodes')}",
+            type: "GET",
+            data: {
+                searchTerm: searchTerm
+            },
+            success: function(response) {
+                $('#supplierListView').html(response);
+            },
+            error: function(xhr) {
+                $('#supplierListView').html('<div class="alert alert-danger">Error searching reason codes</div>');
+            }
+        });
+    }
+}
+
+// Clear search results when modal is closed
+function cancelReasonCodeView() {
+    $('#reasonCodeSearchInput').val('');
+    $('#supplierListView').html('');
+}
+
+// Also clear when modal is opened (in case it was previously used)
+$('#showReasonCodeModal').on('shown.bs.modal', function () {
+    $('#reasonCodeSearchInput').val('');
+    $('#supplierListView').html('');
+    $('#reasonCodeSearchInput').focus(); // Auto-focus the search input
+});
+</script>
