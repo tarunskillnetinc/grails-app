@@ -463,7 +463,9 @@ class InventoryController {
             render status: 400, text: "No stores provided"
             return
         }
-
+        ProductListStore.withTransaction {
+            ProductListStore.executeUpdate("DELETE FROM ProductListStore WHERE productList.id = :productListId", [productListId: productListId])
+        }
         try {
             ProductList.withTransaction { status ->
                 def productList = ProductList.get(productListId)
@@ -471,6 +473,8 @@ class InventoryController {
                     render status: 404, text: "Product list not found"
                     return
                 }
+
+//                ProductListStore.executeQuery("""DELETE FROM ProductListStore WHERE productlistId = :productlistId""", [productListId: productListId])
 
                 // Get all product list items
                 def productListItems = ProductListItem.findAllByProductList(productList)
