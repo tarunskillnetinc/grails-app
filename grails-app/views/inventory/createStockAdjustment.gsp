@@ -525,8 +525,6 @@
                          var stores = JSON.parse(storesData);
                          var productRow = $('#product' + productId);
 
-                         // Debug: Log the entire product row HTML
-                         console.log("Product Row HTML:", productRow.html());
 
                          // Find all elements with IDs starting with 'prod-' in this row
                          var prodElements = productRow.find('[id^="prod-"]');
@@ -537,14 +535,7 @@
                          var barcode = productRow.find('[id$="-sku"]').text().trim();
                          var description = productRow.find('[id$="-description"]').text().trim();
                          var amendedQty = productRow.find('input[type="number"]').val() || '0';
-
-                         // Debug: Log the retrieved values
-                         console.log("Retrieved values:", {
-                             itemCode: itemCode,
-                             barcode: barcode,
-                             description: description,
-                             amendedQty: amendedQty
-                         });
+						 var oldQty = productRow.find('.aggregated-quantity').text().trim() || '';
 
                          // Clear previous content
                          $('#adjustmentsTableBody').empty();
@@ -558,7 +549,7 @@
                                  '   <td>' + itemCode + '</td>' +
                                  '   <td>' + barcode + '</td>' +
                                  '   <td>' + description + '</td>' +
-                                 '   <td>20</td>' + // Assuming current quantity is always 20 as shown in your template
+                                 '   <td>' + oldQty + '</td>' +
                                  '   <td>' + amendedQty + '</td>' +
                                  '</tr>'
                              );
@@ -622,6 +613,17 @@
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({stores: selectedStores}),
+					success: function(resp) {
+                     // resp is expected to be JSON: { productId1: quantity1, productId2: quantity2, ... }
+                     console.log("Received updated quantities:", resp);
+
+                     // Update the aggregated quantity for each product in the list
+                     for (const productId in resp) {
+                         if (resp.hasOwnProperty(productId)) {
+                             const aggregatedQuantity = resp[productId];
+                             $('#product' + productId).find('.aggregated-quantity').text(aggregatedQuantity || 0); // Update the span text
+                         }
+                     }},
                     error: function(xhr) {
                         $('#failureMessage').text('Failed to save stores: ' + xhr.responseText).show();
                         setTimeout(function() {
@@ -693,14 +695,14 @@
               </div>
 
 		 <div class="row mt-4 ml-0 mr-0 bottom-border">
-			   <div class="col my-auto font-weight-bold">Item Code</div>
-				   <div class="col my-auto font-weight-bold">Barcode</div>
-				   <div class="col my-auto font-weight-bold">Description</div>
-				   <div class="col my-auto font-weight-bold">Category</div>
-				   <div class="col my-auto  font-weight-bold">Aggregated Quantity</div>
-				   <div class="col my-auto  font-weight-bold">Amended Quantity</div>
-				   <div class="col my-auto font-weight-bold">Total Number of Stores</div>
-				   <div class="col my-auto font-weight-bold"></div>
+			   <div class="col-md-2 my-auto font-weight-bold">Item Code</div>
+				   <div class="col-md-2 my-auto font-weight-bold">Barcode</div>
+				   <div class="col-md-2 my-auto font-weight-bold">Description</div>
+				   <div class="col-md-1 my-auto font-weight-bold">Category</div>
+				   <div class="col-md-1 my-auto font-weight-bold">Aggregated Quantity</div>
+				   <div class="col-md-1 my-auto font-weight-bold">Amended Quantity</div>
+				   <div class="col-md-1 my-auto font-weight-bold">Total Number of Stores</div>
+				   <div class="col-md-2 my-auto font-weight-bold"></div> <%-- Actions column header --%>
 			   </div>
 			   <div id="productList" class="align-content-center mb-5">
 								   <g:if test="${(!productList?.productListItems || productList?.productListItems?.size() == 0) && (!unsavedVariants || unsavedVariants?.size() == 0) }">

@@ -472,13 +472,18 @@ class InventoryController {
                     return
                 }
 
+                // Get all product list items
+                def productListItems = ProductListItem.findAllByProductList(productList)
+                def stockSum = 0
+                def updatedQuantities = [:]
                 storeData.each { store ->
                     def storeInstance = Store.get(store)
                     if (!storeInstance) {
-                        log.warn("Store not found with ID: ${store.id}")
+                        log.warn("Store not found with ID: ${store}")
                         return
                     }
 
+                    // Save store association
                     def productListStore = new ProductListStore(
                         productList: productList,
                         store: storeInstance
@@ -489,8 +494,23 @@ class InventoryController {
                         throw new RuntimeException("Failed to save store association")
                     }
                     log.debug("Saved ProductListStore: ${productList.id} -> ${storeInstance.id}")
+
+                    productListItems.each { item ->
+                        def skuId = (item.productVariantId instanceof Long) ? item.productVariantId : item.productVariantId.toLong()
+                        stockSum += ProductStock.executeQuery("""
+                            select sum(quantityInStock)
+                            from ProductStock
+                            where sku = :sku and storeId = :storeId
+                        """, [sku: skuId, storeId: storeInstance.id])[0] ?: 0
+
+                        item.productQuantityInStock = stockSum
+                        if (!item.save()) {
+                            log.error("Failed to update product stock quantity: ${item.errors}")
+                        }
+                        updatedQuantities[skuId.toString()] = stockSum
+                    }
                 }
-                render status: 200, text: "Stores saved successfully"
+                render updatedQuantities as JSON
             }
         } catch (Exception e) {
             log.error("Failed to save stores", e)
