@@ -6,6 +6,24 @@
             $('#continueBtn').prop('disabled', !(store && user));
         });
     });
+
+    $(document).ready(function () {
+        $('#resetInventoryForm').on('submit', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    // This will handle the redirect from the controller
+                    window.location.href = "${createLink(controller:'stock', action:'index')}";
+                },
+                error: function(xhr) {
+                    alert('Error: ' + xhr.responseText);
+                }
+            });
+        });
+    });
 </script>
 
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
@@ -55,7 +73,7 @@
                     ${storeNumber}, ${storeName}</strong>.</p>
                 <p><strong>To action the 'Reset Store Inventory' please confirm you wish to continue by entering :</strong></p>
 
-                <g:form controller="stock" action="resetInventory" method="POST">
+                <g:form controller="stock" action="resetInventory" method="POST" id="resetInventoryForm">
                     <div class="form-group">
                         <label>The Store Number:</label>
                         <g:textField name="storeNumber" class="form-control" required="true"/>

@@ -18,7 +18,7 @@ class StockController {
     def storeService
     def rabbitService
     def stockService
-    
+
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
@@ -111,8 +111,8 @@ class StockController {
         // Retrieve the selected store ID from the session
         def selectedStoreIdInteger = session.selectedStoreIdForReset
         if (!selectedStoreIdInteger) {
-             render status: 400, text: "Selected store information not found in session. Please re-select the store."
-             return
+            render status: 400, text: "Selected store information not found in session. Please re-select the store."
+            return
         }
 
 
@@ -129,8 +129,8 @@ class StockController {
         def actualStoreNumber = selectedStore.retailerStoreId?.toString() // Convert to string for comparison
 
         if (storeNumber != actualStoreNumber) {
-             render status: 400, text: "Provided Store ID does not match the selected store."
-             return
+            render status: 400, text: "Provided Store ID does not match the selected store."
+            return
         }
 
         // 4. Validate Username
@@ -149,6 +149,8 @@ class StockController {
         }
 
         // 6. Return Success
-        render status: 200, text: "Stock reset job initiated successfully."
+        redirect(action: "index")
+        return
+
     }
 }
